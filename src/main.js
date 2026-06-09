@@ -5,6 +5,19 @@ import Lenis from 'lenis';
 // Register GSAP ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+// Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
+const DEBUG = window.location.hash.includes('debug') || localStorage.getItem('tworose_debug') === 'true';
+function logDebug(...args) {
+  if (DEBUG) {
+    console.log('%c[TwoRose Debug]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 3px 6px; border-radius: 4px; border: 1px solid #00e5ff;', ...args);
+  }
+}
+function logErrorDebug(...args) {
+  if (DEBUG) {
+    console.error('%c[TwoRose Debug Error]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 3px 6px; border-radius: 4px; border: 1px solid #ff3366;', ...args);
+  }
+}
+
 // Global Application State (Single Source of Truth)
 const STATE = {
   selectedCity: null,
@@ -89,6 +102,8 @@ function prewarmAround(activeIdx) {
     return sc && sc.video && sc.video.dataset.warmedUp !== 'true';
   });
 
+  logDebug(`Re-prioritizing prewarm queue for index ${activeIdx}. Pending warmups:`, pending);
+
   // 3. Clear the queue and load prioritized list
   prewarmQueue.length = 0;
   pending.forEach(idx => prewarmQueue.push(idx));
@@ -103,11 +118,18 @@ function warmupVideo(video) {
   if (!video || video.dataset.warmedUp === 'true') return;
   video.dataset.warmedUp = 'true';
   
+  logDebug(`Warming up video decoder for: ${video.id} (${video.getAttribute('src')})`);
+  
   video.preload = 'auto'; // Force full asset loading
   video.muted = true;
   video.playsInline = true;
   video.setAttribute('muted', '');
   video.setAttribute('playsinline', '');
+
+  // Track file loading errors
+  video.addEventListener('error', () => {
+    logErrorDebug(`Decoder resource loading error on ${video.id}:`, video.error);
+  });
   
   // Set up pending seek event listener
   video.addEventListener('seeked', () => {
@@ -116,10 +138,11 @@ function warmupVideo(video) {
       video.dataset.pendingSeek = ''; // clear
       const diff = Math.abs(video.currentTime - pending);
       if (diff > 0.01) {
+        logDebug(`Executing buffered seek on ${video.id} to ${pending}s`);
         try {
           video.currentTime = pending;
         } catch (e) {
-          // Ignore
+          logErrorDebug(`Seek failed during buffered callback on ${video.id}:`, e);
         }
       }
     }
@@ -130,15 +153,16 @@ function warmupVideo(video) {
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
+        logDebug(`Warmup play success on ${video.id}`);
         video.pause();
       }).catch(err => {
-        // Ignore aborted plays
+        logErrorDebug(`Warmup play interrupted on ${video.id}:`, err.message || err);
       });
     } else {
       video.pause();
     }
   } catch (e) {
-    // Silent warmup failure
+    logErrorDebug(`Warmup exception on ${video.id}:`, e);
   }
 }
 
@@ -738,8 +762,11 @@ function setupCinemaEngine() {
     cState.currentY += (cState.targetY - cState.currentY) * timeLerp;
     cState.currentVideoY += (cState.targetVideoY - cState.currentVideoY) * timeLerp;
  
-    // Prevent negative radius
-    if (cState.currentRadius < 0) cState.currentRadius = 0;
+    // Prevent NaN/negative interpolation errors
+    if (isNaN(cState.currentTime) || cState.currentTime < 0) cState.currentTime = 0;
+    if (isNaN(cState.targetTime) || cState.targetTime < 0) cState.targetTime = 0;
+    if (isNaN(cState.currentRadius) || cState.currentRadius < 0) cState.currentRadius = 0;
+    if (isNaN(cState.currentVideoY)) cState.currentVideoY = 50;
 
     // Clamp values dynamically to actual loaded video duration
     if (video && !isNaN(video.duration) && video.duration > 0) {
@@ -786,7 +813,7 @@ function setupCinemaEngine() {
           try {
             video.currentTime = cState.currentTime;
           } catch (e) {
-            // Ignore
+            logErrorDebug(`Direct seek failed on ${video.id}:`, e);
           }
         } else {
           // Store latest position in the pending queue
@@ -922,6 +949,8 @@ function setupCinemaEngine() {
         // Dynamic priority prewarming queue
         prewarmAround(activeIdx);
         
+        logDebug(`Active scene shifted to index: ${activeIdx}`);
+        
         // Snapping: Calculate initial target time and video Y position to prevent visual flashes
         let initialTargetTime = 0;
         let initialVideoY = 0;
@@ -950,7 +979,7 @@ function setupCinemaEngine() {
                 sc.video.currentTime = initialTargetTime;
               }
             } catch (e) {
-              // Silent snap seek failure
+              logErrorDebug(`Snap seek failed on active scene shift:`, e);
             }
           } else {
             sc.video.classList.remove('active');
@@ -1005,6 +1034,7 @@ function setupCinemaEngine() {
 
       if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
         cState.activeTextBlockIdx = targetTextBlockIdx;
+        logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
         textBlocks.forEach((block, idx) => {
           if (idx === targetTextBlockIdx) {
             block.classList.add('active');
@@ -1032,6 +1062,7 @@ function openBookingScreen() {
   if (!bookingRevealEl) return;
   
   if (bookingRevealEl.hasAttribute('hidden')) {
+    logDebug('Triggering final booking screen fade-in.');
     bookingRevealEl.removeAttribute('hidden');
     gsap.fromTo('.reveal-content-box',
       { scale: 0.95, opacity: 0 },
@@ -1045,6 +1076,7 @@ function openBookingScreen() {
 // ==========================================
 function closeBookingScreen() {
   if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
+    logDebug('Hiding booking screen.');
     bookingRevealEl.setAttribute('hidden', '');
   }
 }
@@ -1172,7 +1204,7 @@ function setupBookingReveal() {
         };
       }
 
-      console.log('Premium Booking Submitted with Rich Payload:', payload);
+      logDebug('Booking form submitted. Staging payload:', payload);
 
       if (city && city !== STATE.selectedCity) {
         setCityState(city);
