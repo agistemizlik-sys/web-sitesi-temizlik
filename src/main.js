@@ -1305,6 +1305,21 @@ function setupServicesModal() {
   
   servicesLink.addEventListener('click', (e) => {
     e.preventDefault();
+    
+    // Sync services modal selection with current booking form dropdown value
+    const formServiceSelect = document.getElementById('cService');
+    if (formServiceSelect && formServiceSelect.value) {
+      const targetService = formServiceSelect.value;
+      const matchingItem = Array.from(serviceItems).find(el => el.dataset.service === targetService);
+      if (matchingItem) {
+        serviceItems.forEach(el => el.classList.remove('active'));
+        matchingItem.classList.add('active');
+        currentServiceType = targetService;
+        currentBasePrice = parseFloat(matchingItem.dataset.basePrice || 15);
+        logDebug(`Syncing services modal with booking form value: ${targetService}`);
+      }
+    }
+    
     servicesModal.removeAttribute('hidden');
     if (STATE.lenisInstance) STATE.lenisInstance.stop();
     
