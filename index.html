@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>TwoRoseCleaning | Sinematik İnteraktif Temizlik Deneyimi</title>
+  <meta name="description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
+  <meta name="theme-color" content="#000000">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  
+  <!-- Sync Gateway Bypass to prevent visual flash on cached reloads -->
+  <script>
+    (function() {
+      try {
+        var savedCity = localStorage.getItem('tworose_city');
+        if (savedCity) {
+          document.documentElement.classList.add('bypassing-gateway');
+          document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.remove('flag-selection-mode');
+            var portal = document.getElementById('portal-stage');
+            if (portal) portal.style.setProperty('display', 'none', 'important');
+          });
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="flag-selection-mode">
+  
+  <!-- Accessibility skip link -->
+  <a href="#main-content" class="sr-only">Ana içeriğe atla</a>
+  
+  <h1 class="sr-only">TwoRose Cleaning - Sinematik ve İnteraktif Premium Temizlik Hizmetleri</h1>
+
+  <!-- ==========================================
+       PORTAL GATEWAY (Giriş & 6 Şehir Seçimi)
+       ========================================== -->
+  <section id="portal-stage" aria-label="Giriş Geçidi ve Şehir Seçimi">
+    <canvas id="dust-canvas" aria-hidden="true"></canvas>
+    
+    <div class="portal-grid-bg" aria-hidden="true">
+      <div class="grid-line horizontal"></div>
+      <div class="grid-line vertical"></div>
+      <div class="hud-corners">
+        <div class="hud-bracket hud-tl"></div>
+        <div class="hud-bracket hud-tr"></div>
+        <div class="hud-bracket hud-bl"></div>
+        <div class="hud-bracket hud-br"></div>
+      </div>
+    </div>
+    
+    <span class="telemetry-tick telemetry-tl" aria-hidden="true">SYS.STATUS: ACTIVE // TRC V2</span>
+    <span class="telemetry-tick telemetry-tr" aria-hidden="true">LATENCY: 3MS // 60HZ</span>
+    <span class="telemetry-tick telemetry-bl" aria-hidden="true">COORDS: 39.93° N, 32.85° E</span>
+    <span class="telemetry-tick telemetry-br" aria-hidden="true">SSL_AES_256 // SECURE</span>
+
+    <div class="portal-logo-container parallax-layer" data-depth="0.04">
+      <div class="portal-logo-glow"></div>
+      <svg class="portal-main-logo" viewBox="0 0 100 80" width="60" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M35,40 C20,25 20,5 35,5 C50,5 50,25 35,40 Z" />
+        <path d="M65,40 C80,25 80,5 65,5 C50,5 50,25 65,40 Z" />
+      </svg>
+      <h2 class="portal-brand-name">TwoRose</h2>
+      <p class="portal-brand-sub">HYGIENE GATEWAY</p>
+    </div>
+
+    <!-- Center pulse text -->
+    <div class="portal-center-hint">ŞEHRİNİZİ SEÇİN ⌄</div>
+
+    <!-- 6'lı Şehir Grid Sistemi (Görsel Arka Planlı) -->
+    <div class="portal-columns-container">
+      
+      <!-- KART 1: İZMİR -->
+      <div class="cc-gateway-card" data-city="Izmir" data-market="ege" role="button" tabindex="0" aria-label="İzmir temizlik hizmetlerini seçin">
+        <div class="card-bg-image" style="background-image: url('/images/izmir_landmark.png');"></div>
+        <div class="card-bg-overlay"></div>
+        <div class="cc-shimmer" aria-hidden="true"></div>
+        <div class="cc-border-glow" aria-hidden="true"></div>
+        <span class="cc-flag-pill">🎪 İZMİR</span>
+        <h3 class="cc-gateway-title">İZMİR</h3>
+        <p class="cc-gateway-sub">Ege'nin İncisi</p>
+        <ul class="cc-features">
+          <li>Ev & Villa Temizliği</li>
+          <li>Otel & Tatil Köyü</li>
+          <li>Günlük Temizlik</li>
+        </ul>
+        <button class="city-select-btn" data-city="Izmir">SEÇ ➔</button>
+      </div>
+
+      <!-- KART 2: İSTANBUL -->
+      <div class="cc-gateway-card" data-city="Istanbul" data-market="marmara" role="button" tabindex="0" aria-label="İstanbul temizlik hizmetlerini seçin">
+        <div class="card-bg-image" style="background-image: url('/images/istanbul_landmark.png');"></div>
+        <div class="card-bg-overlay"></div>
+        <div class="cc-shimmer" aria-hidden="true"></div>
+        <div class="cc-border-glow" aria-hidden="true"></div>
+        <span class="cc-flag-pill">🗽 İSTANBUL</span>
+        <h3 class="cc-gateway-title">İSTANBUL</h3>
+        <p class="cc-gateway-sub">Kıtaların Buluşma Noktası</p>
+        <ul class="cc-features">
+          <li>Kurumsal Temizlik</li>
+          <li>İnşaat Sonrası</li>
+          <li>Endüstriyel Temizlik</li>
+        </ul>
+        <button class="city-select-btn" data-city="Istanbul">SEÇ ➔</button>
+      </div>
+
+      <!-- KART 3: SAKARYA -->
+      <div class="cc-gateway-card" data-city="Sakarya" data-market="marmara" role="button" tabindex="0" aria-label="Sakarya temizlik hizmetlerini seçin">
+        <div class="card-bg-image" style="background-image: url('/images/sakarya_landmark.png');"></div>
+        <div class="card-bg-overlay"></div>
+        <div class="cc-shimmer" aria-hidden="true"></div>
+        <div class="cc-border-glow" aria-hidden="true"></div>
+        <span class="cc-flag-pill">🌿 SAKARYA</span>
+        <h3 class="cc-gateway-title">SAKARYA</h3>
+        <p class="cc-gateway-sub">Yeşilin Başkenti</p>
+        <ul class="cc-features">
+          <li>Bahçe Temizliği</li>
+          <li>Villa Bakımı</li>
+          <li>Doğa Dostu Temizlik</li>
+        </ul>
+        <button class="city-select-btn" data-city="Sakarya">SEÇ ➔</button>
+      </div>
+
+      <!-- KART 4: KOCAELİ -->
+      <div class="cc-gateway-card" data-city="Kocaeli" data-market="marmara" role="button" tabindex="0" aria-label="Kocaeli temizlik hizmetlerini seçin">
+        <div class="card-bg-image" style="background-image: url('/images/kocaeli_landmark.png');"></div>
+        <div class="card-bg-overlay"></div>
+        <div class="cc-shimmer" aria-hidden="true"></div>
+        <div class="cc-border-glow" aria-hidden="true"></div>
+        <span class="cc-flag-pill">🏭 KOCAELİ</span>
+        <h3 class="cc-gateway-title">KOCAELİ</h3>
+        <p class="cc-gateway-sub">Sanayi'nin Kalbi</p>
+        <ul class="cc-features">
+          <li>Fabrika Temizliği</li>
+          <li>Depo & Lojistik</li>
+          <li>Endüstriyel Yıkama</li>
+        </ul>
+        <button class="city-select-btn" data-city="Kocaeli">SEÇ ➔</button>
+      </div>
+
+      <!-- KART 5: SAMSUN -->
+      <div class="cc-gateway-card" data-city="Samsun" data-market="karadeniz" role="button" tabindex="0" aria-label="Samsun temizlik hizmetlerini seçin">
+        <div class="card-bg-image" style="background-image: url('/images/samsun_landmark.png');"></div>
+        <div class="card-bg-overlay"></div>
+        <div class="cc-shimmer" aria-hidden="true"></div>
+        <div class="cc-border-glow" aria-hidden="true"></div>
+        <span class="cc-flag-pill">⚓ SAMSUN</span>
+        <h3 class="cc-gateway-title">SAMSUN</h3>
+        <p class="cc-gateway-sub">Karadeniz'in Kapısı</p>
+        <ul class="cc-features">
+          <li>Otel Temizliği</li>
+          <li>Deniz Sonrası</li>
+          <li>Mevsimsel Temizlik</li>
+        </ul>
+        <button class="city-select-btn" data-city="Samsun">SEÇ ➔</button>
+      </div>
+
+      <!-- KART 6: BALIKESİR -->
+      <div class="cc-gateway-card" data-city="Balikesir" data-market="ege" role="button" tabindex="0" aria-label="Balıkesir temizlik hizmetlerini seçin">
+        <div class="card-bg-image" style="background-image: url('/images/balikesir_landmark.png');"></div>
+        <div class="card-bg-overlay"></div>
+        <div class="cc-shimmer" aria-hidden="true"></div>
+        <div class="cc-border-glow" aria-hidden="true"></div>
+        <span class="cc-flag-pill">🌳 BALIKESİR</span>
+        <h3 class="cc-gateway-title">BALIKESİR</h3>
+        <p class="cc-gateway-sub">Doğanın Hazinesi</p>
+        <ul class="cc-features">
+          <li>Çiftlik & Konak</li>
+          <li>Tatil Evi Bakımı</li>
+          <li>Sezonluk Temizlik</li>
+        </ul>
+        <button class="city-select-btn" data-city="Balikesir">SEÇ ➔</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================
+       ANA SİTE İÇERİĞİ (Portal sonrası)
+       ========================================== -->
+  <main id="main-content" style="opacity: 0; pointer-events: none;">
+    
+    <!-- MINIMALIST STICKY NAV -->
+    <nav id="main-nav" aria-label="Ana Menü">
+      <div class="nav-container">
+        <a href="#" class="nav-logo" id="navLogo">
+          <svg class="logo-icon" viewBox="0 0 100 80" width="30" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M35,40 C20,25 20,5 35,5 C50,5 50,25 35,40 Z" />
+            <path d="M65,40 C80,25 80,5 65,5 C50,5 50,25 65,40 Z" />
+          </svg>
+          <span class="logo-text">TwoRoseCleaning</span>
+        </a>
+
+        <!-- Middle nav links matching second screenshot -->
+        <div class="nav-links">
+          <a href="#" class="nav-link-item active">ANA SAYFA</a>
+          <a href="#" class="nav-link-item" id="navServicesLink">HİZMETLER</a>
+          <a href="#" class="nav-link-item" id="navScrollerLink">SİNEMA</a>
+          <a href="#" class="nav-link-item" id="navContactLink">İLETİŞİM</a>
+        </div>
+
+        <div class="nav-actions">
+          <button class="nav-market-badge" id="citySwitcherBtn" title="Şehir Değiştir">
+            <span class="badge-label" id="currentCityLabel">İSTANBUL</span>
+          </button>
+        </div>
+      </div>
+      <div class="nav-progress-bar" id="navProgressBar"></div>
+    </nav>
+
+    <!-- INTERACTIVE SCROLL-SCRUB CINEMA SECTION -->
+    <section id="cinema-section">
+      
+      <!-- Video Stage -->
+      <div class="cinema-stage">
+        
+        <!-- Video 1: Mona Lisa (Toilet Cleaning) -->
+        <video id="video-scene-1" class="cinema-video active" src="/videos/monalisa.mp4" muted playsinline preload="auto"></video>
+        
+        <!-- Video 2: Samurai (Katana Cleaning) -->
+        <video id="video-scene-2" class="cinema-video" src="/videos/samurai.mp4" muted playsinline preload="metadata"></video>
+        
+        <!-- Video 3: Turkish Grandmother (Nene Cleaning) -->
+        <video id="video-scene-3" class="cinema-video" src="/videos/grandmother.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 4: Astronaut (Station Sterilization) -->
+        <video id="video-scene-4" class="cinema-video" src="/videos/astronaut.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 5: Cowboy (Saloon Cleaning) -->
+        <video id="video-scene-5" class="cinema-video" src="/videos/cowboy.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 6: Gandalf (Wizard Dusting) -->
+        <video id="video-scene-6" class="cinema-video" src="/videos/gandalf.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 7: Knight (Armor Cleaning) -->
+        <video id="video-scene-7" class="cinema-video" src="/videos/knight.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 8: Monk (Zen Garden Sweeping) -->
+        <video id="video-scene-8" class="cinema-video" src="/videos/monk.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 9: Roman (Arena Cleaning) -->
+        <video id="video-scene-9" class="cinema-video" src="/videos/roman.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 10: Sumo (Ring Disinfection) -->
+        <video id="video-scene-10" class="cinema-video" src="/videos/sumo.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 11: Duchess (Palace Cleaning) -->
+        <video id="video-scene-11" class="cinema-video" src="/videos/victorian.mp4" muted playsinline preload="metadata"></video>
+
+        <!-- Video 12: Viking (Shield/Ship Washing) -->
+        <video id="video-scene-12" class="cinema-video" src="/videos/viking.mp4" muted playsinline preload="metadata"></video>
+        
+        <!-- Cartoon Iris-Out Overlay Mask -->
+        <div class="cinema-iris-overlay" id="irisOverlay" aria-hidden="true"></div>
+
+        <!-- High-end Minimal Video Loader -->
+        <div class="cinema-loader" id="cinemaLoader" aria-hidden="true">
+          <div class="loader-spinner"></div>
+        </div>
+
+        <!-- Sahnelerin Yazı Overlay'leri -->
+        <div class="scene-text-overlay" id="sceneTextOverlay" aria-hidden="true">
+          <!-- Scene 1 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">RÖNESANS DÖNEMİ</span>
+            <h3 class="scene-text-title">Mona Lisa Hijyeni</h3>
+            <p class="scene-text-desc">Sanat eseri kadar değerli alanlarınız için müze kalitesinde hassas temizlik.</p>
+          </div>
+          <!-- Scene 2 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">FEODAL JAPONYA</span>
+            <h3 class="scene-text-title">Samuray Disiplini</h3>
+            <p class="scene-text-desc">Keskin, odaklanmış ve kusursuz temizlik prensipleriyle evinizde mutlak düzen.</p>
+          </div>
+          <!-- Scene 3 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">ANADOLU KLASİĞİ</span>
+            <h3 class="scene-text-title">Nene Titizliği</h3>
+            <p class="scene-text-desc">Geleneksel sabun kokusu ve çocukluğunuzun o saf, organik temizlik hissi.</p>
+          </div>
+          <!-- Scene 4 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">UZAY ÇAĞI</span>
+            <h3 class="scene-text-title">Kozmik Sterilizasyon</h3>
+            <p class="scene-text-desc">Yerçekimsiz alan titizliğinde, mikrop ve bakterilere karşı %100 koruma.</p>
+          </div>
+          <!-- Scene 5 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">VAHŞİ BATI</span>
+            <h3 class="scene-text-title">Vahşi Batı Esintisi</h3>
+            <p class="scene-text-desc">En zorlu çöl tozlarından ve çamur kalıntılarından derinlemesine arındırma.</p>
+          </div>
+          <!-- Scene 6 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">MİTOLOJİK ÇAĞ</span>
+            <h3 class="scene-text-title">Büyülü Dokunuş</h3>
+            <p class="scene-text-desc">Sihirli bir değnek değmiş gibi saniyeler içinde parıldayan yüzeyler.</p>
+          </div>
+          <!-- Scene 7 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">ORTA ÇAĞ</span>
+            <h3 class="scene-text-title">Zırh Parlaklığı</h3>
+            <p class="scene-text-desc">Metal, ahşap ve taş yüzeylerde kalıcı koruma sağlayan premium cila.</p>
+          </div>
+          <!-- Scene 8 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">UZAK DOĞU</span>
+            <h3 class="scene-text-title">Zen Dinginliği</h3>
+            <p class="scene-text-desc">Zihninizi rahatlatacak, tozdan ve karmaşadan arınmış minimalist yaşam alanları.</p>
+          </div>
+          <!-- Scene 9 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">ANTİK ROMA</span>
+            <h3 class="scene-text-title">İmparatorluk İhtişamı</h3>
+            <p class="scene-text-desc">Saraylara layık, mermer ve geniş alan temizliğinde antik güç.</p>
+          </div>
+          <!-- Scene 10 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">GELENEKSEL JAPONYA</span>
+            <h3 class="scene-text-title">Sumo Gücünde Hijyen</h3>
+            <p class="scene-text-desc">Zorlu lekelerle ve kirlerle başa çıkan devasa dezenfeksiyon gücü.</p>
+          </div>
+          <!-- Scene 11 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">VİKTORYA DÖNEMİ</span>
+            <h3 class="scene-text-title">Saray Konforu</h3>
+            <p class="scene-text-desc">Danteller, kadifeler ve değerli mobilyalarınız için kraliyet standartlarında bakım.</p>
+          </div>
+          <!-- Scene 12 -->
+          <div class="scene-text-block">
+            <span class="scene-text-tag">VİKİNG ÇAĞI</span>
+            <h3 class="scene-text-title">Kuzey Fırtınası</h3>
+            <p class="scene-text-desc">Zorlu mevsim şartlarına dayanıklı, dış cephe ve derinlemesine yıkama.</p>
+          </div>
+        </div>
+
+        <!-- ==========================================
+             HERO LANDING PAGE OVERLAY (Siteye ilk girildiğinde burası görünür)
+             ========================================== -->
+        <div class="cinema-hero-overlay" id="heroOverlay"></div>
+
+      </div>
+
+      <!-- FINAL BOOKING REVEAL SCREEN -->
+      <div class="booking-reveal-screen" id="bookingReveal" hidden>
+        <div class="reveal-backdrop"></div>
+        <div class="reveal-content-box">
+          <svg class="reveal-logo" viewBox="0 0 100 80" width="80" height="64" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M35,40 C20,25 20,5 35,5 C50,5 50,25 35,40 Z" />
+            <path d="M65,40 C80,25 80,5 65,5 C50,5 50,25 65,40 Z" />
+            <path d="M50,30 C50,55 35,75 50,75 C65,75 50,55 50,30 Z" stroke-dasharray="2 2" />
+          </svg>
+          
+          <h2 class="reveal-title">Efsanevi Temizlik Sona Erdi</h2>
+          <p class="reveal-subtitle">Kusursuz hijyen, sanat eseri gibi parlaklık. TwoRose ile evinizde efsanevi bir çağı başlatın.</p>
+          
+          <form class="reveal-form" id="bookingForm">
+            <div class="form-row-double">
+              <div class="form-field-cinema">
+                <label for="cName">AD SOYAD</label>
+                <input type="text" id="cName" required placeholder="Ahmet Yılmaz" />
+              </div>
+              <div class="form-field-cinema">
+                <label for="cPhone">TELEFON</label>
+                <input type="tel" id="cPhone" required placeholder="0555 555 55 55" />
+              </div>
+            </div>
+            
+            <div class="form-row-double">
+              <div class="form-field-cinema">
+                <label for="cCity">HİZMET ALINACAK ŞEHİR</label>
+                <select id="cCity" required>
+                  <option value="Izmir">İzmir</option>
+                  <option value="Sakarya">Sakarya</option>
+                  <option value="Istanbul">İstanbul</option>
+                  <option value="Kocaeli">Kocaeli</option>
+                  <option value="Samsun">Samsun</option>
+                  <option value="Balikesir">Balıkesir</option>
+                </select>
+              </div>
+              <div class="form-field-cinema">
+                <label for="cService">TEMİZLİK TÜRÜ</label>
+                <select id="cService">
+                  <option value="konut">Konut Temizliği</option>
+                  <option value="ofis">Ofis & Plaza Temizliği</option>
+                  <option value="insaat">İnşaat Sonrası Temizlik</option>
+                  <option value="hali">Halı & Koltuk Yıkama</option>
+                  <option value="dis-cephe">Dış Cephe Cam Temizliği</option>
+                  <option value="dezenfeksiyon">Dezenfeksiyon Hizmetleri</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="bookingSelectionSummary" class="booking-summary-box" style="display:none;">
+              Seçilen Paket: <span id="summaryText">...</span>
+            </div>
+
+            <button type="submit" class="cinema-submit-btn">REZERVASYON TALEBİ GÖNDER</button>
+          </form>
+
+          <!-- Başarı Ekranı -->
+          <div class="reveal-success-state" id="bookingSuccessState" hidden>
+            <div class="success-check">✓</div>
+            <h3>TALEBİNİZ ALINDI!</h3>
+            <p>Efsanevi hijyen kadromuz kısa süre içinde koordinatlarınızla eşleşecektir.</p>
+            <button type="button" class="success-ok-btn" id="successOkBtn">TEKRAR İZLE</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       HİZMETLER & FİYAT HESAPLAMA MODALI
+       ========================================== -->
+  <div id="services-modal" class="cinema-modal" hidden>
+    <div class="modal-backdrop" id="servicesBackdrop"></div>
+    <div class="modal-wrapper services-wrapper">
+      <button class="modal-close-btn" id="closeServicesBtn" aria-label="Kapat">&times;</button>
+      
+      <h2 class="modal-title">HİZMETLERİMİZ & FİYAT HESAPLAMA</h2>
+      <p class="modal-subtitle">Evinizin veya ofisinizin ihtiyacını seçin, tahmini temizlik maliyetini anında hesaplayın.</p>
+      
+      <div class="services-calculator-layout">
+        
+        <!-- Sol Panel: Hizmetlerin Listesi ve Detayları -->
+        <div class="services-list-panel">
+          <div class="service-item-detail active" data-service="konut" data-base-price="15">
+            <div class="service-icon">🏠</div>
+            <div class="service-text">
+              <h4>Ev & Villa Temizliği</h4>
+              <p>Oda, mutfak, banyo temizliği ve toz alma dahil tam paket hijyen.</p>
+            </div>
+          </div>
+          <div class="service-item-detail" data-service="ofis" data-base-price="12">
+            <div class="service-icon">🏢</div>
+            <div class="service-text">
+              <h4>Ofis & Plaza Temizliği</h4>
+              <p>Çalışma alanları, toplantı odaları ve ortak alanların sterilizasyonu.</p>
+            </div>
+          </div>
+          <div class="service-item-detail" data-service="insaat" data-base-price="25">
+            <div class="service-icon">🏗️</div>
+            <div class="service-text">
+              <h4>İnşaat Sonrası Temizlik</h4>
+              <p>Tüm boya, alçı ve ince moloz kalıntılarının derinlemesine arındırılması.</p>
+            </div>
+          </div>
+          <div class="service-item-detail" data-service="hali" data-base-price="8">
+            <div class="service-icon">🛋️</div>
+            <div class="service-text">
+              <h4>Halı & Koltuk Yıkama</h4>
+              <p>Yerinde yüksek basınçlı buharlı ve vakumlu kumaş temizleme.</p>
+            </div>
+          </div>
+          <div class="service-item-detail" data-service="dis-cephe" data-base-price="30">
+            <div class="service-icon">🧗</div>
+            <div class="service-text">
+              <h4>Dış Cephe Cam Temizliği</h4>
+              <p>Uzman dağcı/iskele ekipmanlarıyla yüksek katlı dış cam yıkama.</p>
+            </div>
+          </div>
+          <div class="service-item-detail" data-service="dezenfeksiyon" data-base-price="10">
+            <div class="service-icon">🧪</div>
+            <div class="service-text">
+              <h4>Dezenfeksiyon Hizmeti</h4>
+              <p>Sağlık Bakanlığı onaylı sisleme yöntemiyle antiviral koruma.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Sağ Panel: İnteraktif Hesaplama Aracı -->
+        <div class="estimator-calculator-panel">
+          <h3>TAHMİNİ FİYAT HESAPLAYICI</h3>
+          
+          <div class="calculator-inputs">
+            <div class="calc-field">
+              <label for="calc-area">ALAN (m²): <span id="area-val-label">100</span> m²</label>
+              <div class="range-display">
+                <input type="range" id="calc-area-range" value="100" min="20" max="500" step="5" />
+              </div>
+            </div>
+            
+            <div class="calc-field">
+              <label for="calc-frequency">TEMİZLİK SIKLIĞI</label>
+              <select id="calc-frequency">
+                <option value="1">Tek Seferlik Temizlik</option>
+                <option value="0.8">Haftalık Düzenli (%20 İndirim)</option>
+                <option value="0.9">Aylık Düzenli (%10 İndirim)</option>
+              </select>
+            </div>
+            
+            <div class="calc-field">
+              <label>EKSTRA DETAYLAR</label>
+              <div class="calc-checkbox-group">
+                <label class="calc-cb-label">
+                  <input type="checkbox" class="calc-extra-cb" value="300" />
+                  Detaylı Cam Temizliği (+300 TL)
+                </label>
+                <label class="calc-cb-label">
+                  <input type="checkbox" class="calc-extra-cb" value="250" />
+                  Fırın & Beyaz Eşya İçi (+250 TL)
+                </label>
+                <label class="calc-cb-label">
+                  <input type="checkbox" class="calc-extra-cb" value="200" />
+                  Balkon Yıkama (+200 TL)
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="calculator-result-box">
+            <span class="calc-result-lbl">YAKLAŞIK MALİYET</span>
+            <div class="calc-price" id="calc-price-display">₺1.500</div>
+            <p class="calc-disclaimer">KDV Dahildir. Şehir ve kir durumuna göre değişiklik gösterebilir.</p>
+            <button class="calc-apply-btn" id="calcApplyBtn">BU SEÇİMLE REZERVASYON YAP ➔</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

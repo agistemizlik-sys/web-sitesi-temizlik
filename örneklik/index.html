@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RUBRA — Pomegranate · Wellness · Luxury</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="RUBRA Pomegranate Wellness. A luxury scroll-driven cinematic experience showcasing the healing ritual of the pomegranate.">
+  <meta property="og:title" content="RUBRA — Pomegranate · Wellness · Luxury">
+  <meta property="og:description" content="A luxury scroll-driven cinematic experience showcasing the healing ritual of the pomegranate.">
+  <meta property="og:type" content="website">
+  
+  <!-- CDN Imports (exact order from CLAUDE.md) -->
+  <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.23/dist/lenis.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.3.23/dist/lenis.min.js"></script>
+
+  <!-- Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      overflow-x: hidden;
+      background-color: #000000;
+      color: #f5f0eb;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: #000000;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* Cinematic Film Grain Overlay */
+    .grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Fixed Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 30px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .nav-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 300;
+      letter-spacing: 5px;
+      color: #f5f0eb;
+      pointer-events: auto;
+      text-decoration: none;
+    }
+
+    .nav-shop {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 5px;
+      color: #f5f0eb;
+      pointer-events: auto;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(245, 240, 235, 0.2);
+      padding-bottom: 2px;
+      transition: border-color 0.3s ease;
+    }
+
+    .nav-shop:hover {
+      border-color: #c0002a;
+    }
+
+    /* Fixed Progress Bar Right Edge */
+    .progress-bar-container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 2px;
+      height: 100vh;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .progress-bar-fill {
+      width: 100%;
+      height: 0%;
+      background-color: #8b0000;
+    }
+
+    /* Section Eyebrow Styles */
+    .eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: rgba(245, 240, 235, 0.45);
+      margin-bottom: 15px;
+    }
+
+    /* 1. Hero Scroll Section (550vh Track) */
+    .hero-scroll-track {
+      height: 550vh;
+      position: relative;
+      background-color: #000000;
+    }
+
+    .hero-sticky-container {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Video & Image Fallback Stack */
+    .hero-media-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    #source-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0; /* JS fades in once loaded */
+      transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .hero-image-fallback {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    .fallback-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.1s linear;
+    }
+
+    .fallback-img.active-start {
+      opacity: 1;
+    }
+
+    /* Hero Ambient Spotlight Overlays */
+    .hero-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.85) 90%),
+                  linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.9) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Hero Text Overlays */
+    .hero-text-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      text-align: center;
+      width: 80%;
+      max-width: 900px;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      pointer-events: none;
+    }
+
+    .hero-text-overlay h1 {
+      font-family: 'Cormorant Garamond', serif;
+      color: #f5f0eb;
+      font-weight: 300;
+    }
+
+    .text-ruby {
+      font-size: clamp(60px, 8vw, 96px);
+      letter-spacing: 12px;
+    }
+
+    .text-orchard {
+      font-size: clamp(20px, 3.5vw, 28px);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .text-ritual {
+      font-size: clamp(32px, 5vw, 72px);
+      letter-spacing: 8px;
+      line-height: 1.2;
+    }
+
+    .hero-text-corner {
+      position: absolute;
+      top: 10%;
+      left: 8%;
+      transform: none;
+      text-align: left;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: #f5f0eb;
+      opacity: 0;
+      transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 3;
+    }
+
+    /* Scroll Indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: rgba(245, 240, 235, 0.45);
+      z-index: 3;
+      animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: translate(-50%, 0); }
+      100% { opacity: 0.8; transform: translate(-50%, 8px); }
+    }
+
+
+    /* 2. Sticky Product Explainer (300vh Section) */
+    .explainer-section {
+      position: relative;
+      background-color: #000000;
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+    }
+
+    .explainer-left {
+      width: 50%;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000000;
+      border-right: 1px solid rgba(245, 240, 235, 0.05);
+    }
+
+    .explainer-img-container {
+      width: 70%;
+      height: 70%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .explainer-img {
+      position: absolute;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.7));
+    }
+
+    .explainer-img.active {
+      opacity: 1;
+    }
+
+    .explainer-right {
+      width: 50%;
+      position: relative;
+    }
+
+    .explainer-panel {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 10%;
+      background-color: #000000;
+    }
+
+    .explainer-panel h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 4.5vw, 56px);
+      font-weight: 300;
+      color: #f5f0eb;
+      margin-bottom: 20px;
+    }
+
+    .explainer-panel p {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 1.5vw, 16px);
+      line-height: 1.8;
+      color: #a08080;
+      max-width: 450px;
+    }
+
+
+    /* 3. Horizontal Collection Rail */
+    .h-sticky {
+      position: relative;
+      overflow: hidden;
+      background-color: #000000;
+    }
+
+    .h-track {
+      display: flex;
+      width: 400vw;
+      height: 100vh;
+      will-change: transform;
+    }
+
+    .h-panel {
+      width: 100vw;
+      height: 100vh;
+      flex-shrink: 0;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Rail Panel Backgrounds */
+    .panel-1 {
+      background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('collection-bg.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .panel-2, .panel-3, .panel-4 {
+      background-color: #050002;
+    }
+
+    .panel-center-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(48px, 8vw, 100px);
+      font-weight: 300;
+      letter-spacing: 10px;
+      color: #f5f0eb;
+      text-align: center;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .panel-product-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .panel-product-img {
+      max-height: 70%;
+      max-width: 60%;
+      object-fit: contain;
+      filter: drop-shadow(0 15px 40px rgba(0,0,0,0.8));
+    }
+
+    .panel-text-bottom {
+      position: absolute;
+      bottom: 80px;
+      left: 80px;
+      z-index: 2;
+      text-align: left;
+    }
+
+    .panel-product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 300;
+      color: #f5f0eb;
+      letter-spacing: 4px;
+      margin-top: 5px;
+    }
+
+    /* 4. Stacking Ritual Cards */
+    .cards-section {
+      background-color: #000000;
+      padding: 100px 0 200px 0;
+      position: relative;
+    }
+
+    .cards-section-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .cards-container {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .card {
+      position: sticky;
+      height: 70vh;
+      width: 100%;
+      background-color: #000000;
+      border: 1px solid #c0002a;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 12vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 60px;
+      box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .card:nth-child(1) { top: 10vh; }
+    .card:nth-child(2) { top: 15vh; }
+    .card:nth-child(3) { top: 20vh; }
+
+    /* Card Media & Layers */
+    .card-media-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .card-fallback-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .card-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+    }
+
+    /* Film layers */
+    .card-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.9) 90%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Crimson light sweep animation */
+    .sweep-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(192, 0, 42, 0.12), transparent);
+      transform: translateX(-100%) skewX(-15deg);
+      z-index: 3;
+      pointer-events: none;
+      animation: lightSweep 6s infinite ease-in-out;
+    }
+
+    @keyframes lightSweep {
+      0% { transform: translateX(-100%) skewX(-15deg); }
+      40%, 100% { transform: translateX(200%) skewX(-15deg); }
+    }
+
+    .card:nth-child(1) .sweep-overlay { animation-delay: 0s; }
+    .card:nth-child(2) .sweep-overlay { animation-delay: 1.3s; }
+    .card:nth-child(3) .sweep-overlay { animation-delay: 2.6s; }
+
+    .card-bottom-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* Card Content */
+    .card-content {
+      position: relative;
+      z-index: 5;
+      max-width: 500px;
+    }
+
+    .card-num-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .card-accent-line {
+      width: 40px;
+      height: 1px;
+      background-color: #c0002a;
+    }
+
+    .card-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      color: #f5f0eb;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(48px, 8vw, 84px);
+      font-weight: 300;
+      color: #f5f0eb;
+      letter-spacing: 4px;
+      line-height: 1.0;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .card-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #a08080;
+    }
+
+
+    /* 5. Parallax Statement */
+    .parallax-section {
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .parallax-bg {
+      position: absolute;
+      top: -20%;
+      left: 0;
+      width: 100%;
+      height: 140%;
+      background-image: url('newsletter-bg.png');
+      background-size: cover;
+      background-position: center;
+      will-change: transform;
+    }
+
+    .parallax-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.72);
+      z-index: 1;
+    }
+
+    .parallax-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      padding: 0 40px;
+    }
+
+    .parallax-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 6vw, 80px);
+      font-style: italic;
+      font-weight: 300;
+      color: #f5f0eb;
+      line-height: 1.3;
+      margin-bottom: 30px;
+    }
+
+    .parallax-tagline {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: rgba(245, 240, 235, 0.7);
+    }
+
+
+    /* 6. Reverse Columns Parallax */
+    .reverse-columns-section {
+      height: 100vh;
+      background-color: #000000;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .reverse-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      width: 100%;
+      height: 80vh;
+      max-width: 1200px;
+      padding: 0 40px;
+      z-index: 1;
+    }
+
+    .grid-col {
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    .col-img-wrapper {
+      position: absolute;
+      top: -20%;
+      left: 0;
+      width: 100%;
+      height: 140%;
+      background-image: url('newsletter-bg.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Mirroring column images slightly for visual variation */
+    .col-center .col-img-wrapper {
+      background-image: url('collection-bg.png');
+    }
+
+    .col-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.8) 100%);
+      z-index: 2;
+    }
+
+    .reverse-overlay-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 5vw, 64px);
+      font-style: italic;
+      font-weight: 300;
+      color: #f5f0eb;
+      text-align: center;
+      width: 90%;
+      z-index: 3;
+      pointer-events: none;
+      letter-spacing: 2px;
+    }
+
+
+    /* 7. Product Collection Grid */
+    .collection-grid-section {
+      background-color: #0a0005; /* Deep luxury purple/black */
+      padding: 160px 40px;
+      text-align: center;
+      border-top: 1px solid rgba(192, 0, 42, 0.1);
+    }
+
+    .collection-grid-header {
+      margin-bottom: 80px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 15px 20px;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(8px);
+        pointer-events: auto;
+      }
+      .product-grid {
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+      .reverse-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .grid-col {
+        height: 350px;
+      }
+      .reverse-columns-section {
+        height: auto;
+        padding: 100px 0;
+      }
+      .explainer-section {
+        flex-direction: column;
+      }
+      .explainer-left {
+        width: 100%;
+        height: 50vh;
+      }
+      .explainer-right {
+        width: 100%;
+      }
+      .explainer-panel {
+        height: 70vh;
+      }
+      .card {
+        padding: 30px;
+      }
+      .card-title {
+        font-size: clamp(32px, 6vw, 48px);
+      }
+    }
+
+    .product-card {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(245, 240, 235, 0.05);
+      border-radius: 12px;
+      padding: 50px 30px;
+      text-align: center;
+      transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at center, rgba(192, 0, 42, 0.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px);
+      border-color: #c0002a;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+
+    .product-card:hover::before {
+      opacity: 1;
+    }
+
+    .grid-img-wrapper {
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .grid-product-img {
+      max-height: 100%;
+      max-width: 80%;
+      object-fit: contain;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .product-card:hover .grid-product-img {
+      transform: scale(1.05);
+    }
+
+    .grid-product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 300;
+      color: #f5f0eb;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .grid-product-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #a08080;
+      position: relative;
+      z-index: 2;
+      max-width: 250px;
+      margin: 0 auto;
+    }
+
+
+    /* 8. Newsletter Section */
+    .newsletter-section {
+      position: relative;
+      height: 80vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('newsletter-bg.png');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .newsletter-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      padding: 60px 40px;
+      background: rgba(10, 0, 5, 0.65);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 240, 235, 0.08);
+      border-radius: 16px;
+    }
+
+    .newsletter-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 300;
+      color: #f5f0eb;
+      margin-bottom: 15px;
+      letter-spacing: 4px;
+    }
+
+    .newsletter-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: #a08080;
+      margin-bottom: 35px;
+      line-height: 1.6;
+    }
+
+    .newsletter-form {
+      display: flex;
+      width: 100%;
+      gap: 15px;
+    }
+
+    @media (max-width: 480px) {
+      .newsletter-form {
+        flex-direction: column;
+      }
+    }
+
+    .email-input {
+      flex-grow: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(245, 240, 235, 0.15);
+      border-radius: 6px;
+      padding: 15px 20px;
+      color: #f5f0eb;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .email-input:focus {
+      border-color: #c0002a;
+    }
+
+    .subscribe-btn {
+      background: #c0002a;
+      color: #f5f0eb;
+      border: none;
+      border-radius: 6px;
+      padding: 15px 30px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .subscribe-btn:hover {
+      background: #8b0000;
+      box-shadow: 0 4px 15px rgba(192, 0, 42, 0.4);
+    }
+
+
+    /* 9. Footer */
+    .footer {
+      background-color: #000000;
+      padding: 80px 40px;
+      text-align: center;
+      border-top: 1px solid rgba(245, 240, 235, 0.05);
+    }
+
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      letter-spacing: 6px;
+      color: #f5f0eb;
+      margin-bottom: 25px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .footer-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: #a08080;
+      text-decoration: none;
+      letter-spacing: 1px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-link:hover {
+      color: #f5f0eb;
+    }
+
+    .footer-copy {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #444444;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Film Grain Layer -->
+  <div class="grain"></div>
+
+  <!-- Navigation -->
+  <header class="nav">
+    <a href="#" class="nav-brand" id="nav-brand-id">RUBRA</a>
+    <a href="#collection" class="nav-shop" id="nav-shop-id">SHOP</a>
+  </header>
+
+  <!-- Progress Bar Fill -->
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+  </div>
+
+  <!-- 1. Hero Scroll Section -->
+  <main class="hero-scroll-track" id="hero-track-id">
+    <div class="hero-sticky-container">
+      
+      <!-- Video Scrubbing / Image Fallback Stack -->
+      <div class="hero-media-wrapper">
+        <video id="source-video" playsinline muted loop preload="auto">
+          <source src="pomegranate-story.mp4" type="video/mp4">
+        </video>
+        
+        <!-- Cross-fade fallback container -->
+        <div class="hero-image-fallback">
+          <div class="fallback-img active-start" id="img-fallback-1" style="background-image: url('image-1-pomegranate-whole.png');"></div>
+          <div class="fallback-img" id="img-fallback-2" style="background-image: url('image-2-pomegranate-cracked.png');"></div>
+          <div class="fallback-img" id="img-fallback-3" style="background-image: url('image-3-seeds-cascading.png');"></div>
+          <div class="fallback-img" id="img-fallback-4" style="background-image: url('image-4-glass-seeds-entering.png');"></div>
+          <div class="fallback-img" id="img-fallback-5" style="background-image: url('image-5-glass-full-glowing.png');"></div>
+          <div class="fallback-img" id="img-fallback-6" style="background-image: url('image-6-hands-wrapping-glass.png');"></div>
+        </div>
+      </div>
+
+      <!-- Vignette Overlay -->
+      <div class="hero-vignette"></div>
+
+      <!-- Text Overlays -->
+      <div class="hero-text-overlay" id="hero-text-1">
+        <h1 class="text-ruby">RUBY</h1>
+      </div>
+      
+      <div class="hero-text-overlay" id="hero-text-2">
+        <h1 class="text-orchard">Born from ancient orchards.</h1>
+      </div>
+      
+      <div class="hero-text-overlay" id="hero-text-3">
+        <h1 class="text-ritual">PRESS · POUR · PERFECT</h1>
+      </div>
+      
+      <div class="hero-text-corner" id="hero-text-4">
+        Three seeds changed everything.
+      </div>
+
+      <!-- Scroll Down Indicator -->
+      <div class="scroll-indicator">Scroll down</div>
+
+    </div>
+  </main>
+
+
+  <!-- 2. Sticky Product Explainer -->
+  <section class="explainer-section" id="explainer-section-id">
+    <!-- Left Column: Sticky Image Swap -->
+    <div class="explainer-left">
+      <div class="explainer-img-container">
+        <img src="dawn-product.png" alt="Dawn Pomegranate Juice" class="explainer-img active" id="explainer-dawn-img">
+        <img src="dusk-product.png" alt="Dusk Pomegranate Juice" class="explainer-img" id="explainer-dusk-img">
+        <img src="night-product.png" alt="Night Pomegranate Juice" class="explainer-img" id="explainer-night-img">
+      </div>
+    </div>
+
+    <!-- Right Column: Scrollable Panels -->
+    <div class="explainer-right">
+      <div class="explainer-panel" id="panel-dawn">
+        <span class="eyebrow">Dawn Ritual</span>
+        <h2>Your morning starts here.</h2>
+        <p>Morning ritual. Cold-pressed at the break of dawn, capture the pure sunrise energy with bioactive pomegranate seed extracts to vitalize your day.</p>
+      </div>
+      
+      <div class="explainer-panel" id="panel-dusk">
+        <span class="eyebrow">Dusk Ritual</span>
+        <h2>The golden hour, bottled.</h2>
+        <p>A warm evening transition. Gently extracted to highlight notes of amber woods and botanical essences, helping you restore balance after sunset.</p>
+      </div>
+      
+      <div class="explainer-panel" id="panel-night">
+        <span class="eyebrow">Night Ritual</span>
+        <h2>While you sleep, it works.</h2>
+        <p>Deep restore cellular recovery. Formulated with nightly active polyphenols to nurture and reconstruct your body completely overnight.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 3. Horizontal Collection Rail -->
+  <section class="h-sticky" id="h-sticky-id">
+    <div class="h-track">
+      <!-- Panel 1: Overview -->
+      <div class="h-panel panel-1">
+        <h2 class="panel-center-title">THE COLLECTION</h2>
+      </div>
+      
+      <!-- Panel 2: Dawn Tin -->
+      <div class="h-panel panel-2">
+        <div class="panel-product-wrapper">
+          <img src="dawn-product.png" alt="Dawn tin product" class="panel-product-img">
+          <div class="panel-text-bottom">
+            <span class="eyebrow">01 / DAWN</span>
+            <h3 class="panel-product-name">Morning Vitality</h3>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Panel 3: Dusk Tin -->
+      <div class="h-panel panel-3">
+        <div class="panel-product-wrapper">
+          <img src="dusk-product.png" alt="Dusk tin product" class="panel-product-img">
+          <div class="panel-text-bottom">
+            <span class="eyebrow">02 / DUSK</span>
+            <h3 class="panel-product-name">Golden Harmony</h3>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Panel 4: Night Tin -->
+      <div class="h-panel panel-4">
+        <div class="panel-product-wrapper">
+          <img src="night-product.png" alt="Night tin product" class="panel-product-img">
+          <div class="panel-text-bottom">
+            <span class="eyebrow">03 / NIGHT</span>
+            <h3 class="panel-product-name">Midnight Restore</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 4. Stacking Ritual Cards -->
+  <section class="cards-section" id="cards-section-id">
+    <div class="cards-section-header">
+      <span class="eyebrow">The Method</span>
+      <h2 style="font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 5vw, 52px); font-weight: 300; letter-spacing: 2px;">The Three-Step Ritual</h2>
+    </div>
+
+    <div class="cards-container">
+      
+      <!-- Card 1: PRESS -->
+      <article class="card" id="card-press-id">
+        <div class="card-media-wrapper">
+          <video class="card-video" autoplay muted loop playsinline preload="auto">
+            <source src="card-press.mp4" type="video/mp4">
+          </video>
+          <!-- Image fallback -->
+          <div class="card-fallback-img" style="background-image: url('image-2-pomegranate-cracked.png'); background-size: cover; background-position: center; position: absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
+          <div class="card-vignette"></div>
+          <div class="sweep-overlay"></div>
+          <div class="card-bottom-fade"></div>
+        </div>
+        
+        <div class="card-content">
+          <div class="card-num-row">
+            <div class="card-accent-line"></div>
+            <span class="card-num">01</span>
+          </div>
+          <h3 class="card-title">PRESS</h3>
+          <p class="card-desc">Every seed is cold-pressed under extreme precision to isolate the core antioxidant-dense elixir without oxidation or thermal degradation.</p>
+        </div>
+      </article>
+
+      <!-- Card 2: POUR -->
+      <article class="card" id="card-pour-id">
+        <div class="card-media-wrapper">
+          <video class="card-video" autoplay muted loop playsinline preload="auto">
+            <source src="card-pour.mp4" type="video/mp4">
+          </video>
+          <!-- Image fallback -->
+          <div class="card-fallback-img" style="background-image: url('image-4-glass-seeds-entering.png'); background-size: cover; background-position: center; position: absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
+          <div class="card-vignette"></div>
+          <div class="sweep-overlay"></div>
+          <div class="card-bottom-fade"></div>
+        </div>
+        
+        <div class="card-content">
+          <div class="card-num-row">
+            <div class="card-accent-line"></div>
+            <span class="card-num">02</span>
+          </div>
+          <h3 class="card-title">POUR</h3>
+          <p class="card-desc">Poured into custom handblown glass vessels to capture its brilliant ruby luminescence, preserving vital structured water clusters.</p>
+        </div>
+      </article>
+
+      <!-- Card 3: PERFECT -->
+      <article class="card" id="card-perfect-id">
+        <div class="card-media-wrapper">
+          <video class="card-video" autoplay muted loop playsinline preload="auto">
+            <source src="card-perfect.mp4" type="video/mp4">
+          </video>
+          <!-- Image fallback -->
+          <div class="card-fallback-img" style="background-image: url('image-5-glass-full-glowing.png'); background-size: cover; background-position: center; position: absolute; top:0; left:0; width:100%; height:100%; z-index:1;"></div>
+          <div class="card-vignette"></div>
+          <div class="sweep-overlay"></div>
+          <div class="card-bottom-fade"></div>
+        </div>
+        
+        <div class="card-content">
+          <div class="card-num-row">
+            <div class="card-accent-line"></div>
+            <span class="card-num">03</span>
+          </div>
+          <h3 class="card-title">PERFECT</h3>
+          <p class="card-desc">Infused with active trace minerals to create the perfect cellular hydration tonic that balances metabolic rhythms.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+
+  <!-- 5. Parallax Statement Section -->
+  <section class="parallax-section" id="parallax-section-id">
+    <div class="parallax-bg" id="parallax-bg-id"></div>
+    <div class="parallax-overlay"></div>
+    <div class="parallax-content">
+      <h2 class="parallax-title">Drink what<br>the earth intended.</h2>
+      <p class="parallax-tagline">RUBRA — Since the first harvest.</p>
+    </div>
+  </section>
+
+
+  <!-- 6. Reverse Columns Parallax Section -->
+  <section class="reverse-columns-section" id="reverse-columns-id">
+    <div class="reverse-grid">
+      <!-- Column 1 -->
+      <div class="grid-col col-left">
+        <div class="col-img-wrapper"></div>
+        <div class="col-overlay"></div>
+      </div>
+      
+      <!-- Column 2 -->
+      <div class="grid-col col-center">
+        <div class="col-img-wrapper"></div>
+        <div class="col-overlay"></div>
+        <h2 class="reverse-overlay-text">Born from the earth.</h2>
+      </div>
+      
+      <!-- Column 3 -->
+      <div class="grid-col col-right">
+        <div class="col-img-wrapper"></div>
+        <div class="col-overlay"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 7. Product Collection Grid -->
+  <section class="collection-grid-section" id="collection">
+    <div class="collection-grid-header">
+      <span class="eyebrow">The Collection</span>
+      <h2 style="font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 5vw, 52px); font-weight: 300; letter-spacing: 2px;">Select Your Ritual</h2>
+    </div>
+
+    <div class="product-grid">
+      <!-- DAWN Card -->
+      <article class="product-card">
+        <div class="grid-img-wrapper">
+          <img src="dawn-product.png" alt="DAWN tin" class="grid-product-img">
+        </div>
+        <h3 class="grid-product-name">DAWN</h3>
+        <p class="grid-product-desc">Morning ritual. Pressed at dawn.</p>
+      </article>
+
+      <!-- DUSK Card -->
+      <article class="product-card">
+        <div class="grid-img-wrapper">
+          <img src="dusk-product.png" alt="DUSK tin" class="grid-product-img">
+        </div>
+        <h3 class="grid-product-name">DUSK</h3>
+        <p class="grid-product-desc">Golden hour. Ruby at its warmest.</p>
+      </article>
+
+      <!-- NIGHT Card -->
+      <article class="product-card">
+        <div class="grid-img-wrapper">
+          <img src="night-product.png" alt="NIGHT tin" class="grid-product-img">
+        </div>
+        <h3 class="grid-product-name">NIGHT</h3>
+        <p class="grid-product-desc">Deep restore. While the world sleeps.</p>
+      </article>
+    </div>
+  </section>
+
+
+  <!-- 8. Newsletter Section -->
+  <section class="newsletter-section" id="newsletter-id">
+    <div class="newsletter-content">
+      <h2 class="newsletter-title">JOIN THE RITUAL</h2>
+      <p class="newsletter-desc">Subscribe to receive seasonal harvests, cellular wellness research, and exclusive product releases from the orchard.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed to the ritual.');">
+        <input type="email" placeholder="Your Email Address" required class="email-input" aria-label="Email Address">
+        <button type="submit" class="subscribe-btn">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+
+  <!-- 9. Footer -->
+  <footer class="footer">
+    <a href="#" class="footer-brand">RUBRA</a>
+    
+    <nav class="footer-links">
+      <a href="#" class="footer-link">YouTube</a>
+      <a href="#" class="footer-link">Instagram</a>
+      <a href="#" class="footer-link">Community</a>
+      <a href="#" class="footer-link">Privacy Policy</a>
+    </nav>
+    
+    <p class="footer-copy">&copy; 2026 RUBRA. All rights reserved. Created by AutomationX &middot; Dhiraj Sarkar.</p>
+  </footer>
+
+
+  <!-- Web App Scripts -->
+  <script>
+    // 1. Lenis Smooth Scroll Initialisation
+    const lenis = new Lenis({ 
+      lerp: 0.075, 
+      smoothWheel: true 
+    });
+    
+    lenis.on("scroll", ScrollTrigger.update);
+    
+    gsap.ticker.add((time) => { 
+      lenis.raf(time * 1000); 
+    });
+    
+    gsap.ticker.lagSmoothing(0);
+
+    // Register ScrollTrigger plugin for GSAP
+    gsap.registerPlugin(ScrollTrigger);
+
+
+    // 2. Video Scrub / Image Fallback Controller
+    let useFallbackImages = true;
+    const images = [
+      document.getElementById('img-fallback-1'),
+      document.getElementById('img-fallback-2'),
+      document.getElementById('img-fallback-3'),
+      document.getElementById('img-fallback-4'),
+      document.getElementById('img-fallback-5'),
+      document.getElementById('img-fallback-6')
+    ];
+
+    const video = document.getElementById("source-video");
+    const fallbackContainer = document.querySelector(".hero-image-fallback");
+
+    // Video status detection
+    function handleVideoLoadSuccess() {
+      if (!useFallbackImages) return; // Already initialized video
+      
+      // Double check if the video is actually ready and has duration
+      if (video && video.readyState >= 2 && video.duration > 0) {
+        useFallbackImages = false;
+        
+        // Animate transition to video
+        gsap.to(video, { opacity: 1, duration: 1 });
+        gsap.to(fallbackContainer, { opacity: 0, duration: 1 });
+        
+        // Restart scrub init
+        if (typeof window.initScrub === "function") {
+          window.initScrub();
+        }
+      }
+    }
+
+    if (video) {
+      video.addEventListener("loadedmetadata", handleVideoLoadSuccess, { once: true });
+      video.addEventListener("loadeddata", handleVideoLoadSuccess, { once: true });
+      video.addEventListener("canplaythrough", handleVideoLoadSuccess, { once: true });
+      
+      // Error handling to prevent black screen if video is missing (404)
+      const handleVideoError = () => {
+        useFallbackImages = true;
+        video.style.display = "none";
+        fallbackContainer.style.opacity = "1";
+        if (images[0]) images[0].style.opacity = 1;
+      };
+
+      video.addEventListener("error", handleVideoError);
+      
+      const source = video.querySelector("source");
+      if (source) {
+        source.addEventListener("error", handleVideoError);
+      }
+      
+      // Backup timeout: if video doesn't trigger load within 1.5 seconds, use image crossfade
+      setTimeout(() => {
+        if (useFallbackImages) {
+          console.log("Using high-quality image cross-fade fallback.");
+          // Ensure first image is shown
+          if (images[0]) images[0].style.opacity = 1;
+        }
+      }, 1500);
+    }
+
+
+    // Text Overlay controller
+    const text1 = document.getElementById("hero-text-1");
+    const text2 = document.getElementById("hero-text-2");
+    const text3 = document.getElementById("hero-text-3");
+    const text4 = document.getElementById("hero-text-4");
+
+    function fadeEl(el, show) {
+      if (!el) return;
+      if (show) {
+        el.style.opacity = "1";
+        if (el.id === "hero-text-4") {
+          el.style.transform = "none";
+        } else {
+          el.style.transform = "translate(-50%, -50%) scale(1)";
+        }
+      } else {
+        el.style.opacity = "0";
+        if (el.id === "hero-text-4") {
+          el.style.transform = "none";
+        } else {
+          el.style.transform = "translate(-50%, -50%) scale(0.95)";
+        }
+      }
+    }
+
+    function updateTextOverlays(progress) {
+      fadeEl(text1, progress >= 0.15 && progress <= 0.25);
+      fadeEl(text2, progress >= 0.35 && progress <= 0.45);
+      fadeEl(text3, progress >= 0.55 && progress <= 0.67);
+      fadeEl(text4, progress >= 0.70 && progress <= 0.80);
+    }
+
+    // Master update function called on scroll
+    function updatePhases(progress) {
+      // 1. Update Progress Bar
+      const progressBar = document.getElementById("progress-bar-fill");
+      if (progressBar) {
+        progressBar.style.height = (progress * 100) + "%";
+      }
+
+      // 2. Update Text Overlays
+      updateTextOverlays(progress);
+
+      // 3. Update Image Fallback Crossfade (if video is unavailable)
+      if (useFallbackImages) {
+        const numImages = images.length;
+        images.forEach((img, index) => {
+          if (!img) return;
+          const peak = index / (numImages - 1);
+          const range = 1 / (numImages - 1);
+          let opacity = 0;
+          if (progress >= peak - range && progress <= peak + range) {
+            opacity = 1 - Math.abs(progress - peak) / range;
+          }
+          img.style.opacity = opacity;
+        });
+      }
+    }
+
+
+    // CLAUDE.md Scrub Logic
+    (() => {
+      const track = document.querySelector(".hero-scroll-track");
+      const videoEl = document.getElementById("source-video");
+      if (!track || !videoEl) return;
+      let ticking = false, duration = 0, initialized = false;
+      const clamp = (v,lo,hi) => Math.min(Math.max(v,lo),hi);
+
+      function update() {
+        if (!initialized) {
+          // If using fallback images, we can still update them
+          const total = track.offsetHeight - window.innerHeight;
+          const rect  = track.getBoundingClientRect();
+          const passed = clamp(-rect.top, 0, total);
+          const progress = total > 0 ? passed/total : 0;
+          updatePhases(progress);
+          return;
+        }
+        
+        const total = track.offsetHeight - window.innerHeight;
+        const rect  = track.getBoundingClientRect();
+        const passed = clamp(-rect.top, 0, total);
+        const progress = total > 0 ? passed/total : 0;
+        
+        if (videoEl.readyState >= 2 && duration) {
+          videoEl.currentTime = clamp(progress * duration, 0, duration - 0.05);
+        }
+        updatePhases(progress);
+      }
+
+      function requestTick() {
+        if (ticking) return; ticking = true;
+        requestAnimationFrame(() => { update(); ticking = false; });
+      }
+
+      window.initScrub = function() {
+        duration = videoEl.duration;
+        if (!duration || !Number.isFinite(duration)) return;
+        videoEl.pause(); 
+        videoEl.currentTime = 0; 
+        initialized = true;
+        requestTick();
+      };
+
+      // Set up global scroll listeners
+      window.addEventListener("scroll", requestTick, { passive: true });
+      window.addEventListener("resize", requestTick);
+      if (typeof lenis !== "undefined") {
+        lenis.on("scroll", requestTick);
+      }
+
+      if (videoEl.readyState >= 2) {
+        initScrub();
+      } else {
+        videoEl.addEventListener("loadedmetadata", initScrub, { once: true });
+        videoEl.addEventListener("loadeddata", initScrub, { once: true });
+        videoEl.load();
+      }
+    })();
+
+
+    // 3. Sticky Product Explainer Transitions (GSAP ScrollTrigger)
+    const explainerImages = {
+      dawn: document.getElementById("explainer-dawn-img"),
+      dusk: document.getElementById("explainer-dusk-img"),
+      night: document.getElementById("explainer-night-img")
+    };
+
+    function setExplainerImage(activeKey) {
+      Object.keys(explainerImages).forEach(key => {
+        if (explainerImages[key]) {
+          if (key === activeKey) {
+            explainerImages[key].classList.add("active");
+          } else {
+            explainerImages[key].classList.remove("active");
+          }
+        }
+      });
+    }
+
+    ScrollTrigger.create({
+      trigger: "#panel-dawn",
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: self => self.isActive && setExplainerImage("dawn")
+    });
+
+    ScrollTrigger.create({
+      trigger: "#panel-dusk",
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: self => self.isActive && setExplainerImage("dusk")
+    });
+
+    ScrollTrigger.create({
+      trigger: "#panel-night",
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: self => self.isActive && setExplainerImage("night")
+    });
+
+
+    // 4. Horizontal Collection Rail (GSAP horizontal pinning)
+    const track = document.querySelector(".h-track");
+    if (track) {
+      gsap.to(track, {
+        x: () => -(track.scrollWidth - window.innerWidth),
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".h-sticky",
+          start: "top top",
+          end: () => "+=" + (track.scrollWidth - window.innerWidth),
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true
+        }
+      });
+    }
+
+
+    // 5. Stacking Ritual Cards Scale Scrubbing
+    gsap.utils.toArray(".card").forEach((card) => {
+      const videoEl = card.querySelector("video");
+      const fallbackEl = card.querySelector(".card-fallback-img");
+      const target = videoEl || fallbackEl;
+      
+      if (videoEl) {
+        // Show video only when it plays or successfully loads data
+        videoEl.addEventListener("playing", () => {
+          videoEl.style.opacity = "1";
+        });
+        videoEl.addEventListener("loadeddata", () => {
+          videoEl.style.opacity = "1";
+        });
+        videoEl.addEventListener("error", () => {
+          videoEl.style.display = "none";
+        });
+      }
+
+      if (target) {
+        gsap.fromTo(target, 
+          { scale: 1.08 },
+          { 
+            scale: 1.0, 
+            ease: "none",
+            scrollTrigger: {
+              trigger: card,
+              start: "top bottom",
+              end: "top top",
+              scrub: true
+            }
+          }
+        );
+      }
+    });
+
+
+    // 6. Parallax Statement Background Scroll
+    gsap.to(".parallax-bg", {
+      yPercent: 18,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".parallax-section",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+
+
+    // 7. Reverse Columns Parallax
+    gsap.fromTo(".col-left .col-img-wrapper, .col-right .col-img-wrapper", 
+      { yPercent: -10 },
+      { 
+        yPercent: 10,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".reverse-columns-section",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      }
+    );
+
+    gsap.fromTo(".col-center .col-img-wrapper", 
+      { yPercent: 10 },
+      { 
+        yPercent: -10,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".reverse-columns-section",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      }
+    );
+
+
+    // 8. Always end script with ScrollTrigger.refresh()
+    window.addEventListener("load", () => {
+      ScrollTrigger.refresh();
+    });
+    ScrollTrigger.refresh();
+  </script>
+</body>
+</html>
