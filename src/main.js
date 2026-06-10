@@ -2012,10 +2012,10 @@ function setupCinemaEngine() {
 
       // 1. Landing Hero Overlay fade boundaries (0.0 to 0.10 scroll depth)
       if (p <= 0.10) {
-        // Control introCard opacity (fade out completely by p = 0.045) and animate split text
+        // Control introCard opacity (fade out completely by p = 0.10) and animate split text
         const introCard = document.getElementById('introCard');
         if (introCard) {
-          const introOpacity = Math.max(0, 1 - p / 0.045);
+          const introOpacity = Math.max(0, 1 - p / 0.10);
           introCard.style.opacity = introOpacity;
           if (introOpacity > 0) {
             introCard.style.pointerEvents = 'all';
@@ -2025,7 +2025,7 @@ function setupCinemaEngine() {
             introCard.style.visibility = 'hidden';
           }
 
-          // Split text sideways animations
+          // Split text sideways animations (complete by p = 0.08)
           const splitLeft = introCard.querySelector('.title-split-left');
           const splitRight = introCard.querySelector('.title-split-right');
           const eyebrow = introCard.querySelector('.intro-eyebrow');
@@ -2036,7 +2036,7 @@ function setupCinemaEngine() {
           const diamond = introCard.querySelector('.intro-divider-diamond');
 
           if (p > 0) {
-            const pTextNorm = Math.min(1, p / 0.045);
+            const pTextNorm = Math.min(1, p / 0.08);
             const opacityVal = 1 - pTextNorm;
             
             if (splitLeft) {
@@ -2084,20 +2084,20 @@ function setupCinemaEngine() {
           }
         }
 
-        // Zoom, Pan, and Scrub Active Intro Video
+        // Zoom, Pan, and Scrub Active Intro Video (scrub complete by p = 0.10)
         const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
         if (activeIntroVid) {
-          if (p <= 0.08) {
+          if (p <= 0.10) {
             if (!activeIntroVid.paused) {
               activeIntroVid.pause();
             }
             // Calculate normalized progress (0.0 -> 1.0)
-            const pNorm = p / 0.08;
+            const pNorm = p / 0.10;
             
             // Scrub/seek video based on progress
             const maxScrubTime = !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0 
-              ? Math.min(activeIntroVid.duration, 8.0) 
-              : 5.0;
+              ? Math.min(activeIntroVid.duration, 15.0) 
+              : 10.0;
             const targetTime = pNorm * maxScrubTime;
             
             const seekDiff = Math.abs(activeIntroVid.currentTime - targetTime);
@@ -2105,9 +2105,9 @@ function setupCinemaEngine() {
               activeIntroVid.currentTime = targetTime;
             }
 
-            // Animate scale (from 1.0 to 1.25 at p=0.08) and translation
-            const scale = 1 + p * 3.125;
-            const translateY = p * -150;
+            // Animate scale (from 1.0 to 1.25 at p=0.10) and translation
+            const scale = 1 + p * 2.5;
+            const translateY = p * -120;
             activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${scale}) translateY(${translateY}px)`;
           } else {
             if (!activeIntroVid.paused) {
@@ -2116,12 +2116,12 @@ function setupCinemaEngine() {
           }
         }
 
-        // Fade in from 0.0 to 0.05
-        const ratio_in = Math.min(1, p / 0.05);
-        // Fade out from 0.07 to 0.10
+        // Fade in from 0.0 to 0.06
+        const ratio_in = Math.min(1, p / 0.06);
+        // Fade out from 0.08 to 0.10
         let ratio_out = 1;
-        if (p >= 0.07) {
-          ratio_out = Math.max(0, 1 - (p - 0.07) / 0.03);
+        if (p >= 0.08) {
+          ratio_out = Math.max(0, 1 - (p - 0.08) / 0.02);
         }
         
         const elementOpacity = ratio_in * ratio_out;
