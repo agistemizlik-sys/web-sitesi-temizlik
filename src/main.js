@@ -544,10 +544,10 @@ window.addEventListener('DOMContentLoaded', () => {
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
   setupPortalParticles();
+  setupCinemaEngine();
   setupPortalGateway();
   setupNavScroll();
   setupMobileDrawer();
-  setupCinemaEngine();
   setupBookingReveal();
   setupServicesModal();
   setupResizeObserver();
