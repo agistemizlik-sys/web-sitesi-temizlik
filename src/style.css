@@ -2045,56 +2045,32 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   fill: rgba(4, 7, 20, 0.65);
 }
 
-/* Regional defaults for active provinces with breathing indicators */
+/* Regional defaults for active provinces with breathing indicators (GPU accelerated) */
 .map-province.province-active[data-market="marmara"] path {
-  stroke: rgba(51, 102, 255, 0.25);
-  animation: activeProvinceBreatheMarmara 4s infinite ease-in-out alternate;
+  stroke: rgba(51, 102, 255, 0.75);
+  fill: rgba(51, 102, 255, 0.05);
+  stroke-width: 1.2px;
+  animation: activeProvinceOpacityBreathe 4s infinite ease-in-out alternate;
 }
 .map-province.province-active[data-market="ege"] path {
-  stroke: rgba(255, 145, 0, 0.25);
-  animation: activeProvinceBreatheEge 4s infinite ease-in-out alternate;
+  stroke: rgba(255, 145, 0, 0.75);
+  fill: rgba(255, 145, 0, 0.05);
+  stroke-width: 1.2px;
+  animation: activeProvinceOpacityBreathe 4s infinite ease-in-out alternate;
 }
 .map-province.province-active[data-market="karadeniz"] path {
-  stroke: rgba(255, 51, 102, 0.25);
-  animation: activeProvinceBreatheKaradeniz 4s infinite ease-in-out alternate;
+  stroke: rgba(255, 51, 102, 0.75);
+  fill: rgba(255, 51, 102, 0.05);
+  stroke-width: 1.2px;
+  animation: activeProvinceOpacityBreathe 4s infinite ease-in-out alternate;
 }
 
-@keyframes activeProvinceBreatheMarmara {
+@keyframes activeProvinceOpacityBreathe {
   0%, 100% {
-    stroke: rgba(51, 102, 255, 0.25);
-    fill: rgba(4, 7, 20, 0.65);
-    stroke-width: 0.8px;
+    opacity: 0.45;
   }
   50% {
-    stroke: rgba(51, 102, 255, 0.85);
-    fill: rgba(51, 102, 255, 0.05);
-    stroke-width: 1.4px;
-  }
-}
-
-@keyframes activeProvinceBreatheEge {
-  0%, 100% {
-    stroke: rgba(255, 145, 0, 0.25);
-    fill: rgba(4, 7, 20, 0.65);
-    stroke-width: 0.8px;
-  }
-  50% {
-    stroke: rgba(255, 145, 0, 0.85);
-    fill: rgba(255, 145, 0, 0.05);
-    stroke-width: 1.4px;
-  }
-}
-
-@keyframes activeProvinceBreatheKaradeniz {
-  0%, 100% {
-    stroke: rgba(255, 51, 102, 0.25);
-    fill: rgba(4, 7, 20, 0.65);
-    stroke-width: 0.8px;
-  }
-  50% {
-    stroke: rgba(255, 51, 102, 0.85);
-    fill: rgba(255, 51, 102, 0.05);
-    stroke-width: 1.4px;
+    opacity: 1;
   }
 }
 

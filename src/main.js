@@ -31,6 +31,10 @@ window.addEventListener('hashchange', () => {
   }
 });
 
+// Global cached window dimensions to prevent layout recalculations in mousemove events
+let cachedWindowWidth = window.innerWidth;
+let cachedWindowHeight = window.innerHeight;
+
 // Module-level variables for gateway interactive components
 let cardHoverListeners = [];
 let portalHotspotListeners = [];
@@ -664,22 +668,26 @@ function setupPortalGateway() {
   let pmx = 0;
   let pmy = 0;
 
+  // Cache GSAP quickTo tweens for each parallax layer to bypass object instantiation overhead in mouse movement
+  const quickParallaxX = Array.from(parallaxLayers).map(layer =>
+    gsap.quickTo(layer, "x", { duration: 0.8, ease: "power2.out" })
+  );
+  const quickParallaxY = Array.from(parallaxLayers).map(layer =>
+    gsap.quickTo(layer, "y", { duration: 0.8, ease: "power2.out" })
+  );
+
   const updateParallax = () => {
-    parallaxLayers.forEach(layer => {
+    parallaxLayers.forEach((layer, idx) => {
       const depth = layer.dataset.depth || 0.04;
-      gsap.to(layer, {
-        x: pmx * depth * 30,
-        y: pmy * depth * 20,
-        duration: 0.8,
-        overwrite: 'auto'
-      });
+      quickParallaxX[idx](pmx * depth * 30);
+      quickParallaxY[idx](pmy * depth * 20);
     });
     portalParallaxRafId = null;
   };
 
   const onParallaxMove = (e) => {
-    pmx = (e.clientX / window.innerWidth - 0.5) * 2;
-    pmy = (e.clientY / window.innerHeight - 0.5) * 2;
+    pmx = (e.clientX / cachedWindowWidth - 0.5) * 2;
+    pmy = (e.clientY / cachedWindowHeight - 0.5) * 2;
     if (!portalParallaxRafId) {
       portalParallaxRafId = requestAnimationFrame(updateParallax);
     }
@@ -701,7 +709,7 @@ function setupPortalGateway() {
     if (!connectorOverlay || !connectorPath || !connectorParticle) return;
     
     // Hide laser overlay completely on mobile viewport
-    if (window.innerWidth <= 1024) {
+    if (cachedWindowWidth <= 1024) {
       gsap.set([connectorPath, connectorParticle], { opacity: 0 });
       return;
     }
@@ -833,7 +841,7 @@ function setupPortalGateway() {
       if (!hudTicking) {
         window.requestAnimationFrame(() => {
           // Only track if gateway selection is active and it's not a mobile device
-          if (!document.body.classList.contains('flag-selection-mode') || window.innerWidth <= 1024 || window.portalWarping) {
+          if (!document.body.classList.contains('flag-selection-mode') || cachedWindowWidth <= 1024 || window.portalWarping) {
             gsap.set(mapHUD, { opacity: 0 });
             hudTicking = false;
             return;
@@ -2987,6 +2995,9 @@ function setupResizeObserver() {
     if (debounceTimeout) clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
       const currentWidth = window.innerWidth;
+      cachedWindowWidth = currentWidth;
+      cachedWindowHeight = window.innerHeight;
+      
       // Only refresh ScrollTrigger if horizontal width changed (helps mobile scrolling with address bar)
       if (currentWidth !== lastWidth) {
         lastWidth = currentWidth;
