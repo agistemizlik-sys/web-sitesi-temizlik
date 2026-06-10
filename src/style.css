@@ -826,7 +826,6 @@ html.bypassing-gateway #portal-stage {
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
-  transition: opacity 0.5s var(--ease-smooth), visibility 0.5s var(--ease-smooth);
 }
 
 .cinema-video.active {

@@ -104,17 +104,21 @@ const STATE = {
   cinema: {
     activeIdx: 0,
     activeTextBlockIdx: -1,
-    targetTime: 0,
-    currentTime: 0,
     targetRadius: 120,
     currentRadius: 120,
     targetX: 50,
     currentX: 50,
     targetY: 50,
     currentY: 50,
-    targetVideoY: 0,
-    currentVideoY: 0,
-    isScrubbing: false
+    isScrubbing: false,
+    sceneStates: Array.from({ length: 12 }, () => ({
+      currentTime: 0,
+      targetTime: 0,
+      currentOpacity: 0,
+      targetOpacity: 0,
+      currentVideoY: 50, // default center
+      targetVideoY: 50
+    }))
   },
 
   // Ambient Portal Particles
@@ -1826,44 +1830,21 @@ function setupCinemaEngine() {
     if (dt > 10) dt = 1.0;
 
     const cState = STATE.cinema;
-    const activeScene = scenes[cState.activeIdx];
-    const video = activeScene ? activeScene.video : null;
-
-    // Frame-rate independent physics interpolation formulas using delta-time
     const timeLerp = 1 - Math.pow(1 - 0.14, dt);
+    const opacityLerp = 1 - Math.pow(1 - 0.16, dt);
     const maskLerp = 1 - Math.pow(1 - 0.11, dt);
 
-    cState.currentTime += (cState.targetTime - cState.currentTime) * timeLerp;
     cState.currentRadius += (cState.targetRadius - cState.currentRadius) * maskLerp;
     cState.currentX += (cState.targetX - cState.currentX) * timeLerp;
     cState.currentY += (cState.targetY - cState.currentY) * timeLerp;
-    cState.currentVideoY += (cState.targetVideoY - cState.currentVideoY) * timeLerp;
  
     // Prevent NaN/negative interpolation errors
-    if (isNaN(cState.currentTime) || cState.currentTime < 0) cState.currentTime = 0;
-    if (isNaN(cState.targetTime) || cState.targetTime < 0) cState.targetTime = 0;
     if (isNaN(cState.currentRadius) || cState.currentRadius < 0) cState.currentRadius = 0;
-    if (isNaN(cState.currentVideoY)) cState.currentVideoY = 50;
-
-    // Clamp values dynamically to actual loaded video duration
-    if (video && !isNaN(video.duration) && video.duration > 0) {
-      if (cState.targetTime > video.duration) {
-        cState.targetTime = video.duration;
-      }
-      if (cState.currentTime > video.duration) {
-        cState.currentTime = video.duration;
-      }
-    }
 
     // Track if all interpolated variables have settled to targets
     let settled = true;
 
     // LERP snapping thresholds to prevent infinite micro-calculations on trailing values
-    if (Math.abs(cState.targetTime - cState.currentTime) < 0.01) {
-      cState.currentTime = cState.targetTime;
-    } else {
-      settled = false;
-    }
     if (Math.abs(cState.targetRadius - cState.currentRadius) < 0.05) {
       cState.currentRadius = cState.targetRadius;
     } else {
@@ -1879,52 +1860,91 @@ function setupCinemaEngine() {
     } else {
       settled = false;
     }
-    if (Math.abs(cState.targetVideoY - cState.currentVideoY) < 0.05) {
-      cState.currentVideoY = cState.targetVideoY;
-    } else {
-      settled = false;
-    }
 
-    // Apply vertical pan Y offset dynamically to active video element (guarded to avoid style recalculations when stationary)
-    if (video) {
-      const roundedVideoY = Math.round(cState.currentVideoY * 10) / 10;
-      if (video !== lastActiveVideo || roundedVideoY !== lastVideoY) {
-        video.style.setProperty('--video-y', `${roundedVideoY}%`);
-        lastVideoY = roundedVideoY;
-        lastActiveVideo = video;
+    // Track if any active video is currently seeking/loading to show the spinner loader
+    let activeVideoBuffering = false;
+
+    // Update each scene state (currentTime, opacity, videoY)
+    const nowMs = performance.now();
+    scenes.forEach((sc, idx) => {
+      const sState = cState.sceneStates[idx];
+      if (!sState) return;
+
+      const video = sc.video;
+      if (!video) return;
+
+      // Lerp time
+      sState.currentTime += (sState.targetTime - sState.currentTime) * timeLerp;
+      // Clamp to actual video duration if available
+      if (!isNaN(video.duration) && video.duration > 0) {
+        if (sState.targetTime > video.duration) sState.targetTime = video.duration;
+        if (sState.currentTime > video.duration) sState.currentTime = video.duration;
       }
-
-      // Sync safeguard: force active video to remain paused during scroll scrubbing to prevent autonomous playback conflicts
-      if (!video.paused) {
-        video.pause();
-      }
-    }
-
-    // Apply safe, hardware-buffered video seeking using native seeking property
-    if (video && video.readyState >= 1) {
-      const seekDiff = Math.abs(video.currentTime - cState.currentTime);
-      // Only seek if difference is greater than 0.05s (approx. 1-2 frames at 30fps)
-      // to avoid spamming the video decoder with sub-frame seek requests
-      if (seekDiff > 0.05) {
+      if (Math.abs(sState.targetTime - sState.currentTime) < 0.01) {
+        sState.currentTime = sState.targetTime;
+      } else {
         settled = false;
+      }
+
+      // Lerp opacity
+      sState.currentOpacity += (sState.targetOpacity - sState.currentOpacity) * opacityLerp;
+      if (Math.abs(sState.targetOpacity - sState.currentOpacity) < 0.005) {
+        sState.currentOpacity = sState.targetOpacity;
+      } else {
+        settled = false;
+      }
+
+      // Lerp videoY
+      sState.currentVideoY += (sState.targetVideoY - sState.currentVideoY) * timeLerp;
+      if (Math.abs(sState.targetVideoY - sState.currentVideoY) < 0.05) {
+        sState.currentVideoY = sState.targetVideoY;
+      } else {
+        settled = false;
+      }
+
+      // Apply values to DOM elements
+      const roundedOpacity = Math.round(sState.currentOpacity * 100) / 100;
+      if (roundedOpacity > 0.001) {
+        video.style.opacity = roundedOpacity;
+        video.style.visibility = 'visible';
         
-        // Throttle seeks to at most once every 40ms (25fps seek rate)
-        const nowMs = performance.now();
-        const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
-        
-        if (!video.seeking && (nowMs - lastSeekTime > 40)) {
-          try {
-            video.currentTime = cState.currentTime;
-            video.dataset.lastSeekTime = nowMs.toString();
-          } catch (e) {
-            logErrorDebug(`Direct seek failed on ${video.id}:`, e);
+        const roundedVideoY = Math.round(sState.currentVideoY * 10) / 10;
+        video.style.setProperty('--video-y', `${roundedVideoY}%`);
+
+        // Keep active video paused to prevent autonomous playback
+        if (!video.paused) {
+          video.pause();
+        }
+
+        // Apply native seeking
+        if (video.readyState >= 1) {
+          const seekDiff = Math.abs(video.currentTime - sState.currentTime);
+          if (seekDiff > 0.05) {
+            settled = false;
+            const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
+            if (!video.seeking && (nowMs - lastSeekTime > 40)) {
+              try {
+                video.currentTime = sState.currentTime;
+                video.dataset.lastSeekTime = nowMs.toString();
+              } catch (e) {
+                logErrorDebug(`Seek failed on scene ${idx}:`, e);
+              }
+            }
           }
         }
-      }
-    }
 
-    // Loader indicator logic: show loader if video is loading or buffering the seek frame (state-guarded)
-    const needsLoader = !!(video && (video.seeking || video.readyState < 2));
+        // Track loader/buffering state
+        if (video.seeking || video.readyState < 2) {
+          activeVideoBuffering = true;
+        }
+      } else {
+        video.style.opacity = 0;
+        video.style.visibility = 'hidden';
+      }
+    });
+
+    // Loader indicator logic: show loader if any active video is buffering
+    const needsLoader = activeVideoBuffering;
     if (needsLoader !== isLoaderActive) {
       isLoaderActive = needsLoader;
       if (loader) {
@@ -1962,10 +1982,6 @@ function setupCinemaEngine() {
   // Launch the rendering loop immediately for initial setup
   triggerCinemaLoop();
 
-  // Link scroll boundaries to target parameters using ScrollTrigger
-  const irisInThreshold = 0.15;
-  const irisOutThreshold = 0.85;
-
   const trigger = ScrollTrigger.create({
     trigger: '#cinema-section',
     start: 'top top',
@@ -1986,20 +2002,12 @@ function setupCinemaEngine() {
       // Update active navigation link
       updateActiveNavLink(p);
 
-      // Helper to deactivate all text overlays
-      const clearTextOverlays = () => {
-        if (cState.activeTextBlockIdx !== -1) {
-          cState.activeTextBlockIdx = -1;
-          textBlocks.forEach(block => block.classList.remove('active'));
-        }
-      };
-
       // State variable to track hero visibility within this context
       if (typeof self.heroVisible === 'undefined') {
         self.heroVisible = true;
       }
 
-      // 1. Landing Hero Overlay fade boundaries (0.0 to 0.10 scroll depth)
+      // ── PHASE 1: LANDING HERO OVERLAY (0.00 -> 0.10) ──
       if (p <= 0.10) {
         // Control introCard opacity (fade out completely by p = 0.10) and animate split text
         if (introCard) {
@@ -2048,7 +2056,6 @@ function setupCinemaEngine() {
               diamond.style.opacity = opacityVal;
             }
           } else {
-            // Reset inline styles to let original CSS keyframe animations run on load
             if (splitLeft) { splitLeft.style.transform = ''; splitLeft.style.opacity = ''; }
             if (splitRight) { splitRight.style.transform = ''; splitRight.style.opacity = ''; }
             if (eyebrow) { eyebrow.style.transform = ''; eyebrow.style.opacity = ''; }
@@ -2062,115 +2069,91 @@ function setupCinemaEngine() {
           }
         }
 
-        // Zoom, Pan, and Scrub Active Intro Video (scrub complete by p = 0.10)
+        // Scrub and scale city video
         const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
         if (activeIntroVid) {
-          if (p <= 0.10) {
-            if (!activeIntroVid.paused) {
-              activeIntroVid.pause();
-            }
-            // Calculate normalized progress (0.0 -> 1.0)
-            const pNorm = p / 0.10;
-            
-            // Scrub/seek video based on progress
-            const maxScrubTime = !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0 
-              ? Math.min(activeIntroVid.duration, 15.0) 
-              : 10.0;
-            const targetTime = pNorm * maxScrubTime;
-            
-            const seekDiff = Math.abs(activeIntroVid.currentTime - targetTime);
-            // Throttle seeks to at most once every 40ms to avoid overloading the GPU decoder
-            if (seekDiff > 0.05) {
-              const nowMs = performance.now();
-              const lastSeekTime = parseFloat(activeIntroVid.dataset.lastSeekTime || '0');
-              if (!activeIntroVid.seeking && (nowMs - lastSeekTime > 40)) {
-                try {
-                  activeIntroVid.currentTime = targetTime;
-                  activeIntroVid.dataset.lastSeekTime = nowMs.toString();
-                } catch (e) {
-                  logErrorDebug(`Intro seek failed:`, e);
-                }
+          if (!activeIntroVid.paused) {
+            activeIntroVid.pause();
+          }
+          const pNorm = p / 0.10;
+          const maxScrubTime = !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0 
+            ? Math.min(activeIntroVid.duration, 15.0) 
+            : 10.0;
+          const targetTime = pNorm * maxScrubTime;
+          
+          const seekDiff = Math.abs(activeIntroVid.currentTime - targetTime);
+          if (seekDiff > 0.05) {
+            const nowMs = performance.now();
+            const lastSeekTime = parseFloat(activeIntroVid.dataset.lastSeekTime || '0');
+            if (!activeIntroVid.seeking && (nowMs - lastSeekTime > 40)) {
+              try {
+                activeIntroVid.currentTime = targetTime;
+                activeIntroVid.dataset.lastSeekTime = nowMs.toString();
+              } catch (e) {
+                logErrorDebug(`Intro seek failed:`, e);
               }
             }
-
-            // Animate scale (from 1.0 to 1.25 at p=0.10) and translation
-            const scale = 1 + p * 2.5;
-            const translateY = p * -120;
-            activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${scale}) translateY(${translateY}px)`;
-          } else {
-            if (!activeIntroVid.paused) {
-              activeIntroVid.pause();
-            }
           }
+
+          const scale = 1 + p * 2.5;
+          const translateY = p * -120;
+          activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${scale}) translateY(${translateY}px)`;
         }
 
-        // Fade in from 0.0 to 0.06
+        // Fade in/out heroOverlay
         const ratio_in = Math.min(1, p / 0.06);
-        // Fade out from 0.08 to 0.10
         let ratio_out = 1;
         if (p >= 0.08) {
           ratio_out = Math.max(0, 1 - (p - 0.08) / 0.02);
         }
-        
         const elementOpacity = ratio_in * ratio_out;
-        
         if (heroOverlay) {
           heroOverlay.style.opacity = elementOpacity;
           if (elementOpacity > 0) {
-            if (!self.heroVisible) {
-              heroOverlay.style.pointerEvents = 'all';
-              heroOverlay.style.visibility = 'visible';
-              self.heroVisible = true;
-            }
+            heroOverlay.style.pointerEvents = 'all';
+            heroOverlay.style.visibility = 'visible';
+            self.heroVisible = true;
           } else {
-            if (self.heroVisible) {
-              heroOverlay.style.pointerEvents = 'none';
-              heroOverlay.style.visibility = 'hidden';
-              self.heroVisible = false;
-            }
+            heroOverlay.style.pointerEvents = 'none';
+            heroOverlay.style.visibility = 'hidden';
+            self.heroVisible = false;
           }
         }
 
-        // Handle sticky navbar fade-in (remains visible for all p > 0.05)
+        // Stick nav
         if (mainNav) {
           mainNav.style.opacity = ratio_in;
         }
 
-        // Reset active index state-guardedly and hide all film scene videos during intro card phase
-        if (cState.activeIdx !== -1) {
-          cState.activeIdx = -1;
-          prewarmAround(0);
-          
-          scenes.forEach((sc) => {
-            if (!sc.video) return;
-            sc.video.classList.remove('active');
-            sc.video.style.opacity = '0';
-            sc.video.style.visibility = 'hidden';
-          });
-        }
-        
-        cState.targetTime = 0;
-        cState.targetRadius = 120;
+        // Iris stays closed, scene opacities stay 0
+        cState.targetRadius = 0;
         cState.targetX = 50;
         cState.targetY = 50;
-        clearTextOverlays();
+        cState.sceneStates.forEach((s) => {
+          s.targetOpacity = 0;
+          s.targetTime = 0;
+        });
+
+        // Hide all text blocks
+        if (cState.activeTextBlockIdx !== -1) {
+          cState.activeTextBlockIdx = -1;
+          textBlocks.forEach(block => block.classList.remove('active'));
+        }
         return;
       }
 
-      // Hide hero elements once scrolled past (state-guarded)
+      // Hide hero elements once scrolled past
       if (self.heroVisible) {
         if (heroOverlay) {
           heroOverlay.style.opacity = 0;
           heroOverlay.style.pointerEvents = 'none';
           heroOverlay.style.visibility = 'hidden';
         }
-        const introCard = document.getElementById('introCard');
         if (introCard) {
           introCard.style.opacity = 0;
           introCard.style.pointerEvents = 'none';
           introCard.style.visibility = 'hidden';
         }
-        // Pause active video when scrolled past
         const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
         if (activeIntroVid && !activeIntroVid.paused) {
           activeIntroVid.pause();
@@ -2178,132 +2161,190 @@ function setupCinemaEngine() {
         self.heroVisible = false;
       }
 
-      // Restore navigation style when scrolled past hero
-      const mainNav = document.getElementById('main-nav');
       if (mainNav) {
         mainNav.style.opacity = 1;
       }
 
-      // 2. Map scroll progress (0.10 -> 0.98) across the 12 film scenes
-      const scrubProgress = Math.max(0, Math.min((p - 0.10) / 0.88, 1.0));
+      // ── PHASE 2: IRIS OPENING & MONA LISA REVEAL (0.10 -> 0.15) ──
+      if (p > 0.10 && p <= 0.15) {
+        const ratio = (p - 0.10) / 0.05; // 0.0 -> 1.0
+        cState.targetRadius = ratio * 120;
+        
+        // Video 0 (Mona Lisa) starts fading in
+        cState.sceneStates[0].targetOpacity = ratio;
+        cState.sceneStates[0].targetTime = 0;
+        cState.sceneStates[0].targetVideoY = scenes[0].yStart || 0;
+        cState.targetX = scenes[0].irisX;
+        cState.targetY = scenes[0].irisY;
 
-      const segmentSize = 1 / 12;
-      const activeIdx = Math.min(Math.floor(scrubProgress / segmentSize), 11);
-      const rawLocal = (scrubProgress - (activeIdx * segmentSize)) / segmentSize;
-      const localProgress = Math.max(0, Math.min(rawLocal, 1.0));
+        // Ensure all other videos have opacity 0
+        for (let idx = 1; idx < 12; idx++) {
+          cState.sceneStates[idx].targetOpacity = 0;
+          cState.sceneStates[idx].targetTime = 0;
+        }
 
-      // Handle video active class shifts (state-guarded)
-      if (cState.activeIdx !== activeIdx) {
-        cState.activeIdx = activeIdx;
+        // Hide all text blocks during opening zoom
+        if (cState.activeTextBlockIdx !== -1) {
+          cState.activeTextBlockIdx = -1;
+          textBlocks.forEach(block => block.classList.remove('active'));
+        }
+
+        // Make sure active class is set on Video 0 for potential debugging
+        scenes.forEach((sc, idx) => {
+          if (sc.video) {
+            if (idx === 0) {
+              sc.video.classList.add('active');
+              warmupVideo(sc.video);
+            } else {
+              sc.video.classList.remove('active');
+            }
+          }
+        });
         
-        // Dynamic priority prewarming queue
-        prewarmAround(activeIdx);
-        
-        logDebug(`Active scene shifted to index: ${activeIdx}`);
-        
-        // Snapping: Calculate initial target time and video Y position to prevent visual flashes
-        let initialTargetTime = 0;
-        let initialVideoY = 0;
-        const activeScene = scenes[activeIdx];
-        if (activeScene) {
-          if (localProgress > 0.5) {
-            initialTargetTime = getSafeDuration(activeScene.video);
-            initialVideoY = typeof activeScene.yEnd !== 'undefined' ? activeScene.yEnd : 100;
+        closeBookingScreen();
+        return;
+      }
+
+      // ── PHASE 3: MAIN CINEMA RANGE (0.15 -> 0.92) ──
+      if (p > 0.15 && p <= 0.92) {
+        // Iris is kept fully open and stationary
+        cState.targetRadius = 120;
+
+        const start_range = 0.15;
+        const end_range = 0.92;
+        const total_range = end_range - start_range; // 0.77
+        const segmentSize = total_range / 12; // 0.0641666...
+        const fadeZone = 0.012; // Cross-fade width
+
+        // Determine current segment index
+        const scrubProgress = p - start_range;
+        const activeIdx = Math.max(0, Math.min(Math.floor(scrubProgress / segmentSize), 11));
+
+        cState.targetX = scenes[activeIdx].irisX;
+        cState.targetY = scenes[activeIdx].irisY;
+
+        if (cState.activeIdx !== activeIdx) {
+          cState.activeIdx = activeIdx;
+          prewarmAround(activeIdx);
+          logDebug(`Active scene shifted to index: ${activeIdx}`);
+        }
+
+        // Loop through all 12 scenes to calculate targetTime and targetOpacity
+        for (let idx = 0; idx < 12; idx++) {
+          const sState = cState.sceneStates[idx];
+          const sc = scenes[idx];
+          const video = sc.video;
+          const duration = getSafeDuration(video);
+          
+          const start_p = start_range + idx * segmentSize;
+          const end_p = start_p + segmentSize;
+
+          // 1. Time seek calculations
+          if (p <= start_p) {
+            sState.targetTime = 0;
+            sState.targetVideoY = sc.yStart || 0;
+          } else if (p >= end_p) {
+            sState.targetTime = duration;
+            sState.targetVideoY = sc.yEnd || 100;
           } else {
-            initialVideoY = typeof activeScene.yStart !== 'undefined' ? activeScene.yStart : 0;
+            // Inside the segment
+            const local_p = (p - start_p) / segmentSize; // 0.0 -> 1.0
+            sState.targetTime = local_p * duration;
+            sState.targetVideoY = (sc.yStart || 0) + ((sc.yEnd || 100) - (sc.yStart || 0)) * local_p;
+          }
+
+          // 2. Opacity cross-fade calculations
+          if (p < start_p || p > end_p) {
+            sState.targetOpacity = 0;
+          } else {
+            // Inside segment, compute cross-fade based on boundary zones
+            let opacity = 1.0;
+            if (p < start_p + fadeZone && idx > 0) {
+              // Fade in zone
+              opacity = (p - start_p) / fadeZone;
+            } else if (p > end_p - fadeZone && idx < 11) {
+              // Fade out zone
+              opacity = 1.0 - ((p - (end_p - fadeZone)) / fadeZone);
+            }
+            sState.targetOpacity = opacity;
           }
         }
-        
-        cState.currentTime = initialTargetTime;
-        cState.targetTime = initialTargetTime;
-        cState.currentVideoY = initialVideoY;
-        cState.targetVideoY = initialVideoY;
-        
+
+        // Apply class active triggers dynamically to support external style requirements
         scenes.forEach((sc, idx) => {
-          if (!sc.video) return;
-          // Clear any inline style overrides applied during the intro card phase
-          sc.video.style.opacity = '';
-          sc.video.style.visibility = '';
-          
-          if (idx === activeIdx) {
-            sc.video.classList.add('active');
-            warmupVideo(sc.video);
-            try {
-              if (sc.video.readyState >= 1) {
-                sc.video.currentTime = initialTargetTime;
-              }
-            } catch (e) {
-              logErrorDebug(`Snap seek failed on active scene shift:`, e);
+          if (sc.video) {
+            if (idx === activeIdx) {
+              sc.video.classList.add('active');
+              warmupVideo(sc.video);
+            } else {
+              sc.video.classList.remove('active');
             }
-          } else {
-            sc.video.classList.remove('active');
           }
         });
-      }
 
-      const activeScene = scenes[activeIdx];
-      if (!activeScene) return;
+        // 3. Text Overlay synchronization (active in the middle of each video segment)
+        let targetTextBlockIdx = -1;
+        const current_start_p = start_range + activeIdx * segmentSize;
+        const current_end_p = current_start_p + segmentSize;
+        
+        // Show text block when video is fully visible (outside of fade zones)
+        if (p >= current_start_p + fadeZone && p <= current_end_p - fadeZone) {
+          targetTextBlockIdx = activeIdx;
+        }
 
-      const video = activeScene.video;
-      const duration = getSafeDuration(video);
+        if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
+          cState.activeTextBlockIdx = targetTextBlockIdx;
+          logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
+          textBlocks.forEach((block, idx) => {
+            if (idx === targetTextBlockIdx) {
+              block.classList.add('active');
+            } else {
+              block.classList.remove('active');
+            }
+          });
+        }
 
-      // Set target coordinates of active focus area
-      cState.targetX = activeScene.irisX;
-      cState.targetY = activeScene.irisY;
-
-      // Set target Y position for dynamic vertical panning (only pans during video scrub phase 0.15 -> 0.85)
-      const yStart = typeof activeScene.yStart !== 'undefined' ? activeScene.yStart : 0;
-      const yEnd = typeof activeScene.yEnd !== 'undefined' ? activeScene.yEnd : 100;
-      let panProgress = 0;
-      if (localProgress <= irisInThreshold) {
-        panProgress = 0;
-      } else if (localProgress > irisInThreshold && localProgress <= irisOutThreshold) {
-        panProgress = (localProgress - irisInThreshold) / (irisOutThreshold - irisInThreshold);
-      } else {
-        panProgress = 1.0;
-      }
-      cState.targetVideoY = yStart + (yEnd - yStart) * panProgress;
-
-      // Map three phases (Iris-In, Scrub, Iris-Out) to targets
-      if (localProgress <= irisInThreshold) {
-        cState.targetTime = 0;
-        const ratio = localProgress / irisInThreshold;
-        cState.targetRadius = ratio * 120;
-      } else if (localProgress > irisInThreshold && localProgress <= irisOutThreshold) {
-        cState.targetRadius = 120;
-        const ratio = (localProgress - irisInThreshold) / (irisOutThreshold - irisInThreshold);
-        cState.targetTime = ratio * duration;
-      } else {
-        cState.targetTime = duration;
-        const ratio = (localProgress - irisOutThreshold) / (1.0 - irisOutThreshold);
-        cState.targetRadius = (1.0 - ratio) * 120;
-      }
-
-      // Synchronize text overlays (active only between 15% and 85% of local progress)
-      // Fully state-guarded to avoid high-frequency DOM manipulation
-      let targetTextBlockIdx = -1;
-      if (localProgress > 0.15 && localProgress < 0.85) {
-        targetTextBlockIdx = activeIdx;
-      }
-
-      if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
-        cState.activeTextBlockIdx = targetTextBlockIdx;
-        logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
-        textBlocks.forEach((block, idx) => {
-          if (idx === targetTextBlockIdx) {
-            block.classList.add('active');
-          } else {
-            block.classList.remove('active');
-          }
-        });
-      }
-
-      // 3. Final Booking reveal screen boundary trigger
-      if (p >= 0.98) {
-        openBookingScreen();
-        clearTextOverlays();
-      } else {
         closeBookingScreen();
+        return;
+      }
+
+      // ── PHASE 4: IRIS CLOSING & TELEPORT TO BOOKING (0.92 -> 0.96) ──
+      if (p > 0.92 && p <= 0.96) {
+        const ratio = (p - 0.92) / 0.04; // 0.0 -> 1.0
+        cState.targetRadius = Math.max(0, 120 - ratio * 120);
+
+        // Video 11 (Viking) fades out
+        cState.sceneStates[11].targetOpacity = 1.0 - ratio;
+        cState.sceneStates[11].targetTime = getSafeDuration(scenes[11].video);
+        cState.sceneStates[11].targetVideoY = scenes[11].yEnd || 100;
+
+        // Ensure all other videos have opacity 0
+        for (let idx = 0; idx < 11; idx++) {
+          cState.sceneStates[idx].targetOpacity = 0;
+          cState.sceneStates[idx].targetTime = 0;
+        }
+
+        // Hide all text blocks
+        if (cState.activeTextBlockIdx !== -1) {
+          cState.activeTextBlockIdx = -1;
+          textBlocks.forEach(block => block.classList.remove('active'));
+        }
+
+        closeBookingScreen();
+        return;
+      }
+
+      // ── PHASE 5: BOOKING REVEAL SCREEN (p > 0.96) ──
+      if (p > 0.96) {
+        cState.targetRadius = 0;
+        cState.sceneStates.forEach(s => s.targetOpacity = 0);
+        
+        if (cState.activeTextBlockIdx !== -1) {
+          cState.activeTextBlockIdx = -1;
+          textBlocks.forEach(block => block.classList.remove('active'));
+        }
+
+        openBookingScreen();
       }
     }
   });
