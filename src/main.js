@@ -466,6 +466,27 @@ function setupPortalParticles() {
 
 // ==========================================
 // 2. STATE MANAGER & COLOR SYNCHRONIZER
+function setSplitCityTitle(cityText) {
+  const titleEl = document.getElementById('introCityTitle');
+  if (!titleEl) return;
+  titleEl.innerHTML = ''; // clear
+
+  const mid = Math.ceil(cityText.length / 2);
+  const leftText = cityText.slice(0, mid);
+  const rightText = cityText.slice(mid);
+
+  const spanLeft = document.createElement('span');
+  spanLeft.className = 'title-split-left';
+  spanLeft.textContent = leftText;
+
+  const spanRight = document.createElement('span');
+  spanRight.className = 'title-split-right';
+  spanRight.textContent = rightText;
+
+  titleEl.appendChild(spanLeft);
+  titleEl.appendChild(spanRight);
+}
+
 function updateIntroVideoState(city) {
   if (!city) return;
   const targetId = `intro-video-${city.toLowerCase()}`;
@@ -474,16 +495,8 @@ function updateIntroVideoState(city) {
   videos.forEach(video => {
     if (video.id === targetId) {
       video.classList.add('active');
-      // Only play if we are scrolled near the top (p <= 0.08)
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? scrollY / docHeight : 0;
-      
-      if (progress <= 0.08) {
-        video.play().catch(e => {
-          logErrorDebug(`Autoplay blocked or failed for intro video: ${video.id}`, e);
-        });
-      }
+      video.pause();
+      video.currentTime = 0;
     } else {
       video.classList.remove('active');
       video.pause();
@@ -520,11 +533,11 @@ function setCityState(city) {
     heroSubtitle.innerHTML = `Sıradan temizlik anlayışını geride bırakın. <strong>${titleCity}</strong> genelinde yaşam alanlarınızı sinematik bir disiplin ve kusursuz hijyenle buluşturuyoruz.`;
   }
 
-  // Update introductory title card text
+  // Update introductory title card text (split for sideways parting animation)
   const introCityTitle = document.getElementById('introCityTitle');
   if (introCityTitle) {
     const titleCity = CITY_NAMES_TR_TITLE[city] || city;
-    introCityTitle.textContent = titleCity.toUpperCase();
+    setSplitCityTitle(titleCity.toUpperCase());
   }
 
   // Update introductory background video
@@ -1999,7 +2012,7 @@ function setupCinemaEngine() {
 
       // 1. Landing Hero Overlay fade boundaries (0.0 to 0.10 scroll depth)
       if (p <= 0.10) {
-        // Control introCard opacity (fade out completely by p = 0.045)
+        // Control introCard opacity (fade out completely by p = 0.045) and animate split text
         const introCard = document.getElementById('introCard');
         if (introCard) {
           const introOpacity = Math.max(0, 1 - p / 0.045);
@@ -2011,15 +2024,87 @@ function setupCinemaEngine() {
             introCard.style.pointerEvents = 'none';
             introCard.style.visibility = 'hidden';
           }
+
+          // Split text sideways animations
+          const splitLeft = introCard.querySelector('.title-split-left');
+          const splitRight = introCard.querySelector('.title-split-right');
+          const eyebrow = introCard.querySelector('.intro-eyebrow');
+          const subtitle = introCard.querySelector('.intro-subtitle');
+          const scrollHint = introCard.querySelector('.intro-scroll-hint');
+          
+          const dividerLines = introCard.querySelectorAll('.intro-divider-line');
+          const diamond = introCard.querySelector('.intro-divider-diamond');
+
+          if (p > 0) {
+            const pTextNorm = Math.min(1, p / 0.045);
+            const opacityVal = 1 - pTextNorm;
+            
+            if (splitLeft) {
+              splitLeft.style.transform = `translate3d(${pTextNorm * -150}px, 0, 0)`;
+              splitLeft.style.opacity = opacityVal;
+            }
+            if (splitRight) {
+              splitRight.style.transform = `translate3d(${pTextNorm * 150}px, 0, 0)`;
+              splitRight.style.opacity = opacityVal;
+            }
+            if (eyebrow) {
+              eyebrow.style.transform = `translate3d(${pTextNorm * -80}px, 0, 0)`;
+              eyebrow.style.opacity = opacityVal;
+            }
+            if (subtitle) {
+              subtitle.style.transform = `translate3d(${pTextNorm * 80}px, 0, 0)`;
+              subtitle.style.opacity = opacityVal;
+            }
+            if (scrollHint) {
+              scrollHint.style.transform = `translate3d(0, ${pTextNorm * 60}px, 0)`;
+              scrollHint.style.opacity = opacityVal;
+            }
+            if (dividerLines.length >= 2) {
+              dividerLines[0].style.transform = `translate3d(${pTextNorm * -100}px, 0, 0)`;
+              dividerLines[0].style.opacity = opacityVal;
+              dividerLines[1].style.transform = `translate3d(${pTextNorm * 100}px, 0, 0)`;
+              dividerLines[1].style.opacity = opacityVal;
+            }
+            if (diamond) {
+              diamond.style.transform = `rotate(45deg) scale(${1 - pTextNorm})`;
+              diamond.style.opacity = opacityVal;
+            }
+          } else {
+            // Reset inline styles to let original CSS keyframe animations run on load
+            if (splitLeft) { splitLeft.style.transform = ''; splitLeft.style.opacity = ''; }
+            if (splitRight) { splitRight.style.transform = ''; splitRight.style.opacity = ''; }
+            if (eyebrow) { eyebrow.style.transform = ''; eyebrow.style.opacity = ''; }
+            if (subtitle) { subtitle.style.transform = ''; subtitle.style.opacity = ''; }
+            if (scrollHint) { scrollHint.style.transform = ''; scrollHint.style.opacity = ''; }
+            if (dividerLines.length >= 2) {
+              dividerLines[0].style.transform = ''; dividerLines[0].style.opacity = '';
+              dividerLines[1].style.transform = ''; dividerLines[1].style.opacity = '';
+            }
+            if (diamond) { diamond.style.transform = ''; diamond.style.opacity = ''; }
+          }
         }
 
-        // Zoom and Pan Active Intro Video
+        // Zoom, Pan, and Scrub Active Intro Video
         const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
         if (activeIntroVid) {
           if (p <= 0.08) {
-            if (activeIntroVid.paused) {
-              activeIntroVid.play().catch(() => {});
+            if (!activeIntroVid.paused) {
+              activeIntroVid.pause();
             }
+            // Calculate normalized progress (0.0 -> 1.0)
+            const pNorm = p / 0.08;
+            
+            // Scrub/seek video based on progress
+            const maxScrubTime = !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0 
+              ? Math.min(activeIntroVid.duration, 8.0) 
+              : 5.0;
+            const targetTime = pNorm * maxScrubTime;
+            
+            const seekDiff = Math.abs(activeIntroVid.currentTime - targetTime);
+            if (seekDiff > 0.03) {
+              activeIntroVid.currentTime = targetTime;
+            }
+
             // Animate scale (from 1.0 to 1.25 at p=0.08) and translation
             const scale = 1 + p * 3.125;
             const translateY = p * -150;

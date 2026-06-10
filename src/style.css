@@ -3336,6 +3336,10 @@ img, video, .card-bg-image {
 }
 
 .cinema-intro-card .intro-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
   font-family: 'Cinzel', serif;
   font-size: clamp(2.8rem, 7vw, 5.5rem);
   font-weight: 400;
@@ -3356,6 +3360,12 @@ img, video, .card-bg-image {
     introFadeIn 1.8s var(--ease-smooth) forwards 0.4s,
     textShimmer 8s linear infinite;
   filter: drop-shadow(0 0 30px rgba(var(--clr-accent-rgb, 51, 102, 255), 0.25));
+}
+
+.cinema-intro-card .title-split-left,
+.cinema-intro-card .title-split-right {
+  display: inline-block;
+  will-change: transform, opacity;
 }
 
 .cinema-intro-card .intro-divider {
