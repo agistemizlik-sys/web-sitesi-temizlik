@@ -795,7 +795,7 @@ html.bypassing-gateway #portal-stage {
 #cinema-section {
   position: relative;
   width: 100vw;
-  height: 3600vh; /* Scrub trigger scroll space (300% per scene for 12 scenes) */
+  height: 6000vh; /* Scrub trigger scroll space (500% per scene for 12 scenes for smoother and slower scrubbing) */
   background: #000;
   z-index: 100;
 }
@@ -1825,7 +1825,7 @@ html.bypassing-gateway #portal-stage {
   color: var(--clr-muted);
   line-height: 1.6;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.4s var(--ease-smooth);
+  transition: background-color 0.4s var(--ease-smooth), border-color 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
   overflow: hidden; /* Added for clean GSAP height expansion animations */
 }
 

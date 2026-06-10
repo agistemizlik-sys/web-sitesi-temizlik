@@ -192,26 +192,6 @@ function warmupVideo(video) {
   video.addEventListener('error', () => {
     logErrorDebug(`Decoder resource loading error on ${video.id}:`, video.error);
   });
-  
-  // Set up pending seek event listener
-  video.addEventListener('seeked', () => {
-    video.dataset.customSeeking = 'false';
-    const pending = parseFloat(video.dataset.pendingSeek);
-    if (!isNaN(pending)) {
-      video.dataset.pendingSeek = ''; // clear
-      const diff = Math.abs(video.currentTime - pending);
-      if (diff > 0.01) {
-        logDebug(`Executing buffered seek on ${video.id} to ${pending}s`);
-        try {
-          video.dataset.customSeeking = 'true';
-          video.currentTime = pending;
-        } catch (e) {
-          video.dataset.customSeeking = 'false';
-          logErrorDebug(`Seek failed during buffered callback on ${video.id}:`, e);
-        }
-      }
-    }
-  });
 
   try {
     video.load();
@@ -1497,20 +1477,13 @@ function setupPortalGateway() {
 
 function setupNavScroll() {
   const nav = document.getElementById('main-nav');
-  let isScrolled = false;
-  window.addEventListener('scroll', () => {
-    if (nav) {
-      const scrolled = window.scrollY > 50;
-      if (scrolled !== isScrolled) {
-        isScrolled = scrolled;
-        if (scrolled) {
-          nav.classList.add('nav-scrolled');
-        } else {
-          nav.classList.remove('nav-scrolled');
-        }
-      }
-    }
-  }, { passive: true });
+  if (nav) {
+    ScrollTrigger.create({
+      start: 'top -50px',
+      onEnter: () => nav.classList.add('nav-scrolled'),
+      onLeaveBack: () => nav.classList.remove('nav-scrolled')
+    });
+  }
 
   const citySwitcherBtn = document.getElementById('citySwitcherBtn');
   if (citySwitcherBtn) {
@@ -1734,6 +1707,17 @@ function setupCinemaEngine() {
   const navProgressBar = document.getElementById('navProgressBar');
   const loader = document.getElementById('cinemaLoader');
 
+  // Cache elements to prevent DOM query overhead inside the scroll handler
+  const introCard = document.getElementById('introCard');
+  const splitLeft = introCard?.querySelector('.title-split-left');
+  const splitRight = introCard?.querySelector('.title-split-right');
+  const eyebrow = introCard?.querySelector('.intro-eyebrow');
+  const subtitle = introCard?.querySelector('.intro-subtitle');
+  const scrollHint = introCard?.querySelector('.intro-scroll-hint');
+  const dividerLines = introCard?.querySelectorAll('.intro-divider-line');
+  const diamond = introCard?.querySelector('.intro-divider-diamond');
+  const mainNav = document.getElementById('main-nav');
+
   let isLoaderActive = false;
 
   const navLinks = document.querySelectorAll('.nav-links .nav-link-item');
@@ -1908,28 +1892,25 @@ function setupCinemaEngine() {
       }
     }
 
-    // Apply safe, buffered video seeking (uses pendingSeek queue and synchronous seek lock)
+    // Apply safe, hardware-buffered video seeking using native seeking property
     if (video && video.readyState >= 1) {
       const seekDiff = Math.abs(video.currentTime - cState.currentTime);
-      if (seekDiff > 0.01) {
+      // Only seek if difference is greater than 0.05s (approx. 1-2 frames at 30fps)
+      // to avoid spamming the video decoder with sub-frame seek requests
+      if (seekDiff > 0.05) {
         settled = false;
         
-        if (video.dataset.customSeeking === undefined) {
-          video.dataset.customSeeking = 'false';
-        }
+        // Throttle seeks to at most once every 40ms (25fps seek rate)
+        const nowMs = performance.now();
+        const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
         
-        const isCustomSeeking = video.dataset.customSeeking === 'true';
-        if (!isCustomSeeking) {
+        if (!video.seeking && (nowMs - lastSeekTime > 40)) {
           try {
-            video.dataset.customSeeking = 'true';
             video.currentTime = cState.currentTime;
+            video.dataset.lastSeekTime = nowMs.toString();
           } catch (e) {
-            video.dataset.customSeeking = 'false';
             logErrorDebug(`Direct seek failed on ${video.id}:`, e);
           }
-        } else {
-          // Store latest position in the pending queue
-          video.dataset.pendingSeek = cState.currentTime;
         }
       }
     }
@@ -2013,7 +1994,6 @@ function setupCinemaEngine() {
       // 1. Landing Hero Overlay fade boundaries (0.0 to 0.10 scroll depth)
       if (p <= 0.10) {
         // Control introCard opacity (fade out completely by p = 0.10) and animate split text
-        const introCard = document.getElementById('introCard');
         if (introCard) {
           const introOpacity = Math.max(0, 1 - p / 0.10);
           introCard.style.opacity = introOpacity;
@@ -2024,16 +2004,6 @@ function setupCinemaEngine() {
             introCard.style.pointerEvents = 'none';
             introCard.style.visibility = 'hidden';
           }
-
-          // Split text sideways animations (complete by p = 0.08)
-          const splitLeft = introCard.querySelector('.title-split-left');
-          const splitRight = introCard.querySelector('.title-split-right');
-          const eyebrow = introCard.querySelector('.intro-eyebrow');
-          const subtitle = introCard.querySelector('.intro-subtitle');
-          const scrollHint = introCard.querySelector('.intro-scroll-hint');
-          
-          const dividerLines = introCard.querySelectorAll('.intro-divider-line');
-          const diamond = introCard.querySelector('.intro-divider-diamond');
 
           if (p > 0) {
             const pTextNorm = Math.min(1, p / 0.08);
@@ -2059,7 +2029,7 @@ function setupCinemaEngine() {
               scrollHint.style.transform = `translate3d(0, ${pTextNorm * 60}px, 0)`;
               scrollHint.style.opacity = opacityVal;
             }
-            if (dividerLines.length >= 2) {
+            if (dividerLines && dividerLines.length >= 2) {
               dividerLines[0].style.transform = `translate3d(${pTextNorm * -100}px, 0, 0)`;
               dividerLines[0].style.opacity = opacityVal;
               dividerLines[1].style.transform = `translate3d(${pTextNorm * 100}px, 0, 0)`;
@@ -2076,7 +2046,7 @@ function setupCinemaEngine() {
             if (eyebrow) { eyebrow.style.transform = ''; eyebrow.style.opacity = ''; }
             if (subtitle) { subtitle.style.transform = ''; subtitle.style.opacity = ''; }
             if (scrollHint) { scrollHint.style.transform = ''; scrollHint.style.opacity = ''; }
-            if (dividerLines.length >= 2) {
+            if (dividerLines && dividerLines.length >= 2) {
               dividerLines[0].style.transform = ''; dividerLines[0].style.opacity = '';
               dividerLines[1].style.transform = ''; dividerLines[1].style.opacity = '';
             }
@@ -2101,8 +2071,18 @@ function setupCinemaEngine() {
             const targetTime = pNorm * maxScrubTime;
             
             const seekDiff = Math.abs(activeIntroVid.currentTime - targetTime);
-            if (seekDiff > 0.03) {
-              activeIntroVid.currentTime = targetTime;
+            // Throttle seeks to at most once every 40ms to avoid overloading the GPU decoder
+            if (seekDiff > 0.05) {
+              const nowMs = performance.now();
+              const lastSeekTime = parseFloat(activeIntroVid.dataset.lastSeekTime || '0');
+              if (!activeIntroVid.seeking && (nowMs - lastSeekTime > 40)) {
+                try {
+                  activeIntroVid.currentTime = targetTime;
+                  activeIntroVid.dataset.lastSeekTime = nowMs.toString();
+                } catch (e) {
+                  logErrorDebug(`Intro seek failed:`, e);
+                }
+              }
             }
 
             // Animate scale (from 1.0 to 1.25 at p=0.10) and translation
@@ -2144,7 +2124,6 @@ function setupCinemaEngine() {
         }
 
         // Handle sticky navbar fade-in (remains visible for all p > 0.05)
-        const mainNav = document.getElementById('main-nav');
         if (mainNav) {
           mainNav.style.opacity = ratio_in;
         }
