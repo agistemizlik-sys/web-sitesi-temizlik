@@ -2149,24 +2149,18 @@ function setupCinemaEngine() {
           mainNav.style.opacity = ratio_in;
         }
 
-        // Keep first video active as background (state-guarded) and control its opacity dynamically
-        if (cState.activeIdx !== 0) {
-          cState.activeIdx = 0;
+        // Reset active index state-guardedly and hide all film scene videos during intro card phase
+        if (cState.activeIdx !== -1) {
+          cState.activeIdx = -1;
           prewarmAround(0);
-        }
-        
-        scenes.forEach((sc, idx) => {
-          if (!sc.video) return;
-          if (idx === 0) {
-            sc.video.classList.add('active');
-            sc.video.style.opacity = elementOpacity;
-            sc.video.style.visibility = elementOpacity > 0 ? 'visible' : 'hidden';
-          } else {
+          
+          scenes.forEach((sc) => {
+            if (!sc.video) return;
             sc.video.classList.remove('active');
-            sc.video.style.opacity = '';
-            sc.video.style.visibility = '';
-          }
-        });
+            sc.video.style.opacity = '0';
+            sc.video.style.visibility = 'hidden';
+          });
+        }
         
         cState.targetTime = 0;
         cState.targetRadius = 120;
@@ -2197,14 +2191,10 @@ function setupCinemaEngine() {
         self.heroVisible = false;
       }
 
-      // Restore navigation and video inline styles when scrolled past hero
+      // Restore navigation style when scrolled past hero
       const mainNav = document.getElementById('main-nav');
       if (mainNav) {
         mainNav.style.opacity = 1;
-      }
-      if (scenes[0] && scenes[0].video) {
-        scenes[0].video.style.opacity = '';
-        scenes[0].video.style.visibility = '';
       }
 
       // 2. Map scroll progress (0.10 -> 0.98) across the 12 film scenes
@@ -2244,6 +2234,10 @@ function setupCinemaEngine() {
         
         scenes.forEach((sc, idx) => {
           if (!sc.video) return;
+          // Clear any inline style overrides applied during the intro card phase
+          sc.video.style.opacity = '';
+          sc.video.style.visibility = '';
+          
           if (idx === activeIdx) {
             sc.video.classList.add('active');
             warmupVideo(sc.video);
