@@ -2023,7 +2023,7 @@ function setupCinemaEngine() {
             // Animate scale (from 1.0 to 1.25 at p=0.08) and translation
             const scale = 1 + p * 3.125;
             const translateY = p * -150;
-            activeIntroVid.style.transform = `translate(-50%, -50%) scale(${scale}) translateY(${translateY}px)`;
+            activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${scale}) translateY(${translateY}px)`;
           } else {
             if (!activeIntroVid.paused) {
               activeIntroVid.pause();
@@ -3082,11 +3082,13 @@ function setupCinemaAmbientLight() {
   const section = document.getElementById('cinema-section');
   if (!section) return;
 
+  const targetContainer = section.querySelector('.cinema-stage') || section;
+
   const light = document.createElement('div');
   light.id = 'cinema-ambient-light';
   light.className = 'cinema-ambient-light';
   light.setAttribute('aria-hidden', 'true');
-  section.appendChild(light);
+  targetContainer.appendChild(light);
 
   let lightTicking = false;
   let lightMX = 0;
@@ -3098,10 +3100,7 @@ function setupCinemaAmbientLight() {
 
     if (!lightTicking) {
       window.requestAnimationFrame(() => {
-        const x = (lightMX / window.innerWidth) * 100;
-        const y = (lightMY / window.innerHeight) * 100;
-        light.style.setProperty('--mouse-x', `${x}%`);
-        light.style.setProperty('--mouse-y', `${y}%`);
+        light.style.transform = `translate3d(${lightMX}px, ${lightMY}px, 0)`;
         lightTicking = false;
       });
       lightTicking = true;
