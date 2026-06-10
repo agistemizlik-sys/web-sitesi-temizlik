@@ -1977,7 +1977,7 @@ function setupCinemaEngine() {
   const irisInThreshold = 0.15;
   const irisOutThreshold = 0.85;
 
-  ScrollTrigger.create({
+  const trigger = ScrollTrigger.create({
     trigger: '#cinema-section',
     start: 'top top',
     end: 'bottom bottom',
@@ -2320,6 +2320,9 @@ function setupCinemaEngine() {
       }
     }
   });
+
+  // Force initial state update immediately to initialize style states on load
+  trigger.update();
 }
 
 // ==========================================
