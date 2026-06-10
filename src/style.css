@@ -795,7 +795,7 @@ html.bypassing-gateway #portal-stage {
 #cinema-section {
   position: relative;
   width: 100vw;
-  height: 6000vh; /* Scrub trigger scroll space (500% per scene for 12 scenes for smoother and slower scrubbing) */
+  height: 4800vh; /* Scrub trigger scroll space (400% per scene for 12 scenes for smoother and slow-enough scrubbing) */
   background: #000;
   z-index: 100;
 }

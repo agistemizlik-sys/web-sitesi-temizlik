@@ -1830,8 +1830,8 @@ function setupCinemaEngine() {
     if (dt > 10) dt = 1.0;
 
     const cState = STATE.cinema;
-    const timeLerp = 1 - Math.pow(1 - 0.14, dt);
-    const opacityLerp = 1 - Math.pow(1 - 0.16, dt);
+    const timeLerp = 1 - Math.pow(1 - 0.07, dt);
+    const opacityLerp = 1 - Math.pow(1 - 0.09, dt);
     const maskLerp = 1 - Math.pow(1 - 0.11, dt);
 
     cState.currentRadius += (cState.targetRadius - cState.currentRadius) * maskLerp;
@@ -1872,6 +1872,16 @@ function setupCinemaEngine() {
 
       const video = sc.video;
       if (!video) return;
+
+      // Proximity filter: only render and seek active and adjacent videos.
+      // Any video further than 1 index away is instantly hidden and not seeked.
+      if (Math.abs(idx - cState.activeIdx) > 1) {
+        sState.currentOpacity = 0;
+        sState.targetOpacity = 0;
+        video.style.opacity = 0;
+        video.style.visibility = 'hidden';
+        return;
+      }
 
       // Lerp time
       sState.currentTime += (sState.targetTime - sState.currentTime) * timeLerp;
