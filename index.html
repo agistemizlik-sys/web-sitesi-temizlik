@@ -827,79 +827,214 @@
           <div class="loader-spinner"></div>
         </div>
 
+        <!-- Hizmet Seçim Paneli (Tek Bir Karede 4 Seçilebilir Hizmet) -->
+        <div class="scene-text-overlay" id="servicesTextOverlay" aria-hidden="true">
+          <div class="services-select-card">
+            <!-- HUD decorative corner brackets -->
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+
+            <div class="services-select-hud-header">
+              <span class="hud-system-status"><span class="status-pulse"></span>HİZMET KATEGORİLERİ</span>
+              <span class="hud-step-counter">ADIM 02</span>
+            </div>
+
+            <h3 class="services-select-title">HİZMET SEÇİMİ</h3>
+            <p class="services-select-subtitle">Lütfen almak istediğiniz temizlik hizmetini seçiniz</p>
+            <div class="services-select-grid">
+              <!-- Card 1: Standart -->
+              <div class="service-select-item selected" data-service="standart" data-base-price="15">
+                <span class="service-select-badge">EN POPÜLER</span>
+                <div class="card-glow-overlay"></div>
+                <div class="service-select-active-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="service-select-icon">
+                  <svg class="service-select-svg svg-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path class="house-roof" d="M3 10L12 3l9 7" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="house-walls" d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="house-door" d="M9 21v-6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle class="house-window" cx="12" cy="9" r="1.5" stroke-linecap="round"/>
+                    <path class="house-smoke" d="M18 6V4h-1" stroke-linecap="round"/>
+                    <circle class="house-smoke-puff" cx="17" cy="2" r="0.5"/>
+                  </svg>
+                </div>
+                <div class="service-select-info">
+                  <h4>Standart</h4>
+                  <p>Genel düzen ve temel hijyen çözümleri</p>
+                  <div class="service-select-tags">
+                    <span class="service-select-tag-pill">Toz Alma</span>
+                    <span class="service-select-tag-pill">Süpürme</span>
+                    <span class="service-select-tag-pill">Yüzey Hijyeni</span>
+                  </div>
+                </div>
+
+              </div>
+              
+              <!-- Card 2: Detaylı -->
+              <div class="service-select-item" data-service="detayli" data-base-price="22">
+                <span class="service-select-badge">TAVSİYE EDİLEN</span>
+                <div class="card-glow-overlay"></div>
+                <div class="service-select-active-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="service-select-icon">
+                  <svg class="service-select-svg svg-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path class="sparkle-main" d="M12 3c0 4.5 1.5 6 6 6-4.5 0-6 1.5-6 6 0-4.5-1.5-6-6-6 4.5 0 6-1.5 6-6z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="sparkle-sub-1" d="M19 13c0 2.25.75 3 3 3-2.25 0-3 .75-3 3 0-2.25-.75-3-3-3 2.25 0 3-.75 3-3z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="sparkle-sub-2" d="M6 14c0 1.5.5 2 2 2-1.5 0-2 .5-2 2 0-1.5-.5-2-2-2 1.5 0 2-.5 2-2z" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="service-select-info">
+                  <h4>Detaylı</h4>
+                  <p>Derin temizlik ve hassas leke arındırma</p>
+                  <div class="service-select-tags">
+                    <span class="service-select-tag-pill">Buharlı Hijyen</span>
+                    <span class="service-select-tag-pill">Dip Köşe</span>
+                    <span class="service-select-tag-pill">Leke Arındırma</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Card 3: Kurumsal B2B -->
+              <div class="service-select-item" data-service="kurumsal" data-base-price="18">
+                <span class="service-select-badge">B2B PROFESYONEL</span>
+                <div class="card-glow-overlay"></div>
+                <div class="service-select-active-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="service-select-icon">
+                  <svg class="service-select-svg svg-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect class="bldg-base" x="3" y="10" width="7" height="11" rx="1" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect class="bldg-tower" x="11" y="3" width="10" height="18" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="bldg-window w1" d="M14 6h.01" stroke-linecap="round"/>
+                    <path class="bldg-window w2" d="M18 6h.01" stroke-linecap="round"/>
+                    <path class="bldg-window w3" d="M14 10h.01" stroke-linecap="round"/>
+                    <path class="bldg-window w4" d="M18 10h.01" stroke-linecap="round"/>
+                    <path class="bldg-window w5" d="M14 14h.01" stroke-linecap="round"/>
+                    <path class="bldg-window w6" d="M18 14h.01" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="service-select-info">
+                  <h4>Kurumsal B2B</h4>
+                  <p>İş yeri, restoran ve plaza temizliği</p>
+                  <div class="service-select-tags">
+                    <span class="service-select-tag-pill">Ofis & Plaza</span>
+                    <span class="service-select-tag-pill">Esnek Saatler</span>
+                    <span class="service-select-tag-pill">Özel Raporlama</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Card 4: İlaçlama -->
+              <div class="service-select-item" data-service="ilaclama" data-base-price="10">
+                <span class="service-select-badge">MEDİKAL KORUMA</span>
+                <div class="card-glow-overlay"></div>
+                <div class="service-select-active-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="service-select-icon">
+                  <svg class="service-select-svg svg-vial" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path class="vial-lip" d="M9 3h6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="vial-tube" d="M10 3v13a2 2 0 0 0 4 0V3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="vial-liquid" d="M10.2 12.5h3.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle class="vial-bubble b1" cx="12" cy="14" r="0.8" fill="currentColor"/>
+                    <circle class="vial-bubble b2" cx="11.2" cy="11" r="0.6" fill="currentColor"/>
+                    <circle class="vial-bubble b3" cx="12.8" cy="8" r="0.5" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="service-select-info">
+                  <h4>İlaçlama</h4>
+                  <p>Bakteri ve haşere kontrol çözümleri</p>
+                  <div class="service-select-tags">
+                    <span class="service-select-tag-pill">Haşere Kontrol</span>
+                    <span class="service-select-tag-pill">Sterilizasyon</span>
+                    <span class="service-select-tag-pill">Bakanlık Onaylı</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Sahnelerin Yazı Overlay'leri -->
         <div class="scene-text-overlay" id="sceneTextOverlay" aria-hidden="true">
           <!-- Scene 1 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">RÖNESANS DÖNEMİ</span>
-            <h3 class="scene-text-title">Mona Lisa Hijyeni</h3>
-            <p class="scene-text-desc">Sanat eseri kadar değerli alanlarınız için müze kalitesinde hassas temizlik.</p>
+            <span class="scene-text-tag">BANYO VE TUVALET HİJYENİ</span>
+            <h3 class="scene-text-title">Banyo ve Tuvalet Dezenfeksiyonu</h3>
+            <p class="scene-text-desc">Duşakabin, küvet, lavabo ve klozet alanlarının hijyenik solüsyonlarla temizlenmesi, kireç ve sabun kalıntılarının giderilmesi.</p>
           </div>
           <!-- Scene 2 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">FEODAL JAPONYA</span>
-            <h3 class="scene-text-title">Samuray Disiplini</h3>
-            <p class="scene-text-desc">Keskin, odaklanmış ve kusursuz temizlik prensipleriyle evinizde mutlak düzen.</p>
+            <span class="scene-text-tag">YER SÜPÜRME</span>
+            <h3 class="scene-text-title">Akıllı Robot Süpürge Teknolojisi</h3>
+            <p class="scene-text-desc">Zeminlerin, yeni nesil akıllı temizlik robotları ve yüksek çekim gücüne sahip HEPA filtreli süpürgelerle toz ve saçlardan arındırılması.</p>
           </div>
           <!-- Scene 3 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">ANADOLU KLASİĞİ</span>
-            <h3 class="scene-text-title">Nene Titizliği</h3>
-            <p class="scene-text-desc">Geleneksel sabun kokusu ve çocukluğunuzun o saf, organik temizlik hissi.</p>
+            <span class="scene-text-tag">FAYANS VE MERMER BAKIMI</span>
+            <h3 class="scene-text-title">Fayans ve Mermer Temizliği</h3>
+            <p class="scene-text-desc">Zeminlerin, mermer ve fayans yüzeylerin özel ph dengeli parlatıcı solüsyonlarla temizlenmesi, paspaslanarak lekesiz kurulanması.</p>
           </div>
           <!-- Scene 4 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">UZAY ÇAĞI</span>
-            <h3 class="scene-text-title">Kozmik Sterilizasyon</h3>
-            <p class="scene-text-desc">Yerçekimsiz alan titizliğinde, mikrop ve bakterilere karşı %100 koruma.</p>
+            <span class="scene-text-tag">EVCİL HAYVAN DOSTU</span>
+            <h3 class="scene-text-title">Evcil Hayvan Tüy Temizliği</h3>
+            <p class="scene-text-desc">Evcil hayvan dostlarımızın döktüğü tüylerin koltuk ve halılardan özel aparatlı süpürgelerle toplanması, anti-alerjenik bakım.</p>
           </div>
           <!-- Scene 5 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">VAHŞİ BATI</span>
-            <h3 class="scene-text-title">Vahşi Batı Esintisi</h3>
-            <p class="scene-text-desc">En zorlu çöl tozlarından ve çamur kalıntılarından derinlemesine arındırma.</p>
+            <span class="scene-text-tag">BUHARLI TEMİZLİK</span>
+            <h3 class="scene-text-title">Buharlı Dezenfeksiyon Gücü</h3>
+            <p class="scene-text-desc">140 derece kuru buhar teknolojisiyle kimyasal kullanmadan fayans, döşeme ve zeminlerin derinlemesine dezenfekte edilmesi.</p>
           </div>
           <!-- Scene 6 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">MİTOLOJİK ÇAĞ</span>
-            <h3 class="scene-text-title">Büyülü Dokunuş</h3>
-            <p class="scene-text-desc">Sihirli bir değnek değmiş gibi saniyeler içinde parıldayan yüzeyler.</p>
+            <span class="scene-text-tag">SESSİZ TEMİZLİK</span>
+            <h3 class="scene-text-title">Sessiz ve Gürültüsüz Süpürme</h3>
+            <p class="scene-text-desc">Yeni nesil sessiz ekipmanlar ve geleneksel süpürme yöntemleriyle, yaşam alanınızdaki huzuru bozmadan yapılan toz arındırma.</p>
           </div>
           <!-- Scene 7 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">ORTA ÇAĞ</span>
-            <h3 class="scene-text-title">Zırh Parlaklığı</h3>
-            <p class="scene-text-desc">Metal, ahşap ve taş yüzeylerde kalıcı koruma sağlayan premium cila.</p>
+            <span class="scene-text-tag">KOLTUK HİJYENİ</span>
+            <h3 class="scene-text-title">Koltuk Arası Toz ve Tüy Vakumlama</h3>
+            <p class="scene-text-desc">Döşemeli koltukların minder aralarında biriken toz, saç, kıl ve kırıntıların özel dar uçlu vakum aparatlarıyla derinlemesine çekilmesi.</p>
           </div>
           <!-- Scene 8 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">UZAK DOĞU</span>
-            <h3 class="scene-text-title">Zen Dinginliği</h3>
-            <p class="scene-text-desc">Zihninizi rahatlatacak, tozdan ve karmaşadan arınmış minimalist yaşam alanları.</p>
+            <span class="scene-text-tag">EŞYA VE DETAY TEMİZLİĞİ</span>
+            <h3 class="scene-text-title">Eşya ve Kenar Detay Toz Alma</h3>
+            <p class="scene-text-desc">Masa, sehpa, konsol ve diğer mobilyaların yüzeylerinin hassas antistatik bezlerle tozunun alınması ve kenar temizliği.</p>
           </div>
           <!-- Scene 9 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">ANTİK ROMA</span>
-            <h3 class="scene-text-title">İmparatorluk İhtişamı</h3>
-            <p class="scene-text-desc">Saraylara layık, mermer ve geniş alan temizliğinde antik güç.</p>
+            <span class="scene-text-tag">KAMERALI TEMİZLİK</span>
+            <h3 class="scene-text-title">Canlı İzlenebilir Kameralı Temizlik</h3>
+            <p class="scene-text-desc">Dilerseniz temizlik sürecini uzaktan canlı olarak izleyebilirsiniz. Güvenlik ve gizlilik gereği kayıtlarımız temizlikten 10 gün sonra otomatik olarak silinmektedir.</p>
           </div>
           <!-- Scene 10 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">GELENEKSEL JAPONYA</span>
-            <h3 class="scene-text-title">Sumo Gücünde Hijyen</h3>
-            <p class="scene-text-desc">Zorlu lekelerle ve kirlerle başa çıkan devasa dezenfeksiyon gücü.</p>
+            <span class="scene-text-tag">EVSEL ATIKLAR</span>
+            <h3 class="scene-text-title">Çöp Kovalarının Boşaltılması</h3>
+            <p class="scene-text-desc">Tüm odalardaki çöp kovalarının boşaltılması, çöp poşetlerinin yenilenmesi ve kovaların dezenfekte edilmesi.</p>
           </div>
           <!-- Scene 11 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">VİKTORYA DÖNEMİ</span>
-            <h3 class="scene-text-title">Saray Konforu</h3>
-            <p class="scene-text-desc">Danteller, kadifeler ve değerli mobilyalarınız için kraliyet standartlarında bakım.</p>
+            <span class="scene-text-tag">MUTFAK VE BAR HİJYENİ</span>
+            <h3 class="scene-text-title">Bulaşık Parlatma ve Mutfak Dolabı Temizliği</h3>
+            <p class="scene-text-desc">Mutfak dolaplarının dış kapaklarının silinmesi, tezgah üstü eşyaların tozunun alınması ve bardakların cilalanıp yerleştirilmesi.</p>
           </div>
           <!-- Scene 12 -->
           <div class="scene-text-block">
-            <span class="scene-text-tag">VİKİNG ÇAĞI</span>
-            <h3 class="scene-text-title">Kuzey Fırtınası</h3>
-            <p class="scene-text-desc">Zorlu mevsim şartlarına dayanıklı, dış cephe ve derinlemesine yıkama.</p>
+            <span class="scene-text-tag">HAVA TEMİZLİĞİ</span>
+            <h3 class="scene-text-title">Hava Temizliği ve Mikro Toz Arıtma</h3>
+            <p class="scene-text-desc">Profesyonel hava temizleme cihazları ve HEPA filtreli mikro toz emiciler kullanılarak ortam havasının partiküllerden arındırılması, sıfır toz seviyesinde havalandırma yapılması.</p>
           </div>
         </div>
 
@@ -981,12 +1116,10 @@
               <div class="form-field-cinema">
                 <label for="cService">TEMİZLİK TÜRÜ</label>
                 <select id="cService">
-                  <option value="konut">Konut Temizliği</option>
-                  <option value="ofis">Ofis & Plaza Temizliği</option>
-                  <option value="insaat">İnşaat Sonrası Temizlik</option>
-                  <option value="hali">Halı & Koltuk Yıkama</option>
-                  <option value="dis-cephe">Dış Cephe Cam Temizliği</option>
-                  <option value="dezenfeksiyon">Dezenfeksiyon Hizmetleri</option>
+                  <option value="standart">Standart Temizlik</option>
+                  <option value="detayli">Detaylı Temizlik</option>
+                  <option value="kurumsal">Kurumsal Temizlik (B2B)</option>
+                  <option value="ilaclama">İlaçlama & Dezenfeksiyon</option>
                 </select>
               </div>
             </div>
@@ -1027,46 +1160,32 @@
         
         <!-- Sol Panel: Hizmetlerin Listesi ve Detayları -->
         <div class="services-list-panel">
-          <div class="service-item-detail active" data-service="konut" data-base-price="15">
+          <div class="service-item-detail active" data-service="standart" data-base-price="15">
             <div class="service-icon">🏠</div>
             <div class="service-text">
-              <h4>Ev & Villa Temizliği</h4>
-              <p>Oda, mutfak, banyo temizliği ve toz alma dahil tam paket hijyen.</p>
+              <h4>Standart Temizlik</h4>
+              <p>Ev & Ofis için genel düzen ve temel hijyen çözümleri.</p>
             </div>
           </div>
-          <div class="service-item-detail" data-service="ofis" data-base-price="12">
+          <div class="service-item-detail" data-service="detayli" data-base-price="22">
+            <div class="service-icon">✨</div>
+            <div class="service-text">
+              <h4>Detaylı Temizlik</h4>
+              <p>Dip köşe, ince temizlik ve detaylı yüzey arındırma.</p>
+            </div>
+          </div>
+          <div class="service-item-detail" data-service="kurumsal" data-base-price="18">
             <div class="service-icon">🏢</div>
             <div class="service-text">
-              <h4>Ofis & Plaza Temizliği</h4>
-              <p>Çalışma alanları, toplantı odaları ve ortak alanların sterilizasyonu.</p>
+              <h4>Kurumsal Temizlik (B2B)</h4>
+              <p>İş yeri, restoran ve plazalar için periyodik çözümler.</p>
             </div>
           </div>
-          <div class="service-item-detail" data-service="insaat" data-base-price="25">
-            <div class="service-icon">🏗️</div>
-            <div class="service-text">
-              <h4>İnşaat Sonrası Temizlik</h4>
-              <p>Tüm boya, alçı ve ince moloz kalıntılarının derinlemesine arındırılması.</p>
-            </div>
-          </div>
-          <div class="service-item-detail" data-service="hali" data-base-price="8">
-            <div class="service-icon">🛋️</div>
-            <div class="service-text">
-              <h4>Halı & Koltuk Yıkama</h4>
-              <p>Yerinde yüksek basınçlı buharlı ve vakumlu kumaş temizleme.</p>
-            </div>
-          </div>
-          <div class="service-item-detail" data-service="dis-cephe" data-base-price="30">
-            <div class="service-icon">🧗</div>
-            <div class="service-text">
-              <h4>Dış Cephe Cam Temizliği</h4>
-              <p>Uzman dağcı/iskele ekipmanlarıyla yüksek katlı dış cam yıkama.</p>
-            </div>
-          </div>
-          <div class="service-item-detail" data-service="dezenfeksiyon" data-base-price="10">
+          <div class="service-item-detail" data-service="ilaclama" data-base-price="10">
             <div class="service-icon">🧪</div>
             <div class="service-text">
-              <h4>Dezenfeksiyon Hizmeti</h4>
-              <p>Sağlık Bakanlığı onaylı sisleme yöntemiyle antiviral koruma.</p>
+              <h4>İlaçlama & Dezenfeksiyon</h4>
+              <p>Böcek, haşere ve bakteri dezenfeksiyon işlemleri.</p>
             </div>
           </div>
         </div>

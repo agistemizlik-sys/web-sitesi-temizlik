@@ -35,6 +35,15 @@ window.addEventListener('hashchange', () => {
 let cachedWindowWidth = window.innerWidth;
 let cachedWindowHeight = window.innerHeight;
 
+// Utility function to debounce high-frequency events
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
 // Module-level variables for gateway interactive components
 let cardHoverListeners = [];
 let portalHotspotListeners = [];
@@ -43,6 +52,13 @@ let portalParallaxHandler = null;
 let portalScrollHandler = null;
 let portalParallaxRafId = null;
 let portalTargetHue = 220;
+
+// Performance caching variables
+let cachedIntroVideos = [];
+let activeIntroVideoEl = null;
+let splitLeftEl = null;
+let splitRightEl = null;
+let cachedHotspotCoords = {};
 
 function cleanupGatewayListeners() {
   const portalStage = document.getElementById('portal-stage');
@@ -98,7 +114,7 @@ const STATE = {
   // Interactive Selection State
   calculator: {
     applied: false,
-    serviceType: 'konut',
+    serviceType: 'standart',
     area: 100,
     frequency: '1',
     extras: [],
@@ -144,6 +160,65 @@ const STATE = {
 
   // Ambient Portal Particles
   ambientParticles: []
+};
+
+const SERVICE_SCENE_TEXTS = {
+  standart: [
+    { tag: 'BANYO VE TUVALET HİJYENİ', title: 'Banyo ve Tuvalet Dezenfeksiyonu', desc: 'Duşakabin, küvet, lavabo ve klozet alanlarının hijyenik solüsyonlarla temizlenmesi, kireç ve sabun kalıntılarının giderilmesi.' }, // Scene 1: monalisa
+    { tag: 'YER SÜPÜRME', title: 'Akıllı Robot Süpürge Teknolojisi', desc: 'Zeminlerin, yeni nesil akıllı temizlik robotları ve yüksek çekim gücüne sahip HEPA filtreli süpürgelerle toz ve saçlardan arındırılması.' }, // Scene 2: samurai
+    { tag: 'FAYANS VE MERMER BAKIMI', title: 'Fayans ve Mermer Temizliği', desc: 'Zeminlerin, mermer ve fayans yüzeylerin özel ph dengeli parlatıcı solüsyonlarla temizlenmesi, paspaslanarak lekesiz kurulanması.' }, // Scene 3: grandmother
+    { tag: 'EVCİL HAYVAN DOSTU', title: 'Evcil Hayvan Tüy Temizliği', desc: 'Evcil hayvan dostlarımızın döktüğü tüylerin koltuk ve halılardan özel aparatlı süpürgelerle toplanması, anti-alerjenik bakım.' }, // Scene 4: astronaut
+    { tag: 'BUHARLI TEMİZLİK', title: 'Buharlı Dezenfeksiyon Gücü', desc: '140 derece kuru buhar teknolojisiyle kimyasal kullanmadan fayans, döşeme ve zeminlerin derinlemesine dezenfekte edilmesi.' }, // Scene 5: cowboy
+    { tag: 'SESSİZ TEMİZLİK', title: 'Sessiz ve Gürültüsüz Süpürme', desc: 'Yeni nesil sessiz ekipmanlar ve geleneksel süpürme yöntemleriyle, yaşam alanınızdaki huzuru bozmadan yapılan toz arındırma.' }, // Scene 6: gandalf (sweeping wizard)
+    { tag: 'KOLTUK HİJYENİ', title: 'Koltuk Arası Toz ve Tüy Vakumlama', desc: 'Döşemeli koltukların minder aralarında biriken toz, saç, kıl ve kırıntıların özel dar uçlu vakum aparatlarıyla derinlemesine çekilmesi.' }, // Scene 7: knight next to couch
+    { tag: 'EŞYA VE DETAY TEMİZLİĞİ', title: 'Eşya ve Kenar Detay Toz Alma', desc: 'Masa, sehpa, konsol ve diğer mobilyaların yüzeylerinin hassas antistatik bezlerle tozunun alınması ve kenar temizliği.' }, // Scene 8: monk cleaning table
+    { tag: 'KAMERALI TEMİZLİK', title: 'Canlı İzlenebilir Kameralı Temizlik', desc: 'Dilerseniz temizlik sürecini uzaktan canlı olarak izleyebilirsiniz. Güvenlik ve gizlilik gereği kayıtlarımız temizlikten 10 gün sonra otomatik olarak silinmektedir.' }, // Scene 9: roman
+    { tag: 'EVSEL ATIKLAR', title: 'Çöp Kovalarının Boşaltılması', desc: 'Tüm odalardaki çöp kovalarının boşaltılması, çöp poşetlerinin yenilenmesi ve kovaların dezenfekte edilmesi.' }, // Scene 10: sumo
+    { tag: 'MUTFAK VE BAR HİJYENİ', title: 'Bulaşık Parlatma ve Mutfak Dolabı Temizliği', desc: 'Mutfak dolaplarının dış kapaklarının silinmesi, tezgah üstü eşyaların tozunun alınması ve bardakların cilalanıp yerleştirilmesi.' }, // Scene 11: victorian butler drying glass
+    { tag: 'HAVA TEMİZLİĞİ', title: 'Hava Temizliği ve Mikro Toz Arıtma', desc: 'Profesyonel hava temizleme cihazları ve HEPA filtreli mikro toz emiciler kullanılarak ortam havasının partiküllerden arındırılması, sıfır toz seviyesinde havalandırma yapılması.' } // Scene 12: viking
+  ],
+  detayli: [
+    { tag: 'DERİN BANYO STERİLİZASYONU', title: 'Banyo ve Tuvalet Derin Temizliği', desc: 'Fayans araları, derzler, klozet içi ve arkaları ile duş başlıklarının kireç çözücü solüsyonlarla derinlemesine sterilize edilmesi.' }, // Scene 1: monalisa
+    { tag: 'YER SÜPÜRME', title: 'Derinlemesine Robotik Vakumlama', desc: 'Akıllı robot süpürgeler ve endüstriyel vakum gücüyle en kuytu köşelerdeki tozların ve mikro partiküllerin temizlenmesi.' }, // Scene 2: samurai
+    { tag: 'DERİN ZEMİN PARLATMA', title: 'Derinlemesine Mermer ve Derz Temizliği', desc: 'Mermer zeminlerin gözenek temizliği, fayans derz aralarında biriken kirlerin derinlemesine fırçalanarak ilk günkü parlaklığına kavuşturulması.' }, // Scene 3: grandmother
+    { tag: 'EVCİL HAYVAN DOSTU', title: 'Derinlemesine Tüy ve Akar Temizliği', desc: 'Halı ve koltuk liflerine yapışan tüy ve derilerin yüksek emişli elektro-fırçalarla çekilmesi, koku nötralizasyonu.' }, // Scene 4: astronaut
+    { tag: 'DERİN BUHAR STERİLİZASYONU', title: 'Yüksek Isılı Buharlı Temizlik', desc: 'Ulaşılması zor dip köşe alanlarda, yüksek basınçlı kuru buhar yardımıyla bakteri ve lekelerin %99.9 oranında yok edilmesi.' }, // Scene 5: cowboy
+    { tag: 'SESSİZ SÜPÜRME', title: 'Derinlemesine Sessiz Toz Çekimi', desc: 'Gürültüye duyarlı saatlerde, ultra sessiz profesyonel vakum cihazlarıyla dip köşe tozların sessizce temizlenmesi.' }, // Scene 6: gandalf
+    { tag: 'DERİN KOLTUK TEMİZLİĞİ', title: 'Döşeme ve Kumaş Lif Tozu Arındırma', desc: 'Koltuk kumaş liflerine ve dikiş aralarına nüfuz etmiş ince toz, kıl ve evcil hayvan tüylerinin elektro-fırçalı başlıklarla temizlenmesi.' }, // Scene 7: knight
+    { tag: 'HASSAS EŞYA HİJYENİ', title: 'Mobilya Kenar ve Ayrıntı Tozu Alma', desc: 'Süs eşyaları, mobilya kenar kıvrımları ve ahşap yüzeylerin özel parlatıcı solüsyonlar eşliğinde hassas temizliği.' }, // Scene 8: monk
+    { tag: 'GÜVENLİ GÖZETİM', title: 'Gözetimli & Kameralı Temizlik Hizmeti', desc: 'Tüm temizlik süreci yaka kameraları ile kayıt altına alınır ve canlı yayınla izlenebilir. Video kayıtları 10 gün sonra kalıcı olarak silinmektedir.' }, // Scene 9: roman
+    { tag: 'AĞIR MOBİLYA DETAYI', title: 'Ağır Eşya Altı Toz Arındırma', desc: 'Gardırop, yatak, koltuk ve beyaz eşya gibi ağır nesnelerin altlarında biriken derin tozların ulaşılarak temizlenmesi.' }, // Scene 10: sumo
+    { tag: 'DETAYLI MUTFAK BAKIMI', title: 'Mutfak Dolap İçi ve Bardak Parlatma', desc: 'Mutfak dolaplarının iç ve dış yüzeylerinin derinlemesine arındırılması, cam bardak ve porselenlerin lekesiz kurulanıp dizilmesi.' }, // Scene 11: victorian
+    { tag: 'TADİLAT SONRASI TEMİZLİK', title: 'Tadilat ve İnşaat Sonrası Kaba/İnce Temizlik', desc: 'Tadilat veya inşaat sonrası zeminlerde, pencerelerde ve duvarlarda biriken tüm toz, harç, boya, alçı ve inşaat kalıntılarının derinlemesine arındırılması.' } // Scene 12: viking
+  ],
+  kurumsal: [
+    { tag: 'KURUMSAL BANYO HİJYENİ', title: 'Ortak Alan WC ve Lavabo Dezenfeksiyonu', desc: 'Personel ve müşteri tuvaletlerinin, lavaboların ve armatürlerin dezenfektanlarla periyodik olarak temizlenmesi.' }, // Scene 1: monalisa
+    { tag: 'GENİŞ ZEMİN SÜPÜRME', title: 'Akıllı Robotik Süpürme', desc: 'Ortak alanların ve ofis zeminlerinin yeni nesil otonom temizlik robotları ile sessiz ve kesintisiz süpürülmesi.' }, // Scene 2: samurai
+    { tag: 'GENİŞ ALAN MERMER BAKIMI', title: 'Kurumsal Zemin ve Mermer Parlatma', desc: 'Lobi, koridor ve ofislerdeki geniş mermer/fayans zeminlerin endüstriyel cilalama ve temizleme makineleriyle yıkanıp parlatılması.' }, // Scene 3: grandmother
+    { tag: 'EVCİL HAYVAN DOSTU', title: 'Evcil Hayvan Dostu Ofis Temizliği', desc: 'Patili dostlarımızın kabul edildiği pet-friendly ofislerde, tüy ve kokulara karşı özel filtreli hava temizleme ve yüzey bakımı.' }, // Scene 4: astronaut
+    { tag: 'BUHARLI DEZENFEKSİYON', title: 'Ofis ve Ortak Alan Buhar Hijyeni', desc: 'Ortak kullanım alanlarının, resepsiyon bankolarının ve yüksek temaslı yüzeylerin kuru buhar makineleriyle sterilizasyonu.' }, // Scene 5: cowboy
+    { tag: 'SESSİZ HİZMET', title: 'Çalışma Saatlerinde Gürültüsüz Süpürme', desc: 'Toplantı veya odaklanma sürecindeki çalışanları rahatsız etmeden, minimum ses düzeyinde yapılan ortak alan süpürme işlemi.' }, // Scene 6: gandalf
+    { tag: 'OFİS KOLTUK TEMİZLİĞİ', title: 'Bekleme Alanı ve Ofis Koltuğu Vakumlama', desc: 'Bekleme salonları, lobi koltukları ve ofis sandalyelerinin kumaş kısımlarında biriken toz ve tüylerin giderilmesi.' }, // Scene 7: knight
+    { tag: 'OFİS DONANIM TEMİZLİĞİ', title: 'Çalışma Masası ve Mobilya Toz Alma', desc: 'Ofis masaları, dolap üniteleri ve ortak kullanım eşyalarının kenar-köşe detay tozlarından arındırılması.' }, // Scene 8: monk
+    { tag: 'KURUMSAL İZLENEBİLİRLİK', title: 'Kameralı Ofis ve Alan Temizliği', desc: 'Kurumsal alanlarda şeffaflık ve güvenlik için yaka kameralı personel hizmeti. Canlı izleme imkanı sunan kayıtlar 10 gün sonra sistemden silinir.' }, // Scene 9: roman
+    { tag: 'ATIK YÖNETİMİ', title: 'Geri Dönüşümlü Çöp Toplama', desc: 'Evrak imha, geri dönüşüm ve evsel çöp kovalarının sınıflandırılarak toplanıp boşaltılması.' }, // Scene 10: sumo
+    { tag: 'MUTFAK VE KAFETERYA HİJYENİ', title: 'Ortak Alan Bardak ve Dolap Temizliği', desc: 'Ofis mutfaklarındaki ortak dolapların temizlenmesi, çay ve kahve bardaklarının yıkanıp iz bırakmadan parlatılması.' }, // Scene 11: victorian
+    { tag: 'KURUMSAL HAVA KALİTESİ', title: 'Ofis Hava Hijyeni ve Havalandırma', desc: 'Geniş ofis ortamlarında hava kalitesini artırıcı mikro filtreli hava temizleme cihazlarının çalıştırılması ve periyodik taze hava dezenfeksiyonu.' } // Scene 12: viking
+  ],
+  ilaclama: [
+    { tag: 'BANYO VE SIHHİ ALAN KORUMA', title: 'Sıhhi Tesisat ve Lavabo İlaçlaması', desc: 'Banyo ve tuvalet giderleri ile nemli sıhhi alanların, hamam böceği ve diğer zararlılara karşı koruyucu ilaçlanması.' }, // Scene 1: monalisa
+    { tag: 'DEZENFEKSİYON', title: 'Hijyenik Robotik Süpürme', desc: 'Süpürme robotlarının filtre ve haznelerinin dezenfekte edilerek haşere yumurtaları ve akarlara karşı bariyer oluşturulması.' }, // Scene 2: samurai
+    { tag: 'ZEMİN VE DERZ STERİLİZASYONU', title: 'Zemin ve Derz Arası Haşere Bariyeri', desc: 'Fayans ve mermer derzlerinin, süpürgelik çatlaklarının mikroplardan arındırılarak haşere yumurtalarına ve akarlara karşı koruyucu dezenfeksiyonu.' }, // Scene 3: grandmother
+    { tag: 'PARAZİT KONTROLÜ', title: 'Pire ve Parazit İlaçlaması', desc: 'Evcil hayvan barınma alanlarının, pire ve akarlara karşı patili dostlarımızın sağlığına zarar vermeyen özel ilaçlarla sterilizasyonu.' }, // Scene 4: astronaut
+    { tag: 'ISIL DEZENFEKSİYON', title: 'Buharlı Akar ve Parazit İmhası', desc: 'Yüksek sıcaklıktaki kuru buhar şokuyla, haşere yumurtaları ve toz akarlarının yuvalarında termal yöntemle yok edilmesi.' }, // Scene 5: cowboy
+    { tag: 'GÜRÜLTÜSÜZ UYGULAMA', title: 'Sessiz Çevre Koruma ve Dezenfeksiyon', desc: 'Huzurlu bir ortam sağlamak amacıyla, ses kirliliği yaratmadan gerçekleştirilen sessiz haşere kontrol ve temizlik süreçleri.' }, // Scene 6: gandalf
+    { tag: 'DÖŞEME DEZENFEKSİYONU', title: 'Koltuk Arası Parazit ve Akar Kontrolü', desc: 'Koltuk minder altları, dikiş yerleri ve kumaş katmanlarının mayt, akar ve diğer zararlılardan koruyucu arındırılması.' }, // Scene 7: knight
+    { tag: 'MOBİLYA KORUMA', title: 'Gizli Bölge ve Süpürgelik İlaçlaması', desc: 'Mobilya arkaları, süpürgelik dipleri ve dolap kenarları gibi haşerelerin saklanabileceği dar alanların detaylı ilaçlanması.' }, // Scene 8: monk
+    { tag: 'İLAÇLAMA GÖZETİMİ', title: 'Kayıtlı ve Canlı İzlenebilir İlaçlama', desc: 'İlaçlama ve dezenfeksiyon aşamalarını canlı yayında takip edin. Güvenlik standartları gereği video kayıtları 10 gün sonra kalıcı olarak imha edilir.' }, // Scene 9: roman
+    { tag: 'AÇIK ALAN KORUMA', title: 'Bahçe Bariyer İlaçlaması', desc: 'Bahçe duvarları ve yeşil alan sınırlarının akrep, çıyan ve kenelere karşı kimyasal bariyerle çevrilmesi.' }, // Scene 10: sumo
+    { tag: 'GIDA ALANI STERİLİZASYONU', title: 'Mutfak Dolap Arkaları ve Tezgah Koruma', desc: 'Mutfak ünitelerinin, dolap içlerinin ve tezgah altlarının haşere yumurtaları ile bakterilere karşı güvenli sterilizasyonu.' }, // Scene 11: victorian
+    { tag: 'HAVA HİJYEN BARİYERİ', title: 'Sisleme Sonrası Toz ve Hava Arındırma', desc: 'İlaçlama ve sisleme sonrasında ortam havasının partikül emici cihazlarla hızla temizlenmesi, solunabilir güvenli sıfır toz seviyesine getirilerek havalandırılması.' } // Scene 12: viking
+  ]
 };
 
 // Module-level cached elements to prevent DOM query overhead
@@ -309,6 +384,20 @@ function processPrewarmQueue() {
 function prewarmAround(activeIdx) {
   if (!scenes || scenes.length === 0) return;
 
+  const isMobile = window.innerWidth <= 768;
+
+  // Mobile optimization: Only prewarm the single active video to conserve decoder resources
+  if (isMobile) {
+    const sc = scenes[activeIdx];
+    if (sc && sc.video && sc.video.dataset.warmedUp !== 'true') {
+      warmupVideo(sc.video);
+    }
+    // Clear queue and suspend adjacent loading
+    prewarmQueue.length = 0;
+    isPrewarming = false;
+    return;
+  }
+
   // 1. Generate priority list based on distance to active viewport scene
   const order = [activeIdx];
   const neighbors = [activeIdx + 1, activeIdx + 2, activeIdx - 1, activeIdx + 3];
@@ -456,9 +545,13 @@ function setupPortalParticles() {
       });
     }
   };
+  if (resizeCanvasHandler) {
+    window.removeEventListener('resize', resizeCanvasHandler);
+  }
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvasHandler = resizeCanvas;
+  const debouncedResize = debounce(resizeCanvas, 150);
+  window.addEventListener('resize', debouncedResize);
+  resizeCanvasHandler = debouncedResize;
 
   // Track mouse position specifically for particle attraction gravity physics
   if (portalMouseMoveHandler) {
@@ -625,10 +718,12 @@ function setSplitCityTitle(cityText) {
   const spanLeft = document.createElement('span');
   spanLeft.className = 'title-split-left';
   spanLeft.textContent = leftText;
+  splitLeftEl = spanLeft; // Cache immediately
 
   const spanRight = document.createElement('span');
   spanRight.className = 'title-split-right';
   spanRight.textContent = rightText;
+  splitRightEl = spanRight; // Cache immediately
 
   titleEl.appendChild(spanLeft);
   titleEl.appendChild(spanRight);
@@ -637,17 +732,26 @@ function setSplitCityTitle(cityText) {
 function updateIntroVideoState(city) {
   if (!city) return;
   const targetId = `intro-video-${city.toLowerCase()}`;
-  const videos = document.querySelectorAll('.cinema-intro-card .intro-video');
   
-  videos.forEach(video => {
+  // Initialize cache if empty
+  if (cachedIntroVideos.length === 0) {
+    cachedIntroVideos = Array.from(document.querySelectorAll('.cinema-intro-card .intro-video'));
+  }
+  
+  cachedIntroVideos.forEach(video => {
     if (video.id === targetId) {
       video.classList.add('active');
-      video.pause();
-      video.currentTime = 0;
+      activeIntroVideoEl = video; // Track active reference
+      video.loop = true;
+      video.play().catch(e => {
+        logErrorDebug(`Autoplay blocked or failed for intro video: ${video.id}`, e);
+      });
     } else {
       video.classList.remove('active');
       video.pause();
-      video.currentTime = 0;
+      try {
+        video.currentTime = 0;
+      } catch (err) {}
     }
   });
 }
@@ -705,6 +809,7 @@ function setCityState(city) {
 // 3. INITIALIZATION
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
+  window.STATE = STATE;
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
   setupPortalParticles();
@@ -726,6 +831,9 @@ window.addEventListener('DOMContentLoaded', () => {
   setupCinemaAmbientLight();
   setupHolographicClickRipples();
   setupAudioToggle();
+
+  // Initialize selected service states & texts
+  selectServiceGlobal('standart');
 });
 
 // ==========================================
@@ -750,6 +858,23 @@ function setupLenis() {
   if (document.body.classList.contains('flag-selection-mode')) {
     lenis.stop();
   }
+}
+
+function updateCachedHotspotCoords() {
+  const overlay = document.getElementById('portalConnectorOverlay');
+  if (!overlay) return;
+  const overlayRect = overlay.getBoundingClientRect();
+  const hotspots = document.querySelectorAll('.map-hotspot');
+  
+  hotspots.forEach(hotspot => {
+    if (!hotspot.dataset.city) return;
+    const city = hotspot.dataset.city.toLowerCase();
+    const rect = hotspot.getBoundingClientRect();
+    cachedHotspotCoords[city] = {
+      x: (rect.left - overlayRect.left) + rect.width / 2,
+      y: (rect.top - overlayRect.top) + rect.height / 2
+    };
+  });
 }
 
 // ==========================================
@@ -889,29 +1014,26 @@ function setupPortalGateway() {
       return;
     }
 
-    // Find active hotspot element
-    const hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
-      h => h.dataset.city.toLowerCase() === city.toLowerCase()
-    );
+    const lowerCity = city.toLowerCase();
+    const coords = cachedHotspotCoords[lowerCity];
     
     // Find corresponding city card
     const activeCard = Array.from(cityCards).find(
-      c => c.dataset.city.toLowerCase() === city.toLowerCase()
+      c => c.dataset.city.toLowerCase() === lowerCity
     );
 
-    if (!hotspot || !activeCard) {
+    if (!coords || !activeCard) {
       gsap.to([connectorPath, connectorParticle], { opacity: 0, duration: 0.2 });
       return;
     }
 
     // Measure bounding boxes relative to connectorOverlay (the SVG overlay itself)
     const overlayRect = connectorOverlay.getBoundingClientRect();
-    const hotspotRect = hotspot.getBoundingClientRect();
     const cardRect = activeCard.getBoundingClientRect();
 
     // Hotspot coordinates relative to overlay (center of the hotspot)
-    const hX = (hotspotRect.left - overlayRect.left) + hotspotRect.width / 2;
-    const hY = (hotspotRect.top - overlayRect.top) + hotspotRect.height / 2;
+    const hX = coords.x;
+    const hY = coords.y;
 
     // Card coordinates relative to overlay (left-edge center of the card)
     const cX = (cardRect.left - overlayRect.left);
@@ -979,13 +1101,15 @@ function setupPortalGateway() {
     if (wrapper) cachedWrapperRect = wrapper.getBoundingClientRect();
   };
 
-  // Re-calculate laser layout & cached bounds if viewport size changes
-  window.addEventListener('resize', () => {
+  // Re-calculate laser layout & cached bounds if viewport size changes (debounced)
+  const debouncedGatewayResize = debounce(() => {
     updateCachedRects();
+    updateCachedHotspotCoords();
     if (activeCity) {
       updateLaserConnector(activeCity);
     }
-  });
+  }, 150);
+  window.addEventListener('resize', debouncedGatewayResize);
 
   // Watch body classes to update cached dimensions when selecting mode toggles
   if (typeof MutationObserver !== 'undefined' && portalStage) {
@@ -1700,6 +1824,8 @@ function setupPortalGateway() {
     cardHoverListeners.push({ card, onEnter, onLeave, onMove, clickHandler, keyHandler, btnHandler });
   });
 
+  updateCachedHotspotCoords();
+
   // Auto-bypass if city is cached
   const savedCity = localStorage.getItem('tworose_city');
   if (savedCity && CITY_TO_REGION[savedCity]) {
@@ -1984,7 +2110,54 @@ function setupCinemaEngine() {
   const cinemaSection = document.getElementById('cinema-section');
   const irisOverlay = document.getElementById('irisOverlay');
   const heroOverlay = document.getElementById('heroOverlay');
-  const textBlocks = document.querySelectorAll('.scene-text-block');
+  const textBlocks = document.querySelectorAll('#sceneTextOverlay .scene-text-block');
+  const servicesSelectCard = document.querySelector('.services-select-card');
+  const serviceSelectItems = document.querySelectorAll('.service-select-item');
+
+  // Set up click, mousemove (for spotlight and 3D tilt), and mouseleave listeners for the selectable items
+  serviceSelectItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const service = item.dataset.service;
+      selectServiceGlobal(service);
+    });
+
+    item.addEventListener('mousemove', (e) => {
+      const rect = item.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Update CSS variables for CSS spotlight glow follow
+      item.style.setProperty('--mouse-x', `${x}px`);
+      item.style.setProperty('--mouse-y', `${y}px`);
+
+      // Calculate relative coordinate offset from card center (-0.5 to 0.5)
+      const px = (x / rect.width) - 0.5;
+      const py = (y / rect.height) - 0.5;
+
+      // 3D card tilt using GSAP
+      gsap.to(item, {
+        rotateY: px * 14,
+        rotateX: -py * 14,
+        y: -6,
+        transformPerspective: 800,
+        duration: 0.35,
+        ease: 'power2.out',
+        overwrite: 'auto'
+      });
+    });
+
+    item.addEventListener('mouseleave', () => {
+      // Revert the 3D tilt to normal state
+      gsap.to(item, {
+        rotateY: 0,
+        rotateX: 0,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        overwrite: 'auto'
+      });
+    });
+  });
   const navProgressBar = document.getElementById('navProgressBar');
   const loader = document.getElementById('cinemaLoader');
 
@@ -2173,17 +2346,17 @@ function setupCinemaEngine() {
           const textOpacity = Math.round(cState.introTextState.currentOpacity * 100) / 100;
 
           if (cState.introTextState.lastAppliedOffset !== textOffset || cState.introTextState.lastAppliedTextOpacity !== textOpacity) {
-            // Query split spans dynamically since they are recreated on city changes
-            const currentSplitLeft = introCard.querySelector('.title-split-left');
-            const currentSplitRight = introCard.querySelector('.title-split-right');
+            // Use cached elements or query if not cached yet
+            if (!splitLeftEl) splitLeftEl = introCard.querySelector('.title-split-left');
+            if (!splitRightEl) splitRightEl = introCard.querySelector('.title-split-right');
 
-            if (currentSplitLeft) {
-              currentSplitLeft.style.transform = `translate3d(${-textOffset}px, 0, 0)`;
-              currentSplitLeft.style.opacity = textOpacity;
+            if (splitLeftEl) {
+              splitLeftEl.style.transform = `translate3d(${-textOffset}px, 0, 0)`;
+              splitLeftEl.style.opacity = textOpacity;
             }
-            if (currentSplitRight) {
-              currentSplitRight.style.transform = `translate3d(${textOffset}px, 0, 0)`;
-              currentSplitRight.style.opacity = textOpacity;
+            if (splitRightEl) {
+              splitRightEl.style.transform = `translate3d(${textOffset}px, 0, 0)`;
+              splitRightEl.style.opacity = textOpacity;
             }
             if (eyebrow) {
               eyebrow.style.transform = `translate3d(${-textOffset * 0.53}px, 0, 0)`;
@@ -2227,34 +2400,27 @@ function setupCinemaEngine() {
 
     // ── LERP Intro Video State ──
     if (cState.introVideoState) {
-      // Find the active intro background video
-      const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
+      // Initialize caches if not done yet
+      if (cachedIntroVideos.length === 0) {
+        cachedIntroVideos = Array.from(document.querySelectorAll('.cinema-intro-card .intro-video'));
+      }
+      if (!activeIntroVideoEl) {
+        activeIntroVideoEl = document.querySelector('.cinema-intro-card .intro-video.active');
+      }
       
       // Pause and hide all other intro videos
-      const introVideos = document.querySelectorAll('.cinema-intro-card .intro-video');
-      introVideos.forEach(v => {
-        if (v !== activeIntroVid) {
+      cachedIntroVideos.forEach(v => {
+        if (v !== activeIntroVideoEl) {
           v.style.opacity = 0;
           v.style.visibility = 'hidden';
           if (!v.paused) v.pause();
         }
       });
 
-      cState.introVideoState.currentTime += (cState.introVideoState.targetTime - cState.introVideoState.currentTime) * timeLerp;
       cState.introVideoState.currentScale += (cState.introVideoState.targetScale - cState.introVideoState.currentScale) * timeLerp;
       cState.introVideoState.currentTranslateY += (cState.introVideoState.targetTranslateY - cState.introVideoState.currentTranslateY) * timeLerp;
       cState.introVideoState.currentOpacity += (cState.introVideoState.targetOpacity - cState.introVideoState.currentOpacity) * opacityLerp;
 
-      if (activeIntroVid && !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0) {
-        if (cState.introVideoState.targetTime > activeIntroVid.duration) cState.introVideoState.targetTime = activeIntroVid.duration;
-        if (cState.introVideoState.currentTime > activeIntroVid.duration) cState.introVideoState.currentTime = activeIntroVid.duration;
-      }
-
-      if (Math.abs(cState.introVideoState.targetTime - cState.introVideoState.currentTime) < 0.01) {
-        cState.introVideoState.currentTime = cState.introVideoState.targetTime;
-      } else {
-        settled = false;
-      }
       if (Math.abs(cState.introVideoState.targetScale - cState.introVideoState.currentScale) < 0.001) {
         cState.introVideoState.currentScale = cState.introVideoState.targetScale;
       } else {
@@ -2272,17 +2438,17 @@ function setupCinemaEngine() {
       }
 
       // Apply Intro Video values to DOM (Optimized with Write Caching)
-      if (activeIntroVid) {
+      if (activeIntroVideoEl) {
         const vidOpacity = Math.round(cState.introVideoState.currentOpacity * 100) / 100;
         
         if (cState.introVideoState.lastAppliedOpacity !== vidOpacity) {
-          activeIntroVid.style.opacity = vidOpacity;
+          activeIntroVideoEl.style.opacity = vidOpacity;
           cState.introVideoState.lastAppliedOpacity = vidOpacity;
         }
 
         if (vidOpacity > 0.001) {
           if (cState.introVideoState.lastAppliedVisibility !== 'visible') {
-            activeIntroVid.style.visibility = 'visible';
+            activeIntroVideoEl.style.visibility = 'visible';
             cState.introVideoState.lastAppliedVisibility = 'visible';
           }
           
@@ -2290,40 +2456,25 @@ function setupCinemaEngine() {
           const vidTranslateY = Math.round(cState.introVideoState.currentTranslateY * 10) / 10;
 
           if (cState.introVideoState.lastAppliedScale !== vidScale || cState.introVideoState.lastAppliedTranslateY !== vidTranslateY) {
-            activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${vidScale}) translateY(${vidTranslateY}px)`;
+            activeIntroVideoEl.style.transform = `translate3d(-50%, -50%, 0) scale(${vidScale}) translateY(${vidTranslateY}px)`;
             cState.introVideoState.lastAppliedScale = vidScale;
             cState.introVideoState.lastAppliedTranslateY = vidTranslateY;
           }
 
-          if (!activeIntroVid.paused) {
-            activeIntroVid.pause();
+          if (activeIntroVideoEl.paused) {
+            activeIntroVideoEl.play().catch(e => {});
           }
 
-          if (activeIntroVid.readyState >= 1) {
-            const seekDiff = Math.abs(activeIntroVid.currentTime - cState.introVideoState.currentTime);
-            if (seekDiff > 0.05) {
-              settled = false;
-              const lastSeekTime = parseFloat(activeIntroVid.dataset.lastSeekTime || '0');
-              if (!activeIntroVid.seeking && (nowMs - lastSeekTime > 40)) {
-                try {
-                  activeIntroVid.currentTime = cState.introVideoState.currentTime;
-                  activeIntroVid.dataset.lastSeekTime = nowMs.toString();
-                } catch (e) {
-                  logErrorDebug(`Intro seek failed:`, e);
-                }
-              }
-            }
-          }
-          if (activeIntroVid.seeking || activeIntroVid.readyState < 2) {
+          if (activeIntroVideoEl.readyState < 2) {
             activeVideoBuffering = true;
           }
         } else {
           if (cState.introVideoState.lastAppliedVisibility !== 'hidden') {
-            activeIntroVid.style.visibility = 'hidden';
+            activeIntroVideoEl.style.visibility = 'hidden';
             cState.introVideoState.lastAppliedVisibility = 'hidden';
           }
-          if (!activeIntroVid.paused) {
-            activeIntroVid.pause();
+          if (!activeIntroVideoEl.paused) {
+            activeIntroVideoEl.pause();
           }
         }
       }
@@ -2519,12 +2670,10 @@ function setupCinemaEngine() {
         cState.introTextState.targetOpacity = 1 - pTextNorm;
 
         // Set target values for the active intro background video
-        const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
-        if (activeIntroVid) {
-          const maxScrubTime = !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0 
-            ? Math.min(activeIntroVid.duration, 15.0) 
-            : 10.0;
-          cState.introVideoState.targetTime = pNorm * maxScrubTime;
+        if (!activeIntroVideoEl) {
+          activeIntroVideoEl = document.querySelector('.cinema-intro-card .intro-video.active');
+        }
+        if (activeIntroVideoEl) {
           // Premium zoom constraint: max scale of 1.15 at p=0.10 (scale = 1 + pNorm * 0.15)
           cState.introVideoState.targetScale = 1 + pNorm * 0.15;
           cState.introVideoState.targetTranslateY = pNorm * -50;
@@ -2598,204 +2747,257 @@ function setupCinemaEngine() {
         mainNav.style.opacity = 1;
       }
 
-      // ── PHASE 2: IRIS OPENING & MONA LISA REVEAL (0.10 -> 0.15) ──
-      if (p > 0.10 && p <= 0.15) {
-        const ratio = (p - 0.10) / 0.05; // 0.0 -> 1.0
-        cState.targetRadius = ratio * 120;
-        
-        // Video 0 (Mona Lisa) starts fading in
-        cState.sceneStates[0].targetOpacity = ratio;
-        cState.sceneStates[0].targetTime = 0;
-        cState.sceneStates[0].targetVideoY = scenes[0].yStart || 0;
-        cState.targetX = scenes[0].irisX;
-        cState.targetY = scenes[0].irisY;
+        // ── PHASE 2: TRANSITION & SCREEN DARKENING (0.10 -> 0.15) ──
+        if (p > 0.10 && p <= 0.15) {
+          cState.targetRadius = 0;
+          cState.targetX = 50;
+          cState.targetY = 50;
 
-        // Ensure all other videos have opacity 0
-        for (let idx = 1; idx < 12; idx++) {
-          cState.sceneStates[idx].targetOpacity = 0;
-          cState.sceneStates[idx].targetTime = 0;
+          cState.sceneStates.forEach((s) => {
+            s.targetOpacity = 0;
+            s.targetTime = 0;
+          });
+
+          if (cState.activeIdx !== -1) {
+            cState.activeIdx = -1;
+            scenes.forEach(sc => {
+              if (sc.video) sc.video.classList.remove('active');
+            });
+          }
+
+          if (cState.activeTextBlockIdx !== -1) {
+            cState.activeTextBlockIdx = -1;
+            textBlocks.forEach(block => block.classList.remove('active'));
+          }
+
+          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+            servicesSelectCard.classList.remove('active');
+          }
+
+          closeBookingScreen();
+          return;
         }
 
-        // Hide all text blocks during opening zoom
-        if (cState.activeTextBlockIdx !== -1) {
-          cState.activeTextBlockIdx = -1;
-          textBlocks.forEach(block => block.classList.remove('active'));
+        // ── PHASE 3: 4 SERVICE CARDS SHOWCASE (0.15 -> 0.45) ──
+        if (p > 0.15 && p <= 0.45) {
+          cState.targetRadius = 0;
+          cState.targetX = 50;
+          cState.targetY = 50;
+
+          cState.sceneStates.forEach((s) => {
+            s.targetOpacity = 0;
+            s.targetTime = 0;
+          });
+
+          if (cState.activeIdx !== -1) {
+            cState.activeIdx = -1;
+            scenes.forEach(sc => {
+              if (sc.video) sc.video.classList.remove('active');
+            });
+          }
+
+          if (cState.activeTextBlockIdx !== -1) {
+            cState.activeTextBlockIdx = -1;
+            textBlocks.forEach(block => block.classList.remove('active'));
+          }
+
+          if (servicesSelectCard && !servicesSelectCard.classList.contains('active')) {
+            servicesSelectCard.classList.add('active');
+          }
+
+          closeBookingScreen();
+          return;
         }
 
-        // Make sure active class is set on Video 0 for potential debugging
-        scenes.forEach((sc, idx) => {
-          if (sc.video) {
-            if (idx === 0) {
-              sc.video.classList.add('active');
-              warmupVideo(sc.video);
+        // ── PHASE 4: IRIS OPENING TRANSITION (0.45 -> 0.50) ──
+        if (p > 0.45 && p <= 0.50) {
+          const ratio = (p - 0.45) / 0.05; // 0.0 -> 1.0
+          cState.targetRadius = ratio * 120;
+          
+          cState.sceneStates[0].targetOpacity = ratio;
+          cState.sceneStates[0].targetTime = 0;
+          cState.sceneStates[0].targetVideoY = scenes[0].yStart || 0;
+          cState.targetX = scenes[0].irisX;
+          cState.targetY = scenes[0].irisY;
+
+          for (let idx = 1; idx < 12; idx++) {
+            cState.sceneStates[idx].targetOpacity = 0;
+            cState.sceneStates[idx].targetTime = 0;
+          }
+
+          if (cState.activeIdx !== -1) {
+            cState.activeIdx = -1;
+            scenes.forEach(sc => {
+              if (sc.video) sc.video.classList.remove('active');
+            });
+          }
+
+          if (cState.activeTextBlockIdx !== -1) {
+            cState.activeTextBlockIdx = -1;
+            textBlocks.forEach(block => block.classList.remove('active'));
+          }
+
+          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+            servicesSelectCard.classList.remove('active');
+          }
+
+          closeBookingScreen();
+          return;
+        }
+
+        // ── PHASE 5: 12 CHARACTER VIDEOS SCROLL-SCRUB (0.50 -> 0.92) ──
+        if (p > 0.50 && p <= 0.92) {
+          cState.targetRadius = 120;
+
+          const start_range = 0.50;
+          const end_range = 0.92;
+          const total_range = end_range - start_range; // 0.42
+          const segmentSize = total_range / 12; // 0.035
+          const fadeZone = 0.007; // Cross-fade width
+
+          const scrubProgress = p - start_range;
+          const activeIdx = Math.max(0, Math.min(Math.floor(scrubProgress / segmentSize), 11));
+
+          cState.targetX = scenes[activeIdx].irisX;
+          cState.targetY = scenes[activeIdx].irisY;
+
+          if (cState.activeIdx !== activeIdx) {
+            cState.activeIdx = activeIdx;
+            prewarmAround(activeIdx);
+            logDebug(`Active scene shifted to index: ${activeIdx}`);
+
+            scenes.forEach((sc, idx) => {
+              if (sc.video) {
+                if (idx === activeIdx) {
+                  sc.video.classList.add('active');
+                  warmupVideo(sc.video);
+                } else {
+                  sc.video.classList.remove('active');
+                }
+              }
+            });
+          }
+
+          for (let idx = 0; idx < 12; idx++) {
+            const sState = cState.sceneStates[idx];
+            const sc = scenes[idx];
+            const video = sc.video;
+            const duration = getSafeDuration(video);
+            
+            const start_p = start_range + idx * segmentSize;
+            const end_p = start_p + segmentSize;
+
+            if (p <= start_p) {
+              sState.targetTime = 0;
+              sState.targetVideoY = sc.yStart || 0;
+            } else if (p >= end_p) {
+              sState.targetTime = duration;
+              sState.targetVideoY = sc.yEnd || 100;
             } else {
-              sc.video.classList.remove('active');
+              const local_p = (p - start_p) / segmentSize;
+              sState.targetTime = local_p * duration;
+              sState.targetVideoY = (sc.yStart || 0) + ((sc.yEnd || 100) - (sc.yStart || 0)) * local_p;
+            }
+
+            if (p < start_p || p > end_p) {
+              sState.targetOpacity = 0;
+            } else {
+              let opacity = 1.0;
+              if (p < start_p + fadeZone && idx > 0) {
+                opacity = (p - start_p) / fadeZone;
+              } else if (p > end_p - fadeZone && idx < 11) {
+                opacity = 1.0 - ((p - (end_p - fadeZone)) / fadeZone);
+              }
+              sState.targetOpacity = opacity;
             }
           }
-        });
-        
-        closeBookingScreen();
-        return;
-      }
 
-      // ── PHASE 3: MAIN CINEMA RANGE (0.15 -> 0.92) ──
-      if (p > 0.15 && p <= 0.92) {
-        // Iris is kept fully open and stationary
-        cState.targetRadius = 120;
+          let targetTextBlockIdx = -1;
+          const current_start_p = start_range + activeIdx * segmentSize;
+          const current_end_p = current_start_p + segmentSize;
+          
+          if (p >= current_start_p + fadeZone && p <= current_end_p - fadeZone) {
+            targetTextBlockIdx = activeIdx;
+          }
 
-        const start_range = 0.15;
-        const end_range = 0.92;
-        const total_range = end_range - start_range; // 0.77
-        const segmentSize = total_range / 12; // 0.0641666...
-        const fadeZone = 0.012; // Cross-fade width
-
-        // Determine current segment index
-        const scrubProgress = p - start_range;
-        const activeIdx = Math.max(0, Math.min(Math.floor(scrubProgress / segmentSize), 11));
-
-        cState.targetX = scenes[activeIdx].irisX;
-        cState.targetY = scenes[activeIdx].irisY;
-
-        if (cState.activeIdx !== activeIdx) {
-          cState.activeIdx = activeIdx;
-          prewarmAround(activeIdx);
-          logDebug(`Active scene shifted to index: ${activeIdx}`);
-
-          // Apply class active triggers dynamically only when the active scene shifts
-          scenes.forEach((sc, idx) => {
-            if (sc.video) {
-              if (idx === activeIdx) {
-                sc.video.classList.add('active');
-                warmupVideo(sc.video);
+          if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
+            cState.activeTextBlockIdx = targetTextBlockIdx;
+            logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
+            textBlocks.forEach((block, idx) => {
+              if (idx === targetTextBlockIdx) {
+                block.classList.add('active');
               } else {
+                block.classList.remove('active');
+              }
+            });
+          }
+
+          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+            servicesSelectCard.classList.remove('active');
+          }
+
+          closeBookingScreen();
+          return;
+        }
+
+        // ── PHASE 6: IRIS CLOSING & TELEPORT TO BOOKING (0.92 -> 0.96) ──
+        if (p > 0.92 && p <= 0.96) {
+          const ratio = (p - 0.92) / 0.04; // 0.0 -> 1.0
+          cState.targetRadius = Math.max(0, 120 - ratio * 120);
+
+          cState.sceneStates[11].targetOpacity = 1.0 - ratio;
+          cState.sceneStates[11].targetTime = getSafeDuration(scenes[11].video);
+          cState.sceneStates[11].targetVideoY = scenes[11].yEnd || 100;
+
+          for (let idx = 0; idx < 11; idx++) {
+            cState.sceneStates[idx].targetOpacity = 0;
+            cState.sceneStates[idx].targetTime = 0;
+          }
+
+          if (cState.activeTextBlockIdx !== -1) {
+            cState.activeTextBlockIdx = -1;
+            textBlocks.forEach(block => block.classList.remove('active'));
+          }
+
+          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+            servicesSelectCard.classList.remove('active');
+          }
+
+          closeBookingScreen();
+          return;
+        }
+
+        // ── PHASE 7: BOOKING REVEAL SCREEN (p > 0.96) ──
+        if (p > 0.96) {
+          cState.targetRadius = 0;
+          cState.sceneStates.forEach(s => s.targetOpacity = 0);
+          
+          if (cState.activeIdx !== -1) {
+            cState.activeIdx = -1;
+            scenes.forEach(sc => {
+              if (sc.video) {
                 sc.video.classList.remove('active');
               }
-            }
-          });
-        }
-
-        // Loop through all 12 scenes to calculate targetTime and targetOpacity
-        for (let idx = 0; idx < 12; idx++) {
-          const sState = cState.sceneStates[idx];
-          const sc = scenes[idx];
-          const video = sc.video;
-          const duration = getSafeDuration(video);
-          
-          const start_p = start_range + idx * segmentSize;
-          const end_p = start_p + segmentSize;
-
-          // 1. Time seek calculations
-          if (p <= start_p) {
-            sState.targetTime = 0;
-            sState.targetVideoY = sc.yStart || 0;
-          } else if (p >= end_p) {
-            sState.targetTime = duration;
-            sState.targetVideoY = sc.yEnd || 100;
-          } else {
-            // Inside the segment
-            const local_p = (p - start_p) / segmentSize; // 0.0 -> 1.0
-            sState.targetTime = local_p * duration;
-            sState.targetVideoY = (sc.yStart || 0) + ((sc.yEnd || 100) - (sc.yStart || 0)) * local_p;
+            });
           }
 
-          // 2. Opacity cross-fade calculations
-          if (p < start_p || p > end_p) {
-            sState.targetOpacity = 0;
-          } else {
-            // Inside segment, compute cross-fade based on boundary zones
-            let opacity = 1.0;
-            if (p < start_p + fadeZone && idx > 0) {
-              // Fade in zone
-              opacity = (p - start_p) / fadeZone;
-            } else if (p > end_p - fadeZone && idx < 11) {
-              // Fade out zone
-              opacity = 1.0 - ((p - (end_p - fadeZone)) / fadeZone);
-            }
-            sState.targetOpacity = opacity;
+          if (cState.activeTextBlockIdx !== -1) {
+            cState.activeTextBlockIdx = -1;
+            textBlocks.forEach(block => block.classList.remove('active'));
           }
+
+          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+            servicesSelectCard.classList.remove('active');
+          }
+
+          openBookingScreen();
         }
-
-
-
-        // 3. Text Overlay synchronization (active in the middle of each video segment)
-        let targetTextBlockIdx = -1;
-        const current_start_p = start_range + activeIdx * segmentSize;
-        const current_end_p = current_start_p + segmentSize;
-        
-        // Show text block when video is fully visible (outside of fade zones)
-        if (p >= current_start_p + fadeZone && p <= current_end_p - fadeZone) {
-          targetTextBlockIdx = activeIdx;
-        }
-
-        if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
-          cState.activeTextBlockIdx = targetTextBlockIdx;
-          logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
-          textBlocks.forEach((block, idx) => {
-            if (idx === targetTextBlockIdx) {
-              block.classList.add('active');
-            } else {
-              block.classList.remove('active');
-            }
-          });
-        }
-
-        closeBookingScreen();
-        return;
-      }
-
-      // ── PHASE 4: IRIS CLOSING & TELEPORT TO BOOKING (0.92 -> 0.96) ──
-      if (p > 0.92 && p <= 0.96) {
-        const ratio = (p - 0.92) / 0.04; // 0.0 -> 1.0
-        cState.targetRadius = Math.max(0, 120 - ratio * 120);
-
-        // Video 11 (Viking) fades out
-        cState.sceneStates[11].targetOpacity = 1.0 - ratio;
-        cState.sceneStates[11].targetTime = getSafeDuration(scenes[11].video);
-        cState.sceneStates[11].targetVideoY = scenes[11].yEnd || 100;
-
-        // Ensure all other videos have opacity 0
-        for (let idx = 0; idx < 11; idx++) {
-          cState.sceneStates[idx].targetOpacity = 0;
-          cState.sceneStates[idx].targetTime = 0;
-        }
-
-        // Hide all text blocks
-        if (cState.activeTextBlockIdx !== -1) {
-          cState.activeTextBlockIdx = -1;
-          textBlocks.forEach(block => block.classList.remove('active'));
-        }
-
-        closeBookingScreen();
-        return;
-      }
-
-      // ── PHASE 5: BOOKING REVEAL SCREEN (p > 0.96) ──
-      if (p > 0.96) {
-        cState.targetRadius = 0;
-        cState.sceneStates.forEach(s => s.targetOpacity = 0);
-        
-        // Reset active scene and remove active classes
-        if (cState.activeIdx !== -1) {
-          cState.activeIdx = -1;
-          scenes.forEach(sc => {
-            if (sc.video) {
-              sc.video.classList.remove('active');
-            }
-          });
-        }
-
-        if (cState.activeTextBlockIdx !== -1) {
-          cState.activeTextBlockIdx = -1;
-          textBlocks.forEach(block => block.classList.remove('active'));
-        }
-
-        openBookingScreen();
-      }
     }
   });
 
   // Force initial state update immediately to initialize style states on load
   trigger.update();
+  STATE.cinemaTrigger = trigger;
 }
 
 // ==========================================
@@ -2824,14 +3026,98 @@ function closeBookingScreen() {
   }
 }
 
+function selectServiceGlobal(service) {
+  if (!service) return;
+  STATE.calculator.serviceType = service;
+  
+  // Update selection highlights in the cinematic select card grid
+  const selectItems = document.querySelectorAll('.service-select-item');
+  selectItems.forEach(item => {
+    if (item.dataset.service === service) {
+      item.classList.add('selected');
+    } else {
+      item.classList.remove('selected');
+    }
+  });
+
+  // Update the 12 scene text overlays dynamically based on category
+  const serviceTextData = SERVICE_SCENE_TEXTS[service];
+  if (serviceTextData) {
+    const textBlocks = document.querySelectorAll('#sceneTextOverlay .scene-text-block');
+    textBlocks.forEach((block, index) => {
+      const data = serviceTextData[index];
+      if (data) {
+        const tagEl = block.querySelector('.scene-text-tag');
+        const titleEl = block.querySelector('.scene-text-title');
+        const descEl = block.querySelector('.scene-text-desc');
+        if (tagEl) tagEl.textContent = data.tag;
+        if (titleEl) titleEl.textContent = data.title;
+        if (descEl) descEl.textContent = data.desc;
+      }
+    });
+  }
+
+  // Set active service attribute for styling
+  const serviceTextOverlay = document.getElementById('sceneTextOverlay');
+  if (serviceTextOverlay) {
+    serviceTextOverlay.setAttribute('data-active-service', service);
+  }
+
+  // Update the booking form select input
+  const cServiceSelect = document.getElementById('cService');
+  if (cServiceSelect && cServiceSelect.value !== service) {
+    cServiceSelect.value = service;
+  }
+
+  // Sync with the pricing calculator modal
+  const modalItems = document.querySelectorAll('.services-list-panel .service-item-detail');
+  modalItems.forEach(item => {
+    if (item.dataset.service === service) {
+      if (!item.classList.contains('active')) {
+        item.click();
+      }
+    }
+  });
+
+  updateBookingSummaryBox();
+
+  // Programmatic scroll-advance on service selection in the scroll section (Phase 3)
+  if (STATE.cinemaTrigger) {
+    const startScroll = STATE.cinemaTrigger.start;
+    const endScroll = STATE.cinemaTrigger.end;
+    const totalScroll = endScroll - startScroll;
+    const currentScrollY = window.scrollY;
+    const currentProgress = (currentScrollY - startScroll) / totalScroll;
+
+    // Check if we are currently inside the services selection scroll range (0.15 -> 0.45)
+    if (currentProgress > 0.12 && currentProgress < 0.46) {
+      // Auto-scroll to progress 0.50 (where Phase 5 starts - Mona Lisa, Astronaut, etc.)
+      const targetScrollY = startScroll + totalScroll * 0.50;
+      
+      // Delay slightly to let the user see the selected state feedback
+      setTimeout(() => {
+        if (STATE.lenisInstance) {
+          STATE.lenisInstance.scrollTo(targetScrollY, {
+            duration: 1.5,
+            easing: (t) => 1 - Math.pow(1 - t, 3) // easeOutCubic
+          });
+        } else {
+          window.scrollTo({
+            top: targetScrollY,
+            behavior: 'smooth'
+          });
+        }
+      }, 700);
+    }
+  }
+}
+
 function getServiceLabelTR(service) {
   const labels = {
-    'konut': 'Ev & Villa Temizliği',
-    'ofis': 'Ofis & Plaza Temizliği',
-    'insaat': 'İnşaat Sonrası Temizlik',
-    'hali': 'Halı & Koltuk Yıkama',
-    'dis-cephe': 'Dış Cephe Cam Temizliği',
-    'dezenfeksiyon': 'Dezenfeksiyon Hizmeti'
+    'standart': 'Standart Temizlik',
+    'detayli': 'Detaylı Temizlik',
+    'kurumsal': 'Kurumsal Temizlik (B2B)',
+    'ilaclama': 'İlaçlama & Dezenfeksiyon'
   };
   return labels[service] || service;
 }
@@ -2924,6 +3210,7 @@ function setupBookingReveal() {
   const serviceSelect = document.getElementById('cService');
   if (serviceSelect) {
     serviceSelect.addEventListener('change', () => {
+      selectServiceGlobal(serviceSelect.value);
       if (STATE.calculator.applied && serviceSelect.value !== STATE.calculator.serviceType) {
         STATE.calculator.applied = false;
         updateBookingSummaryBox();
@@ -3126,8 +3413,8 @@ function setupServicesModal() {
   const modalWrapper = servicesModal.querySelector('.modal-wrapper');
   if (!modalWrapper) return;
   
-  let currentBasePrice = 15; // Ev & Villa default
-  let currentServiceType = 'konut';
+  let currentBasePrice = 15; // default base price
+  let currentServiceType = 'standart';
   let currentCostObject = { val: 1500 }; // track and animate current price calculation
   
   servicesLink.addEventListener('click', (e) => {
@@ -3198,7 +3485,24 @@ function setupServicesModal() {
       serviceItems.forEach(el => el.classList.remove('active'));
       item.classList.add('active');
       currentBasePrice = parseFloat(item.dataset.basePrice || 15);
-      currentServiceType = item.dataset.service || 'konut';
+      currentServiceType = item.dataset.service || 'standart';
+      
+      // Update selection in cinematic select grid
+      const selectItems = document.querySelectorAll('.service-select-item');
+      selectItems.forEach(cItem => {
+        if (cItem.dataset.service === currentServiceType) {
+          cItem.classList.add('selected');
+        } else {
+          cItem.classList.remove('selected');
+        }
+      });
+
+      // Update the booking form select input
+      const cServiceSelect = document.getElementById('cService');
+      if (cServiceSelect && cServiceSelect.value !== currentServiceType) {
+        cServiceSelect.value = currentServiceType;
+      }
+
       calculatePrice();
     });
   });
@@ -3675,7 +3979,7 @@ function setupCinemaAmbientLight() {
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing
   document.addEventListener('mouseover', (e) => {
-    const interactive = e.target.closest('a, button, .map-hotspot, .map-province.province-active, .calculator-btn, .tab-btn, .service-item-detail');
+    const interactive = e.target.closest('a, button, .map-hotspot, .map-province.province-active, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
     if (!interactive) return;
     if (interactive.dataset.hoveredSound === 'true') return;
     
@@ -3691,7 +3995,7 @@ function setupHolographicClickRipples() {
 
   document.addEventListener('click', (e) => {
     // Detect closest interactive element
-    const interactive = e.target.closest('a, button, .cc-gateway-card, .map-hotspot, .map-province.province-active, .mobile-menu-toggle, .calculator-btn, .tab-btn, .service-item-detail');
+    const interactive = e.target.closest('a, button, .cc-gateway-card, .map-hotspot, .map-province.province-active, .mobile-menu-toggle, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
     if (!interactive) return;
 
     // Trigger click sound feedback
@@ -3757,8 +4061,14 @@ function setupHolographicClickRipples() {
 class CyberSynth {
   constructor() {
     this.ctx = null;
-    this.muted = localStorage.getItem('tworose_audio_muted') === 'true';
+    this.muted = false;
+    try {
+      this.muted = localStorage.getItem('tworose_audio_muted') === 'true';
+    } catch (e) {
+      console.warn("localStorage read blocked", e);
+    }
     this.spikeTimeout = null;
+    this.visualizerEl = null;
   }
 
   init() {
@@ -3771,16 +4081,19 @@ class CyberSynth {
   }
 
   triggerSpike() {
-    const visualizer = document.querySelector('.audio-visualizer-bars');
-    if (!visualizer) return;
-    visualizer.classList.remove('spike-active');
-    void visualizer.offsetWidth; // Force layout recalculation
-    visualizer.classList.add('spike-active');
-    
-    if (this.spikeTimeout) clearTimeout(this.spikeTimeout);
-    this.spikeTimeout = setTimeout(() => {
-      visualizer.classList.remove('spike-active');
-    }, 150);
+    if (!this.visualizerEl) {
+      this.visualizerEl = document.querySelector('.audio-visualizer-bars');
+    }
+    if (!this.visualizerEl) return;
+
+    // Use GPU-accelerated GSAP transform scale instead of class-toggling reflow triggers
+    if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(this.visualizerEl);
+        gsap.fromTo(this.visualizerEl, 
+          { scaleY: 1.5, opacity: 1 },
+          { scaleY: 1.0, opacity: 0.25, duration: 0.15, ease: 'power2.out' }
+        );
+    }
   }
 
   playTick() {
@@ -3863,11 +4176,15 @@ class CyberSynth {
 
   toggleMute() {
     this.muted = !this.muted;
-    localStorage.setItem('tworose_audio_muted', this.muted);
+    try {
+      localStorage.setItem('tworose_audio_muted', this.muted);
+    } catch (e) {
+      console.warn("localStorage write blocked", e);
+    }
     
     // Resume audio context if suspended to satisfy browser gesture requirements
     if (!this.muted && this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().catch(err => console.warn("Audio Context resume failed", err));
     }
     
     this.updateToggleUI();

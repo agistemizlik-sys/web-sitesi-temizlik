@@ -847,24 +847,43 @@ html.bypassing-gateway #portal-stage {
   padding: 20px;
 }
 
+/* Color Maps for active service on the scene text overlay */
+#sceneTextOverlay[data-active-service="standart"] {
+  --service-color: #38bdf8;
+  --service-color-rgb: 56, 189, 248;
+}
+#sceneTextOverlay[data-active-service="detayli"] {
+  --service-color: #c084fc;
+  --service-color-rgb: 192, 132, 252;
+}
+#sceneTextOverlay[data-active-service="kurumsal"] {
+  --service-color: #fbbf24;
+  --service-color-rgb: 251, 191, 36;
+}
+#sceneTextOverlay[data-active-service="ilaclama"] {
+  --service-color: #34d399;
+  --service-color-rgb: 52, 211, 153;
+}
+
 .scene-text-block {
   position: absolute;
-  max-width: 540px;
+  max-width: 580px;
   width: 90%;
-  padding: 32px 28px;
+  padding: 0;
   text-align: center;
   opacity: 0;
   visibility: hidden;
-  transform: translate3d(0, 30px, 0);
+  transform: translate3d(0, 20px, 0);
   filter: blur(8px);
-  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth), visibility 0.6s var(--ease-smooth), filter 0.6s var(--ease-smooth), border-color 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
+  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth), visibility 0.6s var(--ease-smooth), filter 0.6s var(--ease-smooth);
   will-change: opacity, transform, visibility, filter;
-  background: rgba(0, 0, 3, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 24px;
-  border: 1px solid rgba(var(--clr-accent-rgb), 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(var(--clr-accent-rgb), 0.03);
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  z-index: 3;
 }
 
 .scene-text-block.active {
@@ -872,18 +891,19 @@ html.bypassing-gateway #portal-stage {
   visibility: visible;
   transform: translate3d(0, 0, 0);
   filter: blur(0px);
-  border-color: rgba(var(--clr-accent-rgb), 0.35);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(var(--clr-accent-rgb), 0.08);
+  border: none;
+  box-shadow: none;
 }
 
 .scene-text-tag {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: var(--clr-accent);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--service-color, var(--clr-accent));
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   display: block;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .scene-text-title {
@@ -895,14 +915,15 @@ html.bypassing-gateway #portal-stage {
   line-height: 1.15;
   margin-bottom: 12px;
   text-transform: none;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.95), 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .scene-text-desc {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.75);
   line-height: 1.6;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 /* Cartoon Iris-Out Overlay Mask */
@@ -1330,9 +1351,8 @@ html.bypassing-gateway #portal-stage {
   }
 
   .scene-text-block {
-    padding: 20px 16px;
+    padding: 0;
     max-width: 90%;
-    border-radius: 16px;
   }
 
   .scene-text-title {
@@ -2034,8 +2054,9 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   stroke: rgba(51, 102, 255, 0.12);
   stroke-width: 0.8;
   fill: rgba(4, 7, 20, 0.45);
-  transition: stroke 0.4s var(--ease-smooth), fill 0.4s var(--ease-smooth), filter 0.4s var(--ease-smooth);
   vector-effect: non-scaling-stroke;
+  transition: opacity 0.3s var(--ease-smooth);
+  will-change: opacity;
 }
 
 /* Active provinces: slightly brighter stroke */
@@ -3573,5 +3594,658 @@ img, video, .card-bg-image {
   100% {
     top: 100%;
   }
+}
+
+/* ================================================================
+   SERVICES SELECTION — WORLD-CLASS PREMIUM UI
+   ================================================================ */
+
+.services-select-card {
+  position: relative;
+  max-width: 920px;
+  width: 92%;
+  padding: 48px 56px 56px;
+  background: linear-gradient(145deg, rgba(4, 4, 14, 0.82) 0%, rgba(1, 1, 6, 0.92) 100%);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border-radius: 28px;
+  border: 1px solid rgba(var(--clr-accent-rgb), 0.12);
+  box-shadow: 
+    0 60px 120px rgba(0, 0, 0, 0.95),
+    0 0 80px rgba(var(--clr-accent-rgb), 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 0 40px rgba(var(--clr-accent-rgb), 0.015);
+  text-align: center;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 40px, 0) scale(0.97);
+  filter: blur(10px);
+  transition: 
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.7s,
+    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.5s,
+    box-shadow 0.5s;
+  overflow: hidden;
+}
+
+/* Grid noise texture overlay */
+.services-select-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border-radius: inherit;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black, transparent);
+}
+
+/* Gradient shimmer top border */
+.services-select-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--clr-accent-rgb), 0.35), rgba(var(--clr-accent-rgb), 0.08), rgba(var(--clr-accent-rgb), 0.35), transparent);
+  z-index: 5;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.services-select-card.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0px);
+  border-color: rgba(var(--clr-accent-rgb), 0.35);
+  box-shadow: 
+    0 60px 120px rgba(0, 0, 0, 0.95),
+    0 0 80px rgba(var(--clr-accent-rgb), 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 60px rgba(var(--clr-accent-rgb), 0.025);
+}
+
+.services-select-card.active::before {
+  opacity: 1;
+}
+
+
+
+/* HUD corner brackets — upgraded */
+.hud-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: rgba(var(--clr-accent-rgb), 0.3);
+  border-style: solid;
+  opacity: 0.6;
+  transition: border-color 0.4s, opacity 0.4s, filter 0.4s;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-tl { top: -2px; left: -2px; border-width: 2.5px 0 0 2.5px; }
+.hud-tr { top: -2px; right: -2px; border-width: 2.5px 2.5px 0 0; }
+.hud-bl { bottom: -2px; left: -2px; border-width: 0 0 2.5px 2.5px; }
+.hud-br { bottom: -2px; right: -2px; border-width: 0 2.5px 2.5px 0; }
+
+.services-select-card.active .hud-corner {
+  border-color: rgba(var(--clr-accent-rgb), 0.35);
+  opacity: 0.8;
+  filter: drop-shadow(0 0 4px rgba(var(--clr-accent-rgb), 0.25));
+}
+
+/* HUD Header Banner — upgraded */
+.services-select-hud-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding-bottom: 14px;
+  text-transform: uppercase;
+  z-index: 2;
+  user-select: none;
+}
+
+.hud-system-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--clr-accent);
+  box-shadow: 0 0 8px var(--clr-accent);
+  animation: hudStatusPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes hudStatusPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.3); filter: brightness(1.3); }
+}
+
+.hud-step-counter {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.6rem;
+}
+
+/* Title — upgraded with glow */
+.services-select-title {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+  background: linear-gradient(180deg, #ffffff 20%, rgba(255, 255, 255, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  z-index: 2;
+  filter: drop-shadow(0 2px 15px rgba(var(--clr-accent-rgb), 0.12));
+}
+
+
+
+.services-select-subtitle {
+  position: relative;
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.5px;
+  margin-bottom: 40px;
+  z-index: 2;
+}
+
+.services-select-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .services-select-card {
+    padding: 36px 20px 44px;
+    max-width: 100%;
+    width: 95%;
+    border-radius: 22px;
+  }
+  .services-select-title {
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+  }
+  .services-select-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .service-select-badge {
+    font-size: 0.55rem;
+    padding: 3px 7px;
+  }
+  .service-price-hint {
+    display: none;
+  }
+}
+
+/* ================================================================
+   SERVICE CARDS — INDIVIDUAL ITEMS
+   ================================================================ */
+
+.service-select-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 26px 22px 22px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.018) 0%, rgba(255, 255, 255, 0.005) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 22px;
+  text-align: left;
+  cursor: pointer;
+  overflow: visible;
+  transition: 
+    background 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Service brand themes */
+.service-select-item[data-service="standart"] {
+  --service-color: #38bdf8;
+  --service-color-rgb: 56, 189, 248;
+}
+.service-select-item[data-service="detayli"] {
+  --service-color: #c084fc;
+  --service-color-rgb: 192, 132, 252;
+}
+.service-select-item[data-service="kurumsal"] {
+  --service-color: #fbbf24;
+  --service-color-rgb: 251, 191, 36;
+}
+.service-select-item[data-service="ilaclama"] {
+  --service-color: #34d399;
+  --service-color-rgb: 52, 211, 153;
+}
+
+/* Mouse spotlight overlay */
+.card-glow-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(var(--service-color-rgb), 0.1), transparent 80%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.service-select-item:hover .card-glow-overlay {
+  opacity: 1;
+}
+
+
+
+/* Card hover state */
+.service-select-item:hover {
+  background: linear-gradient(145deg, rgba(var(--service-color-rgb), 0.025) 0%, rgba(255, 255, 255, 0.015) 100%);
+  border-color: rgba(var(--service-color-rgb), 0.3);
+  box-shadow: 
+    0 24px 48px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(var(--service-color-rgb), 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Card selected state */
+.service-select-item.selected {
+  background: linear-gradient(145deg, rgba(var(--service-color-rgb), 0.07) 0%, rgba(var(--service-color-rgb), 0.01) 100%);
+  border-color: rgba(var(--service-color-rgb), 0.55);
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.6),
+    0 0 50px rgba(var(--service-color-rgb), 0.12),
+    0 0 1px rgba(var(--service-color-rgb), 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 20px rgba(var(--service-color-rgb), 0.025);
+  transform: translateY(-1px);
+}
+
+
+
+/* Selected active indicator badge */
+.service-select-active-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--service-color);
+  color: #05050a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.3) rotate(-45deg);
+  transition: 
+    opacity 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.45s;
+  z-index: 4;
+  box-shadow: 0 0 14px rgba(var(--service-color-rgb), 0.4);
+}
+
+.service-select-active-indicator svg {
+  width: 13px;
+  height: 13px;
+  stroke: #05050a;
+  stroke-width: 3.5px;
+}
+
+.service-select-item.selected .service-select-active-indicator {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  box-shadow: 0 0 22px var(--service-color), 0 0 4px var(--service-color);
+}
+
+/* Premium micro badges — category labels */
+.service-select-badge {
+  position: absolute;
+  top: -9px;
+  left: 22px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(var(--service-color-rgb), 0.08);
+  border: 1px solid rgba(var(--service-color-rgb), 0.2);
+  color: var(--service-color);
+  text-shadow: 0 0 10px rgba(var(--service-color-rgb), 0.3);
+  opacity: 0.7;
+  transform: translateY(4px);
+  transition: 
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  z-index: 4;
+  white-space: nowrap;
+}
+
+.service-select-item:hover .service-select-badge,
+.service-select-item.selected .service-select-badge {
+  opacity: 1;
+  transform: translateY(0);
+  background: rgba(var(--service-color-rgb), 0.15);
+  border-color: rgba(var(--service-color-rgb), 0.45);
+  box-shadow: 0 0 16px rgba(var(--service-color-rgb), 0.12);
+}
+
+/* Price hint — bottom-right of each card */
+.service-price-hint {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(var(--service-color-rgb), 0.3);
+  z-index: 3;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.service-price-hint small {
+  font-size: 0.6rem;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.service-select-item:hover .service-price-hint {
+  color: rgba(var(--service-color-rgb), 0.6);
+}
+
+.service-select-item.selected .service-price-hint {
+  color: var(--service-color);
+  text-shadow: 0 0 12px rgba(var(--service-color-rgb), 0.25);
+}
+
+/* Feature Tag Pills */
+.service-select-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.service-select-tag-pill {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.35);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-select-item:hover .service-select-tag-pill {
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(var(--service-color-rgb), 0.12);
+  background: rgba(var(--service-color-rgb), 0.03);
+}
+
+.service-select-item.selected .service-select-tag-pill {
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(var(--service-color-rgb), 0.22);
+  background: rgba(var(--service-color-rgb), 0.06);
+  text-shadow: 0 0 8px rgba(var(--service-color-rgb), 0.1);
+}
+
+/* ================================================================
+   ICON CONTAINER
+   ================================================================ */
+
+.service-select-icon {
+  width: 62px;
+  height: 62px;
+  min-width: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.45);
+  transition: 
+    background 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.service-select-svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 1.5;
+  transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.3s, filter 0.3s;
+}
+
+.service-select-item:hover .service-select-icon {
+  background: rgba(var(--service-color-rgb), 0.08);
+  border-color: rgba(var(--service-color-rgb), 0.25);
+  color: var(--service-color);
+  box-shadow: 0 0 20px rgba(var(--service-color-rgb), 0.06);
+  transform: scale(1.04);
+}
+
+.service-select-item.selected .service-select-icon {
+  background: rgba(var(--service-color-rgb), 0.12);
+  border-color: rgba(var(--service-color-rgb), 0.5);
+  color: var(--service-color);
+  box-shadow: 
+    inset 0 0 14px rgba(var(--service-color-rgb), 0.12),
+    0 0 25px rgba(var(--service-color-rgb), 0.1);
+  transform: scale(1.02);
+}
+
+.service-select-item.selected .service-select-svg {
+  stroke: var(--service-color);
+  filter: drop-shadow(0 0 4px rgba(var(--service-color-rgb), 0.3));
+}
+
+/* ================================================================
+   TEXT INFO
+   ================================================================ */
+
+.service-select-info {
+  z-index: 2;
+  padding-right: 20px;
+}
+
+.service-select-info h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.service-select-item:hover .service-select-info h4 {
+  color: #fff;
+}
+
+.service-select-item.selected .service-select-info h4 {
+  color: #fff;
+  text-shadow: 0 0 12px rgba(var(--service-color-rgb), 0.2);
+}
+
+.service-select-info p {
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.45;
+  transition: color 0.3s;
+}
+
+.service-select-item:hover .service-select-info p {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.service-select-item.selected .service-select-info p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ================================================================
+   SVG MICRO-ANIMATIONS
+   ================================================================ */
+
+/* Standart: House */
+.service-select-item:hover .svg-house,
+.service-select-item.selected .svg-house {
+  transform: translateY(-2px);
+}
+
+.svg-house .house-smoke-puff {
+  opacity: 0;
+  transform: translate(0, 0) scale(0.5);
+  transform-origin: 17px 2px;
+  animation: smokePuffRise 2.2s infinite ease-out;
+}
+
+@keyframes smokePuffRise {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  30% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(3px, -8px) scale(1.5); }
+}
+
+.svg-house .house-door {
+  transform-origin: 9px 21px;
+  transition: transform 0.3s;
+}
+
+.service-select-item:hover .svg-house .house-door,
+.service-select-item.selected .svg-house .house-door {
+  transform: scaleX(0.8) skewY(-2deg);
+}
+
+/* Detaylı: Sparkles */
+@keyframes sparkleMainTwinkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+  50% { transform: scale(1.18) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 4px var(--service-color)); }
+}
+
+@keyframes sparkleSubTwinkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(0.75) rotate(-15deg); opacity: 0.35; }
+}
+
+.service-select-item:hover .svg-sparkles .sparkle-main,
+.service-select-item.selected .svg-sparkles .sparkle-main {
+  transform-origin: 12px 9px;
+  animation: sparkleMainTwinkle 1.8s infinite ease-in-out;
+}
+
+.service-select-item:hover .svg-sparkles .sparkle-sub-1,
+.service-select-item.selected .svg-sparkles .sparkle-sub-1 {
+  transform-origin: 19px 16px;
+  animation: sparkleSubTwinkle 2.2s infinite ease-in-out;
+}
+
+.service-select-item:hover .svg-sparkles .sparkle-sub-2,
+.service-select-item.selected .svg-sparkles .sparkle-sub-2 {
+  transform-origin: 6px 16px;
+  animation: sparkleSubTwinkle 1.5s infinite ease-in-out;
+}
+
+/* Kurumsal: Building windows blinking */
+.service-select-item:hover .svg-building,
+.service-select-item.selected .svg-building {
+  transform: scale(1.06);
+}
+
+.svg-building .bldg-window {
+  opacity: 0.2;
+  transition: opacity 0.3s, stroke-width 0.3s;
+}
+
+.service-select-item:hover .svg-building .bldg-window,
+.service-select-item.selected .svg-building .bldg-window {
+  stroke: var(--service-color);
+  stroke-width: 2.5px;
+}
+
+.service-select-item:hover .svg-building .w1, .service-select-item.selected .svg-building .w1 { animation: buildingWinGlow 1.8s infinite 0.1s; }
+.service-select-item:hover .svg-building .w2, .service-select-item.selected .svg-building .w2 { animation: buildingWinGlow 1.8s infinite 0.6s; }
+.service-select-item:hover .svg-building .w3, .service-select-item.selected .svg-building .w3 { animation: buildingWinGlow 1.8s infinite 0.3s; }
+.service-select-item:hover .svg-building .w4, .service-select-item.selected .svg-building .w4 { animation: buildingWinGlow 1.8s infinite 0.8s; }
+.service-select-item:hover .svg-building .w5, .service-select-item.selected .svg-building .w5 { animation: buildingWinGlow 1.8s infinite 0.5s; }
+.service-select-item:hover .svg-building .w6, .service-select-item.selected .svg-building .w6 { animation: buildingWinGlow 1.8s infinite 1.0s; }
+
+@keyframes buildingWinGlow {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; filter: drop-shadow(0 0 3px var(--service-color)); }
+}
+
+/* İlaçlama: Vial bubbling */
+.service-select-item:hover .svg-vial,
+.service-select-item.selected .svg-vial {
+  transform: rotate(5deg) scale(1.06);
+  animation: vialShakeLoop 2.4s infinite ease-in-out;
+}
+
+@keyframes vialShakeLoop {
+  0%, 100% { transform: rotate(5deg) scale(1.06); }
+  50% { transform: rotate(-5deg) scale(1.06); }
+}
+
+.svg-vial .vial-bubble {
+  transform-origin: center;
+  opacity: 0.3;
+}
+
+.service-select-item:hover .svg-vial .b1, .service-select-item.selected .svg-vial .b1 { animation: vialBubbleRise 1.4s infinite ease-in; }
+.service-select-item:hover .svg-vial .b2, .service-select-item.selected .svg-vial .b2 { animation: vialBubbleRise 1.8s infinite ease-in 0.4s; }
+.service-select-item:hover .svg-vial .b3, .service-select-item.selected .svg-vial .b3 { animation: vialBubbleRise 1.2s infinite ease-in 0.8s; }
+
+@keyframes vialBubbleRise {
+  0%   { transform: translateY(5px) scale(0.3); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: translateY(-7px) scale(1); opacity: 0; }
 }
 
