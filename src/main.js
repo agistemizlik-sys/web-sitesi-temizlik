@@ -40,6 +40,7 @@ let cardHoverListeners = [];
 let portalHotspotListeners = [];
 let portalStageClickHandler = null;
 let portalParallaxHandler = null;
+let portalScrollHandler = null;
 let portalParallaxRafId = null;
 let portalTargetHue = 220;
 
@@ -48,6 +49,10 @@ function cleanupGatewayListeners() {
   if (portalStage && portalParallaxHandler) {
     portalStage.removeEventListener('mousemove', portalParallaxHandler);
     portalParallaxHandler = null;
+  }
+  if (portalStage && portalScrollHandler) {
+    portalStage.removeEventListener('scroll', portalScrollHandler);
+    portalScrollHandler = null;
   }
   if (portalParallaxRafId) {
     cancelAnimationFrame(portalParallaxRafId);
@@ -102,7 +107,7 @@ const STATE = {
   
   // Cinematic Scrubbing Interpolation States
   cinema: {
-    activeIdx: 0,
+    activeIdx: -1,
     activeTextBlockIdx: -1,
     targetRadius: 120,
     currentRadius: 120,
@@ -118,7 +123,23 @@ const STATE = {
       targetOpacity: 0,
       currentVideoY: 50, // default center
       targetVideoY: 50
-    }))
+    })),
+    introVideoState: {
+      currentTime: 0,
+      targetTime: 0,
+      currentScale: 1.0,
+      targetScale: 1.0,
+      currentTranslateY: 0,
+      targetTranslateY: 0,
+      currentOpacity: 1.0,
+      targetOpacity: 1.0
+    },
+    introTextState: {
+      currentOffset: 0,
+      targetOffset: 0,
+      currentOpacity: 1.0,
+      targetOpacity: 1.0
+    }
   },
 
   // Ambient Portal Particles
@@ -128,6 +149,142 @@ const STATE = {
 // Module-level cached elements to prevent DOM query overhead
 let bookingRevealEl = null;
 let scenes = [];
+
+function resetCinemaState() {
+  const cState = STATE.cinema;
+  if (!cState) return;
+
+  logDebug("Resetting cinema state variables...");
+
+  // Reset main scene states
+  cState.activeIdx = -1;
+  cState.activeTextBlockIdx = -1;
+  cState.targetRadius = 120;
+  cState.currentRadius = 120;
+  cState.targetX = 50;
+  cState.currentX = 50;
+  cState.targetY = 50;
+  cState.currentY = 50;
+  cState.isScrubbing = false;
+
+  if (cState.sceneStates && Array.isArray(cState.sceneStates)) {
+    cState.sceneStates.forEach((state) => {
+      state.currentTime = 0;
+      state.targetTime = 0;
+      state.currentOpacity = 0;
+      state.targetOpacity = 0;
+      state.currentVideoY = 50;
+      state.targetVideoY = 50;
+      // Optimization cache variables
+      state.lastAppliedOpacity = null;
+      state.lastAppliedVisibility = null;
+      state.lastAppliedVideoY = null;
+    });
+  }
+
+  // Reset intro video state
+  if (cState.introVideoState) {
+    cState.introVideoState.currentTime = 0;
+    cState.introVideoState.targetTime = 0;
+    cState.introVideoState.currentScale = 1.0;
+    cState.introVideoState.targetScale = 1.0;
+    cState.introVideoState.currentTranslateY = 0;
+    cState.introVideoState.targetTranslateY = 0;
+    cState.introVideoState.currentOpacity = 1.0;
+    cState.introVideoState.targetOpacity = 1.0;
+    // Optimization cache variables
+    cState.introVideoState.lastAppliedOpacity = null;
+    cState.introVideoState.lastAppliedVisibility = null;
+    cState.introVideoState.lastAppliedScale = null;
+    cState.introVideoState.lastAppliedTranslateY = null;
+  }
+
+  // Reset intro text state
+  if (cState.introTextState) {
+    cState.introTextState.currentOffset = 0;
+    cState.introTextState.targetOffset = 0;
+    cState.introTextState.currentOpacity = 1.0;
+    cState.introTextState.targetOpacity = 1.0;
+    // Optimization cache variables
+    cState.introTextState.lastAppliedCardOpacity = null;
+    cState.introTextState.lastAppliedPointerEvents = null;
+    cState.introTextState.lastAppliedVisibility = null;
+    cState.introTextState.lastAppliedOffset = null;
+    cState.introTextState.lastAppliedTextOpacity = null;
+  }
+
+  // 1. Reset all intro videos in the DOM
+  const introVideos = document.querySelectorAll('.cinema-intro-card .intro-video');
+  introVideos.forEach(video => {
+    video.pause();
+    try {
+      video.currentTime = 0;
+    } catch (e) {
+      logErrorDebug("Failed to reset intro video time:", e);
+    }
+    video.style.transform = '';
+    video.style.opacity = '';
+    video.style.visibility = '';
+  });
+
+  // 2. Reset all main scene videos
+  if (scenes && Array.isArray(scenes)) {
+    scenes.forEach((sc) => {
+      const video = sc.video;
+      if (video) {
+        video.pause();
+        try {
+          video.currentTime = 0;
+        } catch (e) {
+          logErrorDebug("Failed to reset scene video time:", e);
+        }
+        video.style.opacity = '0';
+        video.style.visibility = 'hidden';
+        video.style.setProperty('--video-y', '50%');
+      }
+    });
+  }
+
+  // 3. Reset text block classes
+  const textBlocks = document.querySelectorAll('.scene-text-block');
+  textBlocks.forEach(block => block.classList.remove('active'));
+
+  // 4. Reset intro card container inline styles
+  const introCard = document.getElementById('introCard');
+  if (introCard) {
+    introCard.style.opacity = '';
+    introCard.style.visibility = '';
+    introCard.style.pointerEvents = '';
+  }
+
+  // 5. Reset split text elements
+  const introCityTitle = document.getElementById('introCityTitle');
+  if (introCityTitle) {
+    introCityTitle.style.opacity = '';
+    introCityTitle.style.transform = '';
+  }
+
+  const splitLeft = introCard?.querySelector('.title-split-left');
+  const splitRight = introCard?.querySelector('.title-split-right');
+  const eyebrow = introCard?.querySelector('.intro-eyebrow');
+  const subtitle = introCard?.querySelector('.intro-subtitle');
+  const scrollHint = introCard?.querySelector('.intro-scroll-hint');
+  const dividerLines = introCard?.querySelectorAll('.intro-divider-line');
+  const diamond = introCard?.querySelector('.intro-divider-diamond');
+
+  if (splitLeft) { splitLeft.style.transform = ''; splitLeft.style.opacity = ''; }
+  if (splitRight) { splitRight.style.transform = ''; splitRight.style.opacity = ''; }
+  if (eyebrow) { eyebrow.style.transform = ''; eyebrow.style.opacity = ''; }
+  if (subtitle) { subtitle.style.transform = ''; subtitle.style.opacity = ''; }
+  if (scrollHint) { scrollHint.style.transform = ''; scrollHint.style.opacity = ''; }
+  if (dividerLines && dividerLines.length >= 2) {
+    dividerLines[0].style.transform = ''; dividerLines[0].style.opacity = '';
+    dividerLines[1].style.transform = ''; dividerLines[1].style.opacity = '';
+  }
+  if (diamond) { diamond.style.transform = ''; diamond.style.opacity = ''; }
+
+  logDebug("Cinema state reset complete.");
+}
 
 // Prewarming Priority Queue
 const prewarmQueue = [];
@@ -458,6 +615,8 @@ function setSplitCityTitle(cityText) {
   const titleEl = document.getElementById('introCityTitle');
   if (!titleEl) return;
   titleEl.innerHTML = ''; // clear
+  titleEl.style.opacity = '1'; // ensure parent is visible
+  titleEl.style.transform = 'none'; // clear CSS start transform
 
   const mid = Math.ceil(cityText.length / 2);
   const leftText = cityText.slice(0, mid);
@@ -495,6 +654,10 @@ function updateIntroVideoState(city) {
 
 function setCityState(city) {
   if (!city) return;
+
+  // Reset previous cinema scroll states & video playheads
+  resetCinemaState();
+
   STATE.selectedCity = city;
   const region = CITY_TO_REGION[city] || 'marmara';
   STATE.selectedRegion = region;
@@ -663,8 +826,8 @@ function setupPortalGateway() {
     );
 
     gsap.fromTo('#portalDefaultPanel',
-      { opacity: 0, x: 20 },
-      { opacity: 1, x: 0, duration: 1.0, ease: 'power3.out', delay: 0.8 }
+      { display: 'none', opacity: 0, x: 20 },
+      { display: 'flex', opacity: 1, x: 0, duration: 1.0, ease: 'power3.out', delay: 0.8 }
     );
   }
 
@@ -700,6 +863,14 @@ function setupPortalGateway() {
   portalStage.addEventListener('mousemove', onParallaxMove);
   portalParallaxHandler = onParallaxMove;
 
+  const onStageScroll = () => {
+    if (activeCity) {
+      updateLaserConnector(activeCity);
+    }
+  };
+  portalStage.addEventListener('scroll', onStageScroll, { passive: true });
+  portalScrollHandler = onStageScroll;
+
   // State tracker variables for hover previews
   let activeCity = null;
   let revertTimeout = null;
@@ -713,7 +884,7 @@ function setupPortalGateway() {
     if (!connectorOverlay || !connectorPath || !connectorParticle) return;
     
     // Hide laser overlay completely on mobile viewport
-    if (cachedWindowWidth <= 1024) {
+    if (cachedWindowWidth <= 900) {
       gsap.set([connectorPath, connectorParticle], { opacity: 0 });
       return;
     }
@@ -733,18 +904,18 @@ function setupPortalGateway() {
       return;
     }
 
-    // Measure bounding boxes relative to portalStage
-    const stageRect = portalStage.getBoundingClientRect();
+    // Measure bounding boxes relative to connectorOverlay (the SVG overlay itself)
+    const overlayRect = connectorOverlay.getBoundingClientRect();
     const hotspotRect = hotspot.getBoundingClientRect();
     const cardRect = activeCard.getBoundingClientRect();
 
-    // Hotspot coordinates (center of the hotspot)
-    const hX = (hotspotRect.left - stageRect.left) + hotspotRect.width / 2;
-    const hY = (hotspotRect.top - stageRect.top) + hotspotRect.height / 2;
+    // Hotspot coordinates relative to overlay (center of the hotspot)
+    const hX = (hotspotRect.left - overlayRect.left) + hotspotRect.width / 2;
+    const hY = (hotspotRect.top - overlayRect.top) + hotspotRect.height / 2;
 
-    // Card coordinates (left-edge center of the card)
-    const cX = (cardRect.left - stageRect.left);
-    const cY = (cardRect.top - stageRect.top) + cardRect.height / 2;
+    // Card coordinates relative to overlay (left-edge center of the card)
+    const cX = (cardRect.left - overlayRect.left);
+    const cY = (cardRect.top - overlayRect.top) + cardRect.height / 2;
 
     // Cubic Bezier curve algorithm to draw a sleek S-curve
     const cp1x = hX + (cX - hX) * 0.45;
@@ -845,7 +1016,7 @@ function setupPortalGateway() {
       if (!hudTicking) {
         window.requestAnimationFrame(() => {
           // Only track if gateway selection is active and it's not a mobile device
-          if (!document.body.classList.contains('flag-selection-mode') || cachedWindowWidth <= 1024 || window.portalWarping) {
+          if (!document.body.classList.contains('flag-selection-mode') || cachedWindowWidth <= 900 || window.portalWarping) {
             gsap.set(mapHUD, { opacity: 0 });
             hudTicking = false;
             return;
@@ -1035,10 +1206,83 @@ function setupPortalGateway() {
     // Set region hue colors dynamically
     const market = region;
     updateThemeForMarket(market);
+
+    // Dynamic city card reveal transition
+    const activeCard = Array.from(cityCards).find(
+      c => c.dataset.city.toLowerCase() === city.toLowerCase()
+    );
+
+    cityCards.forEach(card => {
+      if (card === activeCard) {
+        gsap.killTweensOf(card);
+        gsap.set(card, { display: 'flex' });
+        gsap.fromTo(card, 
+          { opacity: 0, x: 20 },
+          { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
+        );
+        startTelemetryFluctuation(card);
+        if (cachedWindowWidth <= 900) {
+          const panel = document.querySelector('.portal-preview-panel');
+          if (panel) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+        requestAnimationFrame(() => {
+          updateLaserConnector(city);
+        });
+      } else {
+        gsap.killTweensOf(card);
+        gsap.to(card, { 
+          opacity: 0, 
+          x: -15, 
+          duration: 0.3, 
+          ease: 'power2.in', 
+          overwrite: 'auto', 
+          onComplete: () => {
+            card.style.display = 'none';
+          }
+        });
+      }
+    });
+
+    const defaultPanel = document.getElementById('portalDefaultPanel');
+    if (defaultPanel) {
+      gsap.killTweensOf(defaultPanel);
+      gsap.to(defaultPanel, { 
+        opacity: 0, 
+        x: -15, 
+        duration: 0.3, 
+        ease: 'power2.in', 
+        overwrite: 'auto', 
+        onComplete: () => {
+          defaultPanel.style.display = 'none';
+        }
+      });
+    }
   };
 
   // Debounce returning preview panel to default guide screen
-  const revertToDefault = () => {
+  const revertToDefault = (e) => {
+    if (e && e.relatedTarget) {
+      const target = e.relatedTarget;
+      const closestProvince = target.closest ? target.closest('.map-province') : null;
+      const closestHotspot = target.closest ? target.closest('.map-hotspot') : null;
+      const closestCard = target.closest ? target.closest('.cc-gateway-card') : null;
+      
+      let targetCity = '';
+      if (closestHotspot) {
+        targetCity = closestHotspot.dataset.city;
+      } else if (closestProvince) {
+        targetCity = closestProvince.id;
+      } else if (closestCard) {
+        targetCity = closestCard.dataset.city;
+      }
+      
+      if (targetCity && activeCity && targetCity.toLowerCase() === activeCity.toLowerCase()) {
+        return; // ignore transitions within the same city elements
+      }
+    }
+
     if (revertTimeout) {
       clearTimeout(revertTimeout);
       revertTimeout = null;
@@ -1046,6 +1290,31 @@ function setupPortalGateway() {
 
     revertTimeout = setTimeout(() => {
       activeCity = null;
+
+      // Hide all city cards, show default panel
+      cityCards.forEach(card => {
+        gsap.killTweensOf(card);
+        gsap.to(card, { 
+          opacity: 0, 
+          x: 15, 
+          duration: 0.3, 
+          ease: 'power2.in', 
+          overwrite: 'auto', 
+          onComplete: () => {
+            card.style.display = 'none';
+          }
+        });
+      });
+
+      const defaultPanel = document.getElementById('portalDefaultPanel');
+      if (defaultPanel) {
+        gsap.killTweensOf(defaultPanel);
+        gsap.set(defaultPanel, { display: 'flex' });
+        gsap.fromTo(defaultPanel, 
+          { opacity: 0, x: -15 },
+          { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
+        );
+      }
 
       // Reset Telemetry HUD panel elements
       const hudCity = document.getElementById('hudCityName');
@@ -1294,7 +1563,7 @@ function setupPortalGateway() {
     const city = hotspot.dataset.city;
 
     const onEnter = () => showCityPreview(city);
-    const onLeave = () => revertToDefault();
+    const onLeave = (e) => revertToDefault(e);
     const clickHandler = (e) => {
       e.stopPropagation();
       const cx = e.clientX || window.innerWidth / 2;
@@ -1324,7 +1593,7 @@ function setupPortalGateway() {
     const city = provId.charAt(0).toUpperCase() + provId.slice(1);
 
     const onEnter = () => showCityPreview(city);
-    const onLeave = () => revertToDefault();
+    const onLeave = (e) => revertToDefault(e);
     const clickHandler = (e) => {
       e.stopPropagation();
       const cx = e.clientX || window.innerWidth / 2;
@@ -1348,7 +1617,7 @@ function setupPortalGateway() {
       cardRect = card.getBoundingClientRect();
       showCityPreview(city);
     };
-    const onLeave = () => {
+    const onLeave = (e) => {
       cardRect = null;
       gsap.to(card, {
         y: 0,
@@ -1358,7 +1627,7 @@ function setupPortalGateway() {
         ease: 'power2.out',
         overwrite: 'auto'
       });
-      revertToDefault();
+      revertToDefault(e);
     };
 
     let cardTicking = false;
@@ -1824,6 +2093,7 @@ function setupCinemaEngine() {
     }
 
     const now = performance.now();
+    const nowMs = now;
     let dt = (now - lastFrameTime) / 16.666;
     lastFrameTime = now;
 
@@ -1864,8 +2134,202 @@ function setupCinemaEngine() {
     // Track if any active video is currently seeking/loading to show the spinner loader
     let activeVideoBuffering = false;
 
+    // ── LERP Intro Text State ──
+    if (cState.introTextState) {
+      cState.introTextState.currentOffset += (cState.introTextState.targetOffset - cState.introTextState.currentOffset) * timeLerp;
+      cState.introTextState.currentOpacity += (cState.introTextState.targetOpacity - cState.introTextState.currentOpacity) * opacityLerp;
+
+      if (Math.abs(cState.introTextState.targetOffset - cState.introTextState.currentOffset) < 0.05) {
+        cState.introTextState.currentOffset = cState.introTextState.targetOffset;
+      } else {
+        settled = false;
+      }
+      if (Math.abs(cState.introTextState.targetOpacity - cState.introTextState.currentOpacity) < 0.001) {
+        cState.introTextState.currentOpacity = cState.introTextState.targetOpacity;
+      } else {
+        settled = false;
+      }
+
+      // Apply Intro Text values to DOM (Optimized with Write Caching)
+      if (introCard) {
+        const cardOpacity = Math.round(cState.introTextState.currentOpacity * 100) / 100;
+        
+        if (cState.introTextState.lastAppliedCardOpacity !== cardOpacity) {
+          introCard.style.opacity = cardOpacity;
+          cState.introTextState.lastAppliedCardOpacity = cardOpacity;
+        }
+        
+        if (cardOpacity > 0.001) {
+          if (cState.introTextState.lastAppliedPointerEvents !== 'all') {
+            introCard.style.pointerEvents = 'all';
+            cState.introTextState.lastAppliedPointerEvents = 'all';
+          }
+          if (cState.introTextState.lastAppliedVisibility !== 'visible') {
+            introCard.style.visibility = 'visible';
+            cState.introTextState.lastAppliedVisibility = 'visible';
+          }
+
+          const textOffset = Math.round(cState.introTextState.currentOffset * 10) / 10;
+          const textOpacity = Math.round(cState.introTextState.currentOpacity * 100) / 100;
+
+          if (cState.introTextState.lastAppliedOffset !== textOffset || cState.introTextState.lastAppliedTextOpacity !== textOpacity) {
+            // Query split spans dynamically since they are recreated on city changes
+            const currentSplitLeft = introCard.querySelector('.title-split-left');
+            const currentSplitRight = introCard.querySelector('.title-split-right');
+
+            if (currentSplitLeft) {
+              currentSplitLeft.style.transform = `translate3d(${-textOffset}px, 0, 0)`;
+              currentSplitLeft.style.opacity = textOpacity;
+            }
+            if (currentSplitRight) {
+              currentSplitRight.style.transform = `translate3d(${textOffset}px, 0, 0)`;
+              currentSplitRight.style.opacity = textOpacity;
+            }
+            if (eyebrow) {
+              eyebrow.style.transform = `translate3d(${-textOffset * 0.53}px, 0, 0)`;
+              eyebrow.style.opacity = textOpacity;
+            }
+            if (subtitle) {
+              subtitle.style.transform = `translate3d(${textOffset * 0.53}px, 0, 0)`;
+              subtitle.style.opacity = textOpacity;
+            }
+            if (scrollHint) {
+              scrollHint.style.transform = `translate3d(0, ${textOffset * 0.4}px, 0)`;
+              scrollHint.style.opacity = textOpacity;
+            }
+            if (dividerLines && dividerLines.length >= 2) {
+              dividerLines[0].style.transform = `translate3d(${-textOffset * 0.67}px, 0, 0)`;
+              dividerLines[0].style.opacity = textOpacity;
+              dividerLines[1].style.transform = `translate3d(${textOffset * 0.67}px, 0, 0)`;
+              dividerLines[1].style.opacity = textOpacity;
+            }
+            if (diamond) {
+              const scaleVal = Math.max(0, textOpacity);
+              diamond.style.transform = `rotate(45deg) scale(${scaleVal})`;
+              diamond.style.opacity = textOpacity;
+            }
+
+            cState.introTextState.lastAppliedOffset = textOffset;
+            cState.introTextState.lastAppliedTextOpacity = textOpacity;
+          }
+        } else {
+          if (cState.introTextState.lastAppliedPointerEvents !== 'none') {
+            introCard.style.pointerEvents = 'none';
+            cState.introTextState.lastAppliedPointerEvents = 'none';
+          }
+          if (cState.introTextState.lastAppliedVisibility !== 'hidden') {
+            introCard.style.visibility = 'hidden';
+            cState.introTextState.lastAppliedVisibility = 'hidden';
+          }
+        }
+      }
+    }
+
+    // ── LERP Intro Video State ──
+    if (cState.introVideoState) {
+      // Find the active intro background video
+      const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
+      
+      // Pause and hide all other intro videos
+      const introVideos = document.querySelectorAll('.cinema-intro-card .intro-video');
+      introVideos.forEach(v => {
+        if (v !== activeIntroVid) {
+          v.style.opacity = 0;
+          v.style.visibility = 'hidden';
+          if (!v.paused) v.pause();
+        }
+      });
+
+      cState.introVideoState.currentTime += (cState.introVideoState.targetTime - cState.introVideoState.currentTime) * timeLerp;
+      cState.introVideoState.currentScale += (cState.introVideoState.targetScale - cState.introVideoState.currentScale) * timeLerp;
+      cState.introVideoState.currentTranslateY += (cState.introVideoState.targetTranslateY - cState.introVideoState.currentTranslateY) * timeLerp;
+      cState.introVideoState.currentOpacity += (cState.introVideoState.targetOpacity - cState.introVideoState.currentOpacity) * opacityLerp;
+
+      if (activeIntroVid && !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0) {
+        if (cState.introVideoState.targetTime > activeIntroVid.duration) cState.introVideoState.targetTime = activeIntroVid.duration;
+        if (cState.introVideoState.currentTime > activeIntroVid.duration) cState.introVideoState.currentTime = activeIntroVid.duration;
+      }
+
+      if (Math.abs(cState.introVideoState.targetTime - cState.introVideoState.currentTime) < 0.01) {
+        cState.introVideoState.currentTime = cState.introVideoState.targetTime;
+      } else {
+        settled = false;
+      }
+      if (Math.abs(cState.introVideoState.targetScale - cState.introVideoState.currentScale) < 0.001) {
+        cState.introVideoState.currentScale = cState.introVideoState.targetScale;
+      } else {
+        settled = false;
+      }
+      if (Math.abs(cState.introVideoState.targetTranslateY - cState.introVideoState.currentTranslateY) < 0.05) {
+        cState.introVideoState.currentTranslateY = cState.introVideoState.targetTranslateY;
+      } else {
+        settled = false;
+      }
+      if (Math.abs(cState.introVideoState.targetOpacity - cState.introVideoState.currentOpacity) < 0.001) {
+        cState.introVideoState.currentOpacity = cState.introVideoState.targetOpacity;
+      } else {
+        settled = false;
+      }
+
+      // Apply Intro Video values to DOM (Optimized with Write Caching)
+      if (activeIntroVid) {
+        const vidOpacity = Math.round(cState.introVideoState.currentOpacity * 100) / 100;
+        
+        if (cState.introVideoState.lastAppliedOpacity !== vidOpacity) {
+          activeIntroVid.style.opacity = vidOpacity;
+          cState.introVideoState.lastAppliedOpacity = vidOpacity;
+        }
+
+        if (vidOpacity > 0.001) {
+          if (cState.introVideoState.lastAppliedVisibility !== 'visible') {
+            activeIntroVid.style.visibility = 'visible';
+            cState.introVideoState.lastAppliedVisibility = 'visible';
+          }
+          
+          const vidScale = Math.round(cState.introVideoState.currentScale * 1000) / 1000;
+          const vidTranslateY = Math.round(cState.introVideoState.currentTranslateY * 10) / 10;
+
+          if (cState.introVideoState.lastAppliedScale !== vidScale || cState.introVideoState.lastAppliedTranslateY !== vidTranslateY) {
+            activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${vidScale}) translateY(${vidTranslateY}px)`;
+            cState.introVideoState.lastAppliedScale = vidScale;
+            cState.introVideoState.lastAppliedTranslateY = vidTranslateY;
+          }
+
+          if (!activeIntroVid.paused) {
+            activeIntroVid.pause();
+          }
+
+          if (activeIntroVid.readyState >= 1) {
+            const seekDiff = Math.abs(activeIntroVid.currentTime - cState.introVideoState.currentTime);
+            if (seekDiff > 0.05) {
+              settled = false;
+              const lastSeekTime = parseFloat(activeIntroVid.dataset.lastSeekTime || '0');
+              if (!activeIntroVid.seeking && (nowMs - lastSeekTime > 40)) {
+                try {
+                  activeIntroVid.currentTime = cState.introVideoState.currentTime;
+                  activeIntroVid.dataset.lastSeekTime = nowMs.toString();
+                } catch (e) {
+                  logErrorDebug(`Intro seek failed:`, e);
+                }
+              }
+            }
+          }
+          if (activeIntroVid.seeking || activeIntroVid.readyState < 2) {
+            activeVideoBuffering = true;
+          }
+        } else {
+          if (cState.introVideoState.lastAppliedVisibility !== 'hidden') {
+            activeIntroVid.style.visibility = 'hidden';
+            cState.introVideoState.lastAppliedVisibility = 'hidden';
+          }
+          if (!activeIntroVid.paused) {
+            activeIntroVid.pause();
+          }
+        }
+      }
+    }
+
     // Update each scene state (currentTime, opacity, videoY)
-    const nowMs = performance.now();
     scenes.forEach((sc, idx) => {
       const sState = cState.sceneStates[idx];
       if (!sState) return;
@@ -1878,8 +2342,15 @@ function setupCinemaEngine() {
       if (Math.abs(idx - cState.activeIdx) > 1) {
         sState.currentOpacity = 0;
         sState.targetOpacity = 0;
-        video.style.opacity = 0;
-        video.style.visibility = 'hidden';
+        
+        if (sState.lastAppliedOpacity !== 0) {
+          video.style.opacity = 0;
+          sState.lastAppliedOpacity = 0;
+        }
+        if (sState.lastAppliedVisibility !== 'hidden') {
+          video.style.visibility = 'hidden';
+          sState.lastAppliedVisibility = 'hidden';
+        }
         return;
       }
 
@@ -1912,14 +2383,23 @@ function setupCinemaEngine() {
         settled = false;
       }
 
-      // Apply values to DOM elements
+      // Apply values to DOM elements if changed (Optimized with Write Caching)
       const roundedOpacity = Math.round(sState.currentOpacity * 100) / 100;
+      const roundedVideoY = Math.round(sState.currentVideoY * 10) / 10;
+
       if (roundedOpacity > 0.001) {
-        video.style.opacity = roundedOpacity;
-        video.style.visibility = 'visible';
-        
-        const roundedVideoY = Math.round(sState.currentVideoY * 10) / 10;
-        video.style.setProperty('--video-y', `${roundedVideoY}%`);
+        if (sState.lastAppliedOpacity !== roundedOpacity) {
+          video.style.opacity = roundedOpacity;
+          sState.lastAppliedOpacity = roundedOpacity;
+        }
+        if (sState.lastAppliedVisibility !== 'visible') {
+          video.style.visibility = 'visible';
+          sState.lastAppliedVisibility = 'visible';
+        }
+        if (sState.lastAppliedVideoY !== roundedVideoY) {
+          video.style.setProperty('--video-y', `${roundedVideoY}%`);
+          sState.lastAppliedVideoY = roundedVideoY;
+        }
 
         // Keep active video paused to prevent autonomous playback
         if (!video.paused) {
@@ -1948,8 +2428,14 @@ function setupCinemaEngine() {
           activeVideoBuffering = true;
         }
       } else {
-        video.style.opacity = 0;
-        video.style.visibility = 'hidden';
+        if (sState.lastAppliedOpacity !== 0) {
+          video.style.opacity = 0;
+          sState.lastAppliedOpacity = 0;
+        }
+        if (sState.lastAppliedVisibility !== 'hidden') {
+          video.style.visibility = 'hidden';
+          sState.lastAppliedVisibility = 'hidden';
+        }
       }
     });
 
@@ -2017,100 +2503,36 @@ function setupCinemaEngine() {
         self.heroVisible = true;
       }
 
+      // Set target opacities to 0 if we scroll past the introductory phase
+      if (p > 0.10) {
+        cState.introVideoState.targetOpacity = 0;
+        cState.introTextState.targetOpacity = 0;
+      }
+
       // ── PHASE 1: LANDING HERO OVERLAY (0.00 -> 0.10) ──
       if (p <= 0.10) {
-        // Control introCard opacity (fade out completely by p = 0.10) and animate split text
-        if (introCard) {
-          const introOpacity = Math.max(0, 1 - p / 0.10);
-          introCard.style.opacity = introOpacity;
-          if (introOpacity > 0) {
-            introCard.style.pointerEvents = 'all';
-            introCard.style.visibility = 'visible';
-          } else {
-            introCard.style.pointerEvents = 'none';
-            introCard.style.visibility = 'hidden';
-          }
+        const pNorm = p / 0.10; // 0.0 -> 1.0
+        const pTextNorm = Math.min(1, p / 0.08); // 0.0 -> 1.0
 
-          if (p > 0) {
-            const pTextNorm = Math.min(1, p / 0.08);
-            const opacityVal = 1 - pTextNorm;
-            
-            if (splitLeft) {
-              splitLeft.style.transform = `translate3d(${pTextNorm * -150}px, 0, 0)`;
-              splitLeft.style.opacity = opacityVal;
-            }
-            if (splitRight) {
-              splitRight.style.transform = `translate3d(${pTextNorm * 150}px, 0, 0)`;
-              splitRight.style.opacity = opacityVal;
-            }
-            if (eyebrow) {
-              eyebrow.style.transform = `translate3d(${pTextNorm * -80}px, 0, 0)`;
-              eyebrow.style.opacity = opacityVal;
-            }
-            if (subtitle) {
-              subtitle.style.transform = `translate3d(${pTextNorm * 80}px, 0, 0)`;
-              subtitle.style.opacity = opacityVal;
-            }
-            if (scrollHint) {
-              scrollHint.style.transform = `translate3d(0, ${pTextNorm * 60}px, 0)`;
-              scrollHint.style.opacity = opacityVal;
-            }
-            if (dividerLines && dividerLines.length >= 2) {
-              dividerLines[0].style.transform = `translate3d(${pTextNorm * -100}px, 0, 0)`;
-              dividerLines[0].style.opacity = opacityVal;
-              dividerLines[1].style.transform = `translate3d(${pTextNorm * 100}px, 0, 0)`;
-              dividerLines[1].style.opacity = opacityVal;
-            }
-            if (diamond) {
-              diamond.style.transform = `rotate(45deg) scale(${1 - pTextNorm})`;
-              diamond.style.opacity = opacityVal;
-            }
-          } else {
-            if (splitLeft) { splitLeft.style.transform = ''; splitLeft.style.opacity = ''; }
-            if (splitRight) { splitRight.style.transform = ''; splitRight.style.opacity = ''; }
-            if (eyebrow) { eyebrow.style.transform = ''; eyebrow.style.opacity = ''; }
-            if (subtitle) { subtitle.style.transform = ''; subtitle.style.opacity = ''; }
-            if (scrollHint) { scrollHint.style.transform = ''; scrollHint.style.opacity = ''; }
-            if (dividerLines && dividerLines.length >= 2) {
-              dividerLines[0].style.transform = ''; dividerLines[0].style.opacity = '';
-              dividerLines[1].style.transform = ''; dividerLines[1].style.opacity = '';
-            }
-            if (diamond) { diamond.style.transform = ''; diamond.style.opacity = ''; }
-          }
-        }
+        // Set target values for the split text parting offsets and opacity
+        cState.introTextState.targetOffset = pTextNorm * 120;
+        cState.introTextState.targetOpacity = 1 - pTextNorm;
 
-        // Scrub and scale city video
+        // Set target values for the active intro background video
         const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
         if (activeIntroVid) {
-          if (!activeIntroVid.paused) {
-            activeIntroVid.pause();
-          }
-          const pNorm = p / 0.10;
           const maxScrubTime = !isNaN(activeIntroVid.duration) && activeIntroVid.duration > 0 
             ? Math.min(activeIntroVid.duration, 15.0) 
             : 10.0;
-          const targetTime = pNorm * maxScrubTime;
-          
-          const seekDiff = Math.abs(activeIntroVid.currentTime - targetTime);
-          if (seekDiff > 0.05) {
-            const nowMs = performance.now();
-            const lastSeekTime = parseFloat(activeIntroVid.dataset.lastSeekTime || '0');
-            if (!activeIntroVid.seeking && (nowMs - lastSeekTime > 40)) {
-              try {
-                activeIntroVid.currentTime = targetTime;
-                activeIntroVid.dataset.lastSeekTime = nowMs.toString();
-              } catch (e) {
-                logErrorDebug(`Intro seek failed:`, e);
-              }
-            }
-          }
-
-          const scale = 1 + p * 2.5;
-          const translateY = p * -120;
-          activeIntroVid.style.transform = `translate3d(-50%, -50%, 0) scale(${scale}) translateY(${translateY}px)`;
+          cState.introVideoState.targetTime = pNorm * maxScrubTime;
+          // Premium zoom constraint: max scale of 1.15 at p=0.10 (scale = 1 + pNorm * 0.15)
+          cState.introVideoState.targetScale = 1 + pNorm * 0.15;
+          cState.introVideoState.targetTranslateY = pNorm * -50;
         }
+        
+        cState.introVideoState.targetOpacity = 1 - pNorm;
 
-        // Fade in/out heroOverlay
+        // Fade in/out heroOverlay (simple backdrop layout toggle)
         const ratio_in = Math.min(1, p / 0.06);
         let ratio_out = 1;
         if (p >= 0.08) {
@@ -2144,6 +2566,16 @@ function setupCinemaEngine() {
           s.targetTime = 0;
         });
 
+        // Reset active scene and remove active classes
+        if (cState.activeIdx !== -1) {
+          cState.activeIdx = -1;
+          scenes.forEach(sc => {
+            if (sc.video) {
+              sc.video.classList.remove('active');
+            }
+          });
+        }
+
         // Hide all text blocks
         if (cState.activeTextBlockIdx !== -1) {
           cState.activeTextBlockIdx = -1;
@@ -2152,21 +2584,12 @@ function setupCinemaEngine() {
         return;
       }
 
-      // Hide hero elements once scrolled past
+      // Hide hero overlay once scrolled past
       if (self.heroVisible) {
         if (heroOverlay) {
           heroOverlay.style.opacity = 0;
           heroOverlay.style.pointerEvents = 'none';
           heroOverlay.style.visibility = 'hidden';
-        }
-        if (introCard) {
-          introCard.style.opacity = 0;
-          introCard.style.pointerEvents = 'none';
-          introCard.style.visibility = 'hidden';
-        }
-        const activeIntroVid = document.querySelector('.cinema-intro-card .intro-video.active');
-        if (activeIntroVid && !activeIntroVid.paused) {
-          activeIntroVid.pause();
         }
         self.heroVisible = false;
       }
@@ -2237,6 +2660,18 @@ function setupCinemaEngine() {
           cState.activeIdx = activeIdx;
           prewarmAround(activeIdx);
           logDebug(`Active scene shifted to index: ${activeIdx}`);
+
+          // Apply class active triggers dynamically only when the active scene shifts
+          scenes.forEach((sc, idx) => {
+            if (sc.video) {
+              if (idx === activeIdx) {
+                sc.video.classList.add('active');
+                warmupVideo(sc.video);
+              } else {
+                sc.video.classList.remove('active');
+              }
+            }
+          });
         }
 
         // Loop through all 12 scenes to calculate targetTime and targetOpacity
@@ -2280,17 +2715,7 @@ function setupCinemaEngine() {
           }
         }
 
-        // Apply class active triggers dynamically to support external style requirements
-        scenes.forEach((sc, idx) => {
-          if (sc.video) {
-            if (idx === activeIdx) {
-              sc.video.classList.add('active');
-              warmupVideo(sc.video);
-            } else {
-              sc.video.classList.remove('active');
-            }
-          }
-        });
+
 
         // 3. Text Overlay synchronization (active in the middle of each video segment)
         let targetTextBlockIdx = -1;
@@ -2349,6 +2774,16 @@ function setupCinemaEngine() {
         cState.targetRadius = 0;
         cState.sceneStates.forEach(s => s.targetOpacity = 0);
         
+        // Reset active scene and remove active classes
+        if (cState.activeIdx !== -1) {
+          cState.activeIdx = -1;
+          scenes.forEach(sc => {
+            if (sc.video) {
+              sc.video.classList.remove('active');
+            }
+          });
+        }
+
         if (cState.activeTextBlockIdx !== -1) {
           cState.activeTextBlockIdx = -1;
           textBlocks.forEach(block => block.classList.remove('active'));
@@ -2977,6 +3412,9 @@ function openPortalGateway() {
   const portalStage = document.getElementById('portal-stage');
   const mainContent = document.getElementById('main-content');
   if (!portalStage || !mainContent) return;
+
+  // Clear previous cinema states & video playheads
+  resetCinemaState();
 
   // Initialize province paths stroke-drawing
   const provincePaths = document.querySelectorAll('.map-province path');

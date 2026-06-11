@@ -484,7 +484,7 @@
       </div>
       
       <!-- Holographic Laser Connector Overlay -->
-      <svg class="portal-connector-overlay" id="portalConnectorOverlay" viewBox="0 0 1000 600" preserveAspectRatio="none">
+      <svg class="portal-connector-overlay" id="portalConnectorOverlay">
         <defs>
           <linearGradient id="connectorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="var(--c-accent, #3366ff)" stop-opacity="1" />
@@ -498,7 +498,7 @@
             </feMerge>
           </filter>
         </defs>
-        <path id="portalConnectorPath" d="" fill="none" stroke="url(#connectorGrad)" stroke-width="1.5" filter="url(#laserGlow)" style="stroke-dasharray: 800; stroke-dashoffset: 800; transition: stroke-dashoffset 0.4s ease, opacity 0.3s ease; opacity: 0; pointer-events: none;" />
+        <path id="portalConnectorPath" d="" fill="none" stroke="url(#connectorGrad)" stroke-width="1.5" filter="url(#laserGlow)" style="stroke-dasharray: 800; stroke-dashoffset: 800; opacity: 0; pointer-events: none;" />
         <circle id="portalConnectorParticle" r="3.5" fill="var(--c-accent, #3366ff)" filter="url(#laserGlow)" style="opacity: 0; pointer-events: none;" />
       </svg>
 
@@ -507,6 +507,22 @@
         
         <!-- Default State (Başlangıç ekranı) -->
         <div class="portal-default-panel" id="portalDefaultPanel" style="display: none; opacity: 0; pointer-events: none;">
+          <span class="cc-default-flag">⚡ SİSTEM ENTEGRASYONU</span>
+          <h3 class="cc-default-title">HİJYEN GEÇİDİ</h3>
+          <p class="cc-default-sub">TwoRose Premium Hizmet Ağı</p>
+          <div class="cc-default-desc">
+            Türkiye'nin seçkin bölgelerinde sinematik temizlik standartları. Başlamak için haritadaki aktif noktalara gelin veya bir şehir seçin.
+          </div>
+          <div class="cc-default-status-panel">
+            <div class="cc-status-row">
+              <span class="cc-status-lbl">HİZMET ALANI:</span>
+              <span class="cc-status-val">6 AKTİF MERKEZ</span>
+            </div>
+            <div class="cc-status-row">
+              <span class="cc-status-lbl">AĞ GÜVENLİĞİ:</span>
+              <span class="cc-status-val">GÜVENLİ BAĞLANTI</span>
+            </div>
+          </div>
         </div>
         
         <!-- Şehir Kartları Konteyneri -->
