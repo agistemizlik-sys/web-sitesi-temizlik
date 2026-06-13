@@ -2242,15 +2242,10 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   animation-duration: 1.2s; /* Accelerate ripple on hover */
 }
 
-/* Preview Panels (Activated) */
-.portal-preview-panel {
-  display: block;
-  width: 340px;
-  height: 480px;
-  position: relative;
-  z-index: 10;
-  margin-left: 40px;
-  flex-shrink: 0;
+/* Preview Panels & Laser Connectors (Hidden by request) */
+.portal-preview-panel,
+.portal-connectors-overlay {
+  display: none !important;
 }
 
 .portal-preview-panel * {
