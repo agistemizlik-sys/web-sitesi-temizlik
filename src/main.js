@@ -988,9 +988,16 @@ function setupPortalGateway() {
   portalStage.addEventListener('mousemove', onParallaxMove);
   portalParallaxHandler = onParallaxMove;
 
+  let stageScrollTicking = false;
   const onStageScroll = () => {
-    if (activeCity) {
-      updateLaserConnector(activeCity);
+    if (!stageScrollTicking) {
+      requestAnimationFrame(() => {
+        if (activeCity) {
+          updateLaserConnector(activeCity);
+        }
+        stageScrollTicking = false;
+      });
+      stageScrollTicking = true;
     }
   };
   portalStage.addEventListener('scroll', onStageScroll, { passive: true });
@@ -3835,9 +3842,8 @@ function setupCustomCursor() {
   window.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-    if (!isKeyboardNav) {
-      cursor.style.opacity = '1';
-    }
+    isKeyboardNav = false;
+    cursor.style.opacity = '1';
     startCursorLoop();
   }, { passive: true });
 
@@ -3887,13 +3893,6 @@ function setupCustomCursor() {
     cursor.style.opacity = '1';
     startCursorLoop();
   });
-  window.addEventListener('mousemove', () => {
-    if (isKeyboardNav) {
-      isKeyboardNav = false;
-      cursor.style.opacity = '1';
-    }
-    startCursorLoop();
-  }, { passive: true });
 
   let lastDotX = -9999, lastDotY = -9999;
   let lastRingX = -9999, lastRingY = -9999;
