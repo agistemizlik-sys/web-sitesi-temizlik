@@ -2242,9 +2242,16 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   animation-duration: 1.2s; /* Accelerate ripple on hover */
 }
 
-/* Preview Panels & Laser Connectors (Hidden by request) */
+/* Preview Panels, Laser Connectors, Radar Scanner, Telemetry HUD, & Overlays (Hidden by request) */
 .portal-preview-panel,
-.portal-connectors-overlay {
+.portal-connectors-overlay,
+.portal-connector-overlay,
+.portal-map-hud,
+.radar-sweep-bar,
+.map-crosshair-h,
+.map-crosshair-v,
+.map-corner-bracket,
+.telemetry-tick {
   display: none !important;
 }
 
