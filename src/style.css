@@ -53,6 +53,11 @@ body {
   line-height: 1.6;
 }
 
+body.flag-selection-mode {
+  height: 100vh;
+  overflow: hidden;
+}
+
 [hidden] {
   display: none !important;
 }
@@ -84,6 +89,11 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--clr-accent);
   outline-offset: 4px;
+}
+
+select option {
+  background-color: #0c101b;
+  color: #ffffff;
 }
 
 /* ==========================================================================
@@ -1800,9 +1810,9 @@ html.bypassing-gateway #portal-stage {
    15. VIDEO LOADER, MICRO-ANIMATIONS & INTERACTIVE FEEDBACK
    ========================================================================== */
 .cinema-loader {
+  display: none !important;
   position: absolute;
   inset: 0;
-  display: grid;
   place-items: center;
   background: rgba(0, 0, 0, 0.45);
   z-index: 5;

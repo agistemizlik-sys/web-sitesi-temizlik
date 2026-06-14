@@ -449,17 +449,6 @@ function warmupVideo(video) {
 
   try {
     video.load();
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        logDebug(`Warmup play success on ${video.id}`);
-        video.pause();
-      }).catch(err => {
-        logErrorDebug(`Warmup play interrupted on ${video.id}:`, err.message || err);
-      });
-    } else {
-      video.pause();
-    }
   } catch (e) {
     logErrorDebug(`Warmup exception on ${video.id}:`, e);
   }
@@ -809,6 +798,11 @@ function setCityState(city) {
 // 3. INITIALIZATION
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
+
   window.STATE = STATE;
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
@@ -886,6 +880,9 @@ function setupPortalGateway() {
   const cityCards = document.querySelectorAll('.cc-gateway-card');
   const parallaxLayers = document.querySelectorAll('.parallax-layer');
 
+  const portalMapWrapper = document.querySelector('.portal-map-wrapper');
+
+
   // Staggered premium entry animation on portal load
   if (document.body.classList.contains('flag-selection-mode')) {
     // Blueprint paths initialization
@@ -960,19 +957,17 @@ function setupPortalGateway() {
   let pmx = 0;
   let pmy = 0;
 
-  // Cache GSAP quickTo tweens for each parallax layer to bypass object instantiation overhead in mouse movement
-  const quickParallaxX = Array.from(parallaxLayers).map(layer =>
-    gsap.quickTo(layer, "x", { duration: 0.8, ease: "power2.out" })
-  );
-  const quickParallaxY = Array.from(parallaxLayers).map(layer =>
-    gsap.quickTo(layer, "y", { duration: 0.8, ease: "power2.out" })
-  );
-
   const updateParallax = () => {
-    parallaxLayers.forEach((layer, idx) => {
+    parallaxLayers.forEach((layer) => {
+      if (!layer) return;
       const depth = layer.dataset.depth || 0.04;
-      quickParallaxX[idx](pmx * depth * 30);
-      quickParallaxY[idx](pmy * depth * 20);
+      gsap.to(layer, {
+        x: pmx * depth * 30,
+        y: pmy * depth * 20,
+        duration: 0.8,
+        ease: "power2.out",
+        overwrite: "auto"
+      });
     });
     portalParallaxRafId = null;
   };
@@ -1013,71 +1008,10 @@ function setupPortalGateway() {
   const connectorParticle = document.getElementById('portalConnectorParticle');
 
   const updateLaserConnector = (city) => {
-    if (!connectorOverlay || !connectorPath || !connectorParticle) return;
-    
-    // Hide laser overlay completely on mobile viewport
-    if (cachedWindowWidth <= 900) {
-      gsap.set([connectorPath, connectorParticle], { opacity: 0 });
-      return;
-    }
-
-    const lowerCity = city.toLowerCase();
-    const coords = cachedHotspotCoords[lowerCity];
-    
-    // Find corresponding city card
-    const activeCard = Array.from(cityCards).find(
-      c => c.dataset.city.toLowerCase() === lowerCity
-    );
-
-    if (!coords || !activeCard) {
-      gsap.to([connectorPath, connectorParticle], { opacity: 0, duration: 0.2 });
-      return;
-    }
-
-    // Measure bounding boxes relative to connectorOverlay (the SVG overlay itself)
-    const overlayRect = connectorOverlay.getBoundingClientRect();
-    const cardRect = activeCard.getBoundingClientRect();
-
-    // Hotspot coordinates relative to overlay (center of the hotspot)
-    const hX = coords.x;
-    const hY = coords.y;
-
-    // Card coordinates relative to overlay (left-edge center of the card)
-    const cX = (cardRect.left - overlayRect.left);
-    const cY = (cardRect.top - overlayRect.top) + cardRect.height / 2;
-
-    // Cubic Bezier curve algorithm to draw a sleek S-curve
-    const cp1x = hX + (cX - hX) * 0.45;
-    const cp1y = hY;
-    const cp2x = hX + (cX - hX) * 0.55;
-    const cp2y = cY;
-    const pathD = `M ${hX} ${hY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${cX} ${cY}`;
-
-    connectorPath.setAttribute('d', pathD);
-
-    // Apply color theme dynamically based on market area
-    const market = activeCard.dataset.market || 'marmara';
-    let accentColor = '#3366ff';
-    if (market === 'ege') accentColor = '#ff9100';
-    if (market === 'karadeniz') accentColor = '#ff3366';
-    connectorOverlay.style.setProperty('--c-accent', accentColor);
-
-    // Draw the path using GSAP dashoffset animation
-    gsap.killTweensOf(connectorPath);
-    gsap.killTweensOf(connectorParticle);
-
-    gsap.set(connectorPath, { opacity: 0.85, strokeDashoffset: 800 });
-    gsap.to(connectorPath, { strokeDashoffset: 0, duration: 0.45, ease: 'power2.out' });
-
-    // Animate the light particle travelling along the laser path
-    gsap.set(connectorParticle, { opacity: 1 });
-    connectorParticle.style.offsetPath = `path('${pathD}')`;
-    
-    gsap.fromTo(connectorParticle,
-      { offsetDistance: '0%' },
-      { offsetDistance: '100%', duration: 1.0, ease: 'power1.inOut', repeat: -1 }
-    );
+    return; // Laser connector is hidden by request, bypassing calculations
   };
+
+
 
   const startTelemetryFluctuation = (card) => {
     if (pingInterval) clearInterval(pingInterval);
@@ -1104,8 +1038,7 @@ function setupPortalGateway() {
   const updateCachedRects = () => {
     if (portalStage) cachedStageRect = portalStage.getBoundingClientRect();
     if (neonMap) cachedMapRect = neonMap.getBoundingClientRect();
-    const wrapper = document.querySelector('.portal-map-wrapper');
-    if (wrapper) cachedWrapperRect = wrapper.getBoundingClientRect();
+    if (portalMapWrapper) cachedWrapperRect = portalMapWrapper.getBoundingClientRect();
   };
 
   // Re-calculate laser layout & cached bounds if viewport size changes (debounced)
@@ -1148,7 +1081,6 @@ function setupPortalGateway() {
         window.requestAnimationFrame(() => {
           // Only track if gateway selection is active and it's not a mobile device
           if (!document.body.classList.contains('flag-selection-mode') || cachedWindowWidth <= 900 || window.portalWarping) {
-            gsap.set(mapHUD, { opacity: 0 });
             hudTicking = false;
             return;
           }
@@ -1157,7 +1089,6 @@ function setupPortalGateway() {
             updateCachedRects();
           }
 
-          const stageRect = cachedStageRect;
           const mapRect = cachedMapRect;
           const wrapperRect = cachedWrapperRect;
 
@@ -1172,56 +1103,15 @@ function setupPortalGateway() {
             my <= mapRect.bottom + margin
           );
 
-          const wrapper = document.querySelector('.portal-map-wrapper');
-
           if (isNearMap) {
-            // Show HUD
-            gsap.to(mapHUD, { opacity: 1, duration: 0.3, overwrite: 'auto' });
-            
-            // Offset HUD slightly to the right of cursor
-            const hudX = mx - stageRect.left + 95;
-            const hudY = my - stageRect.top;
-            
-            gsap.to(mapHUD, {
-              x: hudX,
-              y: hudY,
-              duration: 0.25,
-              ease: 'power2.out',
-              overwrite: 'auto'
-            });
-
-            // Map relative position to geographic Turkish coordinates
-            const mapXPercent = (mx - mapRect.left) / mapRect.width;
-            const mapYPercent = (my - mapRect.top) / mapRect.height;
-
-            const longitude = 26.0 + Math.max(0, Math.min(mapXPercent, 1)) * 19.0;
-            const latitude = 42.0 - Math.max(0, Math.min(mapYPercent, 1)) * 6.0;
-
-            const hudCoordinates = document.getElementById('hudCoordinates');
-            if (hudCoordinates) {
-              hudCoordinates.textContent = `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E`;
-            }
-
-            const signalStrength = document.getElementById('hudSignalStrength');
-            if (signalStrength && Math.random() < 0.05) {
-              const strengths = ['MÜKEMMEL', 'KARARLI', 'ZAYIF', 'DÜŞÜK', 'TARANIYOR'];
-              signalStrength.textContent = strengths[Math.floor(Math.random() * strengths.length)];
-            }
-
-            // Crosshairs & 3D Tilt calculation
-            if (wrapper && wrapperRect) {
-              const relX = mx - wrapperRect.left;
-              const relY = my - wrapperRect.top;
-              wrapper.style.setProperty('--map-mouse-x', `${relX}px`);
-              wrapper.style.setProperty('--map-mouse-y', `${relY}px`);
-
+            // 3D Tilt calculation using gsap.to (fully supports 3D transform shortcuts without console warnings)
+            if (portalMapWrapper && wrapperRect) {
               const halfW = wrapperRect.width / 2;
               const halfH = wrapperRect.height / 2;
               const tiltX = -((my - (wrapperRect.top + halfH)) / halfH) * 5; // max 5deg rotateX
               const tiltY = ((mx - (wrapperRect.left + halfW)) / halfW) * 5;  // max 5deg rotateY
 
-              // Direct GSAP transform rotation is hardware-accelerated and bypasses variable parsing repaints
-              gsap.to(wrapper, {
+              gsap.to(portalMapWrapper, {
                 rotateX: tiltX,
                 rotateY: tiltY,
                 duration: 0.45,
@@ -1230,9 +1120,8 @@ function setupPortalGateway() {
               });
             }
           } else {
-            gsap.to(mapHUD, { opacity: 0, duration: 0.3, overwrite: 'auto' });
-            if (wrapper) {
-              gsap.to(wrapper, {
+            if (portalMapWrapper) {
+              gsap.to(portalMapWrapper, {
                 rotateX: 0,
                 rotateY: 0,
                 duration: 0.6,
@@ -1248,10 +1137,8 @@ function setupPortalGateway() {
     });
 
     portalStage.addEventListener('mouseleave', () => {
-      gsap.to(mapHUD, { opacity: 0, duration: 0.3, overwrite: 'auto' });
-      const wrapper = document.querySelector('.portal-map-wrapper');
-      if (wrapper) {
-        gsap.to(wrapper, {
+      if (portalMapWrapper) {
+        gsap.to(portalMapWrapper, {
           rotateX: 0,
           rotateY: 0,
           duration: 0.6,
@@ -1304,26 +1191,6 @@ function setupPortalGateway() {
     if (activeCity === city) return;
     activeCity = city;
 
-    // Update Telemetry HUD panel elements
-    const hudCity = document.getElementById('hudCityName');
-    const hudRegion = document.getElementById('hudRegionName');
-    const hudSignal = document.getElementById('hudSignalStrength');
-    const region = CITY_TO_REGION[city] || 'marmara';
-    const theme = REGION_THEMES[region] || REGION_THEMES.marmara;
-
-    if (hudCity) hudCity.textContent = CITY_NAMES_TR[city] || city.toUpperCase();
-    if (hudRegion) hudRegion.textContent = region.toUpperCase();
-    if (hudSignal) {
-      hudSignal.textContent = 'BAĞLI';
-      hudSignal.style.color = '#00e5ff';
-    }
-    if (mapHUD) {
-      mapHUD.style.setProperty('--clr-accent', theme.accent);
-      mapHUD.style.setProperty('--clr-accent-rgb', theme.rgb);
-      mapHUD.style.borderColor = theme.accent;
-      mapHUD.style.boxShadow = `0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(${theme.rgb}, 0.25)`;
-    }
-
     // Highlight specific hovered province in the SVG
     const lowerCity = city.toLowerCase();
     const targetProv = document.getElementById(lowerCity);
@@ -1335,61 +1202,8 @@ function setupPortalGateway() {
     }
 
     // Set region hue colors dynamically
-    const market = region;
-    updateThemeForMarket(market);
-
-    // Dynamic city card reveal transition
-    const activeCard = Array.from(cityCards).find(
-      c => c.dataset.city.toLowerCase() === city.toLowerCase()
-    );
-
-    cityCards.forEach(card => {
-      if (card === activeCard) {
-        gsap.killTweensOf(card);
-        gsap.set(card, { display: 'flex' });
-        gsap.fromTo(card, 
-          { opacity: 0, x: 20 },
-          { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
-        );
-        startTelemetryFluctuation(card);
-        if (cachedWindowWidth <= 900) {
-          const panel = document.querySelector('.portal-preview-panel');
-          if (panel) {
-            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }
-        requestAnimationFrame(() => {
-          updateLaserConnector(city);
-        });
-      } else {
-        gsap.killTweensOf(card);
-        gsap.to(card, { 
-          opacity: 0, 
-          x: -15, 
-          duration: 0.3, 
-          ease: 'power2.in', 
-          overwrite: 'auto', 
-          onComplete: () => {
-            card.style.display = 'none';
-          }
-        });
-      }
-    });
-
-    const defaultPanel = document.getElementById('portalDefaultPanel');
-    if (defaultPanel) {
-      gsap.killTweensOf(defaultPanel);
-      gsap.to(defaultPanel, { 
-        opacity: 0, 
-        x: -15, 
-        duration: 0.3, 
-        ease: 'power2.in', 
-        overwrite: 'auto', 
-        onComplete: () => {
-          defaultPanel.style.display = 'none';
-        }
-      });
-    }
+    const region = CITY_TO_REGION[city] || 'marmara';
+    updateThemeForMarket(region);
   };
 
   // Debounce returning preview panel to default guide screen
@@ -1398,15 +1212,12 @@ function setupPortalGateway() {
       const target = e.relatedTarget;
       const closestProvince = target.closest ? target.closest('.map-province') : null;
       const closestHotspot = target.closest ? target.closest('.map-hotspot') : null;
-      const closestCard = target.closest ? target.closest('.cc-gateway-card') : null;
       
       let targetCity = '';
       if (closestHotspot) {
         targetCity = closestHotspot.dataset.city;
       } else if (closestProvince) {
         targetCity = closestProvince.id;
-      } else if (closestCard) {
-        targetCity = closestCard.dataset.city;
       }
       
       if (targetCity && activeCity && targetCity.toLowerCase() === activeCity.toLowerCase()) {
@@ -1421,49 +1232,6 @@ function setupPortalGateway() {
 
     revertTimeout = setTimeout(() => {
       activeCity = null;
-
-      // Hide all city cards, show default panel
-      cityCards.forEach(card => {
-        gsap.killTweensOf(card);
-        gsap.to(card, { 
-          opacity: 0, 
-          x: 15, 
-          duration: 0.3, 
-          ease: 'power2.in', 
-          overwrite: 'auto', 
-          onComplete: () => {
-            card.style.display = 'none';
-          }
-        });
-      });
-
-      const defaultPanel = document.getElementById('portalDefaultPanel');
-      if (defaultPanel) {
-        gsap.killTweensOf(defaultPanel);
-        gsap.set(defaultPanel, { display: 'flex' });
-        gsap.fromTo(defaultPanel, 
-          { opacity: 0, x: -15 },
-          { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out', overwrite: 'auto' }
-        );
-      }
-
-      // Reset Telemetry HUD panel elements
-      const hudCity = document.getElementById('hudCityName');
-      const hudRegion = document.getElementById('hudRegionName');
-      const hudSignal = document.getElementById('hudSignalStrength');
-
-      if (hudCity) hudCity.textContent = 'TARAMA DIŞI';
-      if (hudRegion) hudRegion.textContent = 'ARANIYOR';
-      if (hudSignal) {
-        hudSignal.textContent = 'ZAYIF';
-        hudSignal.style.color = '';
-      }
-      if (mapHUD) {
-        mapHUD.style.setProperty('--clr-accent', '#3366ff');
-        mapHUD.style.setProperty('--clr-accent-rgb', '51, 102, 255');
-        mapHUD.style.borderColor = '';
-        mapHUD.style.boxShadow = '';
-      }
 
       // Remove specific hovered province highlight
       document.querySelectorAll('.map-province.hover-active-province').forEach(p => {
@@ -1632,6 +1400,14 @@ function setupPortalGateway() {
       onComplete: () => {
         window.warpTarget = null;
         window.portalWarping = false; // Release hover lock
+
+        // Reset scroll position before body layout expands to prevent jumps
+        if (STATE.lenisInstance) {
+          STATE.lenisInstance.start();
+          STATE.lenisInstance.scrollTo(0, { immediate: true });
+        }
+        window.scrollTo(0, 0);
+
         document.body.classList.remove('flag-selection-mode');
         portalStage.style.display = 'none';
 
@@ -1661,12 +1437,6 @@ function setupPortalGateway() {
           portalStageClickHandler = null;
         }
 
-        if (STATE.lenisInstance) {
-          STATE.lenisInstance.start();
-          STATE.lenisInstance.scrollTo(0, { immediate: true });
-        } else {
-          window.scrollTo({ top: 0 });
-        }
         ScrollTrigger.refresh();
       }
     });
@@ -1833,7 +1603,8 @@ function setupPortalGateway() {
 
   updateCachedHotspotCoords();
 
-  // Auto-bypass if city is cached
+  // Auto-bypass if city is cached (Commented out to always show the portal gateway first on load)
+  /*
   const savedCity = localStorage.getItem('tworose_city');
   if (savedCity && CITY_TO_REGION[savedCity]) {
     setCityState(savedCity);
@@ -1887,6 +1658,7 @@ function setupPortalGateway() {
     // Start dynamic priority prewarming from index 0 on auto-bypass
     prewarmAround(0);
   }
+  */
 }
 
 function setupNavScroll() {
@@ -2244,6 +2016,22 @@ function setupCinemaEngine() {
     { video: v12, irisX: 50, irisY: 50, yStart: 0, yEnd: 100 } // Viking
   ];
 
+  let trigger = null;
+
+  scenes.forEach(sc => {
+    if (sc.video) {
+      const onReady = () => {
+        logDebug(`Video ${sc.video.id} readyState changed to: ${sc.video.readyState}. Recalculating target times and waking up loop.`);
+        if (trigger) {
+          trigger.vars.onUpdate(trigger);
+        }
+        triggerCinemaLoop();
+      };
+      sc.video.addEventListener('loadedmetadata', onReady);
+      sc.video.addEventListener('canplay', onReady);
+    }
+  });
+
   // Variables for tracking last applied style variables (reduces paint recalculation)
   let lastRadius = null;
   let lastX = null;
@@ -2561,7 +2349,9 @@ function setupCinemaEngine() {
 
         // Keep active video paused to prevent autonomous playback
         if (!video.paused) {
-          video.pause();
+          try {
+            video.pause();
+          } catch (err) {}
         }
 
         // Apply native seeking
@@ -2570,7 +2360,12 @@ function setupCinemaEngine() {
           if (seekDiff > 0.05) {
             settled = false;
             const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
-            if (!video.seeking && (nowMs - lastSeekTime > 40)) {
+            const seekDuration = nowMs - lastSeekTime;
+            
+            // Bypass seeking guard if seek has been stuck for > 500ms
+            const isSeekingStuck = video.seeking && (seekDuration > 500);
+            
+            if ((!video.seeking || isSeekingStuck) && (seekDuration > 40)) {
               try {
                 video.currentTime = sState.currentTime;
                 video.dataset.lastSeekTime = nowMs.toString();
@@ -2597,16 +2392,12 @@ function setupCinemaEngine() {
       }
     });
 
-    // Loader indicator logic: show loader if any active video is buffering
-    const needsLoader = activeVideoBuffering;
+    // Loader indicator logic: disabled per customer request
+    const needsLoader = false;
     if (needsLoader !== isLoaderActive) {
       isLoaderActive = needsLoader;
       if (loader) {
-        if (needsLoader) {
-          loader.classList.add('active');
-        } else {
-          loader.classList.remove('active');
-        }
+        loader.classList.remove('active');
       }
     }
 
@@ -2636,7 +2427,7 @@ function setupCinemaEngine() {
   // Launch the rendering loop immediately for initial setup
   triggerCinemaLoop();
 
-  const trigger = ScrollTrigger.create({
+  trigger = ScrollTrigger.create({
     trigger: '#cinema-section',
     start: 'top top',
     end: 'bottom bottom',
@@ -3830,6 +3621,7 @@ function setupCustomCursor() {
   let dotX = 0, dotY = 0;
   let ringX = 0, ringY = 0;
   let isKeyboardNav = false;
+  let hasMoved = false;
 
   let cursorActive = false;
   function startCursorLoop() {
@@ -3843,6 +3635,13 @@ function setupCustomCursor() {
     mouseX = e.clientX;
     mouseY = e.clientY;
     isKeyboardNav = false;
+    if (!hasMoved) {
+      hasMoved = true;
+      dotX = mouseX;
+      dotY = mouseY;
+      ringX = mouseX;
+      ringY = mouseY;
+    }
     cursor.style.opacity = '1';
     startCursorLoop();
   }, { passive: true });
@@ -3852,7 +3651,7 @@ function setupCustomCursor() {
     cursor.style.opacity = '0';
   });
   document.addEventListener('mouseenter', () => {
-    if (!isKeyboardNav) {
+    if (!isKeyboardNav && hasMoved) {
       cursor.style.opacity = '1';
     }
     startCursorLoop();
