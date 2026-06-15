@@ -11,7 +11,6 @@
   --clr-gold: #ff9100;
   --clr-red: #ff3366;
   --clr-cyan: #00e5ff;
-  --clr-purple: #ab47bc;
 
   /* Dynamically overwritten by JS */
   --clr-accent: var(--clr-accent-blue);
@@ -24,7 +23,10 @@
   /* Easing Functions (Premium Cubic Bezier) */
   --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-material: cubic-bezier(0.4, 0, 0.2, 1);
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --clr-accent-orange: #ff9100;
+  --clr-accent-pink: #ff3366;
 }
 
 /* ==========================================================================
@@ -55,6 +57,7 @@ body {
 
 body.flag-selection-mode {
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -104,14 +107,14 @@ select option {
   100% { background-position: 200% center; }
 }
 
-@keyframes hintPulse {
+@keyframes hintCenterPulse {
   0%, 100% { 
-    opacity: 0.3; 
-    transform: translate3d(-50%, 0, 0); 
+    opacity: 0.35; 
+    transform: translateY(0); 
   }
   50% { 
-    opacity: 1; 
-    transform: translate3d(-50%, 8px, 0); 
+    opacity: 0.85; 
+    transform: translateY(6px); 
   }
 }
 
@@ -168,6 +171,7 @@ select option {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 9999;
   background: radial-gradient(circle at 50% 50%, #030816 0%, #000000 100%);
   overflow-y: auto;
@@ -336,14 +340,50 @@ html.bypassing-gateway #portal-stage {
 .portal-center-hint {
   position: relative;
   z-index: 5;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  letter-spacing: 4px;
-  color: rgba(255, 255, 255, 0.25);
   pointer-events: none;
-  animation: hintPulse 2s infinite ease-in-out;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  animation: hintCenterPulse 3s infinite ease-in-out;
+}
+
+.portal-center-hint .hint-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.portal-center-hint .hint-main-title {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
-  margin-bottom: 24px;
+}
+
+.portal-center-hint .hint-sub-title {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.45rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.25);
+  text-transform: uppercase;
+}
+
+.portal-center-hint .hint-line-left,
+.portal-center-hint .hint-line-right {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(51, 102, 255, 0.4));
+}
+
+.portal-center-hint .hint-line-right {
+  background: linear-gradient(90deg, rgba(51, 102, 255, 0.4), transparent);
 }
 
 /* 6-Card Grid Portal */
@@ -377,7 +417,7 @@ html.bypassing-gateway #portal-stage {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
   transform-style: preserve-3d;
-  will-change: transform, border-color, box-shadow;
+  will-change: transform;
 }
 
 .cc-gateway-card::after {
@@ -694,7 +734,7 @@ html.bypassing-gateway #portal-stage {
     backdrop-filter 0.4s var(--ease-smooth), 
     height 0.4s var(--ease-smooth), 
     box-shadow 0.4s var(--ease-smooth);
-  will-change: background-color, backdrop-filter, height, box-shadow;
+  will-change: auto;
 }
 
 #main-nav.nav-scrolled {
@@ -805,7 +845,7 @@ html.bypassing-gateway #portal-stage {
 #cinema-section {
   position: relative;
   width: 100vw;
-  height: 4800vh; /* Scrub trigger scroll space (400% per scene for 12 scenes for smoother and slow-enough scrubbing) */
+  height: 1800vh; /* Scrub trigger scroll space (slower and more premium scroll range) */
   background: #000;
   z-index: 100;
 }
@@ -816,9 +856,7 @@ html.bypassing-gateway #portal-stage {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block;
   background: #000;
   z-index: 1;
 }
@@ -828,6 +866,7 @@ html.bypassing-gateway #portal-stage {
   inset: 0;
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
   object-position: center var(--video-y, 50%);
   opacity: 0;
@@ -886,7 +925,7 @@ html.bypassing-gateway #portal-stage {
   transform: translate3d(0, 20px, 0);
   filter: blur(8px);
   transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth), visibility 0.6s var(--ease-smooth), filter 0.6s var(--ease-smooth);
-  will-change: opacity, transform, visibility, filter;
+  will-change: opacity, transform;
   background: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1094,6 +1133,7 @@ html.bypassing-gateway #portal-stage {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 999;
   display: grid;
   place-items: center;
@@ -1355,24 +1395,113 @@ html.bypassing-gateway #portal-stage {
     gap: 16px;
   }
 
-  .reveal-content-box {
-    padding: 32px 20px;
+  .booking-reveal-screen {
+    display: block;
+    overflow-y: auto;
+    padding: 30px 10px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .booking-reveal-screen .reveal-backdrop {
+    position: fixed;
+  }
+
+  .booking-reveal-screen .reveal-content-box {
+    margin: 0 auto;
+    animation: none;
+    padding: 24px 16px;
     width: 95vw;
   }
 
-  .scene-text-block {
-    padding: 0;
-    max-width: 90%;
+  .booking-reveal-screen .reveal-logo {
+    width: 48px;
+    height: 38px;
+    margin-bottom: 12px;
   }
 
-  .scene-text-title {
-    font-size: 1.35rem;
+  .booking-reveal-screen .reveal-title {
+    font-size: 1.25rem;
+    margin-bottom: 4px;
+  }
+
+  .booking-reveal-screen .reveal-subtitle {
+    font-size: 0.7rem;
+    margin-bottom: 16px;
+    line-height: 1.35;
+  }
+
+  .booking-reveal-screen .form-row-double {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .booking-reveal-screen .form-field-cinema {
+    gap: 4px;
+  }
+
+  .booking-reveal-screen .form-field-cinema label {
+    font-size: 0.6rem;
+  }
+
+  .booking-reveal-screen .form-field-cinema input,
+  .booking-reveal-screen .form-field-cinema select {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .booking-reveal-screen .cinema-submit-btn {
+    padding: 10px 12px;
+    font-size: 0.75rem;
+  }
+
+  .scene-text-overlay {
+    align-items: flex-end;
+    padding-bottom: 60px;
+    padding-left: 10px;
+    padding-right: 10px;
+    box-sizing: border-box;
+  }
+
+  .scene-text-block {
+    background: rgba(10, 15, 24, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 20px 24px;
+    max-width: 90%;
+    width: 90%;
+    box-sizing: border-box;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    filter: none;
+    transform: translate3d(0, 30px, 0);
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out, visibility 0.35s ease-out;
+  }
+
+  .scene-text-block.active {
+    transform: translate3d(0, 0, 0);
+    filter: none;
+  }
+
+  .scene-text-tag {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
     margin-bottom: 8px;
   }
 
+  .scene-text-title {
+    font-size: 1.45rem;
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+
   .scene-text-desc {
-    font-size: 0.72rem;
-    line-height: 1.45;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
   }
 
   /* Mobile Responsive Card Background Sizing Overrides */
@@ -1402,6 +1531,18 @@ html.bypassing-gateway #portal-stage {
   }
 }
 
+@media (max-width: 768px) {
+  .modal-backdrop,
+  .booking-reveal-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .portal-map-wrapper {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, 
   *::before, 
@@ -1420,10 +1561,12 @@ html.bypassing-gateway #portal-stage {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 10000;
   display: grid;
   place-items: center;
   overflow: hidden;
+  overscroll-behavior: contain;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s var(--ease-smooth);
@@ -1453,6 +1596,7 @@ html.bypassing-gateway #portal-stage {
   border-radius: 28px;
   padding: 44px 40px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: 
     0 40px 80px rgba(0, 0, 0, 0.95), 
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -1515,14 +1659,21 @@ html.bypassing-gateway #portal-stage {
 
 /* HİZMETLER & HESAPLAMA PANELİ */
 .services-wrapper {
-  width: min(920px, 94vw);
+  width: min(920px, 95vw);
 }
 
 .services-calculator-layout {
   display: grid;
-  grid-template-columns: 1fr 1.05fr;
+  grid-template-columns: 1.1fr 0.9fr;
   gap: 36px;
   align-items: start;
+}
+
+@media (max-width: 900px) {
+  .services-calculator-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 .services-list-panel {
@@ -1792,17 +1943,98 @@ html.bypassing-gateway #portal-stage {
 /* ==========================================================================
    14. RESPONSIVE MODAL MEDIA QUERIES
    ========================================================================== */
-@media (max-width: 900px) {
-  .services-calculator-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-}
+/* media query cleaned */
 
 @media (max-width: 768px) {
   .modal-wrapper {
-    padding: 32px 20px;
-    max-height: 80vh;
+    padding: 24px 16px;
+    max-height: 90dvh;
+    width: 95vw;
+    box-sizing: border-box;
+  }
+  .services-list-panel {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .service-item-detail {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px 10px;
+    gap: 6px;
+    border-radius: 12px;
+    min-height: 80px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .service-item-detail .service-icon {
+    font-size: 1.25rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+  }
+  .service-item-detail .service-text {
+    padding-right: 0;
+  }
+  .service-item-detail .service-text h4 {
+    font-size: 0.72rem;
+    margin-bottom: 0;
+    line-height: 1.25;
+  }
+  .service-item-detail .service-text p {
+    display: none !important;
+  }
+  .estimator-calculator-panel {
+    padding: 16px 14px;
+    gap: 12px;
+    border-radius: 16px;
+    box-sizing: border-box;
+  }
+  .estimator-calculator-panel h3 {
+    font-size: 0.65rem;
+    margin-bottom: 2px;
+    padding-bottom: 6px;
+  }
+  .calc-field {
+    gap: 4px;
+  }
+  .calc-checkbox-group {
+    padding: 8px 10px;
+    gap: 6px;
+    border-radius: 10px;
+  }
+  .calc-cb-label {
+    font-size: 0.65rem;
+    gap: 8px;
+  }
+  .calculator-receipt-box {
+    padding: 12px 14px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  .calculator-receipt-box h4 {
+    font-size: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+  }
+  .receipt-row {
+    margin-bottom: 4px;
+  }
+  .calculator-result-box {
+    padding: 12px;
+    border-radius: 14px;
+  }
+  .calc-price {
+    font-size: 1.8rem;
+  }
+  .calc-disclaimer {
+    font-size: 0.52rem;
+    margin-bottom: 8px;
+  }
+  .calc-apply-btn {
+    padding: 10px;
+    font-size: 0.68rem;
   }
 }
 
@@ -1908,6 +2140,7 @@ html.bypassing-gateway #portal-stage {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   pointer-events: none;
   z-index: 100000;
   opacity: 0;
@@ -2208,14 +2441,14 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   position: absolute;
   width: 34px;
   height: 34px;
-  border: 1.5px solid var(--h-accent);
+  border: 1px solid rgba(var(--h-rgb), 0.45);
   border-radius: 50%;
   left: 1px;
   top: 1px;
-  opacity: 0;
+  opacity: 0.4;
   pointer-events: none;
   transform-origin: center;
-  animation: hotspotRipple 2.4s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+  animation: hotspotSoftPulse 3s infinite ease-in-out;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
@@ -2415,6 +2648,17 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   100% {
     transform: scale(1.6);
     opacity: 0;
+  }
+}
+
+@keyframes hotspotSoftPulse {
+  0%, 100% {
+    transform: scale(0.85);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.65;
   }
 }
 
@@ -2642,6 +2886,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
@@ -3406,6 +3651,7 @@ img, video, .card-bg-image {
   left: 50%;
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
   transform: translate3d(-50%, -50%, 0) scale(1);
   z-index: 1;
@@ -3565,14 +3811,7 @@ img, video, .card-bg-image {
   }
 }
 
-@keyframes textShimmer {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
+
 
 @keyframes introLineExpand {
   to {
@@ -3800,29 +4039,6 @@ img, video, .card-bg-image {
   z-index: 2;
 }
 
-@media (max-width: 768px) {
-  .services-select-card {
-    padding: 36px 20px 44px;
-    max-width: 100%;
-    width: 95%;
-    border-radius: 22px;
-  }
-  .services-select-title {
-    font-size: 1.5rem;
-    letter-spacing: 3px;
-  }
-  .services-select-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  .service-select-badge {
-    font-size: 0.55rem;
-    padding: 3px 7px;
-  }
-  .service-price-hint {
-    display: none;
-  }
-}
 
 /* ================================================================
    SERVICE CARDS — INDIVIDUAL ITEMS
@@ -4261,3 +4477,384 @@ img, video, .card-bg-image {
   100% { transform: translateY(-7px) scale(1); opacity: 0; }
 }
 
+@media (max-width: 768px) {
+  #servicesTextOverlay {
+    align-items: center;
+    padding-bottom: 20px;
+  }
+  .services-select-card {
+    padding: 18px 12px 20px;
+    max-width: 100%;
+    width: 95%;
+    border-radius: 22px;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9);
+  }
+  .services-select-card .services-select-hud-header {
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+  }
+  .services-select-title {
+    font-size: 1.25rem;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .services-select-subtitle {
+    font-size: 0.68rem;
+    margin-bottom: 14px;
+  }
+  .services-select-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .service-select-item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 8px 12px;
+    gap: 8px;
+    border-radius: 16px;
+    min-height: 90px;
+  }
+  .service-select-icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    margin-top: 0;
+    border-radius: 10px;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .service-select-svg {
+    width: 16px;
+    height: 16px;
+  }
+  .service-select-info {
+    padding-right: 0;
+    text-align: center;
+  }
+  .service-select-info h4 {
+    font-size: 0.78rem;
+    margin-bottom: 0;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+  .service-select-info p,
+  .service-select-tags,
+  .service-select-badge {
+    display: none !important;
+  }
+  .service-select-active-indicator {
+    top: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+  }
+  .service-select-active-indicator svg {
+    width: 9px;
+    height: 9px;
+    stroke-width: 4px;
+  }
+  .service-price-hint {
+    display: none;
+  }
+  .cinema-intro-card .intro-title {
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    letter-spacing: 12px;
+    text-indent: 12px;
+  }
+}
+
+/* ==========================================================================
+   22. MOBILE CITY SELECTOR BUTTONS (GLASSMORPHIC HUD PRESET)
+   ========================================================================== */
+
+/* Hide by default on desktop viewports */
+.mobile-city-selector {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Clean up overlapping map labels on mobile viewports */
+  .map-hotspot .hotspot-label,
+  .map-hotspot .hotspot-telemetry {
+    display: none !important;
+  }
+
+  /* Show and style mobile quick selector */
+  .mobile-city-selector {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    margin: 24px auto 0 auto;
+    text-align: center;
+    padding: 0 16px;
+    box-sizing: border-box;
+    z-index: 10;
+    position: relative;
+  }
+
+  .mobile-selector-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .mobile-selector-title::before,
+  .mobile-selector-title::after {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .mobile-city-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .mobile-city-btn {
+    position: relative;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 14px 10px;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    outline: none;
+  }
+
+  .mobile-city-btn .btn-city-name {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+
+  .mobile-city-btn .btn-city-market {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.45rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.25);
+    transition: color 0.3s ease;
+  }
+
+  /* Focus and Active States with specific market neon glows */
+  .mobile-city-btn:focus,
+  .mobile-city-btn:active,
+  .mobile-city-btn.active-click {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .mobile-city-btn[data-market="marmara"]:focus,
+  .mobile-city-btn[data-market="marmara"]:active,
+  .mobile-city-btn[data-market="marmara"].active-click {
+    border-color: rgba(51, 102, 255, 0.65);
+    box-shadow: 0 0 15px rgba(51, 102, 255, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+  .mobile-city-btn[data-market="marmara"]:focus .btn-city-name,
+  .mobile-city-btn[data-market="marmara"]:active .btn-city-name,
+  .mobile-city-btn[data-market="marmara"].active-click .btn-city-name {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(51, 102, 255, 0.6);
+  }
+  .mobile-city-btn[data-market="marmara"]:focus .btn-city-market,
+  .mobile-city-btn[data-market="marmara"]:active .btn-city-market,
+  .mobile-city-btn[data-market="marmara"].active-click .btn-city-market {
+    color: rgba(51, 102, 255, 0.6);
+  }
+
+  .mobile-city-btn[data-market="ege"]:focus,
+  .mobile-city-btn[data-market="ege"]:active,
+  .mobile-city-btn[data-market="ege"].active-click {
+    border-color: rgba(255, 145, 0, 0.65);
+    box-shadow: 0 0 15px rgba(255, 145, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+  .mobile-city-btn[data-market="ege"]:focus .btn-city-name,
+  .mobile-city-btn[data-market="ege"]:active .btn-city-name,
+  .mobile-city-btn[data-market="ege"].active-click .btn-city-name {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 145, 0, 0.6);
+  }
+  .mobile-city-btn[data-market="ege"]:focus .btn-city-market,
+  .mobile-city-btn[data-market="ege"]:active .btn-city-market,
+  .mobile-city-btn[data-market="ege"].active-click .btn-city-market {
+    color: rgba(255, 145, 0, 0.6);
+  }
+
+  .mobile-city-btn[data-market="karadeniz"]:focus,
+  .mobile-city-btn[data-market="karadeniz"]:active,
+  .mobile-city-btn[data-market="karadeniz"].active-click {
+    border-color: rgba(255, 51, 102, 0.65);
+    box-shadow: 0 0 15px rgba(255, 51, 102, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+  .mobile-city-btn[data-market="karadeniz"]:focus .btn-city-name,
+  .mobile-city-btn[data-market="karadeniz"]:active .btn-city-name,
+  .mobile-city-btn[data-market="karadeniz"].active-click .btn-city-name {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 51, 102, 0.6);
+  }
+  .mobile-city-btn[data-market="karadeniz"]:focus .btn-city-market,
+  .mobile-city-btn[data-market="karadeniz"]:active .btn-city-market,
+  .mobile-city-btn[data-market="karadeniz"].active-click .btn-city-market {
+    color: rgba(255, 51, 102, 0.6);
+  }
+}
+
+/* ==========================================
+   SMALL PHONE BREAKPOINT (≤480px)
+   ========================================== */
+@media (max-width: 480px) {
+  #main-nav {
+    height: 60px;
+  }
+  #main-nav.nav-scrolled {
+    height: 54px;
+  }
+  .nav-logo .logo-text {
+    font-size: 1rem;
+  }
+  .scene-text-title {
+    font-size: 1rem;
+  }
+  .scene-text-desc {
+    font-size: 0.65rem;
+  }
+  .modal-wrapper {
+    padding: 12px 10px 16px;
+    border-radius: 18px;
+    max-height: 92dvh;
+    width: 94vw;
+    box-sizing: border-box;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(var(--clr-accent-rgb), 0.65);
+  }
+  .estimator-calculator-panel {
+    padding: 12px 10px;
+    gap: 10px;
+    border-radius: 12px;
+  }
+  .estimator-calculator-panel h3 {
+    font-size: 0.6rem;
+    padding-bottom: 4px;
+    margin-bottom: 2px;
+  }
+  .calc-field {
+    gap: 2px;
+  }
+  .calc-checkbox-group {
+    padding: 6px 8px;
+    gap: 4px;
+    border-radius: 8px;
+  }
+  .calc-cb-label {
+    font-size: 0.6rem;
+    gap: 6px;
+  }
+  .calculator-receipt-box {
+    padding: 8px 10px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+  }
+  .calculator-receipt-box h4 {
+    font-size: 7px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+  .receipt-row {
+    margin-bottom: 3px;
+    font-size: 0.58rem;
+  }
+  .calculator-result-box {
+    padding: 10px;
+    margin-top: 4px;
+    border-radius: 10px;
+  }
+  .calc-price {
+    font-size: 1.45rem;
+  }
+  .calc-disclaimer {
+    font-size: 0.48rem;
+    margin-bottom: 6px;
+  }
+  .calc-apply-btn {
+    padding: 8px 10px;
+    font-size: 0.65rem;
+  }
+  .modal-title {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    margin-top: 8px;
+    margin-bottom: 2px;
+    padding: 0 24px;
+  }
+  .modal-subtitle {
+    font-size: 0.7rem;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+  .modal-close-btn {
+    top: 10px;
+    right: 10px;
+    font-size: 1.6rem;
+  }
+  .services-calculator-layout {
+    gap: 12px;
+  }
+  .service-item-detail {
+    padding: 10px 8px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+  .service-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+  }
+  .service-text h4 {
+    font-size: 0.72rem;
+  }
+  .service-text p {
+    display: none !important;
+  }
+  .cinema-intro-card .intro-title {
+    font-size: 2.2rem;
+    letter-spacing: 6px;
+    text-indent: 6px;
+  }
+  .booking-reveal-screen .reveal-content-box {
+    padding: 24px 16px;
+    width: 92vw;
+  }
+  .services-select-card {
+    padding: 12px 8px 14px;
+  }
+}

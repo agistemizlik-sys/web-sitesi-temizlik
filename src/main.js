@@ -386,15 +386,29 @@ function prewarmAround(activeIdx) {
 
   const isMobile = window.innerWidth <= 768;
 
-  // Mobile optimization: Only prewarm the single active video to conserve decoder resources
+  // Mobile optimization: Prewarm the active video immediately, and load neighbors sequentially
   if (isMobile) {
-    const sc = scenes[activeIdx];
-    if (sc && sc.video && sc.video.dataset.warmedUp !== 'true') {
-      warmupVideo(sc.video);
+    const activeSc = scenes[activeIdx];
+    if (activeSc && activeSc.video) {
+      warmupVideo(activeSc.video);
     }
-    // Clear queue and suspend adjacent loading
+
+    const mobileNeighbors = [activeIdx + 1, activeIdx - 1, activeIdx + 2];
     prewarmQueue.length = 0;
-    isPrewarming = false;
+    mobileNeighbors.forEach(n => {
+      if (n >= 0 && n < scenes.length) {
+        const sc = scenes[n];
+        if (sc && sc.video && sc.video.dataset.warmedUp !== 'true') {
+          prewarmQueue.push(n);
+        }
+      }
+    });
+
+    if (prewarmQueue.length > 0 && !isPrewarming) {
+      processPrewarmQueue();
+    } else if (prewarmQueue.length === 0) {
+      isPrewarming = false;
+    }
     return;
   }
 
@@ -432,6 +446,15 @@ function prewarmAround(activeIdx) {
 // Video Decoder Warmup Utility
 function warmupVideo(video) {
   if (!video || video.dataset.warmedUp === 'true') return;
+
+  // Restore source if dynamically unloaded
+  if (window.innerWidth <= 768 && (!video.src || video.src === '')) {
+    const originalSrc = video.dataset.originalSrc || video.getAttribute('src');
+    if (originalSrc) {
+      video.setAttribute('src', originalSrc);
+    }
+  }
+
   video.dataset.warmedUp = 'true';
   
   logDebug(`Warming up video decoder for: ${video.id} (${video.getAttribute('src')})`);
@@ -685,10 +708,15 @@ function setupPortalParticles() {
       return true;
     });
 
-    canvasAnimationId = requestAnimationFrame(drawLoop);
+    if (!document.hidden) {
+      canvasAnimationId = requestAnimationFrame(drawLoop);
+    }
   }
 
   drawLoop();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !canvasAnimationId) drawLoop();
+  });
 }
 
 // ==========================================
@@ -835,9 +863,11 @@ window.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 function setupLenis() {
   const lenis = new Lenis({
-    duration: 1.2,
+    duration: 1.5,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: true
+    smoothWheel: true,
+    wheelMultiplier: 1.0,
+    touchMultiplier: 1.6
   });
   
   STATE.lenisInstance = lenis;
@@ -1040,6 +1070,7 @@ function setupPortalGateway() {
     if (neonMap) cachedMapRect = neonMap.getBoundingClientRect();
     if (portalMapWrapper) cachedWrapperRect = portalMapWrapper.getBoundingClientRect();
   };
+  window.updatePortalCachedRects = updateCachedRects;
 
   // Re-calculate laser layout & cached bounds if viewport size changes (debounced)
   const debouncedGatewayResize = debounce(() => {
@@ -1601,6 +1632,48 @@ function setupPortalGateway() {
     cardHoverListeners.push({ card, onEnter, onLeave, onMove, clickHandler, keyHandler, btnHandler });
   });
 
+  // Bind Mobile City Selector Buttons
+  const mobileCityBtns = document.querySelectorAll('.mobile-city-btn');
+  mobileCityBtns.forEach(btn => {
+    const city = btn.dataset.city;
+
+    const clickHandler = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      mobileCityBtns.forEach(b => b.classList.remove('active-click'));
+      btn.classList.add('active-click');
+      
+      // Look up corresponding geographical hotspot coordinates to center zoom-in warp animation
+      const hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
+        h => h.dataset.city.toLowerCase() === city.toLowerCase()
+      );
+      
+      let cx = window.innerWidth / 2;
+      let cy = window.innerHeight / 2;
+      
+      if (hotspot) {
+        const rect = hotspot.getBoundingClientRect();
+        cx = rect.left + rect.width / 2;
+        cy = rect.top + rect.height / 2;
+      }
+      
+      triggerSelection(city, cx, cy);
+    };
+
+    const keyHandler = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    };
+
+    btn.addEventListener('click', clickHandler);
+    btn.addEventListener('keydown', keyHandler);
+
+    portalHotspotListeners.push({ hotspot: btn, clickHandler, keyHandler });
+  });
+
   updateCachedHotspotCoords();
 
   // Auto-bypass if city is cached (Commented out to always show the portal gateway first on load)
@@ -1709,14 +1782,14 @@ function setupNavScroll() {
       e.preventDefault();
       if (STATE.lenisInstance) {
         STATE.lenisInstance.scrollTo('#cinema-section', {
-          offset: window.innerHeight * 3.0,
+          offset: window.innerHeight * 1.5,
           duration: 1.2
         });
       } else {
         const target = document.getElementById('cinema-section');
         if (target) {
           window.scrollTo({
-            top: target.offsetTop + window.innerHeight * 3.0,
+            top: target.offsetTop + window.innerHeight * 1.5,
             behavior: 'smooth'
           });
         }
@@ -1730,14 +1803,14 @@ function setupNavScroll() {
       e.preventDefault();
       if (STATE.lenisInstance) {
         STATE.lenisInstance.scrollTo('#cinema-section', {
-          offset: window.innerHeight * 36,
+          offset: window.innerHeight * 18,
           duration: 1.2
         });
       } else {
         const target = document.getElementById('cinema-section');
         if (target) {
           window.scrollTo({
-            top: target.offsetTop + window.innerHeight * 36,
+            top: target.offsetTop + window.innerHeight * 18,
             behavior: 'smooth'
           });
         }
@@ -1752,14 +1825,14 @@ function setupNavScroll() {
       e.preventDefault();
       if (STATE.lenisInstance) {
         STATE.lenisInstance.scrollTo('#cinema-section', {
-          offset: window.innerHeight * 3.0,
+          offset: window.innerHeight * 1.5,
           duration: 1.5
         });
       } else {
         const target = document.getElementById('cinema-section');
         if (target) {
           window.scrollTo({
-            top: target.offsetTop + window.innerHeight * 3.0,
+            top: target.offsetTop + window.innerHeight * 1.5,
             behavior: 'smooth'
           });
         }
@@ -1787,6 +1860,7 @@ function setupMobileDrawer() {
     toggle.setAttribute('aria-expanded', 'true');
     toggle.setAttribute('aria-label', 'Menüyü Kapat');
     if (STATE.lenisInstance) STATE.lenisInstance.stop();
+    document.body.style.overflow = 'hidden';
 
     // GSAP staggered entry for links in the drawer
     gsap.fromTo('.drawer-link-item', 
@@ -1814,14 +1888,18 @@ function setupMobileDrawer() {
           drawer.setAttribute('hidden', '');
           gsap.set(wrapper, { clearProps: 'transform' });
           wrapper.style.transition = ''; // Restore CSS transition for subsequent opens
-          if (STATE.lenisInstance && !document.body.classList.contains('flag-selection-mode') && document.getElementById('services-modal').hasAttribute('hidden')) {
+          const servicesModal = document.getElementById('services-modal');
+          const isServicesHidden = !servicesModal || servicesModal.hasAttribute('hidden');
+          if (STATE.lenisInstance && !document.body.classList.contains('flag-selection-mode') && isServicesHidden) {
             STATE.lenisInstance.start();
           }
+          document.body.style.overflow = '';
         }
       });
     } else {
       drawer.setAttribute('hidden', '');
       if (STATE.lenisInstance) STATE.lenisInstance.start();
+      document.body.style.overflow = '';
     }
   };
 
@@ -1859,22 +1937,22 @@ function setupMobileDrawer() {
         } else if (target === 'cinema') {
           if (STATE.lenisInstance) {
             STATE.lenisInstance.scrollTo('#cinema-section', {
-              offset: window.innerHeight * 3.0,
+              offset: window.innerHeight * 1.5,
               duration: 1.2
             });
           } else {
             const el = document.getElementById('cinema-section');
-            if (el) window.scrollTo({ top: el.offsetTop + window.innerHeight * 3.0, behavior: 'smooth' });
+            if (el) window.scrollTo({ top: el.offsetTop + window.innerHeight * 1.5, behavior: 'smooth' });
           }
         } else if (target === 'contact') {
           if (STATE.lenisInstance) {
             STATE.lenisInstance.scrollTo('#cinema-section', {
-              offset: window.innerHeight * 36,
+              offset: window.innerHeight * 18,
               duration: 1.2
             });
           } else {
             const el = document.getElementById('cinema-section');
-            if (el) window.scrollTo({ top: el.offsetTop + window.innerHeight * 36, behavior: 'smooth' });
+            if (el) window.scrollTo({ top: el.offsetTop + window.innerHeight * 18, behavior: 'smooth' });
           }
         }
       }, 300);
@@ -2020,12 +2098,31 @@ function setupCinemaEngine() {
 
   scenes.forEach(sc => {
     if (sc.video) {
+      // Backup original source URL
+      if (!sc.video.dataset.originalSrc) {
+        sc.video.dataset.originalSrc = sc.video.getAttribute('src') || '';
+      }
+
       const onReady = () => {
         logDebug(`Video ${sc.video.id} readyState changed to: ${sc.video.readyState}. Recalculating target times and waking up loop.`);
         if (trigger) {
           trigger.vars.onUpdate(trigger);
         }
         triggerCinemaLoop();
+
+        // Unlock iOS WebKit decoder when video metadata is loaded and ready
+        if (window.innerWidth <= 768 && sc.video.readyState >= 1 && sc.video.dataset.unlocked !== 'true') {
+          sc.video.dataset.unlocked = 'true';
+          const playPromise = sc.video.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              sc.video.pause();
+            }).catch(e => {
+              logDebug(`Unlock play-pause failed on ready for ${sc.video.id}: ${e}`);
+              sc.video.dataset.unlocked = 'false';
+            });
+          }
+        }
       };
       sc.video.addEventListener('loadedmetadata', onReady);
       sc.video.addEventListener('canplay', onReady);
@@ -2297,7 +2394,30 @@ function setupCinemaEngine() {
           video.style.visibility = 'hidden';
           sState.lastAppliedVisibility = 'hidden';
         }
+
+        // Proximity dynamic source unloading to prevent choking resources on mobile
+        if (window.innerWidth <= 768 && video.src && video.src !== '') {
+          if (!video.dataset.originalSrc) {
+            video.dataset.originalSrc = video.getAttribute('src') || '';
+          }
+          video.removeAttribute('src');
+          try {
+            video.load();
+          } catch (e) {}
+          video.dataset.warmedUp = 'false';
+          video.dataset.unlocked = 'false';
+        }
         return;
+      }
+
+      // Restore video source if dynamically unloaded (proximity loader)
+      if (window.innerWidth <= 768 && (!video.src || video.src === '')) {
+        const originalSrc = video.dataset.originalSrc || video.getAttribute('src');
+        if (originalSrc) {
+          video.setAttribute('src', originalSrc);
+          video.load();
+          video.dataset.warmedUp = 'true';
+        }
       }
 
       // Lerp time
@@ -2333,62 +2453,68 @@ function setupCinemaEngine() {
       const roundedOpacity = Math.round(sState.currentOpacity * 100) / 100;
       const roundedVideoY = Math.round(sState.currentVideoY * 10) / 10;
 
-      if (roundedOpacity > 0.001) {
-        if (sState.lastAppliedOpacity !== roundedOpacity) {
-          video.style.opacity = roundedOpacity;
-          sState.lastAppliedOpacity = roundedOpacity;
-        }
-        if (sState.lastAppliedVisibility !== 'visible') {
-          video.style.visibility = 'visible';
-          sState.lastAppliedVisibility = 'visible';
-        }
-        if (sState.lastAppliedVideoY !== roundedVideoY) {
-          video.style.setProperty('--video-y', `${roundedVideoY}%`);
-          sState.lastAppliedVideoY = roundedVideoY;
-        }
+      // Keep visibility visible for active and adjacent videos so they are processed/loaded by the browser
+      if (sState.lastAppliedVisibility !== 'visible') {
+        video.style.visibility = 'visible';
+        sState.lastAppliedVisibility = 'visible';
+      }
 
-        // Keep active video paused to prevent autonomous playback
-        if (!video.paused) {
-          try {
+      if (sState.lastAppliedOpacity !== roundedOpacity) {
+        video.style.opacity = roundedOpacity;
+        sState.lastAppliedOpacity = roundedOpacity;
+      }
+
+      if (sState.lastAppliedVideoY !== roundedVideoY) {
+        video.style.setProperty('--video-y', `${roundedVideoY}%`);
+        sState.lastAppliedVideoY = roundedVideoY;
+      }
+
+      // Keep active video paused to prevent autonomous playback
+      if (!video.paused) {
+        try {
+          video.pause();
+        } catch (err) {}
+      }
+
+      // Unlock iOS WebKit decoder trick
+      if (window.innerWidth <= 768 && video.readyState >= 1 && video.dataset.unlocked !== 'true') {
+        video.dataset.unlocked = 'true';
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
             video.pause();
-          } catch (err) {}
+          }).catch(err => {
+            logDebug(`Decoder unlock failed for ${video.id}: ${err}`);
+            video.dataset.unlocked = 'false';
+          });
         }
+      }
 
-        // Apply native seeking
-        if (video.readyState >= 1) {
-          const seekDiff = Math.abs(video.currentTime - sState.currentTime);
-          if (seekDiff > 0.05) {
-            settled = false;
-            const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
-            const seekDuration = nowMs - lastSeekTime;
-            
-            // Bypass seeking guard if seek has been stuck for > 500ms
-            const isSeekingStuck = video.seeking && (seekDuration > 500);
-            
-            if ((!video.seeking || isSeekingStuck) && (seekDuration > 40)) {
-              try {
-                video.currentTime = sState.currentTime;
-                video.dataset.lastSeekTime = nowMs.toString();
-              } catch (e) {
-                logErrorDebug(`Seek failed on scene ${idx}:`, e);
-              }
+      // Apply native seeking
+      if (video.readyState >= 1) {
+        const seekDiff = Math.abs(video.currentTime - sState.currentTime);
+        if (seekDiff > 0.05) {
+          settled = false;
+          const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
+          const seekDuration = nowMs - lastSeekTime;
+          
+          // Bypass seeking guard if seek has been stuck for > 500ms
+          const isSeekingStuck = video.seeking && (seekDuration > 500);
+          
+          if ((!video.seeking || isSeekingStuck) && (seekDuration > 40)) {
+            try {
+              video.currentTime = sState.currentTime;
+              video.dataset.lastSeekTime = nowMs.toString();
+            } catch (e) {
+              logErrorDebug(`Seek failed on scene ${idx}:`, e);
             }
           }
         }
+      }
 
-        // Track loader/buffering state
-        if (video.seeking || video.readyState < 2) {
-          activeVideoBuffering = true;
-        }
-      } else {
-        if (sState.lastAppliedOpacity !== 0) {
-          video.style.opacity = 0;
-          sState.lastAppliedOpacity = 0;
-        }
-        if (sState.lastAppliedVisibility !== 'hidden') {
-          video.style.visibility = 'hidden';
-          sState.lastAppliedVisibility = 'hidden';
-        }
+      // Track loader/buffering state (only check active video)
+      if (idx === cState.activeIdx && (video.seeking || video.readyState < 2)) {
+        activeVideoBuffering = true;
       }
     });
 
@@ -2651,11 +2777,10 @@ function setupCinemaEngine() {
           const end_range = 0.92;
           const total_range = end_range - start_range; // 0.42
           const segmentSize = total_range / 12; // 0.035
-          const fadeZone = 0.007; // Cross-fade width
 
           const scrubProgress = p - start_range;
           const activeIdx = Math.max(0, Math.min(Math.floor(scrubProgress / segmentSize), 11));
-
+          
           cState.targetX = scenes[activeIdx].irisX;
           cState.targetY = scenes[activeIdx].irisY;
 
@@ -2676,48 +2801,60 @@ function setupCinemaEngine() {
             });
           }
 
+          // Calculate mid-points for all 12 scenes
+          const midPoints = [];
+          for (let i = 0; i < 12; i++) {
+            midPoints.push(start_range + (i + 0.5) * segmentSize);
+          }
+
+          // Calculate target opacities using overlapping linear cross-fade
+          const targetOpacities = Array(12).fill(0);
+          if (p <= midPoints[0]) {
+            targetOpacities[0] = 1.0;
+          } else if (p >= midPoints[11]) {
+            targetOpacities[11] = 1.0;
+          } else {
+            // Find which two mid-points p lies between
+            let activeSegmentIdx = 0;
+            for (let i = 0; i < 11; i++) {
+              if (p >= midPoints[i] && p <= midPoints[i + 1]) {
+                activeSegmentIdx = i;
+                break;
+              }
+            }
+            const t = (p - midPoints[activeSegmentIdx]) / (midPoints[activeSegmentIdx + 1] - midPoints[activeSegmentIdx]);
+            // Bottom layer (activeSegmentIdx) stays at 1.0, top layer (activeSegmentIdx + 1) fades in
+            targetOpacities[activeSegmentIdx] = 1.0;
+            targetOpacities[activeSegmentIdx + 1] = t;
+          }
+
+          // Calculate playheads, panning Y-coords, and assign opacities
           for (let idx = 0; idx < 12; idx++) {
             const sState = cState.sceneStates[idx];
             const sc = scenes[idx];
             const video = sc.video;
             const duration = getSafeDuration(video);
-            
-            const start_p = start_range + idx * segmentSize;
-            const end_p = start_p + segmentSize;
 
-            if (p <= start_p) {
+            // Wide scrub range: from midPoints[idx-1] to midPoints[idx+1]
+            const scrubStart = idx > 0 ? midPoints[idx - 1] : start_range;
+            const scrubEnd = idx < 11 ? midPoints[idx + 1] : end_range;
+
+            if (p <= scrubStart) {
               sState.targetTime = 0;
               sState.targetVideoY = sc.yStart || 0;
-            } else if (p >= end_p) {
+            } else if (p >= scrubEnd) {
               sState.targetTime = duration;
               sState.targetVideoY = sc.yEnd || 100;
             } else {
-              const local_p = (p - start_p) / segmentSize;
+              const local_p = (p - scrubStart) / (scrubEnd - scrubStart);
               sState.targetTime = local_p * duration;
               sState.targetVideoY = (sc.yStart || 0) + ((sc.yEnd || 100) - (sc.yStart || 0)) * local_p;
             }
 
-            if (p < start_p || p > end_p) {
-              sState.targetOpacity = 0;
-            } else {
-              let opacity = 1.0;
-              if (p < start_p + fadeZone && idx > 0) {
-                opacity = (p - start_p) / fadeZone;
-              } else if (p > end_p - fadeZone && idx < 11) {
-                opacity = 1.0 - ((p - (end_p - fadeZone)) / fadeZone);
-              }
-              sState.targetOpacity = opacity;
-            }
+            sState.targetOpacity = targetOpacities[idx];
           }
 
-          let targetTextBlockIdx = -1;
-          const current_start_p = start_range + activeIdx * segmentSize;
-          const current_end_p = current_start_p + segmentSize;
-          
-          if (p >= current_start_p + fadeZone && p <= current_end_p - fadeZone) {
-            targetTextBlockIdx = activeIdx;
-          }
-
+          let targetTextBlockIdx = activeIdx;
           if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
             cState.activeTextBlockIdx = targetTextBlockIdx;
             logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
@@ -3008,8 +3145,10 @@ function setupBookingReveal() {
   const serviceSelect = document.getElementById('cService');
   if (serviceSelect) {
     serviceSelect.addEventListener('change', () => {
-      selectServiceGlobal(serviceSelect.value);
-      if (STATE.calculator.applied && serviceSelect.value !== STATE.calculator.serviceType) {
+      const newService = serviceSelect.value;
+      const oldService = STATE.calculator.serviceType;
+      selectServiceGlobal(newService);
+      if (STATE.calculator.applied && newService !== oldService) {
         STATE.calculator.applied = false;
         updateBookingSummaryBox();
       }
@@ -3158,6 +3297,10 @@ function setupKeyboardCinemaScroll() {
     }
 
     // Check if key is ArrowUp, ArrowDown, PageUp, PageDown, or Spacebar
+    // Skip spacebar hijack for interactive elements (dropdowns, buttons, inputs)
+    if (e.key === ' ' && ['SELECT', 'BUTTON', 'INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+      return;
+    }
     if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) {
       e.preventDefault();
       
@@ -3165,8 +3308,8 @@ function setupKeyboardCinemaScroll() {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       
-      // Each scene block spans 300% window height (3 * windowHeight)
-      const step = windowHeight * 3.0;
+      // Each scene block spans 200% window height (2 * windowHeight)
+      const step = windowHeight * 2.0;
       
       let targetScroll = scrollY + (isDown ? step : -step);
       
@@ -3194,10 +3337,11 @@ function setupKeyboardCinemaScroll() {
 // ==========================================
 function setupServicesModal() {
   const servicesModal = document.getElementById('services-modal');
-  const servicesLink = document.getElementById('navServicesLink');
+  const modalWrapper = servicesModal?.querySelector('.modal-wrapper');
   const closeServicesBtn = document.getElementById('closeServicesBtn');
   const servicesBackdrop = document.getElementById('servicesBackdrop');
   
+  const navServicesLink = document.getElementById('navServicesLink');
   const serviceItems = document.querySelectorAll('.service-item-detail');
   const areaRange = document.getElementById('calc-area-range');
   const areaLabel = document.getElementById('area-val-label');
@@ -3206,34 +3350,27 @@ function setupServicesModal() {
   const priceDisplay = document.getElementById('calc-price-display');
   const applyBtn = document.getElementById('calcApplyBtn');
   
-  if (!servicesModal || !servicesLink) return;
-
-  const modalWrapper = servicesModal.querySelector('.modal-wrapper');
-  if (!modalWrapper) return;
+  if (!servicesModal || !modalWrapper) return;
   
   let currentBasePrice = 15; // default base price
   let currentServiceType = 'standart';
   let currentCostObject = { val: 1500 }; // track and animate current price calculation
   
-  servicesLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    
-    // Sync services modal selection with current booking form dropdown value
-    const formServiceSelect = document.getElementById('cService');
-    if (formServiceSelect && formServiceSelect.value) {
-      const targetService = formServiceSelect.value;
-      const matchingItem = Array.from(serviceItems).find(el => el.dataset.service === targetService);
-      if (matchingItem) {
-        serviceItems.forEach(el => el.classList.remove('active'));
-        matchingItem.classList.add('active');
+  const openServices = (targetService = 'standart') => {
+    // Sync UI selection status
+    serviceItems.forEach(item => {
+      if (item.dataset.service === targetService) {
+        item.classList.add('active');
         currentServiceType = targetService;
-        currentBasePrice = parseFloat(matchingItem.dataset.basePrice || 15);
-        logDebug(`Syncing services modal with booking form value: ${targetService}`);
+        currentBasePrice = parseFloat(item.dataset.basePrice || 15);
+      } else {
+        item.classList.remove('active');
       }
-    }
+    });
     
     servicesModal.removeAttribute('hidden');
     if (STATE.lenisInstance) STATE.lenisInstance.stop();
+    document.body.style.overflow = 'hidden';
     
     gsap.fromTo(modalWrapper,
       { scale: 0.9, opacity: 0 },
@@ -3242,7 +3379,19 @@ function setupServicesModal() {
       }}
     );
     calculatePrice();
-  });
+  };
+  
+  // Bind both nav links
+  if (navServicesLink) {
+    navServicesLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openServices('standart');
+    });
+  }
+  
+  window.openServicesModalWithPreset = (targetService) => {
+    openServices(targetService);
+  };
   
   const closeServices = () => {
     gsap.to(modalWrapper, {
@@ -3254,6 +3403,7 @@ function setupServicesModal() {
       onComplete: () => {
         servicesModal.setAttribute('hidden', '');
         if (STATE.lenisInstance) STATE.lenisInstance.start();
+        document.body.style.overflow = '';
         
         // Reset invoice breakdown display to animate fresh on next reveal
         const receiptBox = document.getElementById('calculatorReceipt');
@@ -3285,7 +3435,7 @@ function setupServicesModal() {
       currentBasePrice = parseFloat(item.dataset.basePrice || 15);
       currentServiceType = item.dataset.service || 'standart';
       
-      // Update selection in cinematic select grid
+      // Update selection in cinematic select grid if exists
       const selectItems = document.querySelectorAll('.service-select-item');
       selectItems.forEach(cItem => {
         if (cItem.dataset.service === currentServiceType) {
@@ -3304,7 +3454,7 @@ function setupServicesModal() {
       calculatePrice();
     });
   });
-  
+
   if (areaRange) {
     areaRange.addEventListener('input', (e) => {
       if (areaLabel) areaLabel.textContent = e.target.value;
@@ -3490,14 +3640,14 @@ function setupServicesModal() {
       setTimeout(() => {
         if (STATE.lenisInstance) {
           STATE.lenisInstance.scrollTo('#cinema-section', {
-            offset: window.innerHeight * 36,
+            offset: window.innerHeight * 18,
             duration: 1.2
           });
         } else {
           const target = document.getElementById('cinema-section');
           if (target) {
             window.scrollTo({
-              top: target.offsetTop + window.innerHeight * 36,
+              top: target.offsetTop + window.innerHeight * 18,
               behavior: 'smooth'
             });
           }
@@ -3514,6 +3664,8 @@ function openPortalGateway() {
   const portalStage = document.getElementById('portal-stage');
   const mainContent = document.getElementById('main-content');
   if (!portalStage || !mainContent) return;
+
+  window.portalWarping = true; // Lock hover calculations during return transition
 
   // Clear previous cinema states & video playheads
   resetCinemaState();
@@ -3571,6 +3723,11 @@ function openPortalGateway() {
     onComplete: () => {
       // Re-init portal particles
       setupPortalParticles();
+      // Recalculate cached bounds now that map is static and returned to scale 1, translateY 0
+      if (typeof window.updatePortalCachedRects === 'function') {
+        window.updatePortalCachedRects();
+      }
+      window.portalWarping = false; // Release hover calculations lock
     }
   });
 
@@ -3766,18 +3923,20 @@ function setupCinemaAmbientLight() {
   let lightMX = 0;
   let lightMY = 0;
 
-  window.addEventListener('mousemove', (e) => {
-    lightMX = e.clientX;
-    lightMY = e.clientY;
+  if (!('ontouchstart' in window)) {
+    window.addEventListener('mousemove', (e) => {
+      lightMX = e.clientX;
+      lightMY = e.clientY;
 
-    if (!lightTicking) {
-      window.requestAnimationFrame(() => {
-        light.style.transform = `translate3d(${lightMX}px, ${lightMY}px, 0)`;
-        lightTicking = false;
-      });
-      lightTicking = true;
-    }
-  }, { passive: true });
+      if (!lightTicking) {
+        window.requestAnimationFrame(() => {
+          light.style.transform = `translate3d(${lightMX}px, ${lightMY}px, 0)`;
+          lightTicking = false;
+        });
+        lightTicking = true;
+      }
+    }, { passive: true });
+  }
 }
 
 // ==========================================
@@ -3872,7 +4031,7 @@ class CyberSynth {
     try {
       this.muted = localStorage.getItem('tworose_audio_muted') === 'true';
     } catch (e) {
-      console.warn("localStorage read blocked", e);
+      logDebug("localStorage read blocked", e);
     }
     this.spikeTimeout = null;
     this.visualizerEl = null;
@@ -3883,7 +4042,7 @@ class CyberSynth {
     try {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
-      console.warn("Web Audio API not supported", e);
+      logDebug("Web Audio API not supported", e);
     }
   }
 
@@ -3986,12 +4145,12 @@ class CyberSynth {
     try {
       localStorage.setItem('tworose_audio_muted', this.muted);
     } catch (e) {
-      console.warn("localStorage write blocked", e);
+      logDebug("localStorage write blocked", e);
     }
     
     // Resume audio context if suspended to satisfy browser gesture requirements
     if (!this.muted && this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(err => console.warn("Audio Context resume failed", err));
+      this.ctx.resume().catch(err => logDebug("Audio Context resume failed", err));
     }
     
     this.updateToggleUI();
@@ -4039,7 +4198,7 @@ function setupAudioToggle() {
   const enableAudioCtx = () => {
     synth.init();
     if (synth.ctx && synth.ctx.state === 'suspended') {
-      synth.ctx.resume();
+      synth.ctx.resume().catch(() => {});
     }
     document.removeEventListener('click', enableAudioCtx);
     document.removeEventListener('keydown', enableAudioCtx);

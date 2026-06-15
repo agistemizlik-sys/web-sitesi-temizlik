@@ -71,7 +71,14 @@
     </div>
 
     <!-- Center pulse text -->
-    <div class="portal-center-hint">ŞEHRİNİZİ SEÇİN ⌄</div>
+    <div class="portal-center-hint">
+      <div class="hint-line-left"></div>
+      <div class="hint-content">
+        <div class="hint-main-title">ŞEHRİNİZİ SEÇİN</div>
+        <div class="hint-sub-title">SELECT REGIONAL GATEWAY AREA</div>
+      </div>
+      <div class="hint-line-right"></div>
+    </div>
 
     <!-- Floating Telemetry HUD -->
     <div id="portalMapHUD" class="portal-map-hud" aria-hidden="true" style="opacity: 0;">
@@ -721,6 +728,37 @@
       </div>
       
     </div>
+
+    <!-- Mobile City Selector Buttons (Clean Layout for Mobile Viewports) -->
+    <div class="mobile-city-selector" id="mobileCitySelector">
+      <div class="mobile-selector-title">HIZLI ŞEHİR SEÇİMİ</div>
+      <div class="mobile-city-grid">
+        <button class="mobile-city-btn" data-city="Istanbul" data-market="marmara">
+          <span class="btn-city-name">İSTANBUL</span>
+          <span class="btn-city-market">MARMARA</span>
+        </button>
+        <button class="mobile-city-btn" data-city="Izmir" data-market="ege">
+          <span class="btn-city-name">İZMİR</span>
+          <span class="btn-city-market">EGE</span>
+        </button>
+        <button class="mobile-city-btn" data-city="Kocaeli" data-market="marmara">
+          <span class="btn-city-name">KOCAELİ</span>
+          <span class="btn-city-market">MARMARA</span>
+        </button>
+        <button class="mobile-city-btn" data-city="Sakarya" data-market="marmara">
+          <span class="btn-city-name">SAKARYA</span>
+          <span class="btn-city-market">MARMARA</span>
+        </button>
+        <button class="mobile-city-btn" data-city="Balikesir" data-market="ege">
+          <span class="btn-city-name">BALIKESİR</span>
+          <span class="btn-city-market">EGE</span>
+        </button>
+        <button class="mobile-city-btn" data-city="Samsun" data-market="karadeniz">
+          <span class="btn-city-name">SAMSUN</span>
+          <span class="btn-city-market">KARADENİZ</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- ==========================================
@@ -1062,7 +1100,7 @@
       </div>
 
       <!-- FINAL BOOKING REVEAL SCREEN -->
-      <div class="booking-reveal-screen" id="bookingReveal" hidden>
+      <div class="booking-reveal-screen" id="bookingReveal" data-lenis-prevent hidden>
         <div class="reveal-backdrop"></div>
         <div class="reveal-content-box">
           <svg class="reveal-logo" viewBox="0 0 100 80" width="80" height="64" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1133,13 +1171,13 @@
   <!-- ==========================================
        HİZMETLER & FİYAT HESAPLAMA MODALI
        ========================================== -->
-  <div id="services-modal" class="cinema-modal" hidden>
+  <div id="services-modal" class="cinema-modal" data-lenis-prevent hidden>
     <div class="modal-backdrop" id="servicesBackdrop"></div>
     <div class="modal-wrapper services-wrapper">
       <button class="modal-close-btn" id="closeServicesBtn" aria-label="Kapat">&times;</button>
       
-      <h2 class="modal-title">HİZMETLERİMİZ & FİYAT HESAPLAMA</h2>
-      <p class="modal-subtitle">Evinizin veya ofisinizin ihtiyacını seçin, tahmini temizlik maliyetini anında hesaplayın.</p>
+      <h2 class="modal-title">HİZMETLERİMİZ</h2>
+      <p class="modal-subtitle">Evinizin veya ofisinizin ihtiyacına uygun profesyonel temizlik çözümlerimiz.</p>
       
       <div class="services-calculator-layout">
         
@@ -1227,6 +1265,7 @@
         
       </div>
     </div>
+  </div>
   <!-- ==========================================
        MOBİL NAVİGASYON MENU ÇEKMECESİ (Drawer)
        ========================================== -->
