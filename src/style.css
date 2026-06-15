@@ -1458,7 +1458,7 @@ html.bypassing-gateway #portal-stage {
 
   .scene-text-overlay {
     align-items: flex-end;
-    padding-bottom: 60px;
+    padding-bottom: 80px;
     padding-left: 10px;
     padding-right: 10px;
     box-sizing: border-box;
@@ -1470,7 +1470,7 @@ html.bypassing-gateway #portal-stage {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    padding: 20px 24px;
+    padding: 16px 18px;
     max-width: 90%;
     width: 90%;
     box-sizing: border-box;
@@ -4738,16 +4738,16 @@ img, video, .card-bg-image {
     font-size: 1rem;
   }
   .scene-text-title {
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
   .scene-text-desc {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
   }
   .modal-wrapper {
-    padding: 12px 10px 16px;
-    border-radius: 18px;
-    max-height: 92dvh;
-    width: 94vw;
+    padding: 10px 8px 14px;
+    border-radius: 16px;
+    max-height: 94dvh;
+    width: 96vw;
     box-sizing: border-box;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -4846,15 +4846,20 @@ img, video, .card-bg-image {
     display: none !important;
   }
   .cinema-intro-card .intro-title {
-    font-size: 2.2rem;
-    letter-spacing: 6px;
-    text-indent: 6px;
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+    text-indent: 4px;
   }
   .booking-reveal-screen .reveal-content-box {
-    padding: 24px 16px;
-    width: 92vw;
+    padding: 20px 14px;
+    width: 95vw;
   }
   .services-select-card {
     padding: 12px 8px 14px;
+  }
+  .nav-city-badge .badge-label {
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    padding: 5px 14px;
   }
 }
