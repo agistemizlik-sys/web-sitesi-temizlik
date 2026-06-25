@@ -1387,6 +1387,9 @@ function addLeafletMarkers(mapObj, locations) {
 
     const bindMarkerEvents = (el) => {
       if (!el) return;
+      if (el.dataset.listenersBound === 'true') return;
+      el.dataset.listenersBound = 'true';
+
       const onEnter = () => showCityPreviewFn && showCityPreviewFn(cityKey, el);
       const onLeave = (e) => revertToDefaultFn && revertToDefaultFn(e);
       const clickHandler = (e) => {

@@ -2181,7 +2181,9 @@ html.bypassing-gateway #portal-stage {
   border-radius: 50%;
   pointer-events: none;
   z-index: 100001;
-  transition: width 0.35s var(--ease-spring), height 0.35s var(--ease-spring), background-color 0.3s var(--ease-smooth);
+  transform: scale(1);
+  will-change: transform, background-color;
+  transition: transform 0.35s var(--ease-spring), background-color 0.3s var(--ease-smooth);
 }
 
 .cursor-ring {
@@ -2194,19 +2196,19 @@ html.bypassing-gateway #portal-stage {
   border-radius: 50%;
   pointer-events: none;
   z-index: 100000;
-  transition: width 0.35s var(--ease-spring), height 0.35s var(--ease-spring), border-color 0.3s var(--ease-smooth), background-color 0.3s var(--ease-smooth);
+  transform: scale(1);
+  will-change: transform, border-color, background-color;
+  transition: transform 0.35s var(--ease-spring), border-color 0.3s var(--ease-smooth), background-color 0.3s var(--ease-smooth);
 }
 
 /* Cursor Hover States */
 .cursor-hovering .cursor-dot {
-  width: 4px;
-  height: 4px;
+  transform: scale(0.5);
   background-color: #fff;
 }
 
 .cursor-hovering .cursor-ring {
-  width: 44px;
-  height: 44px;
+  transform: scale(1.375);
   border-color: var(--clr-accent);
   background-color: rgba(var(--clr-accent-rgb), 0.08);
 }
