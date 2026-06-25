@@ -1,8 +1,8 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-
-// Register GSAP ScrollTrigger
+import { STATE, REGION_THEMES, CITY_TO_REGION, CITY_NAMES_TR, CITY_NAMES_TR_TITLE } from './js/state.js';
+import { TRANSLATIONS, SERVICE_SCENE_TEXTS, SERVICE_SCENE_TEXTS_PL } from './js/translations.js';
 gsap.registerPlugin(ScrollTrigger);
 
 // Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
@@ -35,6 +35,18 @@ window.addEventListener('hashchange', () => {
 let cachedWindowWidth = window.innerWidth;
 let cachedWindowHeight = window.innerHeight;
 
+// Safari viewport height fix — sets --safari-vh CSS custom property
+// This compensates for iOS Safari's dynamic toolbar resizing the visual viewport
+function setSafariVH() {
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty('--safari-vh', `${vh}px`);
+}
+setSafariVH();
+window.addEventListener('resize', setSafariVH);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', setSafariVH);
+}
+
 // Utility function to debounce high-frequency events
 function debounce(func, wait) {
   let timeout;
@@ -47,6 +59,13 @@ function debounce(func, wait) {
 // Module-level variables for gateway interactive components
 let cardHoverListeners = [];
 let portalHotspotListeners = [];
+let turkeyMapInstance = null;
+let polandMapInstance = null;
+let showCityPreviewFn = null;
+let revertToDefaultFn = null;
+let triggerSelectionFn = null;
+let introScrollTrigger = null;
+let introTimeline = null;
 let portalStageClickHandler = null;
 let portalParallaxHandler = null;
 let portalScrollHandler = null;
@@ -59,6 +78,25 @@ let activeIntroVideoEl = null;
 let splitLeftEl = null;
 let splitRightEl = null;
 let cachedHotspotCoords = {};
+let calculatePriceFn = null;
+let portalResizeHandler = null;
+let portalPingInterval = null;
+let portalRevertTimeout = null;
+let portalMutationObserver = null;
+let portalHUDMoveHandler = null;
+let portalHUDLeaveHandler = null;
+
+let canvasAnimationId = null;
+let resizeCanvasHandler = null;
+let portalMouseMoveHandler = null;
+let synth = null;
+let activeCity = null;
+let cachedStageRect = null;
+let cachedMapRect = null;
+let cachedWrapperRect = null;
+let pmx = 0;
+let pmy = 0;
+
 
 function cleanupGatewayListeners() {
   const portalStage = document.getElementById('portal-stage');
@@ -70,9 +108,41 @@ function cleanupGatewayListeners() {
     portalStage.removeEventListener('scroll', portalScrollHandler);
     portalScrollHandler = null;
   }
+  if (portalResizeHandler) {
+    window.removeEventListener('resize', portalResizeHandler);
+    portalResizeHandler = null;
+  }
+  if (resizeCanvasHandler) {
+    window.removeEventListener('resize', resizeCanvasHandler);
+    resizeCanvasHandler = null;
+  }
+  if (portalMouseMoveHandler) {
+    window.removeEventListener('mousemove', portalMouseMoveHandler);
+    portalMouseMoveHandler = null;
+  }
+  if (portalHUDMoveHandler) {
+    if (portalStage) portalStage.removeEventListener('mousemove', portalHUDMoveHandler);
+    portalHUDMoveHandler = null;
+  }
+  if (portalHUDLeaveHandler) {
+    if (portalStage) portalStage.removeEventListener('mouseleave', portalHUDLeaveHandler);
+    portalHUDLeaveHandler = null;
+  }
   if (portalParallaxRafId) {
     cancelAnimationFrame(portalParallaxRafId);
     portalParallaxRafId = null;
+  }
+  if (portalPingInterval) {
+    clearInterval(portalPingInterval);
+    portalPingInterval = null;
+  }
+  if (portalRevertTimeout) {
+    clearTimeout(portalRevertTimeout);
+    portalRevertTimeout = null;
+  }
+  if (portalMutationObserver) {
+    portalMutationObserver.disconnect();
+    portalMutationObserver = null;
   }
 
   if (cardHoverListeners && cardHoverListeners.length > 0) {
@@ -103,123 +173,405 @@ function cleanupGatewayListeners() {
     });
     portalHotspotListeners = [];
   }
+
+  if (turkeyMapInstance) {
+    try { turkeyMapInstance.remove(); } catch(e) {}
+    turkeyMapInstance = null;
+  }
+  if (polandMapInstance) {
+    try { polandMapInstance.remove(); } catch(e) {}
+    polandMapInstance = null;
+  }
 }
 
-// Global Application State (Single Source of Truth)
-const STATE = {
-  selectedCity: null,
-  selectedRegion: null,
-  lenisInstance: null,
+// ==========================================
+// 2.C. TRANSLATION ENGINE FUNCTION
+// ==========================================
+function applyLanguage(lang) {
+  STATE.language = lang;
+  STATE.currentLang = lang;
+
+  const dict = TRANSLATIONS[lang];
+  if (!dict) return;
+
+  logDebug(`Applying language: ${lang}`);
+
+  // Page level SEO
+  document.title = dict.title;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute('content', dict.description);
   
-  // Interactive Selection State
-  calculator: {
-    applied: false,
-    serviceType: 'standart',
-    area: 100,
-    frequency: '1',
-    extras: [],
-    price: 1500
-  },
-  
-  // Cinematic Scrubbing Interpolation States
-  cinema: {
-    activeIdx: -1,
-    activeTextBlockIdx: -1,
-    targetRadius: 120,
-    currentRadius: 120,
-    targetX: 50,
-    currentX: 50,
-    targetY: 50,
-    currentY: 50,
-    isScrubbing: false,
-    sceneStates: Array.from({ length: 12 }, () => ({
-      currentTime: 0,
-      targetTime: 0,
-      currentOpacity: 0,
-      targetOpacity: 0,
-      currentVideoY: 50, // default center
-      targetVideoY: 50
-    })),
-    introVideoState: {
-      currentTime: 0,
-      targetTime: 0,
-      currentScale: 1.0,
-      targetScale: 1.0,
-      currentTranslateY: 0,
-      targetTranslateY: 0,
-      currentOpacity: 1.0,
-      targetOpacity: 1.0
-    },
-    introTextState: {
-      currentOffset: 0,
-      targetOffset: 0,
-      currentOpacity: 1.0,
-      targetOpacity: 1.0
+  // HTML Element Lang
+  document.documentElement.setAttribute('lang', lang);
+
+  // Intro text overlays
+  const introEyebrow = document.querySelector('.intro-eyebrow');
+  const introSubtitle = document.querySelector('.intro-subtitle');
+  const introScrollHint = document.querySelector('.intro-scroll-hint span');
+  if (introEyebrow) introEyebrow.textContent = dict.introEyebrow;
+  if (introSubtitle) introSubtitle.textContent = dict.introSubtitle;
+  if (introScrollHint) introScrollHint.textContent = dict.introScrollHint;
+
+  // Telemetry corners
+  const telTL = document.querySelector('.telemetry-tick.telemetry-tl');
+  if (telTL) telTL.textContent = dict.sysStatus;
+
+  // Audio Toggle Button
+  if (typeof synth !== 'undefined') {
+    synth.updateToggleUI();
+  }
+
+  // Portal gateway text elements
+  const hintMainTitle = document.querySelector('.portal-center-hint .hint-main-title');
+  const hintSubTitle = document.querySelector('.portal-center-hint .hint-sub-title');
+  if (hintMainTitle) hintMainTitle.textContent = dict.selectCity;
+  if (hintSubTitle) hintSubTitle.textContent = dict.selectRegionalGateway;
+
+  // HUD Labels
+  const hudCityLabel = document.querySelector('.hud-data-row:nth-child(1) .hud-lbl');
+  const hudRegionLabel = document.querySelector('.hud-data-row:nth-child(2) .hud-lbl');
+  const hudCoordsLabel = document.querySelector('.hud-data-row:nth-child(3) .hud-lbl');
+  const hudSignalLabel = document.querySelector('.hud-data-row:nth-child(4) .hud-lbl');
+  if (hudCityLabel) hudCityLabel.textContent = dict.hudCity;
+  if (hudRegionLabel) hudRegionLabel.textContent = dict.hudRegion;
+  if (hudCoordsLabel) hudCoordsLabel.textContent = dict.hudCoords;
+  if (hudSignalLabel) hudSignalLabel.textContent = dict.hudSignal;
+
+  // HUD Scanning states (if activeCity is null)
+  if (!STATE.selectedCity) {
+    const hudCityVal = document.getElementById('hudCityName');
+    const hudRegionVal = document.getElementById('hudRegionName');
+    const hudCoordsVal = document.getElementById('hudCoordinates');
+    const hudSignalVal = document.getElementById('hudSignalStrength');
+    if (hudCityVal) hudCityVal.textContent = dict.hudScanning;
+    if (hudRegionVal) hudRegionVal.textContent = dict.hudSearching;
+    if (hudCoordsVal) hudCoordsVal.textContent = '--° N, --° E';
+    if (hudSignalVal) {
+      hudSignalVal.textContent = dict.hudSignalWeak;
+      hudSignalVal.className = 'hud-val status-blink status-weak';
     }
-  },
+  }
 
-  // Ambient Portal Particles
-  ambientParticles: []
-};
+  // Update navbar items safely
+  const navLinks = document.querySelectorAll('.nav-links .nav-link-item');
+  const navKeys = ['navHome', 'navServices', 'navCinema', 'navContact'];
+  navLinks.forEach((link, idx) => {
+    if (link && navKeys[idx] && dict[navKeys[idx]]) {
+      link.textContent = dict[navKeys[idx]];
+    }
+  });
 
-const SERVICE_SCENE_TEXTS = {
-  standart: [
-    { tag: 'BANYO VE TUVALET HİJYENİ', title: 'Banyo ve Tuvalet Dezenfeksiyonu', desc: 'Duşakabin, küvet, lavabo ve klozet alanlarının hijyenik solüsyonlarla temizlenmesi, kireç ve sabun kalıntılarının giderilmesi.' }, // Scene 1: monalisa
-    { tag: 'YER SÜPÜRME', title: 'Akıllı Robot Süpürge Teknolojisi', desc: 'Zeminlerin, yeni nesil akıllı temizlik robotları ve yüksek çekim gücüne sahip HEPA filtreli süpürgelerle toz ve saçlardan arındırılması.' }, // Scene 2: samurai
-    { tag: 'FAYANS VE MERMER BAKIMI', title: 'Fayans ve Mermer Temizliği', desc: 'Zeminlerin, mermer ve fayans yüzeylerin özel ph dengeli parlatıcı solüsyonlarla temizlenmesi, paspaslanarak lekesiz kurulanması.' }, // Scene 3: grandmother
-    { tag: 'EVCİL HAYVAN DOSTU', title: 'Evcil Hayvan Tüy Temizliği', desc: 'Evcil hayvan dostlarımızın döktüğü tüylerin koltuk ve halılardan özel aparatlı süpürgelerle toplanması, anti-alerjenik bakım.' }, // Scene 4: astronaut
-    { tag: 'BUHARLI TEMİZLİK', title: 'Buharlı Dezenfeksiyon Gücü', desc: '140 derece kuru buhar teknolojisiyle kimyasal kullanmadan fayans, döşeme ve zeminlerin derinlemesine dezenfekte edilmesi.' }, // Scene 5: cowboy
-    { tag: 'SESSİZ TEMİZLİK', title: 'Sessiz ve Gürültüsüz Süpürme', desc: 'Yeni nesil sessiz ekipmanlar ve geleneksel süpürme yöntemleriyle, yaşam alanınızdaki huzuru bozmadan yapılan toz arındırma.' }, // Scene 6: gandalf (sweeping wizard)
-    { tag: 'KOLTUK HİJYENİ', title: 'Koltuk Arası Toz ve Tüy Vakumlama', desc: 'Döşemeli koltukların minder aralarında biriken toz, saç, kıl ve kırıntıların özel dar uçlu vakum aparatlarıyla derinlemesine çekilmesi.' }, // Scene 7: knight next to couch
-    { tag: 'EŞYA VE DETAY TEMİZLİĞİ', title: 'Eşya ve Kenar Detay Toz Alma', desc: 'Masa, sehpa, konsol ve diğer mobilyaların yüzeylerinin hassas antistatik bezlerle tozunun alınması ve kenar temizliği.' }, // Scene 8: monk cleaning table
-    { tag: 'KAMERALI TEMİZLİK', title: 'Canlı İzlenebilir Kameralı Temizlik', desc: 'Dilerseniz temizlik sürecini uzaktan canlı olarak izleyebilirsiniz. Güvenlik ve gizlilik gereği kayıtlarımız temizlikten 10 gün sonra otomatik olarak silinmektedir.' }, // Scene 9: roman
-    { tag: 'EVSEL ATIKLAR', title: 'Çöp Kovalarının Boşaltılması', desc: 'Tüm odalardaki çöp kovalarının boşaltılması, çöp poşetlerinin yenilenmesi ve kovaların dezenfekte edilmesi.' }, // Scene 10: sumo
-    { tag: 'MUTFAK VE BAR HİJYENİ', title: 'Bulaşık Parlatma ve Mutfak Dolabı Temizliği', desc: 'Mutfak dolaplarının dış kapaklarının silinmesi, tezgah üstü eşyaların tozunun alınması ve bardakların cilalanıp yerleştirilmesi.' }, // Scene 11: victorian butler drying glass
-    { tag: 'HAVA TEMİZLİĞİ', title: 'Hava Temizliği ve Mikro Toz Arıtma', desc: 'Profesyonel hava temizleme cihazları ve HEPA filtreli mikro toz emiciler kullanılarak ortam havasının partiküllerden arındırılması, sıfır toz seviyesinde havalandırma yapılması.' } // Scene 12: viking
-  ],
-  detayli: [
-    { tag: 'DERİN BANYO STERİLİZASYONU', title: 'Banyo ve Tuvalet Derin Temizliği', desc: 'Fayans araları, derzler, klozet içi ve arkaları ile duş başlıklarının kireç çözücü solüsyonlarla derinlemesine sterilize edilmesi.' }, // Scene 1: monalisa
-    { tag: 'YER SÜPÜRME', title: 'Derinlemesine Robotik Vakumlama', desc: 'Akıllı robot süpürgeler ve endüstriyel vakum gücüyle en kuytu köşelerdeki tozların ve mikro partiküllerin temizlenmesi.' }, // Scene 2: samurai
-    { tag: 'DERİN ZEMİN PARLATMA', title: 'Derinlemesine Mermer ve Derz Temizliği', desc: 'Mermer zeminlerin gözenek temizliği, fayans derz aralarında biriken kirlerin derinlemesine fırçalanarak ilk günkü parlaklığına kavuşturulması.' }, // Scene 3: grandmother
-    { tag: 'EVCİL HAYVAN DOSTU', title: 'Derinlemesine Tüy ve Akar Temizliği', desc: 'Halı ve koltuk liflerine yapışan tüy ve derilerin yüksek emişli elektro-fırçalarla çekilmesi, koku nötralizasyonu.' }, // Scene 4: astronaut
-    { tag: 'DERİN BUHAR STERİLİZASYONU', title: 'Yüksek Isılı Buharlı Temizlik', desc: 'Ulaşılması zor dip köşe alanlarda, yüksek basınçlı kuru buhar yardımıyla bakteri ve lekelerin %99.9 oranında yok edilmesi.' }, // Scene 5: cowboy
-    { tag: 'SESSİZ SÜPÜRME', title: 'Derinlemesine Sessiz Toz Çekimi', desc: 'Gürültüye duyarlı saatlerde, ultra sessiz profesyonel vakum cihazlarıyla dip köşe tozların sessizce temizlenmesi.' }, // Scene 6: gandalf
-    { tag: 'DERİN KOLTUK TEMİZLİĞİ', title: 'Döşeme ve Kumaş Lif Tozu Arındırma', desc: 'Koltuk kumaş liflerine ve dikiş aralarına nüfuz etmiş ince toz, kıl ve evcil hayvan tüylerinin elektro-fırçalı başlıklarla temizlenmesi.' }, // Scene 7: knight
-    { tag: 'HASSAS EŞYA HİJYENİ', title: 'Mobilya Kenar ve Ayrıntı Tozu Alma', desc: 'Süs eşyaları, mobilya kenar kıvrımları ve ahşap yüzeylerin özel parlatıcı solüsyonlar eşliğinde hassas temizliği.' }, // Scene 8: monk
-    { tag: 'GÜVENLİ GÖZETİM', title: 'Gözetimli & Kameralı Temizlik Hizmeti', desc: 'Tüm temizlik süreci yaka kameraları ile kayıt altına alınır ve canlı yayınla izlenebilir. Video kayıtları 10 gün sonra kalıcı olarak silinmektedir.' }, // Scene 9: roman
-    { tag: 'AĞIR MOBİLYA DETAYI', title: 'Ağır Eşya Altı Toz Arındırma', desc: 'Gardırop, yatak, koltuk ve beyaz eşya gibi ağır nesnelerin altlarında biriken derin tozların ulaşılarak temizlenmesi.' }, // Scene 10: sumo
-    { tag: 'DETAYLI MUTFAK BAKIMI', title: 'Mutfak Dolap İçi ve Bardak Parlatma', desc: 'Mutfak dolaplarının iç ve dış yüzeylerinin derinlemesine arındırılması, cam bardak ve porselenlerin lekesiz kurulanıp dizilmesi.' }, // Scene 11: victorian
-    { tag: 'TADİLAT SONRASI TEMİZLİK', title: 'Tadilat ve İnşaat Sonrası Kaba/İnce Temizlik', desc: 'Tadilat veya inşaat sonrası zeminlerde, pencerelerde ve duvarlarda biriken tüm toz, harç, boya, alçı ve inşaat kalıntılarının derinlemesine arındırılması.' } // Scene 12: viking
-  ],
-  kurumsal: [
-    { tag: 'KURUMSAL BANYO HİJYENİ', title: 'Ortak Alan WC ve Lavabo Dezenfeksiyonu', desc: 'Personel ve müşteri tuvaletlerinin, lavaboların ve armatürlerin dezenfektanlarla periyodik olarak temizlenmesi.' }, // Scene 1: monalisa
-    { tag: 'GENİŞ ZEMİN SÜPÜRME', title: 'Akıllı Robotik Süpürme', desc: 'Ortak alanların ve ofis zeminlerinin yeni nesil otonom temizlik robotları ile sessiz ve kesintisiz süpürülmesi.' }, // Scene 2: samurai
-    { tag: 'GENİŞ ALAN MERMER BAKIMI', title: 'Kurumsal Zemin ve Mermer Parlatma', desc: 'Lobi, koridor ve ofislerdeki geniş mermer/fayans zeminlerin endüstriyel cilalama ve temizleme makineleriyle yıkanıp parlatılması.' }, // Scene 3: grandmother
-    { tag: 'EVCİL HAYVAN DOSTU', title: 'Evcil Hayvan Dostu Ofis Temizliği', desc: 'Patili dostlarımızın kabul edildiği pet-friendly ofislerde, tüy ve kokulara karşı özel filtreli hava temizleme ve yüzey bakımı.' }, // Scene 4: astronaut
-    { tag: 'BUHARLI DEZENFEKSİYON', title: 'Ofis ve Ortak Alan Buhar Hijyeni', desc: 'Ortak kullanım alanlarının, resepsiyon bankolarının ve yüksek temaslı yüzeylerin kuru buhar makineleriyle sterilizasyonu.' }, // Scene 5: cowboy
-    { tag: 'SESSİZ HİZMET', title: 'Çalışma Saatlerinde Gürültüsüz Süpürme', desc: 'Toplantı veya odaklanma sürecindeki çalışanları rahatsız etmeden, minimum ses düzeyinde yapılan ortak alan süpürme işlemi.' }, // Scene 6: gandalf
-    { tag: 'OFİS KOLTUK TEMİZLİĞİ', title: 'Bekleme Alanı ve Ofis Koltuğu Vakumlama', desc: 'Bekleme salonları, lobi koltukları ve ofis sandalyelerinin kumaş kısımlarında biriken toz ve tüylerin giderilmesi.' }, // Scene 7: knight
-    { tag: 'OFİS DONANIM TEMİZLİĞİ', title: 'Çalışma Masası ve Mobilya Toz Alma', desc: 'Ofis masaları, dolap üniteleri ve ortak kullanım eşyalarının kenar-köşe detay tozlarından arındırılması.' }, // Scene 8: monk
-    { tag: 'KURUMSAL İZLENEBİLİRLİK', title: 'Kameralı Ofis ve Alan Temizliği', desc: 'Kurumsal alanlarda şeffaflık ve güvenlik için yaka kameralı personel hizmeti. Canlı izleme imkanı sunan kayıtlar 10 gün sonra sistemden silinir.' }, // Scene 9: roman
-    { tag: 'ATIK YÖNETİMİ', title: 'Geri Dönüşümlü Çöp Toplama', desc: 'Evrak imha, geri dönüşüm ve evsel çöp kovalarının sınıflandırılarak toplanıp boşaltılması.' }, // Scene 10: sumo
-    { tag: 'MUTFAK VE KAFETERYA HİJYENİ', title: 'Ortak Alan Bardak ve Dolap Temizliği', desc: 'Ofis mutfaklarındaki ortak dolapların temizlenmesi, çay ve kahve bardaklarının yıkanıp iz bırakmadan parlatılması.' }, // Scene 11: victorian
-    { tag: 'KURUMSAL HAVA KALİTESİ', title: 'Ofis Hava Hijyeni ve Havalandırma', desc: 'Geniş ofis ortamlarında hava kalitesini artırıcı mikro filtreli hava temizleme cihazlarının çalıştırılması ve periyodik taze hava dezenfeksiyonu.' } // Scene 12: viking
-  ],
-  ilaclama: [
-    { tag: 'BANYO VE SIHHİ ALAN KORUMA', title: 'Sıhhi Tesisat ve Lavabo İlaçlaması', desc: 'Banyo ve tuvalet giderleri ile nemli sıhhi alanların, hamam böceği ve diğer zararlılara karşı koruyucu ilaçlanması.' }, // Scene 1: monalisa
-    { tag: 'DEZENFEKSİYON', title: 'Hijyenik Robotik Süpürme', desc: 'Süpürme robotlarının filtre ve haznelerinin dezenfekte edilerek haşere yumurtaları ve akarlara karşı bariyer oluşturulması.' }, // Scene 2: samurai
-    { tag: 'ZEMİN VE DERZ STERİLİZASYONU', title: 'Zemin ve Derz Arası Haşere Bariyeri', desc: 'Fayans ve mermer derzlerinin, süpürgelik çatlaklarının mikroplardan arındırılarak haşere yumurtalarına ve akarlara karşı koruyucu dezenfeksiyonu.' }, // Scene 3: grandmother
-    { tag: 'PARAZİT KONTROLÜ', title: 'Pire ve Parazit İlaçlaması', desc: 'Evcil hayvan barınma alanlarının, pire ve akarlara karşı patili dostlarımızın sağlığına zarar vermeyen özel ilaçlarla sterilizasyonu.' }, // Scene 4: astronaut
-    { tag: 'ISIL DEZENFEKSİYON', title: 'Buharlı Akar ve Parazit İmhası', desc: 'Yüksek sıcaklıktaki kuru buhar şokuyla, haşere yumurtaları ve toz akarlarının yuvalarında termal yöntemle yok edilmesi.' }, // Scene 5: cowboy
-    { tag: 'GÜRÜLTÜSÜZ UYGULAMA', title: 'Sessiz Çevre Koruma ve Dezenfeksiyon', desc: 'Huzurlu bir ortam sağlamak amacıyla, ses kirliliği yaratmadan gerçekleştirilen sessiz haşere kontrol ve temizlik süreçleri.' }, // Scene 6: gandalf
-    { tag: 'DÖŞEME DEZENFEKSİYONU', title: 'Koltuk Arası Parazit ve Akar Kontrolü', desc: 'Koltuk minder altları, dikiş yerleri ve kumaş katmanlarının mayt, akar ve diğer zararlılardan koruyucu arındırılması.' }, // Scene 7: knight
-    { tag: 'MOBİLYA KORUMA', title: 'Gizli Bölge ve Süpürgelik İlaçlaması', desc: 'Mobilya arkaları, süpürgelik dipleri ve dolap kenarları gibi haşerelerin saklanabileceği dar alanların detaylı ilaçlanması.' }, // Scene 8: monk
-    { tag: 'İLAÇLAMA GÖZETİMİ', title: 'Kayıtlı ve Canlı İzlenebilir İlaçlama', desc: 'İlaçlama ve dezenfeksiyon aşamalarını canlı yayında takip edin. Güvenlik standartları gereği video kayıtları 10 gün sonra kalıcı olarak imha edilir.' }, // Scene 9: roman
-    { tag: 'AÇIK ALAN KORUMA', title: 'Bahçe Bariyer İlaçlaması', desc: 'Bahçe duvarları ve yeşil alan sınırlarının akrep, çıyan ve kenelere karşı kimyasal bariyerle çevrilmesi.' }, // Scene 10: sumo
-    { tag: 'GIDA ALANI STERİLİZASYONU', title: 'Mutfak Dolap Arkaları ve Tezgah Koruma', desc: 'Mutfak ünitelerinin, dolap içlerinin ve tezgah altlarının haşere yumurtaları ile bakterilere karşı güvenli sterilizasyonu.' }, // Scene 11: victorian
-    { tag: 'HAVA HİJYEN BARİYERİ', title: 'Sisleme Sonrası Toz ve Hava Arındırma', desc: 'İlaçlama ve sisleme sonrasında ortam havasının partikül emici cihazlarla hızla temizlenmesi, solunabilir güvenli sıfır toz seviyesine getirilerek havalandırılması.' } // Scene 12: viking
-  ]
-};
+  // Drawer links for mobile safely
+  const drawerLinks = document.querySelectorAll('.drawer-links .drawer-link-item');
+  drawerLinks.forEach((link, idx) => {
+    if (link && navKeys[idx] && dict[navKeys[idx]]) {
+      link.textContent = dict[navKeys[idx]];
+    }
+  });
+
+  const drawerTelemetry = document.querySelector('.drawer-footer .drawer-telemetry');
+  if (drawerTelemetry) {
+    drawerTelemetry.textContent = dict.sysStatus;
+  }
+  const closeMobileDrawerBtn = document.getElementById('closeMobileDrawerBtn');
+  if (closeMobileDrawerBtn) {
+    closeMobileDrawerBtn.setAttribute('aria-label', lang === 'pl' ? 'Zamknij' : 'Kapat');
+  }
+
+  // Dynamic booking city dropdown and label translation
+  const cCitySelect = document.getElementById('cCity');
+  const cCityLabel = document.querySelector('label[for="cCity"]');
+  if (cCityLabel && dict.bookingLabelCity) {
+    cCityLabel.textContent = dict.bookingLabelCity;
+  }
+  if (cCitySelect) {
+    const previousVal = cCitySelect.value;
+    cCitySelect.innerHTML = '';
+    
+    const activeCityKeys = ['Istanbul', 'Kocaeli', 'Sakarya', 'Izmir', 'Balikesir', 'Samsun'];
+    activeCityKeys.forEach(key => {
+      const transCity = dict.cities[key];
+      if (transCity) {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = transCity.name;
+        cCitySelect.appendChild(opt);
+      }
+    });
+
+    if (previousVal && activeCityKeys.includes(previousVal)) {
+      cCitySelect.value = previousVal;
+    }
+  }
+
+  // City Switcher Badge
+  const currentCityLabel = document.getElementById('currentCityLabel');
+  if (currentCityLabel && STATE.selectedCity) {
+    const cityKey = STATE.selectedCity;
+    const transCity = dict.cities[cityKey];
+    if (transCity) {
+      currentCityLabel.textContent = transCity.name;
+    }
+  }
+
+  // Update hotspots in SVG Map Overlay
+  const hotspots = document.querySelectorAll('.map-hotspot');
+  hotspots.forEach(hotspot => {
+    const cityKey = hotspot.dataset.city;
+    const transCity = dict.cities[cityKey];
+    if (transCity) {
+      const label = hotspot.querySelector('.hotspot-label');
+      const telemetry = hotspot.querySelector('.hotspot-telemetry');
+      if (label) label.textContent = transCity.name;
+      if (telemetry) telemetry.textContent = transCity.coords;
+      
+      // Update aria-label
+      hotspot.setAttribute('aria-label', `${transCity.name} ${lang === 'pl' ? 'pokaz region' : 'bölgesini göster'}`);
+    }
+  });
+
+  // Update Gateway Cards (Masaüstü ve Mobil)
+  const cards = document.querySelectorAll('.cc-gateway-card');
+  cards.forEach(card => {
+    const cityKey = card.dataset.city;
+    const transCity = dict.cities[cityKey];
+    if (transCity) {
+      // Pill Label
+      const pill = card.querySelector('.cc-flag-pill');
+      if (pill) pill.textContent = `🎪 ${transCity.name}`;
+      
+      // Card Title & Sub
+      const title = card.querySelector('.cc-gateway-title');
+      const sub = card.querySelector('.cc-gateway-sub');
+      if (title) title.textContent = transCity.name;
+      if (sub) sub.textContent = transCity.sub;
+
+      // Features list
+      const featureList = card.querySelector('.cc-features');
+      if (featureList) {
+        featureList.innerHTML = '';
+        const features = lang === 'pl' ? [
+          'Sprzątanie Domów & Willi',
+          cityKey === 'Istanbul' || cityKey === 'Kocaeli' || cityKey === 'Samsun' ? 'Biura & Lokale' : 'Hotele & Apartamenty',
+          'Codzienne Sprzątanie'
+        ] : [
+          'Ev & Villa Temizliği',
+          cityKey === 'Istanbul' || cityKey === 'Kocaeli' || cityKey === 'Samsun' ? 'Ofis & Plaza' : 'Otel & Tatil Köyü',
+          'Günlük Temizlik'
+        ];
+        features.forEach(f => {
+          const li = document.createElement('li');
+          li.textContent = f;
+          featureList.appendChild(li);
+        });
+      }
+
+      // Telemetry telemetry labels inside cards
+      const labels = card.querySelectorAll('.cc-tel-label');
+      if (labels.length >= 3) {
+        labels[0].textContent = lang === 'pl' ? 'OPERACJA:' : 'OPERASYON:';
+        labels[1].textContent = lang === 'pl' ? 'PING:' : 'PİNG HIZI:';
+        labels[2].textContent = lang === 'pl' ? 'ZABEZPIECZENIE:' : 'GÜVENLİK:';
+      }
+
+      const values = card.querySelectorAll('.cc-tel-value');
+      if (values.length >= 3) {
+        if (values[0].textContent.includes('AKTİF') || values[0].textContent.includes('AKTYWNY')) {
+          values[0].textContent = lang === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF';
+        }
+      }
+
+      // Select Button text
+      const btn = card.querySelector('.city-select-btn');
+      if (btn) btn.textContent = lang === 'pl' ? 'WYBIERZ ➔' : 'SEÇ ➔';
+      
+      // Update card aria-label
+      card.setAttribute('aria-label', `${transCity.name} - ${lang === 'pl' ? 'wybierz usługi sprzątania' : 'temizlik hizmetlerini seçin'}`);
+    }
+  });
+
+  // Mobile Bottom City Buttons (if they exist)
+  const mobileCityBtns = document.querySelectorAll('.mobile-city-btn');
+  mobileCityBtns.forEach(btn => {
+    const cityKey = btn.dataset.city;
+    const transCity = dict.cities[cityKey];
+    if (transCity) {
+      const cityNameEl = btn.querySelector('.btn-city-name');
+      const cityMarketEl = btn.querySelector('.btn-city-market');
+      if (cityNameEl) cityNameEl.textContent = transCity.name;
+      if (cityMarketEl) cityMarketEl.textContent = transCity.market;
+    }
+  });
+
+  // Booking Reveal Panel
+  const revealTitle = document.querySelector('.booking-reveal-screen .reveal-title');
+  const revealSubtitle = document.querySelector('.booking-reveal-screen .reveal-subtitle');
+  if (revealTitle) revealTitle.textContent = dict.bookingTitle;
+  if (revealSubtitle) revealSubtitle.textContent = dict.bookingSubtitle;
+
+  const bookingForm = document.getElementById('bookingForm');
+  if (bookingForm) {
+    const labels = bookingForm.querySelectorAll('label');
+    if (labels.length >= 4) {
+      labels[0].textContent = dict.bookingLabelName;
+      labels[1].textContent = dict.bookingLabelPhone;
+      labels[2].textContent = dict.bookingLabelCity;
+      labels[3].textContent = dict.bookingLabelType;
+    }
+    
+    const submitBtn = bookingForm.querySelector('.cinema-submit-btn');
+    if (submitBtn) submitBtn.textContent = dict.bookingSubmit;
+  }
+
+  // Booking City Options
+  if (cCitySelect) {
+    const previousVal = cCitySelect.value;
+    cCitySelect.innerHTML = '';
+    if (lang === 'pl') {
+      const opt = document.createElement('option');
+      opt.value = 'Warszawa';
+      opt.textContent = dict.cities.Warszawa ? dict.cities.Warszawa.name : 'WARSZAWA';
+      cCitySelect.appendChild(opt);
+    } else {
+      const trCities = ['Izmir', 'Sakarya', 'Istanbul', 'Kocaeli', 'Samsun', 'Balikesir'];
+      trCities.forEach(cityKey => {
+        const opt = document.createElement('option');
+        opt.value = cityKey;
+        opt.textContent = dict.cities[cityKey] ? dict.cities[cityKey].name : cityKey;
+        cCitySelect.appendChild(opt);
+      });
+    }
+    // Restore value if it still exists in the newly populated options
+    if (Array.from(cCitySelect.options).some(opt => opt.value === previousVal)) {
+      cCitySelect.value = previousVal;
+    }
+  }
+
+  // Booking Service Type Options
+  const cServiceSelect = document.getElementById('cService');
+  if (cServiceSelect) {
+    const options = cServiceSelect.querySelectorAll('option');
+    if (options.length >= 4) {
+      options[0].textContent = lang === 'pl' ? 'Standardowe Sprzątanie' : 'Standart Temizlik';
+      options[1].textContent = lang === 'pl' ? 'Głębokie Sprzątanie' : 'Detaylı Temizlik';
+      options[2].textContent = lang === 'pl' ? 'Sprzątanie Firmowe (B2B)' : 'Kurumsal Temizlik (B2B)';
+      options[3].textContent = lang === 'pl' ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
+    }
+  }
+
+  // Booking Success Screen
+  const successState = document.getElementById('bookingSuccessState');
+  if (successState) {
+    const h3 = successState.querySelector('h3');
+    const p = successState.querySelector('p');
+    const btn = successState.querySelector('.success-ok-btn');
+    if (h3) h3.textContent = dict.bookingSuccessTitle;
+    if (p) p.textContent = dict.bookingSuccessText;
+    if (btn) btn.textContent = dict.bookingSuccessOk;
+  }
+
+  // Services Modal (Tahmini Fiyat Hesaplayıcı)
+  const modalTitle = document.querySelector('.cinema-modal .modal-title');
+  const modalSubtitle = document.querySelector('.cinema-modal .modal-subtitle');
+  if (modalTitle) modalTitle.textContent = dict.modalServicesTitle;
+  if (modalSubtitle) modalSubtitle.textContent = dict.modalServicesSubtitle;
+
+  // Services descriptions in modal
+  const serviceDetails = document.querySelectorAll('.service-item-detail');
+  if (serviceDetails.length >= 4) {
+    // Standart
+    const stH4 = serviceDetails[0].querySelector('h4');
+    const stP = serviceDetails[0].querySelector('p');
+    if (stH4) stH4.textContent = lang === 'pl' ? 'Standardowe Sprzątanie' : 'Standart Temizlik';
+    if (stP) stP.textContent = lang === 'pl' ? 'Ogólne porządki i podstawowa czystość dla domu i biura.' : 'Ev & Ofis için genel düzen ve temel hijyen çözümleri.';
+
+    // Detaylı
+    const dtH4 = serviceDetails[1].querySelector('h4');
+    const dtP = serviceDetails[1].querySelector('p');
+    if (dtH4) dtH4.textContent = lang === 'pl' ? 'Głębokie Sprzątanie' : 'Detaylı Temizlik';
+    if (dtP) dtP.textContent = lang === 'pl' ? 'Dokładne czyszczenie zakamarków i głębokie usuwanie brudu.' : 'Dip köşe, ince temizlik ve detaylı yüzey arındırma.';
+
+    // Kurumsal
+    const krH4 = serviceDetails[2].querySelector('h4');
+    const krP = serviceDetails[2].querySelector('p');
+    if (krH4) krH4.textContent = lang === 'pl' ? 'Sprzątanie Firmowe (B2B)' : 'Kurumsal Temizlik (B2B)';
+    if (krP) krP.textContent = lang === 'pl' ? 'Okresowe usługi dla biur, restauracji i centrów biznesowych.' : 'İş yeri, restoran ve plazalar için periyodik çözümler.';
+
+    // İlaçlama
+    const ilH4 = serviceDetails[3].querySelector('h4');
+    const ilP = serviceDetails[3].querySelector('p');
+    if (ilH4) ilH4.textContent = lang === 'pl' ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
+    if (ilP) ilP.textContent = lang === 'pl' ? 'Czyszczenie przeciw owadom, szkodnikom i sterylizacja sanitarna.' : 'Böcek, haşere ve bakteri dezenfeksiyon işlemleri.';
+  }
+
+  // Calculator panel elements
+  const calcTitle = document.querySelector('.estimator-calculator-panel h3');
+  if (calcTitle) calcTitle.textContent = dict.modalCalcTitle;
+
+  const areaLabel = document.querySelector('.calc-field:nth-child(1) label');
+  if (areaLabel) {
+    const areaVal = document.getElementById('calc-area-range') ? document.getElementById('calc-area-range').value : 100;
+    areaLabel.innerHTML = `${lang === 'pl' ? 'POWIERZCHNIA' : 'ALAN'} (m²): <span id="area-val-label">${areaVal}</span> m²`;
+  }
+
+  const freqLabel = document.querySelector('.calc-field:nth-child(2) label');
+  if (freqLabel) freqLabel.textContent = dict.modalLabelFrequency;
+
+  const freqSelect = document.getElementById('calc-frequency');
+  if (freqSelect) {
+    const options = freqSelect.querySelectorAll('option');
+    if (options.length >= 3) {
+      options[0].textContent = dict.modalFreqSingle;
+      options[1].textContent = dict.modalFreqWeekly;
+      options[2].textContent = dict.modalFreqMonthly;
+    }
+  }
+
+  const extrasLabel = document.querySelector('.calc-field:nth-child(3) label');
+  if (extrasLabel) extrasLabel.textContent = dict.modalLabelExtras;
+
+  const extraCBs = document.querySelectorAll('.calc-cb-label');
+  if (extraCBs.length >= 3) {
+    extraCBs[0].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="300" /> ${lang === 'pl' ? 'Dokładne mycie okien (+300 PLN)' : 'Detaylı Cam Temizliği (+300 TL)'}`;
+    extraCBs[1].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="250" /> ${lang === 'pl' ? 'Wnętrze piekarnika & AGD (+250 PLN)' : 'Fırın & Beyaz Eşya İçi (+250 TL)'}`;
+    extraCBs[2].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="200" /> ${lang === 'pl' ? 'Mycie balkonu (+200 PLN)' : 'Balkon Yıkama (+200 TL)'}`;
+  }
+
+  const resultLabel = document.querySelector('.calculator-result-box .calc-result-lbl');
+  if (resultLabel) resultLabel.textContent = dict.modalCalcCost;
+
+  const disclaimer = document.querySelector('.calculator-result-box .calc-disclaimer');
+  if (disclaimer) disclaimer.textContent = dict.modalCalcDisclaimer;
+
+  const applyBtn = document.getElementById('calcApplyBtn');
+  if (applyBtn) applyBtn.textContent = dict.modalCalcApply;
+
+  // Re-run price calculation to update currency display
+  if (typeof calculatePriceFn === 'function') {
+    calculatePriceFn();
+  }
+
+  // Force scene text overlays update if a service is already active
+  if (STATE.calculator.serviceType) {
+    selectServiceGlobal(STATE.calculator.serviceType);
+  }
+
+  // Update Country Selector Overlay strings
+  const csoTitle = document.querySelector('#country-selector-overlay .cso-title');
+  const csoSubtitle = document.querySelector('#country-selector-overlay .cso-subtitle');
+  if (csoTitle && dict.csoTitle) csoTitle.textContent = dict.csoTitle;
+  if (csoSubtitle && dict.csoSubtitle) csoSubtitle.textContent = dict.csoSubtitle;
+
+  const csoTurkeyLabel = document.querySelector('#csoBtnTurkey .cso-country-name');
+  const csoTurkeySub = document.querySelector('#csoBtnTurkey .cso-country-sub');
+  if (csoTurkeyLabel) csoTurkeyLabel.textContent = lang === 'pl' ? 'Turcja' : 'Türkiye';
+  if (csoTurkeySub && dict.csoCardTurkeySub) csoTurkeySub.textContent = dict.csoCardTurkeySub;
+
+  const csoPolandLabel = document.querySelector('#csoBtnPoland .cso-country-name');
+  const csoPolandSub = document.querySelector('#csoBtnPoland .cso-country-sub');
+  if (csoPolandLabel) csoPolandLabel.textContent = lang === 'pl' ? 'Polska' : 'Polonya';
+  if (csoPolandSub && dict.csoCardPolandSub) csoPolandSub.textContent = dict.csoCardPolandSub;
+}
 
 // Module-level cached elements to prevent DOM query overhead
 let bookingRevealEl = null;
@@ -465,11 +817,6 @@ function warmupVideo(video) {
   video.setAttribute('muted', '');
   video.setAttribute('playsinline', '');
 
-  // Track file loading errors
-  video.addEventListener('error', () => {
-    logErrorDebug(`Decoder resource loading error on ${video.id}:`, video.error);
-  });
-
   try {
     video.load();
   } catch (e) {
@@ -477,46 +824,11 @@ function warmupVideo(video) {
   }
 }
 
-// Regional styling and themes configuration
-const REGION_THEMES = {
-  marmara: { accent: '#3366ff', rgb: '51, 102, 255' },
-  ege: { accent: '#ff9100', rgb: '255, 145, 0' },
-  karadeniz: { accent: '#ff3366', rgb: '255, 51, 102' }
-};
-
-const CITY_TO_REGION = {
-  Istanbul: 'marmara',
-  Kocaeli: 'marmara',
-  Sakarya: 'marmara',
-  Izmir: 'ege',
-  Balikesir: 'ege',
-  Samsun: 'karadeniz'
-};
-
-const CITY_NAMES_TR = {
-  Istanbul: 'İSTANBUL',
-  Kocaeli: 'KOCAELİ',
-  Sakarya: 'SAKARYA',
-  Izmir: 'İZMİR',
-  Balikesir: 'BALIKESİR',
-  Samsun: 'SAMSUN'
-};
-
-const CITY_NAMES_TR_TITLE = {
-  Istanbul: 'İstanbul',
-  Kocaeli: 'Kocaeli',
-  Sakarya: 'Sakarya',
-  Izmir: 'İzmir',
-  Balikesir: 'Balıkesir',
-  Samsun: 'Samsun'
-};
+// Regional styling and themes configuration loaded from state.js module
 
 // ==========================================
 // 1. DUST CANVAS & AMBIENT PARTICLE SYSTEM
 // ==========================================
-let canvasAnimationId = null;
-let resizeCanvasHandler = null;
-let portalMouseMoveHandler = null;
 
 function setupPortalParticles() {
   const canvas = document.getElementById('dust-canvas');
@@ -748,11 +1060,16 @@ function setSplitCityTitle(cityText) {
 
 function updateIntroVideoState(city) {
   if (!city) return;
-  const targetId = `intro-video-${city.toLowerCase()}`;
+  let targetId = `intro-video-${city.toLowerCase()}`;
   
   // Initialize cache if empty
   if (cachedIntroVideos.length === 0) {
     cachedIntroVideos = Array.from(document.querySelectorAll('.cinema-intro-card .intro-video'));
+  }
+  
+  const hasTarget = cachedIntroVideos.some(v => v.id === targetId);
+  if (!hasTarget) {
+    targetId = 'intro-video-istanbul';
   }
   
   cachedIntroVideos.forEach(video => {
@@ -762,6 +1079,12 @@ function updateIntroVideoState(city) {
       video.loop = true;
       video.play().catch(e => {
         logErrorDebug(`Autoplay blocked or failed for intro video: ${video.id}`, e);
+        // Robust fallback to istanbul
+        if (targetId !== 'intro-video-istanbul') {
+          setTimeout(() => {
+            updateIntroVideoState('istanbul');
+          }, 50);
+        }
       });
     } else {
       video.classList.remove('active');
@@ -788,10 +1111,14 @@ function setCityState(city) {
   document.documentElement.style.setProperty('--clr-accent', theme.accent);
   document.documentElement.style.setProperty('--clr-accent-rgb', theme.rgb);
 
+  // Get localized city data
+  const lang = STATE.language || STATE.currentLang || 'tr';
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
+  const cityData = dict.cities[city] || { name: city.toUpperCase(), sub: '' };
+
   // Update UI labels
-  const trName = CITY_NAMES_TR[city] || city.toUpperCase();
   const label = document.getElementById('currentCityLabel');
-  if (label) label.textContent = trName;
+  if (label) label.textContent = cityData.name;
   
   const formCitySelect = document.getElementById('cCity');
   if (formCitySelect && formCitySelect.value !== city) {
@@ -801,15 +1128,17 @@ function setCityState(city) {
   // Personalize hero subtitle based on selected city
   const heroSubtitle = document.getElementById('heroSubtitle');
   if (heroSubtitle) {
-    const titleCity = CITY_NAMES_TR_TITLE[city] || city;
-    heroSubtitle.innerHTML = `Sıradan temizlik anlayışını geride bırakın. <strong>${titleCity}</strong> genelinde yaşam alanlarınızı sinematik bir disiplin ve kusursuz hijyenle buluşturuyoruz.`;
+    if (lang === 'tr') {
+      heroSubtitle.innerHTML = `Sıradan temizlik anlayışını geride bırakın. <strong>${cityData.name}</strong> genelinde yaşam alanlarınızı sinematik bir disiplin ve kusursuz hijyenle buluşturuyoruz.`;
+    } else {
+      heroSubtitle.innerHTML = `Porzuć zwykłe standardy czystości. Wprowadzamy kinową dyscyplinę i nieskazitelną higienę w całym regionie <strong>${cityData.name}</strong>.`;
+    }
   }
 
   // Update introductory title card text (split for sideways parting animation)
   const introCityTitle = document.getElementById('introCityTitle');
   if (introCityTitle) {
-    const titleCity = CITY_NAMES_TR_TITLE[city] || city;
-    setSplitCityTitle(titleCity.toUpperCase());
+    setSplitCityTitle(cityData.name.toUpperCase());
   }
 
   // Update introductory background video
@@ -817,6 +1146,92 @@ function setCityState(city) {
 
   // Save to localStorage
   localStorage.setItem('tworose_city', city);
+}
+
+function setupPortalIntroClick() {
+  const introStage = document.getElementById('portal-intro-stage');
+  if (!introStage) return;
+
+  let triggered = false;
+
+  // Parallax hover movement on mousemove
+  const onMouseMove = (e) => {
+    if (triggered) return;
+    const { clientX, clientY } = e;
+    const nx = (clientX / window.innerWidth) - 0.5;
+    const ny = (clientY / window.innerHeight) - 0.5;
+
+    // Subtle 3D tilting motion on background images
+    gsap.to('.intro-panel-left .intro-panel-bg', { x: nx * 22, y: ny * 22, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('.intro-panel-center .intro-panel-bg', { x: nx * -12, y: ny * -12, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('.intro-panel-right .intro-panel-bg', { x: nx * 22, y: ny * 22, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+
+    // Move borders slightly for shifting depth
+    gsap.to('.panel-border', { x: nx * 8, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+  };
+  introStage.addEventListener('mousemove', onMouseMove);
+
+  const onTriggerIntro = () => {
+    if (triggered) return;
+    triggered = true;
+
+    introStage.removeEventListener('click', onTriggerIntro);
+    introStage.removeEventListener('touchstart', onTriggerIntro);
+    introStage.removeEventListener('mousemove', onMouseMove);
+
+    if (window.playTickSound) {
+      window.playTickSound();
+    }
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // Pause very briefly on the snapped-shut merged state, then scale out
+        gsap.delayedCall(0.3, () => {
+          gsap.to(introStage, {
+            opacity: 0,
+            scale: 1.15,
+            duration: 0.85,
+            ease: 'power3.inOut',
+            onComplete: () => {
+              introStage.style.display = 'none';
+              introStage.remove();
+
+              document.body.classList.remove('portal-intro-mode');
+              document.body.classList.add('flag-selection-mode');
+
+              if (STATE.lenisInstance) {
+                STATE.lenisInstance.stop();
+              }
+
+              const csoOverlay = document.getElementById('country-selector-overlay');
+              if (csoOverlay) {
+                csoOverlay.classList.remove('cso-hidden');
+                gsap.fromTo(csoOverlay, 
+                  { opacity: 0, scale: 0.95 },
+                  { opacity: 1, scale: 1, duration: 0.75, ease: 'power3.out' }
+                );
+              }
+            }
+          });
+        });
+      }
+    });
+
+    // 1. Initial split (expand panels outward, fade out logo and hint)
+    tl.fromTo('.intro-panel-left', { x: '0vw' }, { x: '-12vw', duration: 0.45, ease: 'power2.out' }, 0)
+      .fromTo('.intro-panel-right', { x: '0vw' }, { x: '12vw', duration: 0.45, ease: 'power2.out' }, 0)
+      .fromTo('.intro-panel .panel-border', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'none' }, 0)
+      .to('.intro-logo-wrap', { opacity: 0, scale: 0.75, duration: 0.35, ease: 'power2.in' }, 0)
+      .to('.intro-hint', { opacity: 0, y: 15, duration: 0.25, ease: 'power2.in' }, 0)
+      
+      // 2. Snap back together (re-merge panels, fade borders back to 0)
+      .to('.intro-panel-left', { x: '0vw', duration: 0.65, ease: 'power3.inOut' }, 0.45)
+      .to('.intro-panel-right', { x: '0vw', duration: 0.65, ease: 'power3.inOut' }, 0.45)
+      .to('.intro-panel .panel-border', { opacity: 0, duration: 0.45, ease: 'power3.inOut' }, 0.45);
+  };
+
+  introStage.addEventListener('click', onTriggerIntro);
+  introStage.addEventListener('touchstart', onTriggerIntro, { passive: true });
 }
 
 // ==========================================
@@ -834,6 +1249,7 @@ window.addEventListener('DOMContentLoaded', () => {
   window.STATE = STATE;
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
+  setupPortalIntroClick();
   setupPortalParticles();
   setupCinemaEngine();
   setupPortalGateway();
@@ -901,17 +1317,349 @@ function updateCachedHotspotCoords() {
   });
 }
 
+
 // ==========================================
-// 5. PORTAL GATEWAY
+// 5.1. PORTAL HELPER FUNCTIONS
 // ==========================================
+
+function updatePortalCachedRects() {
+  const portalStage = document.getElementById('portal-stage');
+  if (portalStage) cachedStageRect = portalStage.getBoundingClientRect();
+  const activeMap = document.getElementById(STATE.language === 'pl' ? 'portalNeonMapPoland' : 'portalNeonMap');
+  if (activeMap) cachedMapRect = activeMap.getBoundingClientRect();
+  const portalMapWrapper = document.querySelector('.portal-map-wrapper');
+  if (portalMapWrapper) cachedWrapperRect = portalMapWrapper.getBoundingClientRect();
+}
+window.updatePortalCachedRects = updatePortalCachedRects;
+
+
+function startTelemetryFluctuation(card) {
+  if (portalPingInterval) clearInterval(portalPingInterval);
+  const pingSpan = card.querySelector('.ping-val');
+  if (!pingSpan) return;
+
+  let basePing = Math.floor(Math.random() * 8) + 4; // 4 to 11ms
+  pingSpan.textContent = `${basePing} ms`;
+
+  portalPingInterval = setInterval(() => {
+    const fluctuation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+    let newPing = basePing + fluctuation;
+    if (newPing < 3) newPing = 3;
+    if (newPing > 16) newPing = 16;
+    pingSpan.textContent = `${newPing} ms`;
+  }, 1200);
+}
+
+
+function addLeafletMarkers(mapObj, locations) {
+  const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+  locations.forEach(loc => {
+    const cityKey = loc.key;
+    const transCity = dict.cities[cityKey];
+    if (!transCity) return;
+
+    const displayName = loc.districtName ? loc.districtName.toUpperCase() : transCity.name;
+    const displayCoords = loc.districtName ? `${loc.coords[0].toFixed(2)}° N, ${loc.coords[1].toFixed(2)}° E` : transCity.coords;
+
+    // Build the custom neon reticle HTML
+    const markerHtml = `
+      <div class="map-hotspot" data-city="${cityKey}" data-market="${loc.market}" ${loc.districtName ? `data-iladi="${loc.districtName}"` : ''} role="button" tabindex="0">
+        <div class="hotspot-pulse"></div>
+        <div class="hotspot-core"></div>
+        <div class="hotspot-reticle">
+          <div class="reticle-ring ring-dashed"></div>
+          <div class="reticle-ring ring-solid"></div>
+          <div class="reticle-cross"></div>
+        </div>
+        <span class="hotspot-label">${displayName}</span>
+        <span class="hotspot-telemetry">${displayCoords}</span>
+      </div>
+    `;
+
+    const customIcon = L.divIcon({
+      html: markerHtml,
+      className: 'leaflet-custom-hotspot-icon',
+      iconSize: [0, 0],
+      iconAnchor: [0, 0]
+    });
+
+    const marker = L.marker(loc.coords, { icon: customIcon }).addTo(mapObj);
+
+    const bindMarkerEvents = (el) => {
+      if (!el) return;
+      const onEnter = () => showCityPreviewFn && showCityPreviewFn(cityKey, el);
+      const onLeave = (e) => revertToDefaultFn && revertToDefaultFn(e);
+      const clickHandler = (e) => {
+        e.stopPropagation();
+        const cx = e.clientX || window.innerWidth / 2;
+        const cy = e.clientY || window.innerHeight / 2;
+        if (triggerSelectionFn) triggerSelectionFn(cityKey, cx, cy, el);
+      };
+      const keyHandler = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const rect = el.getBoundingClientRect();
+          if (triggerSelectionFn) triggerSelectionFn(cityKey, rect.left + rect.width / 2, rect.top + rect.height / 2, el);
+        }
+      };
+
+      el.addEventListener('mouseenter', onEnter);
+      el.addEventListener('mouseleave', onLeave);
+      el.addEventListener('click', clickHandler);
+      el.addEventListener('keydown', keyHandler);
+
+      portalHotspotListeners.push({ hotspot: el, onEnter, onLeave, clickHandler, keyHandler });
+    };
+
+    marker.on('add', () => {
+      setTimeout(() => {
+        const el = marker.getElement() ? marker.getElement().querySelector('.map-hotspot') : null;
+        if (el) bindMarkerEvents(el);
+      }, 0);
+    });
+
+    setTimeout(() => {
+      const el = marker.getElement() ? marker.getElement().querySelector('.map-hotspot') : null;
+      if (el) bindMarkerEvents(el);
+    }, 50);
+  });
+}
+
+function initLeafletMap(country) {
+  if (country === 'turkey') {
+    if (turkeyMapInstance) {
+      turkeyMapInstance.invalidateSize();
+      return;
+    }
+    turkeyMapInstance = L.map('portalNeonMap', {
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: true,
+      minZoom: 5,
+      maxZoom: 9
+    }).setView([39.0, 35.0], 6);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(turkeyMapInstance);
+
+    const turkeyCities = [
+      { key: 'Istanbul', coords: [41.0082, 28.9784], market: 'marmara' },
+      { key: 'Kocaeli', coords: [40.7654, 29.9408], market: 'marmara' },
+      { key: 'Sakarya', coords: [40.7560, 30.3784], market: 'marmara' },
+      { key: 'Izmir', coords: [38.4237, 27.1428], market: 'ege' },
+      { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege' },
+      { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz' }
+    ];
+
+    addLeafletMarkers(turkeyMapInstance, turkeyCities);
+    
+    setTimeout(() => {
+      gsap.fromTo('#portalNeonMap .map-hotspot',
+        { opacity: 0, scale: 0 },
+        { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: 'back.out(1.7)', overwrite: 'auto' }
+      );
+    }, 150);
+
+  } else if (country === 'poland') {
+    if (polandMapInstance) {
+      polandMapInstance.invalidateSize();
+      return;
+    }
+    polandMapInstance = L.map('portalNeonMapPoland', {
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: true,
+      minZoom: 10,
+      maxZoom: 13
+    }).setView([52.2297, 21.0122], 11);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(polandMapInstance);
+
+    const polandDistricts = [
+      { key: 'Warszawa', coords: [52.2300, 21.0100], districtName: 'Śródmieście', market: 'mazowsze' },
+      { key: 'Warszawa', coords: [52.1900, 21.0200], districtName: 'Mokotów', market: 'mazowsze' },
+      { key: 'Warszawa', coords: [52.2350, 20.9600], districtName: 'Wola', market: 'mazowsze' },
+      { key: 'Warszawa', coords: [52.1400, 21.0400], districtName: 'Ursynów', market: 'mazowsze' },
+      { key: 'Warszawa', coords: [52.2500, 20.9100], districtName: 'Bemowo', market: 'mazowsze' },
+      { key: 'Warszawa', coords: [52.3200, 21.0100], districtName: 'Białołęka', market: 'mazowsze' }
+    ];
+
+    addLeafletMarkers(polandMapInstance, polandDistricts);
+
+    setTimeout(() => {
+      gsap.fromTo('#portalNeonMapPoland .map-hotspot',
+        { opacity: 0, scale: 0 },
+        { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: 'back.out(1.7)', overwrite: 'auto' }
+      );
+    }, 150);
+  }
+}
+
+// ==========================================
+// 5.2. PORTAL GATEWAY ORCHESTRATOR
+// ==========================================
+
 function setupPortalGateway() {
   const portalStage = document.getElementById('portal-stage');
   if (!portalStage) return;
+
+  cleanupGatewayListeners();
+
   const cityCards = document.querySelectorAll('.cc-gateway-card');
   const parallaxLayers = document.querySelectorAll('.parallax-layer');
 
   const portalMapWrapper = document.querySelector('.portal-map-wrapper');
 
+  const connectorPath = document.getElementById('portalConnectorPath');
+  const connectorParticle = document.getElementById('portalConnectorParticle');
+  const updateLaserConnector = () => {};
+
+  // ── COUNTRY SELECTOR SETUP ───────────────────────────────────────────────
+  const csoOverlay    = document.getElementById('country-selector-overlay');
+  let csoBtnTurkey  = document.getElementById('csoBtnTurkey');
+  let csoBtnPoland  = document.getElementById('csoBtnPoland');
+  const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
+  const portalCenterHint = document.querySelector('.portal-center-hint');
+
+  if (csoBtnTurkey) {
+    const clone = csoBtnTurkey.cloneNode(true);
+    csoBtnTurkey.parentNode.replaceChild(clone, csoBtnTurkey);
+    csoBtnTurkey = clone;
+  }
+  if (csoBtnPoland) {
+    const clone = csoBtnPoland.cloneNode(true);
+    csoBtnPoland.parentNode.replaceChild(clone, csoBtnPoland);
+    csoBtnPoland = clone;
+  }
+
+  // Keep map stage hidden until a country is selected
+  if (mapSelectorStage) {
+    mapSelectorStage.style.opacity = '0';
+    mapSelectorStage.style.pointerEvents = 'none';
+  }
+  if (portalCenterHint) {
+    portalCenterHint.style.opacity = '0';
+  }
+
+  // ── Turkey button: hide overlay, reveal Turkey map (TR mode) ──────────────
+  if (csoBtnTurkey) {
+    csoBtnTurkey.addEventListener('click', () => {
+      if (!csoOverlay) return;
+
+      STATE.language = 'tr';
+      applyLanguage('tr');
+
+      const mapTr = document.getElementById('portalNeonMap');
+      const mapPl = document.getElementById('portalNeonMapPoland');
+      if (mapTr) mapTr.style.display = 'block';
+      if (mapPl) mapPl.style.display = 'none';
+      initLeafletMap('turkey');
+
+      // Animate card out with a quick scale-up
+      gsap.to(csoBtnTurkey, {
+        scale: 0.96,
+        opacity: 0,
+        duration: 0.2,
+        ease: 'power2.in',
+        onComplete: () => {
+          // Fade + scale overlay away
+          gsap.to(csoOverlay, {
+            opacity: 0,
+            scale: 1.04,
+            duration: 0.55,
+            ease: 'power3.in',
+            onComplete: () => {
+              csoOverlay.classList.add('cso-hidden');
+              csoOverlay.style.transform = '';
+
+              updatePortalCachedRects();
+
+              // Reveal map stage
+              if (mapSelectorStage) {
+                mapSelectorStage.style.pointerEvents = '';
+                gsap.to(mapSelectorStage, {
+                  opacity: 1,
+                  duration: 0.8,
+                  ease: 'power3.out',
+                });
+              }
+              if (portalCenterHint) {
+                gsap.to(portalCenterHint, {
+                  opacity: 0.25,
+                  y: 0,
+                  duration: 0.8,
+                  ease: 'power2.out',
+                  delay: 0.3,
+                });
+              }
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // ── Poland button: hide overlay, reveal Turkey map in PL mode ───────────
+  if (csoBtnPoland) {
+    csoBtnPoland.addEventListener('click', () => {
+      if (!csoOverlay) return;
+
+      STATE.language = 'pl';
+      applyLanguage('pl');
+
+      const mapTr = document.getElementById('portalNeonMap');
+      const mapPl = document.getElementById('portalNeonMapPoland');
+      if (mapTr) mapTr.style.display = 'none';
+      if (mapPl) mapPl.style.display = 'block';
+      initLeafletMap('poland');
+
+      // Animate card out with a quick scale-up
+      gsap.to(csoBtnPoland, {
+        scale: 0.96,
+        opacity: 0,
+        duration: 0.2,
+        ease: 'power2.in',
+        onComplete: () => {
+          // Fade + scale overlay away
+          gsap.to(csoOverlay, {
+            opacity: 0,
+            scale: 1.04,
+            duration: 0.55,
+            ease: 'power3.in',
+            onComplete: () => {
+              csoOverlay.classList.add('cso-hidden');
+              csoOverlay.style.transform = '';
+
+              updatePortalCachedRects();
+
+              // Reveal map stage
+              if (mapSelectorStage) {
+                mapSelectorStage.style.pointerEvents = '';
+                gsap.to(mapSelectorStage, {
+                  opacity: 1,
+                  duration: 0.8,
+                  ease: 'power3.out',
+                });
+              }
+              if (portalCenterHint) {
+                gsap.to(portalCenterHint, {
+                  opacity: 0.25,
+                  y: 0,
+                  duration: 0.8,
+                  ease: 'power2.out',
+                  delay: 0.3,
+                });
+              }
+            }
+          });
+        }
+      });
+    });
+  }
+  // ── END COUNTRY SELECTOR ─────────────────────────────────────────────────
 
   // Staggered premium entry animation on portal load
   if (document.body.classList.contains('flag-selection-mode')) {
@@ -1028,83 +1776,35 @@ function setupPortalGateway() {
   portalStage.addEventListener('scroll', onStageScroll, { passive: true });
   portalScrollHandler = onStageScroll;
 
-  // State tracker variables for hover previews
-  let activeCity = null;
-  let revertTimeout = null;
-  let pingInterval = null;
-
-  const connectorOverlay = document.getElementById('portalConnectorOverlay');
-  const connectorPath = document.getElementById('portalConnectorPath');
-  const connectorParticle = document.getElementById('portalConnectorParticle');
-
-  const updateLaserConnector = (city) => {
-    return; // Laser connector is hidden by request, bypassing calculations
-  };
-
-
-
-  const startTelemetryFluctuation = (card) => {
-    if (pingInterval) clearInterval(pingInterval);
-    const pingSpan = card.querySelector('.ping-val');
-    if (!pingSpan) return;
-
-    let basePing = Math.floor(Math.random() * 8) + 4; // 4 to 11ms
-    pingSpan.textContent = `${basePing} ms`;
-
-    pingInterval = setInterval(() => {
-      const fluctuation = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
-      let newPing = basePing + fluctuation;
-      if (newPing < 3) newPing = 3;
-      if (newPing > 16) newPing = 16;
-      pingSpan.textContent = `${newPing} ms`;
-    }, 1200);
-  };
-
-  // Caching variables for client bounds to eliminate layout thrashing reflows on mousemove
-  let cachedStageRect = null;
-  let cachedMapRect = null;
-  let cachedWrapperRect = null;
-
-  const updateCachedRects = () => {
-    if (portalStage) cachedStageRect = portalStage.getBoundingClientRect();
-    if (neonMap) cachedMapRect = neonMap.getBoundingClientRect();
-    if (portalMapWrapper) cachedWrapperRect = portalMapWrapper.getBoundingClientRect();
-  };
-  window.updatePortalCachedRects = updateCachedRects;
-
   // Re-calculate laser layout & cached bounds if viewport size changes (debounced)
-  const debouncedGatewayResize = debounce(() => {
-    updateCachedRects();
+  portalResizeHandler = debounce(() => {
+    updatePortalCachedRects();
     updateCachedHotspotCoords();
-    if (activeCity) {
-      updateLaserConnector(activeCity);
-    }
   }, 150);
-  window.addEventListener('resize', debouncedGatewayResize);
+  window.addEventListener('resize', portalResizeHandler);
 
   // Watch body classes to update cached dimensions when selecting mode toggles
   if (typeof MutationObserver !== 'undefined' && portalStage) {
-    const classObserver = new MutationObserver(() => {
+    portalMutationObserver = new MutationObserver(() => {
       if (document.body.classList.contains('flag-selection-mode')) {
-        setTimeout(updateCachedRects, 100);
+        setTimeout(updatePortalCachedRects, 100);
       }
     });
-    classObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    portalMutationObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
   // ── DYNAMIC HUD TELEMETRY CURSOR TRACKER ──
   const mapHUD = document.getElementById('portalMapHUD');
-  const neonMap = document.getElementById('portalNeonMap');
   
-  if (mapHUD && neonMap && portalStage) {
+  if (mapHUD && portalStage) {
     // Initial rect computation
-    setTimeout(updateCachedRects, 300);
+    setTimeout(updatePortalCachedRects, 300);
 
     let hudTicking = false;
     let hudMX = 0;
     let hudMY = 0;
 
-    portalStage.addEventListener('mousemove', (e) => {
+    portalHUDMoveHandler = (e) => {
       hudMX = e.clientX;
       hudMY = e.clientY;
 
@@ -1117,7 +1817,7 @@ function setupPortalGateway() {
           }
 
           if (!cachedStageRect || !cachedMapRect || !cachedWrapperRect) {
-            updateCachedRects();
+            updatePortalCachedRects();
           }
 
           const mapRect = cachedMapRect;
@@ -1165,9 +1865,9 @@ function setupPortalGateway() {
         });
         hudTicking = true;
       }
-    });
+    };
 
-    portalStage.addEventListener('mouseleave', () => {
+    portalHUDLeaveHandler = () => {
       if (portalMapWrapper) {
         gsap.to(portalMapWrapper, {
           rotateX: 0,
@@ -1177,7 +1877,10 @@ function setupPortalGateway() {
           overwrite: 'auto'
         });
       }
-    });
+    };
+
+    portalStage.addEventListener('mousemove', portalHUDMoveHandler);
+    portalStage.addEventListener('mouseleave', portalHUDLeaveHandler);
   }
 
   // Unified theme visual update function
@@ -1190,13 +1893,16 @@ function setupPortalGateway() {
     } else if (market === 'karadeniz') {
       portalTargetHue = 345; // Pink-red theme
       accentRgb = '255, 51, 102';
+    } else if (market === 'mazowsze') {
+      portalTargetHue = 350; // Polish red theme
+      accentRgb = '255, 51, 85';
     } else {
       portalTargetHue = 220; // Blue theme
       accentRgb = '51, 102, 255';
     }
 
     if (portalStage) {
-      portalStage.classList.remove('hover-marmara', 'hover-ege', 'hover-karadeniz');
+      portalStage.classList.remove('hover-marmara', 'hover-ege', 'hover-karadeniz', 'hover-mazowsze');
       portalStage.classList.add(`hover-${market}`);
     }
 
@@ -1213,18 +1919,24 @@ function setupPortalGateway() {
   };
 
   // Switch preview panel display dynamically
-  const showCityPreview = (city) => {
-    if (revertTimeout) {
-      clearTimeout(revertTimeout);
-      revertTimeout = null;
+  const showCityPreview = (city, element = null) => {
+    if (portalRevertTimeout) {
+      clearTimeout(portalRevertTimeout);
+      portalRevertTimeout = null;
     }
 
-    if (activeCity === city) return;
+    if (activeCity === city && !element) return;
     activeCity = city;
 
     // Highlight specific hovered province in the SVG
     const lowerCity = city.toLowerCase();
-    const targetProv = document.getElementById(lowerCity);
+    let targetProv = document.getElementById(lowerCity);
+    
+    // If we hovered directly over an SVG province, highlight it
+    if (element && element.classList.contains('map-province')) {
+      targetProv = element;
+    }
+
     if (targetProv) {
       document.querySelectorAll('.map-province.hover-active-province').forEach(p => {
         p.classList.remove('hover-active-province');
@@ -1233,8 +1945,42 @@ function setupPortalGateway() {
     }
 
     // Set region hue colors dynamically
-    const region = CITY_TO_REGION[city] || 'marmara';
+    const region = (element && element.dataset.market) || CITY_TO_REGION[city] || 'marmara';
     updateThemeForMarket(region);
+
+    // Update HUD values dynamically on hover
+    const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+    const cityData = dict.cities[city];
+    if (cityData) {
+      const hudCityVal = document.getElementById('hudCityName');
+      const hudRegionVal = document.getElementById('hudRegionName');
+      const hudCoordsVal = document.getElementById('hudCoordinates');
+      const hudSignalVal = document.getElementById('hudSignalStrength');
+
+      let displayName = cityData.name;
+      let displayRegion = cityData.market || region.toUpperCase();
+      let displayCoords = cityData.coords;
+
+      // Extract specific details from elements (e.g. Warsaw districts)
+      if (element) {
+        const iladi = element.dataset.iladi;
+        if (iladi) {
+          displayName = iladi.toUpperCase();
+          if (element.classList.contains('map-hotspot')) {
+            const telemetryText = element.querySelector('.hotspot-telemetry');
+            if (telemetryText) displayCoords = telemetryText.textContent;
+          }
+        }
+      }
+
+      if (hudCityVal) hudCityVal.textContent = displayName;
+      if (hudRegionVal) hudRegionVal.textContent = displayRegion;
+      if (hudCoordsVal) hudCoordsVal.textContent = displayCoords;
+      if (hudSignalVal) {
+        hudSignalVal.textContent = dict.hudSignalActive || (STATE.language === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF');
+        hudSignalVal.className = 'hud-val status-active';
+      }
+    }
   };
 
   // Debounce returning preview panel to default guide screen
@@ -1256,12 +2002,12 @@ function setupPortalGateway() {
       }
     }
 
-    if (revertTimeout) {
-      clearTimeout(revertTimeout);
-      revertTimeout = null;
+    if (portalRevertTimeout) {
+      clearTimeout(portalRevertTimeout);
+      portalRevertTimeout = null;
     }
 
-    revertTimeout = setTimeout(() => {
+    portalRevertTimeout = setTimeout(() => {
       activeCity = null;
 
       // Remove specific hovered province highlight
@@ -1271,7 +2017,7 @@ function setupPortalGateway() {
 
       portalTargetHue = 220;
       if (portalStage) {
-        portalStage.classList.remove('hover-marmara', 'hover-ege', 'hover-karadeniz');
+        portalStage.classList.remove('hover-marmara', 'hover-ege', 'hover-karadeniz', 'hover-mazowsze');
       }
 
       const portalAmbientBg = document.getElementById('portalAmbientBg');
@@ -1282,6 +2028,21 @@ function setupPortalGateway() {
           ease: 'power2.out',
           overwrite: 'auto'
         });
+      }
+
+      // Reset HUD values to scanning/default
+      const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+      const hudCityVal = document.getElementById('hudCityName');
+      const hudRegionVal = document.getElementById('hudRegionName');
+      const hudCoordsVal = document.getElementById('hudCoordinates');
+      const hudSignalVal = document.getElementById('hudSignalStrength');
+
+      if (hudCityVal) hudCityVal.textContent = dict.hudScanning;
+      if (hudRegionVal) hudRegionVal.textContent = dict.hudSearching;
+      if (hudCoordsVal) hudCoordsVal.textContent = '--° N, --° E';
+      if (hudSignalVal) {
+        hudSignalVal.textContent = dict.hudSignalWeak;
+        hudSignalVal.className = 'hud-val status-blink status-weak';
       }
     }, 200);
   };
@@ -1317,7 +2078,7 @@ function setupPortalGateway() {
   };
 
   // Triggers selection state machine transition with cinematic warp zoom teleportation
-  const triggerSelection = (city, clientX, clientY) => {
+  const triggerSelection = (city, clientX, clientY, clickedElement = null) => {
     window.portalWarping = true; // Lock mouse hover and tilt calculations immediately
 
     // Lock initial inline opacities to 0 to prevent any visual flash of hero content on selection zoom
@@ -1341,9 +2102,12 @@ function setupPortalGateway() {
     // Set background canvas dust gravity coordinates for wormhole swirl pull physics
     window.warpTarget = { x: clientX, y: clientY, active: true };
 
-    const hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
-      h => h.dataset.city.toLowerCase() === city.toLowerCase()
-    );
+    let hotspot = clickedElement;
+    if (!hotspot || !hotspot.classList.contains('map-hotspot')) {
+      hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
+        h => h.dataset.city.toLowerCase() === city.toLowerCase()
+      );
+    }
     const wrapper = document.querySelector('.portal-map-wrapper');
 
     // Kill any active hover tilt animations on the map wrapper immediately
@@ -1459,6 +2223,10 @@ function setupPortalGateway() {
           window.removeEventListener('mousemove', portalMouseMoveHandler);
           portalMouseMoveHandler = null;
         }
+        if (portalResizeHandler) {
+          window.removeEventListener('resize', portalResizeHandler);
+          portalResizeHandler = null;
+        }
 
         // Keep listeners bound so cities remain clickable upon returning via city switcher
         // cleanupGatewayListeners();
@@ -1489,24 +2257,28 @@ function setupPortalGateway() {
       .to('#main-content', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '-=0.45');
   };
 
+  showCityPreviewFn = showCityPreview;
+  revertToDefaultFn = revertToDefault;
+  triggerSelectionFn = triggerSelection;
+
   // Bind Hotspot events
   const hotspots = document.querySelectorAll('.map-hotspot');
   hotspots.forEach(hotspot => {
     const city = hotspot.dataset.city;
 
-    const onEnter = () => showCityPreview(city);
+    const onEnter = () => showCityPreview(city, hotspot);
     const onLeave = (e) => revertToDefault(e);
     const clickHandler = (e) => {
       e.stopPropagation();
       const cx = e.clientX || window.innerWidth / 2;
       const cy = e.clientY || window.innerHeight / 2;
-      triggerSelection(city, cx, cy);
+      triggerSelection(city, cx, cy, hotspot);
     };
     const keyHandler = (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         const rect = hotspot.getBoundingClientRect();
-        triggerSelection(city, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        triggerSelection(city, rect.left + rect.width / 2, rect.top + rect.height / 2, hotspot);
       }
     };
 
@@ -1522,15 +2294,15 @@ function setupPortalGateway() {
   const activeProvincesInMap = document.querySelectorAll('.map-province.province-active');
   activeProvincesInMap.forEach(prov => {
     const provId = prov.id;
-    const city = provId.charAt(0).toUpperCase() + provId.slice(1);
+    const city = prov.dataset.city || (provId.charAt(0).toUpperCase() + provId.slice(1));
 
-    const onEnter = () => showCityPreview(city);
+    const onEnter = () => showCityPreview(city, prov);
     const onLeave = (e) => revertToDefault(e);
     const clickHandler = (e) => {
       e.stopPropagation();
       const cx = e.clientX || window.innerWidth / 2;
       const cy = e.clientY || window.innerHeight / 2;
-      triggerSelection(city, cx, cy);
+      triggerSelection(city, cx, cy, prov);
     };
 
     prov.addEventListener('mouseenter', onEnter);
@@ -1547,7 +2319,7 @@ function setupPortalGateway() {
     let cardRect = null;
     const onEnter = () => {
       cardRect = card.getBoundingClientRect();
-      showCityPreview(city);
+      showCityPreview(city, card);
     };
     const onLeave = (e) => {
       cardRect = null;
@@ -1971,15 +2743,25 @@ function setupCinemaEngine() {
   const servicesSelectCard = document.querySelector('.services-select-card');
   const serviceSelectItems = document.querySelectorAll('.service-select-item');
 
+  // Cache selectable item bounding client rects to prevent layout thrashing on mousemove
+  const serviceItemsRects = [];
+  const cacheItemBounds = () => {
+    serviceSelectItems.forEach((item, idx) => {
+      serviceItemsRects[idx] = item.getBoundingClientRect();
+    });
+  };
+  cacheItemBounds();
+  window.addEventListener('resize', cacheItemBounds);
+
   // Set up click, mousemove (for spotlight and 3D tilt), and mouseleave listeners for the selectable items
-  serviceSelectItems.forEach(item => {
+  serviceSelectItems.forEach((item, idx) => {
     item.addEventListener('click', () => {
       const service = item.dataset.service;
       selectServiceGlobal(service);
     });
 
     item.addEventListener('mousemove', (e) => {
-      const rect = item.getBoundingClientRect();
+      const rect = serviceItemsRects[idx] || item.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
@@ -2102,6 +2884,11 @@ function setupCinemaEngine() {
       if (!sc.video.dataset.originalSrc) {
         sc.video.dataset.originalSrc = sc.video.getAttribute('src') || '';
       }
+
+      // Track file loading errors once
+      sc.video.addEventListener('error', () => {
+        logErrorDebug(`Decoder resource loading error on ${sc.video.id}:`, sc.video.error);
+      });
 
       const onReady = () => {
         logDebug(`Video ${sc.video.id} readyState changed to: ${sc.video.readyState}. Recalculating target times and waking up loop.`);
@@ -2976,7 +3763,8 @@ function selectServiceGlobal(service) {
   });
 
   // Update the 12 scene text overlays dynamically based on category
-  const serviceTextData = SERVICE_SCENE_TEXTS[service];
+  const lang = STATE.language || 'tr';
+  const serviceTextData = lang === 'pl' ? SERVICE_SCENE_TEXTS_PL[service] : SERVICE_SCENE_TEXTS[service];
   if (serviceTextData) {
     const textBlocks = document.querySelectorAll('#sceneTextOverlay .scene-text-block');
     textBlocks.forEach((block, index) => {
@@ -3481,20 +4269,34 @@ function setupServicesModal() {
   }
 
   function calculatePrice(isDragging = false) {
+    const lang = STATE.language || 'tr';
+    const isPl = lang === 'pl';
+
+    // Format based on current language
+    const formatter = new Intl.NumberFormat(isPl ? 'pl-PL' : 'tr-TR', {
+      style: 'currency',
+      currency: isPl ? 'PLN' : 'TRY',
+      maximumFractionDigits: 0
+    });
+
+    const conversionRate = isPl ? 0.12 : 1.0;
+
     const area = areaRange ? parseInt(areaRange.value || 100) : 100;
     const freqCoeff = frequencySelect ? parseFloat(frequencySelect.value || 1) : 1;
     
     // Update slider fill track
     updateSliderBackground();
     
-    const baseCost = area * currentBasePrice;
+    const basePrice = currentBasePrice * conversionRate;
+    const baseCost = area * basePrice;
     
     let extraCost = 0;
     const activeExtras = [];
     if (extraCbs) {
       extraCbs.forEach(cb => {
         if (cb.checked) {
-          extraCost += parseFloat(cb.value || 0);
+          const val = parseFloat(cb.value || 0) * conversionRate;
+          extraCost += val;
           const labelText = cb.parentElement.textContent.trim().split('(+')[0].trim();
           activeExtras.push(labelText);
         }
@@ -3513,24 +4315,30 @@ function setupServicesModal() {
     // Render itemized receipt details
     const receiptBox = document.getElementById('calculatorReceipt');
     if (receiptBox) {
-      const tr = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
-      
+      const receiptTitle = isPl ? 'SZCZEGÓŁOWA WYCENA' : 'FİYAT DETAY HESAP DÖKÜMÜ';
+      const labelBaseArea = isPl ? 'Podstawowa Powierzchnia' : 'Taban Hizmet Alanı';
+      const labelUnitPrice = isPl ? 'Koszt jednostkowy za m²' : 'Birim m² Maliyeti';
+      const labelGrossCost = isPl ? 'Koszt Powierzchni Brutto' : 'Brüt Alan Maliyeti';
+      const labelDiscount = isPl ? 'Rabat za Regularność' : 'Düzenli Sıklık İndirimi';
+      const labelExtraPrefix = isPl ? 'Dodatkowo' : 'Ekstra';
+      const labelTotalEst = isPl ? 'Szacowana Suma' : 'Tahmini Toplam Tutar';
+
       let receiptHtml = `
-        <h4>FİYAT DETAY HESAP DÖKÜMÜ</h4>
+        <h4>${receiptTitle}</h4>
         <div class="receipt-row">
-          <span class="receipt-lbl">Taban Hizmet Alanı</span>
+          <span class="receipt-lbl">${labelBaseArea}</span>
           <span class="receipt-leader"></span>
           <span class="receipt-val">${area} m²</span>
         </div>
         <div class="receipt-row">
-          <span class="receipt-lbl">Birim m² Maliyeti</span>
+          <span class="receipt-lbl">${labelUnitPrice}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val">${tr.format(currentBasePrice)}</span>
+          <span class="receipt-val">${formatter.format(basePrice)}</span>
         </div>
         <div class="receipt-row">
-          <span class="receipt-lbl">Brüt Alan Maliyeti</span>
+          <span class="receipt-lbl">${labelGrossCost}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val">${tr.format(baseCost)}</span>
+          <span class="receipt-val">${formatter.format(baseCost)}</span>
         </div>
       `;
 
@@ -3539,9 +4347,9 @@ function setupServicesModal() {
         const discountVal = baseCost * (1 - freqCoeff);
         receiptHtml += `
           <div class="receipt-row">
-            <span class="receipt-lbl">Düzenli Sıklık İndirimi (-%${discountPct})</span>
+            <span class="receipt-lbl">${labelDiscount} (-%${discountPct})</span>
             <span class="receipt-leader"></span>
-            <span class="receipt-val discount-green">-${tr.format(discountVal)}</span>
+            <span class="receipt-val discount-green">-${formatter.format(discountVal)}</span>
           </div>
         `;
       }
@@ -3549,13 +4357,13 @@ function setupServicesModal() {
       if (extraCbs) {
         extraCbs.forEach(cb => {
           if (cb.checked) {
-            const val = parseFloat(cb.value || 0);
+            const val = parseFloat(cb.value || 0) * conversionRate;
             const labelText = cb.parentElement.textContent.trim().split('(+')[0].trim();
             receiptHtml += `
               <div class="receipt-row">
-                <span class="receipt-lbl">Ekstra: ${labelText}</span>
+                <span class="receipt-lbl">${labelExtraPrefix}: ${labelText}</span>
                 <span class="receipt-leader"></span>
-                <span class="receipt-val">+${tr.format(val)}</span>
+                <span class="receipt-val">+${formatter.format(val)}</span>
               </div>
             `;
           }
@@ -3564,9 +4372,9 @@ function setupServicesModal() {
 
       receiptHtml += `
         <div class="receipt-row receipt-total-row">
-          <span class="receipt-lbl" style="font-weight: 700; color: #fff;">Tahmini Toplam Tutar</span>
+          <span class="receipt-lbl" style="font-weight: 700; color: #fff;">${labelTotalEst}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val receipt-total-val" id="receipt-total-val">${tr.format(totalCost)}</span>
+          <span class="receipt-val receipt-total-val" id="receipt-total-val">${formatter.format(totalCost)}</span>
         </div>
       `;
 
@@ -3593,11 +4401,7 @@ function setupServicesModal() {
       // Instant update to prevent visual lag while actively dragging the slider
       currentCostObject.val = totalCost;
       if (priceDisplay) {
-        priceDisplay.textContent = new Intl.NumberFormat('tr-TR', { 
-          style: 'currency', 
-          currency: 'TRY', 
-          maximumFractionDigits: 0 
-        }).format(totalCost);
+        priceDisplay.textContent = formatter.format(totalCost);
       }
     } else {
       // Animate price rolls smoothly (GSAP rolling number)
@@ -3608,12 +4412,7 @@ function setupServicesModal() {
         overwrite: 'auto',
         onUpdate: () => {
           if (priceDisplay) {
-            const formatted = new Intl.NumberFormat('tr-TR', { 
-              style: 'currency', 
-              currency: 'TRY', 
-              maximumFractionDigits: 0 
-            }).format(Math.round(currentCostObject.val));
-            priceDisplay.textContent = formatted;
+            priceDisplay.textContent = formatter.format(Math.round(currentCostObject.val));
           }
         }
       });
@@ -3655,6 +4454,8 @@ function setupServicesModal() {
       }, 300);
     });
   }
+
+  calculatePriceFn = calculatePrice;
 }
 
 // ==========================================
@@ -4161,18 +4962,20 @@ class CyberSynth {
     if (!btn) return;
 
     const text = btn.querySelector('.audio-toggle-text');
+    const lang = STATE.language || STATE.currentLang || 'tr';
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
 
     if (this.muted) {
       btn.classList.add('muted');
-      if (text) text.textContent = 'AUDIO: OFF';
+      if (text) text.textContent = dict.audioOff || 'AUDIO: OFF';
     } else {
       btn.classList.remove('muted');
-      if (text) text.textContent = 'AUDIO: ON';
+      if (text) text.textContent = dict.audioOn || 'AUDIO: ON';
     }
   }
 }
 
-const synth = new CyberSynth();
+synth = new CyberSynth();
 
 // Global bindings for ease of use in event listeners
 window.playTickSound = () => synth.playTick();

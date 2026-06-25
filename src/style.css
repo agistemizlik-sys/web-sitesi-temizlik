@@ -852,9 +852,14 @@ html.bypassing-gateway #portal-stage {
 
 .cinema-stage {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: var(--safari-vh, 100vh); /* JS-set Safari visual viewport */
+  height: 100dvh; /* Safari dynamic viewport override */
   overflow: hidden;
   display: block;
   background: #000;
@@ -863,18 +868,24 @@ html.bypassing-gateway #portal-stage {
 
 .cinema-video {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  min-width: 100%; /* Safari object-fit fallback */
+  min-height: 100%; /* Safari object-fit fallback */
   display: block;
   object-fit: cover;
+  -o-object-fit: cover;
   object-position: center var(--video-y, 50%);
   opacity: 0;
   visibility: hidden;
   z-index: 2;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .cinema-video.active {
@@ -888,6 +899,7 @@ html.bypassing-gateway #portal-stage {
   inset: 0;
   width: 100%;
   height: 100%;
+  height: 100dvh; /* Safari dynamic viewport */
   z-index: 15;
   pointer-events: none;
   display: flex;
@@ -914,6 +926,7 @@ html.bypassing-gateway #portal-stage {
   --service-color-rgb: 52, 211, 153;
 }
 
+/* Scene text cards — smooth reveal from below with blur */
 .scene-text-block {
   position: absolute;
   max-width: 580px;
@@ -922,10 +935,14 @@ html.bypassing-gateway #portal-stage {
   text-align: center;
   opacity: 0;
   visibility: hidden;
-  transform: translate3d(0, 20px, 0);
-  filter: blur(8px);
-  transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth), visibility 0.6s var(--ease-smooth), filter 0.6s var(--ease-smooth);
-  will-change: opacity, transform;
+  transform: translate3d(0, 28px, 0);
+  filter: blur(12px);
+  transition:
+    opacity 0.75s var(--ease-smooth),
+    transform 0.75s var(--ease-smooth),
+    visibility 0.75s var(--ease-smooth),
+    filter 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform, filter;
   background: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -984,6 +1001,7 @@ html.bypassing-gateway #portal-stage {
   inset: 0;
   width: 100%;
   height: 100%;
+  height: 100dvh; /* Safari dynamic viewport */
   background: #000000;
   z-index: 8;
   pointer-events: none;
@@ -994,7 +1012,9 @@ html.bypassing-gateway #portal-stage {
   
   will-change: transform;
   transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ==========================================================================
@@ -1465,6 +1485,10 @@ html.bypassing-gateway #portal-stage {
   }
 
   .scene-text-block {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    margin: 0 auto;
     background: rgba(10, 15, 24, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -2258,13 +2282,17 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 
 .portal-map-wrapper {
   position: relative;
-  background: rgba(4, 7, 20, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(36, 60, 120, 0.22) 0%, transparent 55%),
+    linear-gradient(160deg, rgba(8, 14, 32, 0.78) 0%, rgba(3, 6, 16, 0.92) 100%);
+  border: 1px solid rgba(120, 160, 255, 0.10);
   border-radius: 24px;
   padding: 24px;
-  box-shadow: 
-    inset 0 0 40px rgba(0, 0, 0, 0.85),
-    0 25px 50px rgba(0, 0, 0, 0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(140, 175, 255, 0.10),
+    inset 0 0 60px rgba(0, 0, 0, 0.7),
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(51, 102, 255, 0.06);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
@@ -2279,6 +2307,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   transition: background 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
 }
 
+/* Holographic map SVG — gentle ambient depth, not aggressive filter */
 .portal-neon-map {
   width: 100%;
   height: auto;
@@ -2290,51 +2319,119 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   will-change: transform;
   shape-rendering: geometricPrecision;
   text-rendering: geometricPrecision;
+  /* Very gentle base ambient depth — not a glow, just a shadow */
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.4));
+  transition: filter 0.9s var(--ease-smooth);
 }
 
-/* 81-Province Mesh Vector Layout Styling */
+/* Leaflet map container */
+.portal-leaflet-map {
+  width: 100%;
+  height: 460px;
+  background: #05070f !important;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  position: relative;
+  overflow: hidden;
+  z-index: 5;
+}
+
+@media (max-width: 768px) {
+  .portal-leaflet-map {
+    height: 360px;
+  }
+}
+
+/* Custom visual filter for Leaflet tiles to match holographic cyan/dark cybernetic vibe */
+.portal-leaflet-map .leaflet-tile-container {
+  filter: brightness(1.5) saturate(1.2) hue-rotate(200deg);
+}
+
+/* Custom Marker Overrides: clean container for reticle markers */
+.leaflet-custom-hotspot-icon {
+  background: transparent !important;
+  border: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  position: absolute !important;
+}
+
+/* Ensure Leaflet zoom controls and attribution are clean and styled */
+.portal-leaflet-map .leaflet-control-zoom {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(10, 14, 30, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+.portal-leaflet-map .leaflet-control-zoom-in,
+.portal-leaflet-map .leaflet-control-zoom-out {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: background 0.3s, color 0.3s;
+}
+.portal-leaflet-map .leaflet-control-zoom-in:hover,
+.portal-leaflet-map .leaflet-control-zoom-out:hover {
+  background: rgba(51, 102, 255, 0.2) !important;
+  color: #fff !important;
+}
+.portal-leaflet-map .leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.5px;
+}
+.portal-leaflet-map .leaflet-control-attribution a {
+  color: rgba(51, 102, 255, 0.5) !important;
+}
+
+/* 81-Province Mesh Vector Layout Styling — refined holographic wireframe so the
+   whole country silhouette reads clearly instead of disappearing into the void. */
 .map-province path {
-  stroke: rgba(51, 102, 255, 0.12);
-  stroke-width: 0.8;
-  fill: rgba(4, 7, 20, 0.45);
+  stroke: rgba(120, 170, 240, 0.30);
+  stroke-width: 0.7;
+  fill: rgba(28, 52, 104, 0.16);
   vector-effect: non-scaling-stroke;
-  transition: opacity 0.3s var(--ease-smooth);
+  transition: stroke 0.45s var(--ease-smooth), fill 0.45s var(--ease-smooth), opacity 0.3s var(--ease-smooth);
   will-change: opacity;
 }
 
-/* Active provinces: slightly brighter stroke */
+/* Active provinces: clearly brighter, luminous landmass */
 .map-province.province-active path {
-  stroke: rgba(51, 102, 255, 0.22);
-  fill: rgba(4, 7, 20, 0.65);
+  stroke: rgba(130, 180, 255, 0.55);
+  fill: rgba(40, 72, 140, 0.28);
 }
 
-/* Regional defaults for active provinces with breathing indicators (GPU accelerated) */
+/* Regional luminous glow — subtle, not aggressive */
 .map-province.province-active[data-market="marmara"] path {
-  stroke: rgba(51, 102, 255, 0.75);
-  fill: rgba(51, 102, 255, 0.05);
-  stroke-width: 1.2px;
-  animation: activeProvinceOpacityBreathe 4s infinite ease-in-out alternate;
+  stroke: rgba(100, 155, 255, 0.85);
+  fill: rgba(51, 102, 255, 0.10);
+  stroke-width: 1.3px;
+  filter: drop-shadow(0 0 3px rgba(51, 102, 255, 0.5));
+  animation: activeProvinceGlowBreathe 5s infinite ease-in-out alternate;
 }
 .map-province.province-active[data-market="ege"] path {
-  stroke: rgba(255, 145, 0, 0.75);
-  fill: rgba(255, 145, 0, 0.05);
-  stroke-width: 1.2px;
-  animation: activeProvinceOpacityBreathe 4s infinite ease-in-out alternate;
+  stroke: rgba(255, 180, 80, 0.85);
+  fill: rgba(255, 145, 0, 0.10);
+  stroke-width: 1.3px;
+  filter: drop-shadow(0 0 3px rgba(255, 145, 0, 0.5));
+  animation: activeProvinceGlowBreathe 5s infinite ease-in-out alternate;
 }
 .map-province.province-active[data-market="karadeniz"] path {
-  stroke: rgba(255, 51, 102, 0.75);
-  fill: rgba(255, 51, 102, 0.05);
-  stroke-width: 1.2px;
-  animation: activeProvinceOpacityBreathe 4s infinite ease-in-out alternate;
+  stroke: rgba(255, 100, 135, 0.85);
+  fill: rgba(255, 51, 102, 0.10);
+  stroke-width: 1.3px;
+  filter: drop-shadow(0 0 3px rgba(255, 51, 102, 0.5));
+  animation: activeProvinceGlowBreathe 5s infinite ease-in-out alternate;
 }
 
-@keyframes activeProvinceOpacityBreathe {
-  0%, 100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 1;
-  }
+@keyframes activeProvinceGlowBreathe {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 1; }
 }
 
 /* Hovering any province makes it glow */
@@ -2425,64 +2522,89 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   --h-rgb: 255, 51, 102;
 }
 
+/* ── HOTSPOT CORE: jewel-like dot, minimal glow ── */
 .hotspot-core {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background-color: var(--h-accent);
-  left: 14px;
-  top: 14px;
-  box-shadow: 0 0 10px var(--h-accent);
-  transition: transform 0.4s var(--ease-spring), box-shadow 0.4s var(--ease-spring);
+  background: radial-gradient(circle at 38% 32%, rgba(255,255,255,0.9) 0%, var(--h-accent) 50%, rgba(var(--h-rgb), 0.5) 100%);
+  left: 13.5px;
+  top: 13.5px;
+  box-shadow:
+    0 0 4px rgba(255,255,255,0.6),
+    0 0 10px rgba(var(--h-rgb), 0.5);
+  transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring);
 }
 
+/* Subtle ambient halo — very light, breathes slowly */
+.map-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--h-rgb), 0.18) 0%, rgba(var(--h-rgb), 0.06) 45%, transparent 70%);
+  pointer-events: none;
+  animation: hotspotHaloBreathe 5s infinite ease-in-out;
+  will-change: opacity;
+}
+
+@keyframes hotspotHaloBreathe {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.85; }
+}
+
+/* Single expanding ring — slow, elegant */
 .hotspot-pulse {
   position: absolute;
   width: 34px;
   height: 34px;
-  border: 1px solid rgba(var(--h-rgb), 0.45);
+  border: 1px solid rgba(var(--h-rgb), 0.35);
   border-radius: 50%;
   left: 1px;
   top: 1px;
-  opacity: 0.4;
+  opacity: 0;
   pointer-events: none;
   transform-origin: center;
-  animation: hotspotSoftPulse 3s infinite ease-in-out;
+  animation: hotspotSoftPulse 4s infinite ease-out;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
+/* City label — refined, readable */
 .hotspot-label {
   position: absolute;
-  top: 40px;
+  top: 38px;
   left: 50%;
   transform: translate3d(-50%, 0, 0);
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.55);
   pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-  transition: color 0.3s var(--ease-smooth), text-shadow 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  transition: color 0.4s var(--ease-smooth), opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
-/* Hotspot Hover Interactions */
+/* Hotspot Hover — scale up gently */
 .map-hotspot:hover .hotspot-core {
-  transform: scale(1.4);
-  box-shadow: 0 0 18px var(--h-accent);
+  transform: scale(1.5);
+  box-shadow:
+    0 0 6px rgba(255,255,255,0.7),
+    0 0 18px rgba(var(--h-rgb), 0.7);
 }
 
 .map-hotspot:hover .hotspot-label {
-  color: #fff;
-  text-shadow: 0 0 8px rgba(var(--h-rgb), 0.8);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 10px rgba(var(--h-rgb), 0.6);
   transform: translate3d(-50%, -2px, 0);
 }
 
 .map-hotspot:hover .hotspot-pulse {
-  animation-duration: 1.2s; /* Accelerate ripple on hover */
+  animation-duration: 2s;
 }
 
 /* Preview Panels, Laser Connectors, Radar Scanner, Telemetry HUD, & Overlays (Hidden by request) */
@@ -2625,15 +2747,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   }
   
   .portal-preview-panel {
-    position: relative;
-    right: auto;
-    top: auto;
-    transform: none;
-    width: 100%;
-    max-width: 340px;
-    margin-top: 20px;
-    margin-left: 0;
-    min-height: auto;
+    display: none !important;
   }
 }
 
@@ -2651,14 +2765,18 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   }
 }
 
+/* Elegant expanding ring — starts at dot size, expands and fades out */
 @keyframes hotspotSoftPulse {
-  0%, 100% {
-    transform: scale(0.85);
-    opacity: 0.25;
+  0% {
+    transform: scale(0.3);
+    opacity: 0.7;
   }
-  50% {
-    transform: scale(1.15);
-    opacity: 0.65;
+  70% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
   }
 }
 
@@ -2666,51 +2784,48 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
    20. VOLUMETRIC GRADIENT GLOWS & COMPASS TELEMETRY
    ========================================================================== */
 
-/* Volumetric map wrapper ambient glow background */
+/* Subtle ambient glow inside map card — very low opacity */
 .portal-map-wrapper::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 24px;
-  background: radial-gradient(circle at 30% 40%, rgba(51, 102, 255, 0.03) 0%, transparent 60%);
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(51, 102, 255, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
-  transition: background 0.8s var(--ease-smooth);
+  transition: background 1.2s var(--ease-smooth);
 }
 
-/* Regional background sweep transitions */
 #portal-stage.hover-marmara .portal-map-wrapper::before {
-  background: radial-gradient(circle at 20% 20%, rgba(51, 102, 255, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse 70% 50% at 30% 30%, rgba(51, 102, 255, 0.07) 0%, transparent 70%);
 }
-
 #portal-stage.hover-ege .portal-map-wrapper::before {
-  background: radial-gradient(circle at 10% 40%, rgba(255, 145, 0, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse 70% 50% at 20% 50%, rgba(255, 145, 0, 0.07) 0%, transparent 70%);
 }
-
 #portal-stage.hover-karadeniz .portal-map-wrapper::before {
-  background: radial-gradient(circle at 50% 15%, rgba(255, 51, 102, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255, 51, 102, 0.07) 0%, transparent 70%);
 }
 
-/* Rotating Dashed Compass Overlay for hotspots */
+/* Hover ring indicator — simple clean circle, no rotation */
 .map-hotspot::after {
   content: "";
   position: absolute;
-  width: 24px;
-  height: 24px;
-  border: 1.2px dashed var(--h-accent);
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(var(--h-rgb), 0.45);
   border-radius: 50%;
-  left: 6px;
-  top: 6px;
+  left: 4px;
+  top: 4px;
   opacity: 0;
   pointer-events: none;
   box-sizing: border-box;
-  transform-origin: center;
-  transition: opacity 0.3s var(--ease-smooth);
-  animation: rotateTelemetry 16s linear infinite;
+  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
+  transform: scale(0.8);
 }
 
 .map-hotspot:hover::after {
-  opacity: 0.8;
+  opacity: 0.6;
+  transform: scale(1);
 }
 
 /* Sweeping radar scanner overlay bar */
@@ -2730,94 +2845,12 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   }
 }
 
-/* Custom interactive counter-rotating reticle for hotspots */
-.hotspot-reticle {
-  position: absolute;
-  width: 34px;
-  height: 34px;
-  left: 1px;
-  top: 1px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-spring);
-  transform: scale(0.75);
-}
-
-.map-hotspot:hover .hotspot-reticle {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.reticle-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  box-sizing: border-box;
-}
-
-.reticle-ring.ring-dashed {
-  border: 1px dashed var(--h-accent);
-  animation: rotateTelemetry 10s linear infinite;
-}
-
-.reticle-ring.ring-solid {
-  border: 0.8px solid rgba(var(--h-rgb), 0.22);
-  inset: 4px;
-  animation: rotateTelemetryReverse 6s linear infinite;
-}
-
+/* Reticle hidden — no rotating rings needed */
+.hotspot-reticle,
+.hotspot-telemetry,
+.reticle-ring,
 .reticle-cross {
-  position: absolute;
-  inset: -1.5px;
-}
-
-.reticle-cross::before,
-.reticle-cross::after {
-  content: "";
-  position: absolute;
-  background: var(--h-accent);
-  opacity: 0.35;
-}
-
-/* Horizontal cross line */
-.reticle-cross::before {
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 0.8px;
-  transform: translateY(-50%);
-}
-
-/* Vertical cross line */
-.reticle-cross::after {
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 0.8px;
-  transform: translateX(-50%);
-}
-
-/* Hotspot coordinates telemetry label sliding in on hover */
-.hotspot-telemetry {
-  position: absolute;
-  top: 52px;
-  left: 50%;
-  transform: translate3d(-50%, 4px, 0);
-  font-family: monospace;
-  font-size: 7px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: var(--h-accent);
-  opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
-  transition: opacity 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth);
-  text-shadow: 0 0 5px rgba(var(--h-rgb), 0.4);
-}
-
-.map-hotspot:hover .hotspot-telemetry {
-  opacity: 0.85;
-  transform: translate3d(-50%, 0, 0);
+  display: none;
 }
 
 @keyframes rotateTelemetry {
@@ -3485,15 +3518,15 @@ img, video, .card-bg-image {
   will-change: opacity;
 }
 
-/* Dynamic region-based ambient filter glows for Turkey map SVG */
+/* Subtle regional drop-shadow on hover — soft, not aggressive */
 #portal-stage.hover-marmara .portal-neon-map {
-  filter: drop-shadow(0 0 20px rgba(51, 102, 255, 0.08));
+  filter: drop-shadow(0 0 16px rgba(51, 102, 255, 0.18)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.45));
 }
 #portal-stage.hover-ege .portal-neon-map {
-  filter: drop-shadow(0 0 20px rgba(255, 145, 0, 0.08));
+  filter: drop-shadow(0 0 16px rgba(255, 145, 0, 0.18)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.45));
 }
 #portal-stage.hover-karadeniz .portal-neon-map {
-  filter: drop-shadow(0 0 20px rgba(255, 51, 102, 0.08));
+  filter: drop-shadow(0 0 16px rgba(255, 51, 102, 0.18)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.45));
 }
 
 /* High-tech map corner brackets */
@@ -4478,6 +4511,9 @@ img, video, .card-bg-image {
 }
 
 @media (max-width: 768px) {
+  .cinema-intro-card {
+    padding: 0 16px;
+  }
   #servicesTextOverlay {
     align-items: center;
     padding-bottom: 20px;
@@ -4813,7 +4849,7 @@ img, video, .card-bg-image {
     letter-spacing: 1px;
     margin-top: 8px;
     margin-bottom: 2px;
-    padding: 0 24px;
+    padding: 0 40px 0 24px;
   }
   .modal-subtitle {
     font-size: 0.7rem;
@@ -4846,9 +4882,11 @@ img, video, .card-bg-image {
     display: none !important;
   }
   .cinema-intro-card .intro-title {
-    font-size: 1.8rem;
+    font-size: clamp(1.4rem, 7.5vw, 2.2rem);
     letter-spacing: 4px;
     text-indent: 4px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
   .booking-reveal-screen .reveal-content-box {
     padding: 20px 14px;
@@ -4862,4 +4900,551 @@ img, video, .card-bg-image {
     letter-spacing: 1px;
     padding: 5px 14px;
   }
+}
+
+/* ==========================================================================
+   30. COUNTRY SELECTOR OVERLAY
+   ========================================================================== */
+
+/* Full-screen overlay that sits above the Turkey map stage */
+.country-selector-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  z-index: 80;
+  background: radial-gradient(ellipse 110% 90% at 50% 60%, rgba(10, 14, 35, 0.96) 0%, #000 100%);
+  transition: opacity 0.7s var(--ease-smooth), visibility 0.7s var(--ease-smooth);
+  overflow: hidden;
+}
+
+/* Hidden state — fades away when a country is chosen */
+.country-selector-overlay.cso-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Decorative ambient background blob */
+.cso-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 25% 60%, rgba(51, 102, 255, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 75% 40%, rgba(220, 20, 60, 0.06) 0%, transparent 70%);
+}
+
+/* ── Header ── */
+.cso-header {
+  text-align: center;
+  margin-bottom: 52px;
+  position: relative;
+  z-index: 2;
+}
+
+.cso-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+
+.cso-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  line-height: 1.1;
+}
+
+.cso-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* ── Cards row ── */
+.cso-cards {
+  display: flex;
+  gap: 32px;
+  align-items: stretch;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Each country card ── */
+.cso-card {
+  position: relative;
+  width: 280px;
+  min-height: 200px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  transition:
+    transform 0.4s var(--ease-spring),
+    border-color 0.4s var(--ease-smooth),
+    box-shadow 0.4s var(--ease-smooth);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cso-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+/* Turkey card accent on hover */
+#csoBtnTurkey:hover {
+  border-color: rgba(227, 10, 23, 0.5);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(227, 10, 23, 0.15);
+}
+
+#csoBtnTurkey:hover .cso-card-glow {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(227, 10, 23, 0.25) 0%, transparent 70%);
+}
+
+/* Poland card accent on hover */
+#csoBtnPoland:hover {
+  border-color: rgba(220, 20, 60, 0.5);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(220, 20, 60, 0.15);
+}
+
+#csoBtnPoland:hover .cso-card-glow {
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220, 20, 60, 0.25) 0%, transparent 70%);
+}
+
+/* Ambient glow layer on top of card */
+.cso-card-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  transition: background 0.5s var(--ease-smooth);
+}
+
+/* Shimmer sweep animation */
+.cso-card-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 65%
+  );
+  background-size: 300% 100%;
+  background-position: 200% 0;
+  pointer-events: none;
+  border-radius: 20px;
+  transition: background-position 0s;
+}
+
+.cso-card:hover .cso-card-shimmer {
+  animation: csoShimmer 0.7s ease-out forwards;
+}
+
+@keyframes csoShimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -50% 0; }
+}
+
+/* Inner content layout */
+.cso-card-inner {
+  position: relative;
+  z-index: 2;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  height: 100%;
+}
+
+/* Flag container */
+.cso-flag-wrap {
+  width: 120px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  transition: box-shadow 0.4s var(--ease-smooth), transform 0.4s var(--ease-spring);
+}
+
+.cso-card:hover .cso-flag-wrap {
+  transform: scale(1.05);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.cso-flag {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Country label */
+.cso-card-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.cso-country-name {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.cso-country-sub {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+}
+
+/* Arrow icon (Turkey only) */
+.cso-card-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.5);
+  transition:
+    background 0.3s var(--ease-smooth),
+    border-color 0.3s var(--ease-smooth),
+    color 0.3s var(--ease-smooth),
+    transform 0.4s var(--ease-spring);
+}
+
+.cso-card:hover .cso-card-arrow {
+  background: rgba(227, 10, 23, 0.15);
+  border-color: rgba(227, 10, 23, 0.5);
+  color: #fff;
+  transform: translateX(3px);
+}
+
+/* "YAKINDA" badge on Poland card */
+.cso-soon-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 14px;
+  border-radius: 100px;
+  text-transform: uppercase;
+}
+
+/* ── Footer decorative line ── */
+.cso-footer-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 52px;
+  position: relative;
+  z-index: 2;
+}
+
+.cso-footer-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.cso-footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 2.5px;
+  color: rgba(255, 255, 255, 0.15);
+  text-transform: uppercase;
+}
+
+/* ── Entry animation ── */
+.cso-header,
+.cso-cards,
+.cso-footer-line {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: csoEntryFade 0.8s var(--ease-smooth) forwards;
+}
+
+.cso-header  { animation-delay: 0.15s; }
+.cso-cards   { animation-delay: 0.3s; }
+.cso-footer-line { animation-delay: 0.5s; }
+
+.country-selector-overlay.cso-hidden .cso-header,
+.country-selector-overlay.cso-hidden .cso-cards,
+.country-selector-overlay.cso-hidden .cso-footer-line {
+  animation: none;
+}
+
+@keyframes csoEntryFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+  .cso-cards {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .cso-card {
+    width: min(320px, 88vw);
+    min-height: unset;
+  }
+  .cso-card-inner {
+    flex-direction: row;
+    align-items: center;
+    padding: 20px 22px;
+    gap: 16px;
+  }
+  .cso-flag-wrap {
+    width: 80px;
+    height: 54px;
+  }
+  .cso-card-label {
+    align-items: flex-start;
+  }
+  .cso-header {
+    margin-bottom: 32px;
+  }
+  .cso-footer-line {
+    margin-top: 32px;
+  }
+}
+
+/* ==========================================
+   PORTAL SCROLL INTRO STYLING
+   ========================================== */
+.portal-intro-stage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  overflow: hidden;
+  pointer-events: auto; /* Capture clicks to prevent interacting with background */
+  background: #05070f;
+  will-change: transform, opacity;
+  cursor: pointer;
+}
+
+.intro-panel {
+  width: calc(33.33vw + 2px);
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.intro-panel-bg {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  will-change: transform;
+}
+
+/* Background alignments for a seamless composite image when merged */
+.intro-panel-left .intro-panel-bg {
+  left: 0;
+  background-position: left center;
+}
+
+.intro-panel-center .intro-panel-bg {
+  left: -33.333vw;
+  background-position: center center;
+}
+
+.intro-panel-right .intro-panel-bg {
+  left: -66.666vw;
+  background-position: right center;
+}
+
+/* Separator borders between panels */
+.intro-panel .panel-border {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100vh;
+  background: linear-gradient(to bottom, transparent, rgba(51, 102, 255, 0.3), rgba(0, 242, 254, 0.8), rgba(51, 102, 255, 0.3), transparent);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.5), 0 0 20px rgba(51, 102, 255, 0.2);
+  z-index: 10;
+  opacity: 0;
+}
+
+.intro-panel-left .panel-border {
+  right: 0;
+}
+
+.intro-panel-right .panel-border {
+  left: 0;
+}
+
+/* Central logo wrapping */
+.intro-logo-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  text-align: center;
+  color: #1a1e29;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 20;
+}
+
+.intro-logo-svg {
+  width: 90px;
+  height: 90px;
+  color: #1a1e29;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
+}
+
+.intro-logo-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.8rem;
+  letter-spacing: 0.3em;
+  font-weight: 700;
+  color: #1a1e29;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Micro-animations for the SVG elements */
+.logo-sparkle {
+  transform-origin: 40px 50px;
+  animation: spinSparkle 20s linear infinite;
+}
+
+@keyframes spinSparkle {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.logo-bubble {
+  transform-origin: center;
+  animation: bubbleFloat 4s ease-in-out infinite alternate;
+}
+
+.bubble-1 { animation-delay: 0s; }
+.bubble-2 { animation-delay: 0.8s; }
+.bubble-3 { animation-delay: 1.5s; }
+
+@keyframes bubbleFloat {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-4px) scale(1.06); }
+}
+
+.logo-wave {
+  transform-origin: 50px 67px;
+  animation: waveSway 6s ease-in-out infinite alternate;
+}
+
+@keyframes waveSway {
+  from { transform: rotate(-2deg) translateY(0.5px); }
+  to { transform: rotate(2deg) translateY(-0.5px); }
+}
+
+/* Interactive bottom help hint */
+.intro-hint {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #5a6578;
+  opacity: 0.8;
+  z-index: 25;
+  pointer-events: none;
+  animation: hintBreathe 2.5s ease-in-out infinite;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.intro-hint .hint-bracket {
+  color: #3366ff;
+  font-weight: 700;
+}
+
+@keyframes hintBreathe {
+  0%, 100% {
+    opacity: 0.35;
+    transform: translate(-50%, 0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate(-50%, -4px);
+    color: #1e293b;
+  }
+}
+
+/* Toggle visibility rules based on state classes */
+body.portal-intro-mode {
+  overflow: hidden !important;
+}
+
+body.portal-intro-mode #country-selector-overlay,
+body.portal-intro-mode #portal-stage {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body.flag-selection-mode .portal-intro-stage {
+  display: none !important;
 }
