@@ -27,6 +27,13 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --clr-accent-orange: #ff9100;
   --clr-accent-pink: #ff3366;
+
+  /* Responsive Cinema Stage Custom Variables */
+  --cinema-stage-height: var(--safari-vh, 100dvh);
+  --cinema-mask-ellipse-x: 1;
+  --cinema-mask-ellipse-y: 1;
+  --cinema-mask-y-offset: 0%;
+  --cinema-video-scale: 1;
 }
 
 /* ==========================================================================
@@ -1007,8 +1014,20 @@ html.bypassing-gateway #portal-stage {
   pointer-events: none;
   
   /* Radial mask utilizes the css custom variables scrubbed by GSAP */
-  mask-image: radial-gradient(ellipse var(--mask-radius) var(--mask-radius) at var(--mask-x) var(--mask-y), transparent 99.5%, black 100%);
-  -webkit-mask-image: radial-gradient(ellipse var(--mask-radius) var(--mask-radius) at var(--mask-x) var(--mask-y), transparent 99.5%, black 100%);
+  mask-image: radial-gradient(
+    ellipse
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1))
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 1))
+      at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 0%)),
+    transparent 99.5%, black 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1))
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 1))
+      at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 0%)),
+    transparent 99.5%, black 100%
+  );
   
   will-change: transform;
   transform: translate3d(0, 0, 0);
@@ -2309,23 +2328,6 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   transition: background 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
 }
 
-/* Holographic map SVG — gentle ambient depth, not aggressive filter */
-.portal-neon-map {
-  width: 100%;
-  height: auto;
-  display: block;
-  overflow: visible;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-  shape-rendering: geometricPrecision;
-  text-rendering: geometricPrecision;
-  /* Very gentle base ambient depth — not a glow, just a shadow */
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.4));
-  transition: filter 0.9s var(--ease-smooth);
-}
-
 /* Leaflet map container */
 .portal-leaflet-map {
   width: 100%;
@@ -2390,108 +2392,6 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 .portal-leaflet-map .leaflet-control-attribution a {
   color: rgba(51, 102, 255, 0.5) !important;
 }
-
-/* 81-Province Mesh Vector Layout Styling — refined holographic wireframe so the
-   whole country silhouette reads clearly instead of disappearing into the void. */
-.map-province path {
-  stroke: rgba(120, 170, 240, 0.30);
-  stroke-width: 0.7;
-  fill: rgba(28, 52, 104, 0.16);
-  vector-effect: non-scaling-stroke;
-  transition: stroke 0.45s var(--ease-smooth), fill 0.45s var(--ease-smooth), opacity 0.3s var(--ease-smooth);
-  will-change: opacity;
-}
-
-/* Active provinces: clearly brighter, luminous landmass */
-.map-province.province-active path {
-  stroke: rgba(130, 180, 255, 0.55);
-  fill: rgba(40, 72, 140, 0.28);
-}
-
-/* Regional luminous glow — subtle, not aggressive */
-.map-province.province-active[data-market="marmara"] path {
-  stroke: rgba(100, 155, 255, 0.85);
-  fill: rgba(51, 102, 255, 0.10);
-  stroke-width: 1.3px;
-  filter: drop-shadow(0 0 3px rgba(51, 102, 255, 0.5));
-  animation: activeProvinceGlowBreathe 5s infinite ease-in-out alternate;
-}
-.map-province.province-active[data-market="ege"] path {
-  stroke: rgba(255, 180, 80, 0.85);
-  fill: rgba(255, 145, 0, 0.10);
-  stroke-width: 1.3px;
-  filter: drop-shadow(0 0 3px rgba(255, 145, 0, 0.5));
-  animation: activeProvinceGlowBreathe 5s infinite ease-in-out alternate;
-}
-.map-province.province-active[data-market="karadeniz"] path {
-  stroke: rgba(255, 100, 135, 0.85);
-  fill: rgba(255, 51, 102, 0.10);
-  stroke-width: 1.3px;
-  filter: drop-shadow(0 0 3px rgba(255, 51, 102, 0.5));
-  animation: activeProvinceGlowBreathe 5s infinite ease-in-out alternate;
-}
-
-@keyframes activeProvinceGlowBreathe {
-  0%, 100% { opacity: 0.65; }
-  50%       { opacity: 1; }
-}
-
-/* Hovering any province makes it glow */
-.map-province:hover path {
-  stroke: rgba(255, 255, 255, 0.65) !important;
-  fill: rgba(255, 255, 255, 0.06) !important;
-  stroke-width: 1.3px !important;
-}
-
-/* Regional highlights when stage is in regional hover state */
-#portal-stage.hover-marmara #istanbul path,
-#portal-stage.hover-marmara #kocaeli path,
-#portal-stage.hover-marmara #sakarya path {
-  stroke: rgba(51, 102, 255, 0.85) !important;
-  fill: rgba(51, 102, 255, 0.08) !important;
-  stroke-width: 1.2px !important;
-}
-
-#portal-stage.hover-ege #izmir path,
-#portal-stage.hover-ege #balikesir path {
-  stroke: rgba(255, 145, 0, 0.85) !important;
-  fill: rgba(255, 145, 0, 0.08) !important;
-  stroke-width: 1.2px !important;
-}
-
-#portal-stage.hover-karadeniz #samsun path {
-  stroke: rgba(255, 51, 102, 0.85) !important;
-  fill: rgba(255, 51, 102, 0.08) !important;
-  stroke-width: 1.2px !important;
-}
-
-/* Active province cursor */
-.map-province.province-active {
-  cursor: pointer;
-}
-
-/* Specific active province progressive highlights on hover */
-#portal-stage.hover-marmara #istanbul.hover-active-province path,
-#portal-stage.hover-marmara #kocaeli.hover-active-province path,
-#portal-stage.hover-marmara #sakarya.hover-active-province path {
-  stroke: rgba(0, 240, 255, 1) !important;
-  fill: rgba(0, 240, 255, 0.15) !important;
-  stroke-width: 1.8px !important;
-}
-
-#portal-stage.hover-ege #izmir.hover-active-province path,
-#portal-stage.hover-ege #balikesir.hover-active-province path {
-  stroke: rgba(255, 145, 0, 1) !important;
-  fill: rgba(255, 145, 0, 0.15) !important;
-  stroke-width: 1.8px !important;
-}
-
-#portal-stage.hover-karadeniz #samsun.hover-active-province path {
-  stroke: rgba(255, 51, 102, 1) !important;
-  fill: rgba(255, 51, 102, 0.15) !important;
-  stroke-width: 1.8px !important;
-}
-
 
 /* Hotspots overlay */
 .map-hotspots-container {
@@ -3137,6 +3037,10 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 }
 
 /* Global Cyber Shockwave Ripple Effect */
+.ripple-host {
+  position: relative;
+}
+
 .cyber-shockwave {
   position: absolute;
   width: 10px;
@@ -3219,21 +3123,6 @@ img, video, .card-bg-image {
     left: 20px;
     padding: 5px 10px;
   }
-}
-
-/* Background diagnostic grid color shifts on hover */
-#mapGrid path {
-  stroke: rgba(255, 255, 255, 0.015);
-  transition: stroke 0.6s var(--ease-smooth);
-}
-#portal-stage.hover-marmara #mapGrid path {
-  stroke: rgba(51, 102, 255, 0.045);
-}
-#portal-stage.hover-ege #mapGrid path {
-  stroke: rgba(255, 145, 0, 0.045);
-}
-#portal-stage.hover-karadeniz #mapGrid path {
-  stroke: rgba(255, 51, 102, 0.045);
 }
 
 /* High-tech telemetry loading bars */
@@ -3518,17 +3407,6 @@ img, video, .card-bg-image {
   pointer-events: none;
   opacity: 0;
   will-change: opacity;
-}
-
-/* Subtle regional drop-shadow on hover — soft, not aggressive */
-#portal-stage.hover-marmara .portal-neon-map {
-  filter: drop-shadow(0 0 16px rgba(51, 102, 255, 0.18)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.45));
-}
-#portal-stage.hover-ege .portal-neon-map {
-  filter: drop-shadow(0 0 16px rgba(255, 145, 0, 0.18)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.45));
-}
-#portal-stage.hover-karadeniz .portal-neon-map {
-  filter: drop-shadow(0 0 16px rgba(255, 51, 102, 0.18)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.45));
 }
 
 /* High-tech map corner brackets */
@@ -5449,4 +5327,91 @@ body.portal-intro-mode #portal-stage {
 
 body.flag-selection-mode .portal-intro-stage {
   display: none !important;
+}
+
+/* ── RESPONSIVE CINEMA OPTIMIZATIONS ── */
+
+@media (max-width: 768px) {
+  .cinema-stage,
+  .cinema-iris-overlay,
+  .scene-text-overlay {
+    height: var(--cinema-stage-height) !important;
+    min-height: var(--cinema-stage-height) !important;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  :root {
+    --cinema-mask-ellipse-x: 1.15;
+    --cinema-mask-ellipse-y: 0.85;
+    --cinema-mask-y-offset: 3%;
+    --cinema-video-scale: 1.08;
+  }
+
+  .cinema-video {
+    transform: translate3d(0, 0, 0) scale(var(--cinema-video-scale, 1.08)) !important;
+    transform-origin: center center;
+    object-position: center clamp(42%, var(--video-y, 50%), 58%) !important;
+  }
+
+  .cinema-iris-overlay {
+    mask-image: radial-gradient(
+      ellipse
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1.15))
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 0.85))
+        at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 3%)),
+      transparent 99.5%, black 100%
+    ) !important;
+    -webkit-mask-image: radial-gradient(
+      ellipse
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1.15))
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 0.85))
+        at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 3%)),
+      transparent 99.5%, black 100%
+    ) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cinema-intro-card .intro-title {
+    white-space: normal !important;
+    flex-wrap: wrap !important;
+    max-width: 92vw !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .scene-text-overlay {
+    padding: 0 8px 68px !important;
+    align-items: flex-end !important;
+  }
+
+  .scene-text-block {
+    width: 94% !important;
+    max-width: 94% !important;
+    padding: 12px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .scene-text-title {
+    font-size: clamp(1rem, 4.8vw, 1.2rem) !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .scene-text-desc {
+    font-size: 0.7rem !important;
+    line-height: 1.45 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 4 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .scene-text-tag {
+    font-size: 0.58rem !important;
+    letter-spacing: 1.5px !important;
+  }
 }
