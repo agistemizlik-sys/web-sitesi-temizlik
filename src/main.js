@@ -47,6 +47,8 @@ function debounce(func, wait) {
 // Safari viewport height fix — sets --safari-vh CSS custom property
 // This compensates for iOS Safari's dynamic toolbar resizing the visual viewport
 function setSafariVH() {
+  cachedWindowWidth = window.innerWidth;
+  cachedWindowHeight = window.innerHeight;
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--safari-vh', `${vh}px`);
 }
@@ -1299,8 +1301,8 @@ function setupLenis() {
     duration: 1.5,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
-    wheelMultiplier: 1.0,
-    touchMultiplier: 1.6
+    wheelMultiplier: 0.9,
+    touchMultiplier: 1.1
   });
   
   STATE.lenisInstance = lenis;
@@ -2402,36 +2404,35 @@ function setupNavScroll() {
   }
 
   // Bind navigation links & logo
+  const handleNavClick = (targetType, e) => {
+    if (e) e.preventDefault();
+    if (targetType === 'home') {
+      scrollToTarget(0);
+    } else if (targetType === 'scroller') {
+      scrollToTarget('#cinema-section', cachedWindowHeight * 1.5);
+    } else if (targetType === 'contact') {
+      scrollToTarget('#cinema-section', cachedWindowHeight * 48);
+    }
+  };
+
   const navLogo = document.getElementById('navLogo');
   if (navLogo) {
-    navLogo.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToTarget(0);
-    });
+    navLogo.addEventListener('click', (e) => handleNavClick('home', e));
   }
 
   const homeLink = document.querySelector('.nav-links a:first-child');
   if (homeLink) {
-    homeLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToTarget(0);
-    });
+    homeLink.addEventListener('click', (e) => handleNavClick('home', e));
   }
 
   const scrollerLink = document.getElementById('navScrollerLink');
   if (scrollerLink) {
-    scrollerLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToTarget('#cinema-section', window.innerHeight * 1.5);
-    });
+    scrollerLink.addEventListener('click', (e) => handleNavClick('scroller', e));
   }
 
   const contactLink = document.getElementById('navContactLink');
   if (contactLink) {
-    contactLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      scrollToTarget('#cinema-section', window.innerHeight * 48);
-    });
+    contactLink.addEventListener('click', (e) => handleNavClick('contact', e));
   }
 
   // Bind the Hero Landing CTA button
@@ -2439,7 +2440,7 @@ function setupNavScroll() {
   if (heroStartBtn) {
     heroStartBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      scrollToTarget('#cinema-section', window.innerHeight * 1.5, 1.5);
+      scrollToTarget('#cinema-section', cachedWindowHeight * 1.5, 1.5);
     });
   }
 }
@@ -2709,16 +2710,22 @@ function setupCinemaEngine() {
         triggerCinemaLoop();
 
         // Unlock iOS WebKit decoder when video metadata is loaded and ready
-        if (window.innerWidth <= 768 && sc.video.readyState >= 1 && sc.video.dataset.unlocked !== 'true') {
-          sc.video.dataset.unlocked = 'true';
+        if (cachedWindowWidth <= 768 && sc.video.readyState >= 1 && sc.video.dataset.unlocked !== 'true' && sc.video.dataset.unlockAttempting !== 'true') {
+          sc.video.dataset.unlockAttempting = 'true';
           const playPromise = sc.video.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
               sc.video.pause();
+              sc.video.dataset.unlocked = 'true';
+              sc.video.dataset.unlockAttempting = 'false';
             }).catch(e => {
               logDebug(`Unlock play-pause failed on ready for ${sc.video.id}: ${e}`);
-              sc.video.dataset.unlocked = 'false';
+              setTimeout(() => {
+                sc.video.dataset.unlockAttempting = 'false';
+              }, 2000);
             });
+          } else {
+            sc.video.dataset.unlockAttempting = 'false';
           }
         }
       };
@@ -2994,7 +3001,7 @@ function setupCinemaEngine() {
         }
 
         // Proximity dynamic source unloading to prevent choking resources on mobile
-        if (window.innerWidth <= 768 && video.src && video.src !== '') {
+        if (cachedWindowWidth <= 768 && video.src && video.src !== '') {
           if (!video.dataset.originalSrc) {
             video.dataset.originalSrc = video.getAttribute('src') || '';
           }
@@ -3009,7 +3016,7 @@ function setupCinemaEngine() {
       }
 
       // Restore video source if dynamically unloaded (proximity loader)
-      if (window.innerWidth <= 768 && (!video.src || video.src === '')) {
+      if (cachedWindowWidth <= 768 && (!video.src || video.src === '')) {
         const originalSrc = video.dataset.originalSrc || video.getAttribute('src');
         if (originalSrc) {
           video.setAttribute('src', originalSrc);
@@ -3075,16 +3082,22 @@ function setupCinemaEngine() {
       }
 
       // Unlock iOS WebKit decoder trick
-      if (window.innerWidth <= 768 && video.readyState >= 1 && video.dataset.unlocked !== 'true') {
-        video.dataset.unlocked = 'true';
+      if (cachedWindowWidth <= 768 && video.readyState >= 1 && video.dataset.unlocked !== 'true' && video.dataset.unlockAttempting !== 'true') {
+        video.dataset.unlockAttempting = 'true';
         const playPromise = video.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
             video.pause();
+            video.dataset.unlocked = 'true';
+            video.dataset.unlockAttempting = 'false';
           }).catch(err => {
             logDebug(`Decoder unlock failed for ${video.id}: ${err}`);
-            video.dataset.unlocked = 'false';
+            setTimeout(() => {
+              video.dataset.unlockAttempting = 'false';
+            }, 2000);
           });
+        } else {
+          video.dataset.unlockAttempting = 'false';
         }
       }
 
@@ -3133,6 +3146,7 @@ function setupCinemaEngine() {
 
     if (irisOverlay && (roundedRadius !== lastRadius || roundedX !== lastX || roundedY !== lastY)) {
       irisOverlay.style.setProperty('--mask-radius', `${roundedRadius}%`);
+      irisOverlay.style.setProperty('--mask-radius-val', roundedRadius);
       irisOverlay.style.setProperty('--mask-x', `${roundedX}%`);
       irisOverlay.style.setProperty('--mask-y', `${roundedY}%`);
       lastRadius = roundedRadius;
@@ -3628,6 +3642,10 @@ function selectServiceGlobal(service) {
   });
 
   updateBookingSummaryBox();
+
+  if (typeof calculatePriceFn === 'function') {
+    calculatePriceFn();
+  }
 
   // Programmatic scroll-advance on service selection in the scroll section (Phase 3)
   if (STATE.cinemaTrigger) {
@@ -4530,6 +4548,11 @@ function setupCinemaAmbientLight() {
 
   if (!('ontouchstart' in window)) {
     window.addEventListener('mousemove', (e) => {
+      // Check viewport visibility
+      const rect = section.getBoundingClientRect();
+      const inView = rect.top <= cachedWindowHeight && rect.bottom >= 0;
+      if (!inView) return;
+
       lightMX = e.clientX;
       lightMY = e.clientY;
 
@@ -4614,9 +4637,14 @@ function setupHolographicClickRipples() {
     }
 
     // Auto cleanup ripple after animation finishes
-    setTimeout(() => {
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
       ripple.remove();
-    }, 800);
+    };
+    ripple.addEventListener('animationend', cleanup, { once: true });
+    setTimeout(cleanup, 900);
   });
 }
 

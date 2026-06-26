@@ -27,3 +27,9 @@ dist-ssr
 originals_backup/
 dist.zip
 
+# Temporary screenshots, scratch & logs
+step_*.png
+screenshot_*.png
+scratch/
+userData_scroll/
+
