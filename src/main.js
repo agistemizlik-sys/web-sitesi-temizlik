@@ -35,18 +35,6 @@ window.addEventListener('hashchange', () => {
 let cachedWindowWidth = window.innerWidth;
 let cachedWindowHeight = window.innerHeight;
 
-// Safari viewport height fix — sets --safari-vh CSS custom property
-// This compensates for iOS Safari's dynamic toolbar resizing the visual viewport
-function setSafariVH() {
-  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  document.documentElement.style.setProperty('--safari-vh', `${vh}px`);
-}
-setSafariVH();
-window.addEventListener('resize', setSafariVH);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', setSafariVH);
-}
-
 // Utility function to debounce high-frequency events
 function debounce(func, wait) {
   let timeout;
@@ -54,6 +42,63 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
+}
+
+// Safari viewport height fix — sets --safari-vh CSS custom property
+// This compensates for iOS Safari's dynamic toolbar resizing the visual viewport
+function setSafariVH() {
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty('--safari-vh', `${vh}px`);
+}
+const debouncedSetSafariVH = debounce(setSafariVH, 150);
+setSafariVH();
+window.addEventListener('resize', debouncedSetSafariVH);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', debouncedSetSafariVH);
+}
+
+function scrollToTarget(target, offset = 0, duration = 1.2) {
+  if (STATE.lenisInstance) {
+    if (typeof target === 'number') {
+      STATE.lenisInstance.scrollTo(target, { duration });
+    } else {
+      STATE.lenisInstance.scrollTo(target, { offset, duration });
+    }
+    return;
+  }
+
+  if (typeof target === 'number') {
+    window.scrollTo({ top: target, behavior: 'smooth' });
+    return;
+  }
+
+  const el = typeof target === 'string'
+    ? document.querySelector(target.startsWith('#') ? target : `#${target}`)
+    : target;
+  if (el) {
+    window.scrollTo({ top: el.offsetTop + offset, behavior: 'smooth' });
+  }
+}
+
+function shouldRunParticleLoop() {
+  return document.body.classList.contains('flag-selection-mode') && !document.hidden;
+}
+
+function stopParticleLoop() {
+  if (canvasAnimationId) {
+    cancelAnimationFrame(canvasAnimationId);
+    canvasAnimationId = null;
+  }
+}
+
+function destroyLeafletMap(country) {
+  if (country === 'turkey' && turkeyMapInstance) {
+    try { turkeyMapInstance.remove(); } catch (e) {}
+    turkeyMapInstance = null;
+  } else if (country === 'poland' && polandMapInstance) {
+    try { polandMapInstance.remove(); } catch (e) {}
+    polandMapInstance = null;
+  }
 }
 
 // Module-level variables for gateway interactive components
@@ -64,8 +109,6 @@ let polandMapInstance = null;
 let showCityPreviewFn = null;
 let revertToDefaultFn = null;
 let triggerSelectionFn = null;
-let introScrollTrigger = null;
-let introTimeline = null;
 let portalStageClickHandler = null;
 let portalParallaxHandler = null;
 let portalScrollHandler = null;
@@ -89,13 +132,12 @@ let portalHUDLeaveHandler = null;
 let canvasAnimationId = null;
 let resizeCanvasHandler = null;
 let portalMouseMoveHandler = null;
+let particlesVisibilityHandler = null;
 let synth = null;
 let activeCity = null;
 let cachedStageRect = null;
 let cachedMapRect = null;
 let cachedWrapperRect = null;
-let pmx = 0;
-let pmy = 0;
 
 
 function cleanupGatewayListeners() {
@@ -145,6 +187,18 @@ function cleanupGatewayListeners() {
     portalMutationObserver = null;
   }
 
+  if (portalStage && portalStageClickHandler) {
+    portalStage.removeEventListener('click', portalStageClickHandler);
+    portalStageClickHandler = null;
+  }
+
+  if (particlesVisibilityHandler) {
+    document.removeEventListener('visibilitychange', particlesVisibilityHandler);
+    particlesVisibilityHandler = null;
+  }
+
+  stopParticleLoop();
+
   if (cardHoverListeners && cardHoverListeners.length > 0) {
     cardHoverListeners.forEach((item) => {
       const { card, onEnter, onLeave, onMove, clickHandler, keyHandler, btnHandler } = item;
@@ -187,24 +241,12 @@ function cleanupGatewayListeners() {
 // ==========================================
 // 2.C. TRANSLATION ENGINE FUNCTION
 // ==========================================
-function applyLanguage(lang) {
-  STATE.language = lang;
-  STATE.currentLang = lang;
-
-  const dict = TRANSLATIONS[lang];
-  if (!dict) return;
-
-  logDebug(`Applying language: ${lang}`);
-
-  // Page level SEO
+function applyPageMetaTranslations(dict, lang) {
   document.title = dict.title;
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.setAttribute('content', dict.description);
-  
-  // HTML Element Lang
   document.documentElement.setAttribute('lang', lang);
 
-  // Intro text overlays
   const introEyebrow = document.querySelector('.intro-eyebrow');
   const introSubtitle = document.querySelector('.intro-subtitle');
   const introScrollHint = document.querySelector('.intro-scroll-hint span');
@@ -212,22 +254,20 @@ function applyLanguage(lang) {
   if (introSubtitle) introSubtitle.textContent = dict.introSubtitle;
   if (introScrollHint) introScrollHint.textContent = dict.introScrollHint;
 
-  // Telemetry corners
   const telTL = document.querySelector('.telemetry-tick.telemetry-tl');
   if (telTL) telTL.textContent = dict.sysStatus;
 
-  // Audio Toggle Button
   if (typeof synth !== 'undefined') {
     synth.updateToggleUI();
   }
+}
 
-  // Portal gateway text elements
+function applyPortalHudTranslations(dict, lang) {
   const hintMainTitle = document.querySelector('.portal-center-hint .hint-main-title');
   const hintSubTitle = document.querySelector('.portal-center-hint .hint-sub-title');
   if (hintMainTitle) hintMainTitle.textContent = dict.selectCity;
   if (hintSubTitle) hintSubTitle.textContent = dict.selectRegionalGateway;
 
-  // HUD Labels
   const hudCityLabel = document.querySelector('.hud-data-row:nth-child(1) .hud-lbl');
   const hudRegionLabel = document.querySelector('.hud-data-row:nth-child(2) .hud-lbl');
   const hudCoordsLabel = document.querySelector('.hud-data-row:nth-child(3) .hud-lbl');
@@ -237,7 +277,6 @@ function applyLanguage(lang) {
   if (hudCoordsLabel) hudCoordsLabel.textContent = dict.hudCoords;
   if (hudSignalLabel) hudSignalLabel.textContent = dict.hudSignal;
 
-  // HUD Scanning states (if activeCity is null)
   if (!STATE.selectedCity) {
     const hudCityVal = document.getElementById('hudCityName');
     const hudRegionVal = document.getElementById('hudRegionName');
@@ -251,8 +290,9 @@ function applyLanguage(lang) {
       hudSignalVal.className = 'hud-val status-blink status-weak';
     }
   }
+}
 
-  // Update navbar items safely
+function applyNavAndDrawerTranslations(dict, lang) {
   const navLinks = document.querySelectorAll('.nav-links .nav-link-item');
   const navKeys = ['navHome', 'navServices', 'navCinema', 'navContact'];
   navLinks.forEach((link, idx) => {
@@ -261,7 +301,6 @@ function applyLanguage(lang) {
     }
   });
 
-  // Drawer links for mobile safely
   const drawerLinks = document.querySelectorAll('.drawer-links .drawer-link-item');
   drawerLinks.forEach((link, idx) => {
     if (link && navKeys[idx] && dict[navKeys[idx]]) {
@@ -270,51 +309,15 @@ function applyLanguage(lang) {
   });
 
   const drawerTelemetry = document.querySelector('.drawer-footer .drawer-telemetry');
-  if (drawerTelemetry) {
-    drawerTelemetry.textContent = dict.sysStatus;
-  }
+  if (drawerTelemetry) drawerTelemetry.textContent = dict.sysStatus;
+
   const closeMobileDrawerBtn = document.getElementById('closeMobileDrawerBtn');
   if (closeMobileDrawerBtn) {
     closeMobileDrawerBtn.setAttribute('aria-label', lang === 'pl' ? 'Zamknij' : 'Kapat');
   }
+}
 
-  // Dynamic booking city dropdown and label translation
-  const cCitySelect = document.getElementById('cCity');
-  const cCityLabel = document.querySelector('label[for="cCity"]');
-  if (cCityLabel && dict.bookingLabelCity) {
-    cCityLabel.textContent = dict.bookingLabelCity;
-  }
-  if (cCitySelect) {
-    const previousVal = cCitySelect.value;
-    cCitySelect.innerHTML = '';
-    
-    const activeCityKeys = ['Istanbul', 'Kocaeli', 'Sakarya', 'Izmir', 'Balikesir', 'Samsun'];
-    activeCityKeys.forEach(key => {
-      const transCity = dict.cities[key];
-      if (transCity) {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = transCity.name;
-        cCitySelect.appendChild(opt);
-      }
-    });
-
-    if (previousVal && activeCityKeys.includes(previousVal)) {
-      cCitySelect.value = previousVal;
-    }
-  }
-
-  // City Switcher Badge
-  const currentCityLabel = document.getElementById('currentCityLabel');
-  if (currentCityLabel && STATE.selectedCity) {
-    const cityKey = STATE.selectedCity;
-    const transCity = dict.cities[cityKey];
-    if (transCity) {
-      currentCityLabel.textContent = transCity.name;
-    }
-  }
-
-  // Update hotspots in SVG Map Overlay
+function applyHotspotTranslations(dict, lang) {
   const hotspots = document.querySelectorAll('.map-hotspot');
   hotspots.forEach(hotspot => {
     const cityKey = hotspot.dataset.city;
@@ -324,73 +327,64 @@ function applyLanguage(lang) {
       const telemetry = hotspot.querySelector('.hotspot-telemetry');
       if (label) label.textContent = transCity.name;
       if (telemetry) telemetry.textContent = transCity.coords;
-      
-      // Update aria-label
       hotspot.setAttribute('aria-label', `${transCity.name} ${lang === 'pl' ? 'pokaz region' : 'bölgesini göster'}`);
     }
   });
+}
 
-  // Update Gateway Cards (Masaüstü ve Mobil)
+function applyGatewayCardTranslations(dict, lang) {
   const cards = document.querySelectorAll('.cc-gateway-card');
   cards.forEach(card => {
     const cityKey = card.dataset.city;
     const transCity = dict.cities[cityKey];
-    if (transCity) {
-      // Pill Label
-      const pill = card.querySelector('.cc-flag-pill');
-      if (pill) pill.textContent = `🎪 ${transCity.name}`;
-      
-      // Card Title & Sub
-      const title = card.querySelector('.cc-gateway-title');
-      const sub = card.querySelector('.cc-gateway-sub');
-      if (title) title.textContent = transCity.name;
-      if (sub) sub.textContent = transCity.sub;
+    if (!transCity) return;
 
-      // Features list
-      const featureList = card.querySelector('.cc-features');
-      if (featureList) {
-        featureList.innerHTML = '';
-        const features = lang === 'pl' ? [
-          'Sprzątanie Domów & Willi',
-          cityKey === 'Istanbul' || cityKey === 'Kocaeli' || cityKey === 'Samsun' ? 'Biura & Lokale' : 'Hotele & Apartamenty',
-          'Codzienne Sprzątanie'
-        ] : [
-          'Ev & Villa Temizliği',
-          cityKey === 'Istanbul' || cityKey === 'Kocaeli' || cityKey === 'Samsun' ? 'Ofis & Plaza' : 'Otel & Tatil Köyü',
-          'Günlük Temizlik'
-        ];
-        features.forEach(f => {
-          const li = document.createElement('li');
-          li.textContent = f;
-          featureList.appendChild(li);
-        });
-      }
+    const pill = card.querySelector('.cc-flag-pill');
+    if (pill) pill.textContent = `🎪 ${transCity.name}`;
 
-      // Telemetry telemetry labels inside cards
-      const labels = card.querySelectorAll('.cc-tel-label');
-      if (labels.length >= 3) {
-        labels[0].textContent = lang === 'pl' ? 'OPERACJA:' : 'OPERASYON:';
-        labels[1].textContent = lang === 'pl' ? 'PING:' : 'PİNG HIZI:';
-        labels[2].textContent = lang === 'pl' ? 'ZABEZPIECZENIE:' : 'GÜVENLİK:';
-      }
+    const title = card.querySelector('.cc-gateway-title');
+    const sub = card.querySelector('.cc-gateway-sub');
+    if (title) title.textContent = transCity.name;
+    if (sub) sub.textContent = transCity.sub;
 
-      const values = card.querySelectorAll('.cc-tel-value');
-      if (values.length >= 3) {
-        if (values[0].textContent.includes('AKTİF') || values[0].textContent.includes('AKTYWNY')) {
-          values[0].textContent = lang === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF';
-        }
-      }
-
-      // Select Button text
-      const btn = card.querySelector('.city-select-btn');
-      if (btn) btn.textContent = lang === 'pl' ? 'WYBIERZ ➔' : 'SEÇ ➔';
-      
-      // Update card aria-label
-      card.setAttribute('aria-label', `${transCity.name} - ${lang === 'pl' ? 'wybierz usługi sprzątania' : 'temizlik hizmetlerini seçin'}`);
+    const featureList = card.querySelector('.cc-features');
+    if (featureList) {
+      featureList.innerHTML = '';
+      const features = lang === 'pl' ? [
+        'Sprzątanie Domów & Willi',
+        cityKey === 'Istanbul' || cityKey === 'Kocaeli' || cityKey === 'Samsun' ? 'Biura & Lokale' : 'Hotele & Apartamenty',
+        'Codzienne Sprzątanie'
+      ] : [
+        'Ev & Villa Temizliği',
+        cityKey === 'Istanbul' || cityKey === 'Kocaeli' || cityKey === 'Samsun' ? 'Ofis & Plaza' : 'Otel & Tatil Köyü',
+        'Günlük Temizlik'
+      ];
+      features.forEach(f => {
+        const li = document.createElement('li');
+        li.textContent = f;
+        featureList.appendChild(li);
+      });
     }
+
+    const labels = card.querySelectorAll('.cc-tel-label');
+    if (labels.length >= 3) {
+      labels[0].textContent = lang === 'pl' ? 'OPERACJA:' : 'OPERASYON:';
+      labels[1].textContent = lang === 'pl' ? 'PING:' : 'PİNG HIZI:';
+      labels[2].textContent = lang === 'pl' ? 'ZABEZPIECZENIE:' : 'GÜVENLİK:';
+    }
+
+    const values = card.querySelectorAll('.cc-tel-value');
+    if (values.length >= 3) {
+      if (values[0].textContent.includes('AKTİF') || values[0].textContent.includes('AKTYWNY')) {
+        values[0].textContent = lang === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF';
+      }
+    }
+
+    const btn = card.querySelector('.city-select-btn');
+    if (btn) btn.textContent = lang === 'pl' ? 'WYBIERZ ➔' : 'SEÇ ➔';
+    card.setAttribute('aria-label', `${transCity.name} - ${lang === 'pl' ? 'wybierz usługi sprzątania' : 'temizlik hizmetlerini seçin'}`);
   });
 
-  // Mobile Bottom City Buttons (if they exist)
   const mobileCityBtns = document.querySelectorAll('.mobile-city-btn');
   mobileCityBtns.forEach(btn => {
     const cityKey = btn.dataset.city;
@@ -403,7 +397,14 @@ function applyLanguage(lang) {
     }
   });
 
-  // Booking Reveal Panel
+  const currentCityLabel = document.getElementById('currentCityLabel');
+  if (currentCityLabel && STATE.selectedCity) {
+    const transCity = dict.cities[STATE.selectedCity];
+    if (transCity) currentCityLabel.textContent = transCity.name;
+  }
+}
+
+function applyBookingTranslations(dict, lang) {
   const revealTitle = document.querySelector('.booking-reveal-screen .reveal-title');
   const revealSubtitle = document.querySelector('.booking-reveal-screen .reveal-subtitle');
   if (revealTitle) revealTitle.textContent = dict.bookingTitle;
@@ -418,12 +419,15 @@ function applyLanguage(lang) {
       labels[2].textContent = dict.bookingLabelCity;
       labels[3].textContent = dict.bookingLabelType;
     }
-    
     const submitBtn = bookingForm.querySelector('.cinema-submit-btn');
     if (submitBtn) submitBtn.textContent = dict.bookingSubmit;
   }
 
-  // Booking City Options
+  const cCitySelect = document.getElementById('cCity');
+  const cCityLabel = document.querySelector('label[for="cCity"]');
+  if (cCityLabel && dict.bookingLabelCity) {
+    cCityLabel.textContent = dict.bookingLabelCity;
+  }
   if (cCitySelect) {
     const previousVal = cCitySelect.value;
     cCitySelect.innerHTML = '';
@@ -441,13 +445,11 @@ function applyLanguage(lang) {
         cCitySelect.appendChild(opt);
       });
     }
-    // Restore value if it still exists in the newly populated options
     if (Array.from(cCitySelect.options).some(opt => opt.value === previousVal)) {
       cCitySelect.value = previousVal;
     }
   }
 
-  // Booking Service Type Options
   const cServiceSelect = document.getElementById('cService');
   if (cServiceSelect) {
     const options = cServiceSelect.querySelectorAll('option');
@@ -459,7 +461,6 @@ function applyLanguage(lang) {
     }
   }
 
-  // Booking Success Screen
   const successState = document.getElementById('bookingSuccessState');
   if (successState) {
     const h3 = successState.querySelector('h3');
@@ -469,42 +470,37 @@ function applyLanguage(lang) {
     if (p) p.textContent = dict.bookingSuccessText;
     if (btn) btn.textContent = dict.bookingSuccessOk;
   }
+}
 
-  // Services Modal (Tahmini Fiyat Hesaplayıcı)
+function applyServicesModalTranslations(dict, lang) {
   const modalTitle = document.querySelector('.cinema-modal .modal-title');
   const modalSubtitle = document.querySelector('.cinema-modal .modal-subtitle');
   if (modalTitle) modalTitle.textContent = dict.modalServicesTitle;
   if (modalSubtitle) modalSubtitle.textContent = dict.modalServicesSubtitle;
 
-  // Services descriptions in modal
   const serviceDetails = document.querySelectorAll('.service-item-detail');
   if (serviceDetails.length >= 4) {
-    // Standart
     const stH4 = serviceDetails[0].querySelector('h4');
     const stP = serviceDetails[0].querySelector('p');
     if (stH4) stH4.textContent = lang === 'pl' ? 'Standardowe Sprzątanie' : 'Standart Temizlik';
     if (stP) stP.textContent = lang === 'pl' ? 'Ogólne porządki i podstawowa czystość dla domu i biura.' : 'Ev & Ofis için genel düzen ve temel hijyen çözümleri.';
 
-    // Detaylı
     const dtH4 = serviceDetails[1].querySelector('h4');
     const dtP = serviceDetails[1].querySelector('p');
     if (dtH4) dtH4.textContent = lang === 'pl' ? 'Głębokie Sprzątanie' : 'Detaylı Temizlik';
     if (dtP) dtP.textContent = lang === 'pl' ? 'Dokładne czyszczenie zakamarków i głębokie usuwanie brudu.' : 'Dip köşe, ince temizlik ve detaylı yüzey arındırma.';
 
-    // Kurumsal
     const krH4 = serviceDetails[2].querySelector('h4');
     const krP = serviceDetails[2].querySelector('p');
     if (krH4) krH4.textContent = lang === 'pl' ? 'Sprzątanie Firmowe (B2B)' : 'Kurumsal Temizlik (B2B)';
     if (krP) krP.textContent = lang === 'pl' ? 'Okresowe usługi dla biur, restauracji i centrów biznesowych.' : 'İş yeri, restoran ve plazalar için periyodik çözümler.';
 
-    // İlaçlama
     const ilH4 = serviceDetails[3].querySelector('h4');
     const ilP = serviceDetails[3].querySelector('p');
     if (ilH4) ilH4.textContent = lang === 'pl' ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
     if (ilP) ilP.textContent = lang === 'pl' ? 'Czyszczenie przeciw owadom, szkodnikom i sterylizacja sanitarna.' : 'Böcek, haşere ve bakteri dezenfeksiyon işlemleri.';
   }
 
-  // Calculator panel elements
   const calcTitle = document.querySelector('.estimator-calculator-panel h3');
   if (calcTitle) calcTitle.textContent = dict.modalCalcTitle;
 
@@ -545,18 +541,9 @@ function applyLanguage(lang) {
 
   const applyBtn = document.getElementById('calcApplyBtn');
   if (applyBtn) applyBtn.textContent = dict.modalCalcApply;
+}
 
-  // Re-run price calculation to update currency display
-  if (typeof calculatePriceFn === 'function') {
-    calculatePriceFn();
-  }
-
-  // Force scene text overlays update if a service is already active
-  if (STATE.calculator.serviceType) {
-    selectServiceGlobal(STATE.calculator.serviceType);
-  }
-
-  // Update Country Selector Overlay strings
+function applyCountrySelectorTranslations(dict, lang) {
   const csoTitle = document.querySelector('#country-selector-overlay .cso-title');
   const csoSubtitle = document.querySelector('#country-selector-overlay .cso-subtitle');
   if (csoTitle && dict.csoTitle) csoTitle.textContent = dict.csoTitle;
@@ -571,6 +558,33 @@ function applyLanguage(lang) {
   const csoPolandSub = document.querySelector('#csoBtnPoland .cso-country-sub');
   if (csoPolandLabel) csoPolandLabel.textContent = lang === 'pl' ? 'Polska' : 'Polonya';
   if (csoPolandSub && dict.csoCardPolandSub) csoPolandSub.textContent = dict.csoCardPolandSub;
+}
+
+function applyLanguage(lang) {
+  STATE.language = lang;
+  STATE.currentLang = lang;
+
+  const dict = TRANSLATIONS[lang];
+  if (!dict) return;
+
+  logDebug(`Applying language: ${lang}`);
+
+  applyPageMetaTranslations(dict, lang);
+  applyPortalHudTranslations(dict, lang);
+  applyNavAndDrawerTranslations(dict, lang);
+  applyHotspotTranslations(dict, lang);
+  applyGatewayCardTranslations(dict, lang);
+  applyBookingTranslations(dict, lang);
+  applyServicesModalTranslations(dict, lang);
+  applyCountrySelectorTranslations(dict, lang);
+
+  if (typeof calculatePriceFn === 'function') {
+    calculatePriceFn();
+  }
+
+  if (STATE.calculator.serviceType) {
+    selectServiceGlobal(STATE.calculator.serviceType);
+  }
 }
 
 // Module-level cached elements to prevent DOM query overhead
@@ -848,7 +862,7 @@ function setupPortalParticles() {
   if (resizeCanvasHandler) {
     window.removeEventListener('resize', resizeCanvasHandler);
   }
- 
+
   const resizeCanvas = () => {
     const oldWidth = canvas.width;
     const oldHeight = canvas.height;
@@ -869,9 +883,6 @@ function setupPortalParticles() {
       });
     }
   };
-  if (resizeCanvasHandler) {
-    window.removeEventListener('resize', resizeCanvasHandler);
-  }
   resizeCanvas();
   const debouncedResize = debounce(resizeCanvas, 150);
   window.addEventListener('resize', debouncedResize);
@@ -903,9 +914,6 @@ function setupPortalParticles() {
     opacity: Math.random() * 0.4 + 0.1,
     hue: 220 // Initial blue
   }));
-
-  // Clean up any existing card/hotspot hover listeners first to prevent duplicates
-  // cleanupGatewayListeners();
 
   // Setup click handler anywhere on stage for dust bursts
   if (portalStageClickHandler) {
@@ -1020,15 +1028,24 @@ function setupPortalParticles() {
       return true;
     });
 
-    if (!document.hidden) {
+    if (shouldRunParticleLoop()) {
       canvasAnimationId = requestAnimationFrame(drawLoop);
+    } else {
+      canvasAnimationId = null;
     }
   }
 
-  drawLoop();
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !canvasAnimationId) drawLoop();
-  });
+  if (particlesVisibilityHandler) {
+    document.removeEventListener('visibilitychange', particlesVisibilityHandler);
+  }
+  particlesVisibilityHandler = () => {
+    if (shouldRunParticleLoop() && !canvasAnimationId) drawLoop();
+  };
+  document.addEventListener('visibilitychange', particlesVisibilityHandler);
+
+  if (shouldRunParticleLoop()) {
+    drawLoop();
+  }
 }
 
 // ==========================================
@@ -1518,7 +1535,6 @@ function setupPortalGateway() {
 
   const connectorPath = document.getElementById('portalConnectorPath');
   const connectorParticle = document.getElementById('portalConnectorParticle');
-  const updateLaserConnector = () => {};
 
   // ── COUNTRY SELECTOR SETUP ───────────────────────────────────────────────
   const csoOverlay    = document.getElementById('country-selector-overlay');
@@ -1559,6 +1575,7 @@ function setupPortalGateway() {
       const mapPl = document.getElementById('portalNeonMapPoland');
       if (mapTr) mapTr.style.display = 'block';
       if (mapPl) mapPl.style.display = 'none';
+      destroyLeafletMap('poland');
       initLeafletMap('turkey');
 
       // Animate card out with a quick scale-up
@@ -1617,6 +1634,7 @@ function setupPortalGateway() {
       const mapPl = document.getElementById('portalNeonMapPoland');
       if (mapTr) mapTr.style.display = 'none';
       if (mapPl) mapPl.style.display = 'block';
+      destroyLeafletMap('turkey');
       initLeafletMap('poland');
 
       // Animate card out with a quick scale-up
@@ -1666,14 +1684,6 @@ function setupPortalGateway() {
 
   // Staggered premium entry animation on portal load
   if (document.body.classList.contains('flag-selection-mode')) {
-    // Blueprint paths initialization
-    const provincePaths = document.querySelectorAll('.map-province path');
-    provincePaths.forEach(path => {
-      const length = path.getTotalLength ? path.getTotalLength() : 300;
-      path.style.strokeDasharray = length;
-      path.style.strokeDashoffset = length;
-    });
-
     // 1. Grid Lines initialization
     gsap.fromTo('.grid-line.horizontal', 
       { scaleX: 0, transformOrigin: 'center' },
@@ -1713,15 +1723,6 @@ function setupPortalGateway() {
       { opacity: 0, y: 30, scale: 0.98 },
       { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: 'power3.out', delay: 0.5 }
     );
-
-    // Staggered path drawing for 81 provinces
-    gsap.to(provincePaths, {
-      strokeDashoffset: 0,
-      duration: 1.4,
-      ease: 'power2.out',
-      stagger: 0.004,
-      delay: 0.7
-    });
 
     gsap.fromTo('.map-hotspot',
       { opacity: 0, scale: 0 },
@@ -1763,21 +1764,6 @@ function setupPortalGateway() {
 
   portalStage.addEventListener('mousemove', onParallaxMove);
   portalParallaxHandler = onParallaxMove;
-
-  let stageScrollTicking = false;
-  const onStageScroll = () => {
-    if (!stageScrollTicking) {
-      requestAnimationFrame(() => {
-        if (activeCity) {
-          updateLaserConnector(activeCity);
-        }
-        stageScrollTicking = false;
-      });
-      stageScrollTicking = true;
-    }
-  };
-  portalStage.addEventListener('scroll', onStageScroll, { passive: true });
-  portalScrollHandler = onStageScroll;
 
   // Re-calculate laser layout & cached bounds if viewport size changes (debounced)
   portalResizeHandler = debounce(() => {
@@ -1931,22 +1917,6 @@ function setupPortalGateway() {
     if (activeCity === city && !element) return;
     activeCity = city;
 
-    // Highlight specific hovered province in the SVG
-    const lowerCity = city.toLowerCase();
-    let targetProv = document.getElementById(lowerCity);
-    
-    // If we hovered directly over an SVG province, highlight it
-    if (element && element.classList.contains('map-province')) {
-      targetProv = element;
-    }
-
-    if (targetProv) {
-      document.querySelectorAll('.map-province.hover-active-province').forEach(p => {
-        p.classList.remove('hover-active-province');
-      });
-      targetProv.classList.add('hover-active-province');
-    }
-
     // Set region hue colors dynamically
     const region = (element && element.dataset.market) || CITY_TO_REGION[city] || 'marmara';
     updateThemeForMarket(region);
@@ -1989,19 +1959,11 @@ function setupPortalGateway() {
   // Debounce returning preview panel to default guide screen
   const revertToDefault = (e) => {
     if (e && e.relatedTarget) {
-      const target = e.relatedTarget;
-      const closestProvince = target.closest ? target.closest('.map-province') : null;
-      const closestHotspot = target.closest ? target.closest('.map-hotspot') : null;
-      
-      let targetCity = '';
-      if (closestHotspot) {
-        targetCity = closestHotspot.dataset.city;
-      } else if (closestProvince) {
-        targetCity = closestProvince.id;
-      }
-      
+      const closestHotspot = e.relatedTarget.closest ? e.relatedTarget.closest('.map-hotspot') : null;
+      const targetCity = closestHotspot ? closestHotspot.dataset.city : '';
+
       if (targetCity && activeCity && targetCity.toLowerCase() === activeCity.toLowerCase()) {
-        return; // ignore transitions within the same city elements
+        return;
       }
     }
 
@@ -2012,11 +1974,6 @@ function setupPortalGateway() {
 
     portalRevertTimeout = setTimeout(() => {
       activeCity = null;
-
-      // Remove specific hovered province highlight
-      document.querySelectorAll('.map-province.hover-active-province').forEach(p => {
-        p.classList.remove('hover-active-province');
-      });
 
       portalTargetHue = 220;
       if (portalStage) {
@@ -2214,10 +2171,7 @@ function setupPortalGateway() {
         }
 
         // Cancel portal background particle loop and resize handler to save resource overhead
-        if (canvasAnimationId) {
-          cancelAnimationFrame(canvasAnimationId);
-          canvasAnimationId = null;
-        }
+        stopParticleLoop();
         if (resizeCanvasHandler) {
           window.removeEventListener('resize', resizeCanvasHandler);
           resizeCanvasHandler = null;
@@ -2291,28 +2245,6 @@ function setupPortalGateway() {
     hotspot.addEventListener('keydown', keyHandler);
 
     portalHotspotListeners.push({ hotspot, onEnter, onLeave, clickHandler, keyHandler });
-  });
-
-  // Bind SVG Active Province Hover/Click events
-  const activeProvincesInMap = document.querySelectorAll('.map-province.province-active');
-  activeProvincesInMap.forEach(prov => {
-    const provId = prov.id;
-    const city = prov.dataset.city || (provId.charAt(0).toUpperCase() + provId.slice(1));
-
-    const onEnter = () => showCityPreview(city, prov);
-    const onLeave = (e) => revertToDefault(e);
-    const clickHandler = (e) => {
-      e.stopPropagation();
-      const cx = e.clientX || window.innerWidth / 2;
-      const cy = e.clientY || window.innerHeight / 2;
-      triggerSelection(city, cx, cy, prov);
-    };
-
-    prov.addEventListener('mouseenter', onEnter);
-    prov.addEventListener('mouseleave', onLeave);
-    prov.addEventListener('click', clickHandler);
-    
-    portalHotspotListeners.push({ hotspot: prov, onEnter, onLeave, clickHandler });
   });
 
   // Bind Card events (tilt and select click)
@@ -2450,63 +2382,6 @@ function setupPortalGateway() {
   });
 
   updateCachedHotspotCoords();
-
-  // Auto-bypass if city is cached (Commented out to always show the portal gateway first on load)
-  /*
-  const savedCity = localStorage.getItem('tworose_city');
-  if (savedCity && CITY_TO_REGION[savedCity]) {
-    setCityState(savedCity);
-    document.body.classList.remove('flag-selection-mode');
-    portalStage.style.display = 'none';
-    const mainContent = document.getElementById('main-content');
-    
-    // Stop portal particle loop instantly since we bypassed gateway
-    if (canvasAnimationId) cancelAnimationFrame(canvasAnimationId);
-    if (resizeCanvasHandler) {
-      window.removeEventListener('resize', resizeCanvasHandler);
-      resizeCanvasHandler = null;
-    }
-    if (portalMouseMoveHandler) {
-      window.removeEventListener('mousemove', portalMouseMoveHandler);
-      portalMouseMoveHandler = null;
-    }
-    
-    // Keep listeners bound so cities are clickable if user returns via city switcher
-    // cleanupGatewayListeners();
-    if (portalStageClickHandler) {
-      portalStage.removeEventListener('click', portalStageClickHandler);
-      portalStageClickHandler = null;
-    }
-
-    // Lock initial inline opacities to 0 on auto-bypass reload to prevent visual flash
-    const initialNav = document.getElementById('main-nav');
-    const initialOverlay = document.getElementById('heroOverlay');
-    const initialVideo = document.getElementById('video-scene-1');
-    if (initialNav) initialNav.style.opacity = '0';
-    if (initialOverlay) initialOverlay.style.opacity = '0';
-    if (initialVideo) {
-      initialVideo.style.opacity = '0';
-      initialVideo.style.visibility = 'hidden';
-    }
-
-    // Run a smooth premium entrance animation on auto-bypass reload
-    gsap.set(mainContent, { opacity: 0 });
-    const tl = gsap.timeline({
-      onComplete: () => {
-        mainContent.style.pointerEvents = 'all';
-        if (STATE.lenisInstance) {
-          STATE.lenisInstance.start();
-        }
-        ScrollTrigger.refresh();
-      }
-    });
-
-    tl.to(mainContent, { opacity: 1, duration: 0.6, ease: 'power2.out' });
-
-    // Start dynamic priority prewarming from index 0 on auto-bypass
-    prewarmAround(0);
-  }
-  */
 }
 
 function setupNavScroll() {
@@ -2531,11 +2406,7 @@ function setupNavScroll() {
   if (navLogo) {
     navLogo.addEventListener('click', (e) => {
       e.preventDefault();
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.scrollTo(0, { duration: 1.2 });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      scrollToTarget(0);
     });
   }
 
@@ -2543,11 +2414,7 @@ function setupNavScroll() {
   if (homeLink) {
     homeLink.addEventListener('click', (e) => {
       e.preventDefault();
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.scrollTo(0, { duration: 1.2 });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      scrollToTarget(0);
     });
   }
 
@@ -2555,20 +2422,7 @@ function setupNavScroll() {
   if (scrollerLink) {
     scrollerLink.addEventListener('click', (e) => {
       e.preventDefault();
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.scrollTo('#cinema-section', {
-          offset: window.innerHeight * 1.5,
-          duration: 1.2
-        });
-      } else {
-        const target = document.getElementById('cinema-section');
-        if (target) {
-          window.scrollTo({
-            top: target.offsetTop + window.innerHeight * 1.5,
-            behavior: 'smooth'
-          });
-        }
-      }
+      scrollToTarget('#cinema-section', window.innerHeight * 1.5);
     });
   }
 
@@ -2576,20 +2430,7 @@ function setupNavScroll() {
   if (contactLink) {
     contactLink.addEventListener('click', (e) => {
       e.preventDefault();
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.scrollTo('#cinema-section', {
-          offset: window.innerHeight * 18,
-          duration: 1.2
-        });
-      } else {
-        const target = document.getElementById('cinema-section');
-        if (target) {
-          window.scrollTo({
-            top: target.offsetTop + window.innerHeight * 18,
-            behavior: 'smooth'
-          });
-        }
-      }
+      scrollToTarget('#cinema-section', window.innerHeight * 48);
     });
   }
 
@@ -2598,20 +2439,7 @@ function setupNavScroll() {
   if (heroStartBtn) {
     heroStartBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.scrollTo('#cinema-section', {
-          offset: window.innerHeight * 1.5,
-          duration: 1.5
-        });
-      } else {
-        const target = document.getElementById('cinema-section');
-        if (target) {
-          window.scrollTo({
-            top: target.offsetTop + window.innerHeight * 1.5,
-            behavior: 'smooth'
-          });
-        }
-      }
+      scrollToTarget('#cinema-section', window.innerHeight * 1.5, 1.5);
     });
   }
 }
@@ -2700,35 +2528,15 @@ function setupMobileDrawer() {
 
       setTimeout(() => {
         if (target === 'home') {
-          if (STATE.lenisInstance) {
-            STATE.lenisInstance.scrollTo(0, { duration: 1.2 });
-          } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
+          scrollToTarget(0);
         } else if (target === 'services') {
           if (servicesLink) {
             servicesLink.click();
           }
         } else if (target === 'cinema') {
-          if (STATE.lenisInstance) {
-            STATE.lenisInstance.scrollTo('#cinema-section', {
-              offset: window.innerHeight * 1.5,
-              duration: 1.2
-            });
-          } else {
-            const el = document.getElementById('cinema-section');
-            if (el) window.scrollTo({ top: el.offsetTop + window.innerHeight * 1.5, behavior: 'smooth' });
-          }
+          scrollToTarget('#cinema-section', window.innerHeight * 1.5);
         } else if (target === 'contact') {
-          if (STATE.lenisInstance) {
-            STATE.lenisInstance.scrollTo('#cinema-section', {
-              offset: window.innerHeight * 18,
-              duration: 1.2
-            });
-          } else {
-            const el = document.getElementById('cinema-section');
-            if (el) window.scrollTo({ top: el.offsetTop + window.innerHeight * 18, behavior: 'smooth' });
-          }
+          scrollToTarget('#cinema-section', window.innerHeight * 48);
         }
       }, 300);
     });
@@ -3613,9 +3421,23 @@ function setupCinemaEngine() {
               }
             }
             const t = (p - midPoints[activeSegmentIdx]) / (midPoints[activeSegmentIdx + 1] - midPoints[activeSegmentIdx]);
-            // Bottom layer (activeSegmentIdx) stays at 1.0, top layer (activeSegmentIdx + 1) fades in
-            targetOpacities[activeSegmentIdx] = 1.0;
-            targetOpacities[activeSegmentIdx + 1] = t;
+            
+            // Symmetric cross-fade with a dead-zone (transition only within [0.35, 0.65])
+            // For t < 0.35: only activeSegmentIdx is visible (opacity 1.0).
+            // For t > 0.65: only activeSegmentIdx + 1 is visible (opacity 1.0).
+            // Between 0.35 and 0.65: clean fade from i to i+1.
+            // This prevents multiple overlapping videos and removes the double exposure bug.
+            if (t < 0.35) {
+              targetOpacities[activeSegmentIdx] = 1.0;
+              targetOpacities[activeSegmentIdx + 1] = 0.0;
+            } else if (t > 0.65) {
+              targetOpacities[activeSegmentIdx] = 0.0;
+              targetOpacities[activeSegmentIdx + 1] = 1.0;
+            } else {
+              const normalizedT = (t - 0.35) / 0.30;
+              targetOpacities[activeSegmentIdx] = 1.0 - normalizedT;
+              targetOpacities[activeSegmentIdx + 1] = normalizedT;
+            }
           }
 
           // Calculate playheads, panning Y-coords, and assign opacities
@@ -4440,20 +4262,7 @@ function setupServicesModal() {
       closeServices();
       
       setTimeout(() => {
-        if (STATE.lenisInstance) {
-          STATE.lenisInstance.scrollTo('#cinema-section', {
-            offset: window.innerHeight * 18,
-            duration: 1.2
-          });
-        } else {
-          const target = document.getElementById('cinema-section');
-          if (target) {
-            window.scrollTo({
-              top: target.offsetTop + window.innerHeight * 18,
-              behavior: 'smooth'
-            });
-          }
-        }
+        scrollToTarget('#cinema-section', window.innerHeight * 48);
       }, 300);
     });
   }
@@ -4473,14 +4282,7 @@ function openPortalGateway() {
 
   // Clear previous cinema states & video playheads
   resetCinemaState();
-
-  // Initialize province paths stroke-drawing
-  const provincePaths = document.querySelectorAll('.map-province path');
-  provincePaths.forEach(path => {
-    const length = path.getTotalLength ? path.getTotalLength() : 300;
-    path.style.strokeDasharray = length;
-    path.style.strokeDashoffset = length;
-  });
+  stopParticleLoop();
 
   if (STATE.lenisInstance) {
     STATE.lenisInstance.scrollTo(0, { immediate: true });
@@ -4544,7 +4346,6 @@ function openPortalGateway() {
     .to('.portal-logo-container', { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out' }, '-=0.4')
     .to('.portal-center-hint', { y: 0, opacity: 0.25, duration: 0.6, ease: 'power2.out' }, '-=0.3')
     .to('.portal-map-wrapper', { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' }, '-=0.4')
-    .to(provincePaths, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.out', stagger: 0.004 }, '-=0.8')
     .to('.map-hotspot', { opacity: 1, scale: 1, duration: 0.7, stagger: 0.05, ease: 'back.out(1.7)' }, '-=0.8')
     .to('#portalDefaultPanel', { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.8');
 }
@@ -4749,7 +4550,7 @@ function setupCinemaAmbientLight() {
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing
   document.addEventListener('mouseover', (e) => {
-    const interactive = e.target.closest('a, button, .map-hotspot, .map-province.province-active, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
+    const interactive = e.target.closest('a, button, .map-hotspot, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
     if (!interactive) return;
     if (interactive.dataset.hoveredSound === 'true') return;
     
@@ -4765,7 +4566,7 @@ function setupHolographicClickRipples() {
 
   document.addEventListener('click', (e) => {
     // Detect closest interactive element
-    const interactive = e.target.closest('a, button, .cc-gateway-card, .map-hotspot, .map-province.province-active, .mobile-menu-toggle, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
+    const interactive = e.target.closest('a, button, .cc-gateway-card, .map-hotspot, .mobile-menu-toggle, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
     if (!interactive) return;
 
     // Trigger click sound feedback
@@ -4798,23 +4599,17 @@ function setupHolographicClickRipples() {
       ripple.style.top = `${y}px`;
       mapWrapper.appendChild(ripple);
     } else {
-      // General HTML element click
       const rect = interactive.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
-      // Force relative positioning for static nodes to keep ripple aligned
-      if (window.getComputedStyle(interactive).position === 'static') {
-        interactive.style.position = 'relative';
-      }
-      
-      // Hide overflow on buttons and gateway cards
+
       if (interactive.tagName === 'BUTTON' || interactive.classList.contains('cc-gateway-card')) {
         interactive.style.overflow = 'hidden';
       }
 
       ripple.style.left = `${x}px`;
       ripple.style.top = `${y}px`;
+      interactive.classList.add('ripple-host');
       interactive.appendChild(ripple);
     }
 
