@@ -1020,14 +1020,16 @@ html.bypassing-gateway #portal-stage {
   
   /* Radial mask utilizes the css custom variables scrubbed by GSAP */
   mask-image: radial-gradient(
-    circle
-      calc(var(--mask-radius-val, 0) * 1.15vmax)
+    ellipse
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1))
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 1))
       at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 0%)),
     transparent 99.5%, black 100%
   );
   -webkit-mask-image: radial-gradient(
-    circle
-      calc(var(--mask-radius-val, 0) * 1.15vmax)
+    ellipse
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1))
+      calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 1))
       at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 0%)),
     transparent 99.5%, black 100%
   );
@@ -2338,7 +2340,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 880px;
+  max-width: 1160px;
   margin: 0;
   user-select: none;
   transform: translate3d(0, 0, 0);
@@ -2349,7 +2351,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 /* Leaflet map container */
 .portal-leaflet-map {
   width: 100%;
-  height: 460px;
+  height: 650px;
   background: #05070f !important;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -2361,7 +2363,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 
 @media (max-width: 768px) {
   .portal-leaflet-map {
-    height: 300px;
+    height: 500px;
   }
 
   /* Tighter map frame so the 6 city buttons sit closer to the fold */
@@ -2467,15 +2469,15 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 /* ── HOTSPOT CORE: jewel-like dot, minimal glow ── */
 .hotspot-core {
   position: absolute;
-  width: 9px;
-  height: 9px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: radial-gradient(circle at 38% 32%, rgba(255,255,255,0.9) 0%, var(--h-accent) 50%, rgba(var(--h-rgb), 0.5) 100%);
-  left: 13.5px;
-  top: 13.5px;
+  left: 12px;
+  top: 12px;
   box-shadow:
-    0 0 4px rgba(255,255,255,0.6),
-    0 0 10px rgba(var(--h-rgb), 0.5);
+    0 0 5px rgba(255,255,255,0.7),
+    0 0 12px rgba(var(--h-rgb), 0.6);
   transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-spring);
 }
 
@@ -2516,38 +2518,191 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 /* City label — refined, readable */
 .hotspot-label {
   position: absolute;
-  top: 38px;
+  top: 42px;
   left: 50%;
   transform: translate3d(-50%, 0, 0);
   font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.55);
+  color: #ffffff;
   pointer-events: none;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-  transition: color 0.4s var(--ease-smooth), opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
+  background: rgba(4, 7, 18, 0.75);
+  border: 1px solid rgba(var(--h-rgb), 0.35);
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   white-space: nowrap;
   text-transform: uppercase;
 }
 
 /* Hotspot Hover — scale up gently */
 .map-hotspot:hover .hotspot-core {
-  transform: scale(1.5);
+  transform: scale(1.4);
   box-shadow:
-    0 0 6px rgba(255,255,255,0.7),
-    0 0 18px rgba(var(--h-rgb), 0.7);
+    0 0 8px rgba(255,255,255,0.95),
+    0 0 20px rgba(var(--h-rgb), 0.95);
 }
 
 .map-hotspot:hover .hotspot-label {
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 0 10px rgba(var(--h-rgb), 0.6);
+  color: #fff;
+  border-color: rgba(var(--h-rgb), 0.8);
+  box-shadow: 
+    0 0 15px rgba(var(--h-rgb), 0.3),
+    0 6px 20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
   transform: translate3d(-50%, -2px, 0);
 }
 
 .map-hotspot:hover .hotspot-pulse {
   animation-duration: 2s;
 }
+
+/* Individual Hotspot Label Offsets to Prevent Overlap (Istanbul, Kocaeli, Sakarya, Warszawa) */
+
+/* Istanbul - Shift Label to Top */
+.map-hotspot[data-city="Istanbul"] .hotspot-label {
+  top: -48px !important;
+  left: 50% !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Istanbul"] .hotspot-telemetry {
+  top: -66px !important;
+  left: 50% !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Istanbul"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+/* Kocaeli - Shift Label to Bottom-Left */
+.map-hotspot[data-city="Kocaeli"] .hotspot-label {
+  top: 42px !important;
+  left: -40px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Kocaeli"] .hotspot-telemetry {
+  top: 68px !important;
+  left: -40px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Kocaeli"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+/* Sakarya - Shift Label to Bottom-Right */
+.map-hotspot[data-city="Sakarya"] .hotspot-label {
+  top: 42px !important;
+  left: 65px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Sakarya"] .hotspot-telemetry {
+  top: 68px !important;
+  left: 65px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Sakarya"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+/* Balikesir - Shift Label to Right to prevent clipping on the left edge */
+.map-hotspot[data-city="Balikesir"] .hotspot-label {
+  top: 10px !important;
+  left: 65px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Balikesir"] .hotspot-telemetry {
+  top: 32px !important;
+  left: 65px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Balikesir"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+/* Poland Districts offsets */
+.map-hotspot[data-iladi="Śródmieście"] .hotspot-label {
+  top: -48px !important;
+  left: 50% !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Śródmieście"] .hotspot-telemetry {
+  top: -66px !important;
+  left: 50% !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Śródmieście"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+.map-hotspot[data-iladi="Wola"] .hotspot-label {
+  top: 42px !important;
+  left: -40px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Wola"] .hotspot-telemetry {
+  top: 68px !important;
+  left: -40px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Wola"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+.map-hotspot[data-iladi="Mokotów"] .hotspot-label {
+  top: 42px !important;
+  left: 65px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Mokotów"] .hotspot-telemetry {
+  top: 68px !important;
+  left: 65px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Mokotów"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+.map-hotspot[data-iladi="Bemowo"] .hotspot-label {
+  top: -48px !important;
+  left: -40px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Bemowo"] .hotspot-telemetry {
+  top: -66px !important;
+  left: -40px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-iladi="Bemowo"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+/* Mobile specific offsets adjustments if needed */
+@media (max-width: 768px) {
+  .map-hotspot[data-city="Istanbul"] .hotspot-label {
+    top: -42px !important;
+  }
+  .map-hotspot[data-city="Istanbul"] .hotspot-telemetry {
+    top: -58px !important;
+  }
+  
+  .map-hotspot[data-city="Kocaeli"] .hotspot-label {
+    left: -32px !important;
+  }
+  .map-hotspot[data-city="Kocaeli"] .hotspot-telemetry {
+    left: -32px !important;
+  }
+  
+  .map-hotspot[data-city="Sakarya"] .hotspot-label {
+    left: 48px !important;
+  }
+  .map-hotspot[data-city="Sakarya"] .hotspot-telemetry {
+    left: 48px !important;
+  }
+}
+
 
 /* Preview Panels, Laser Connectors, Radar Scanner, Telemetry HUD, & Overlays (Hidden by request) */
 .portal-preview-panel,
@@ -2787,12 +2942,86 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   }
 }
 
-/* Reticle hidden — no rotating rings needed */
-.hotspot-reticle,
-.hotspot-telemetry,
-.reticle-ring,
+/* Reticle & Telemetry styled for cybernetic HUD */
+.hotspot-reticle {
+  position: absolute;
+  inset: -12px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s var(--ease-smooth), transform 0.4s var(--ease-smooth);
+  opacity: 0.5;
+}
+
+.map-hotspot:hover .hotspot-reticle {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.reticle-ring {
+  position: absolute;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.reticle-ring.ring-dashed {
+  inset: 0;
+  border: 1.5px dashed rgba(var(--h-rgb), 0.5);
+  animation: rotateTelemetry 12s linear infinite;
+}
+
+.reticle-ring.ring-solid {
+  inset: 4px;
+  border: 1px solid rgba(var(--h-rgb), 0.3);
+  border-left-color: transparent;
+  border-right-color: transparent;
+  animation: rotateTelemetryReverse 8s linear infinite;
+}
+
 .reticle-cross {
-  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.reticle-cross::before,
+.reticle-cross::after {
+  content: "";
+  position: absolute;
+  background: rgba(var(--h-rgb), 0.4);
+}
+
+.reticle-cross::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.reticle-cross::after {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.hotspot-telemetry {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  white-space: nowrap;
+  transition: color 0.4s var(--ease-smooth);
 }
 
 @keyframes rotateTelemetry {
@@ -4541,21 +4770,29 @@ img, video, .card-bg-image {
    22. MOBILE CITY SELECTOR BUTTONS (GLASSMORPHIC HUD PRESET)
    ========================================================================== */
 
-/* Hide by default on desktop viewports */
+/* Hide completely on desktop and mobile viewports as requested */
 .mobile-city-selector {
-  display: none;
+  display: none !important;
 }
 
 @media (max-width: 768px) {
-  /* Clean up overlapping map labels on mobile viewports */
-  .map-hotspot .hotspot-label,
+  /* Make map labels visible and readable on mobile viewports */
+  .map-hotspot .hotspot-label {
+    display: block !important;
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+    top: 40px !important;
+  }
+  
   .map-hotspot .hotspot-telemetry {
-    display: none !important;
+    display: block !important;
+    top: 62px !important;
+    font-size: 7.5px !important;
   }
 
-  /* Show and style mobile quick selector */
+  /* Keep mobile quick selector hidden */
   .mobile-city-selector {
-    display: block;
+    display: none !important;
     width: 100%;
     max-width: 480px;
     margin: 24px auto 0 auto;
@@ -5432,18 +5669,33 @@ body.flag-selection-mode .portal-intro-stage {
 
 @media (max-width: 768px) and (orientation: portrait) {
   :root {
+    --cinema-mask-ellipse-x: 1.15;
+    --cinema-mask-ellipse-y: 0.85;
     --cinema-mask-y-offset: 3%;
-    /* No extra zoom on phones: object-fit:cover already fills the tall viewport.
-       The previous 1.28 zoom over-cropped off-centre subjects (e.g. the sumo,
-       Mona Lisa and samurai scenes lost faces/edges). 1.0 = maximum scene
-       visible with no letterbox (source videos carry no baked black bars). */
-    --cinema-video-scale: 1;
+    --cinema-video-scale: 1.28;
   }
 
   .cinema-video {
-    transform: translate3d(0, 0, 0) scale(var(--cinema-video-scale, 1)) !important;
+    transform: translate3d(0, 0, 0) scale(var(--cinema-video-scale, 1.28)) !important;
     transform-origin: center center;
-    object-position: center clamp(20%, var(--video-y, 50%), 80%) !important;
+    object-position: center clamp(28%, var(--video-y, 50%), 72%) !important;
+  }
+
+  .cinema-iris-overlay {
+    mask-image: radial-gradient(
+      ellipse
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1.15))
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 0.85))
+        at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 3%)),
+      transparent 99.5%, black 100%
+    ) !important;
+    -webkit-mask-image: radial-gradient(
+      ellipse
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-x, 1.15))
+        calc(var(--mask-radius) * var(--cinema-mask-ellipse-y, 0.85))
+        at var(--mask-x) calc(var(--mask-y) + var(--cinema-mask-y-offset, 3%)),
+      transparent 99.5%, black 100%
+    ) !important;
   }
 }
 
