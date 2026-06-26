@@ -882,6 +882,11 @@ html.bypassing-gateway #portal-stage {
   min-width: 100%; /* Safari object-fit fallback */
   min-height: 100%; /* Safari object-fit fallback */
   display: block;
+  /* Paint the element black before/without a decoded frame. iOS Safari renders a
+     not-yet-buffered <video> as a WHITE rectangle by default; on the dark cinema
+     stage that flashes as a blank white screen while scrubbing. A black element
+     background keeps any unbuffered moment cinematic (black) instead of white. */
+  background-color: #000;
   object-fit: cover;
   -o-object-fit: cover;
   object-position: center var(--video-y, 50%);
@@ -2356,13 +2361,35 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 
 @media (max-width: 768px) {
   .portal-leaflet-map {
-    height: 360px;
+    height: 300px;
+  }
+
+  /* Tighter map frame so the 6 city buttons sit closer to the fold */
+  .portal-map-wrapper {
+    padding: 12px;
+    border-radius: 18px;
+    box-shadow:
+      inset 0 1px 0 rgba(140, 175, 255, 0.10),
+      inset 0 0 28px rgba(0, 0, 0, 0.5),
+      0 16px 36px rgba(0, 0, 0, 0.5);
+  }
+
+  .portal-map-selector-stage {
+    padding-bottom: 20px;
   }
 }
 
 /* Custom visual filter for Leaflet tiles to match holographic cyan/dark cybernetic vibe */
 .portal-leaflet-map .leaflet-tile-container {
   filter: brightness(1.5) saturate(1.2) hue-rotate(200deg);
+}
+
+/* Brighter holographic tiles so the map stays legible on small dark screens
+   (declared after the base rule so it wins by source order on mobile) */
+@media (max-width: 768px) {
+  .portal-leaflet-map .leaflet-tile-container {
+    filter: brightness(1.95) saturate(1.25) hue-rotate(200deg);
+  }
 }
 
 /* Custom Marker Overrides: clean container for reticle markers */
@@ -3138,6 +3165,18 @@ img, video, .card-bg-image {
   }
 }
 
+/* On phone-width single-column layouts, pin the ambient audio control to the
+   top-left corner so it never overlaps the stacked city buttons (and never
+   stretches by having both top+bottom set). Declared after the 1024px rule so
+   it wins by source order. */
+@media (max-width: 768px) {
+  .portal-audio-toggle {
+    top: 14px;
+    bottom: auto;
+    left: 14px;
+  }
+}
+
 /* High-tech telemetry loading bars */
 .cc-tel-loader-container {
   width: 100%;
@@ -3562,6 +3601,9 @@ img, video, .card-bg-image {
   height: 100%;
   z-index: 1;
   overflow: hidden;
+  /* Black base so the intro card never flashes white on iOS while the city video
+     buffers (iOS paints an unbuffered <video> white by default). */
+  background-color: #000;
 }
 
 .cinema-intro-card .intro-bg-overlay {
@@ -4811,7 +4853,7 @@ img, video, .card-bg-image {
   justify-content: center;
   gap: 0;
   z-index: 80;
-  background: radial-gradient(ellipse 110% 90% at 50% 60%, rgba(10, 14, 35, 0.96) 0%, #000 100%);
+  background: radial-gradient(ellipse 130% 100% at 50% 50%, rgba(10, 14, 35, 1) 0%, #000 70%);
   transition: opacity 0.7s var(--ease-smooth), visibility 0.7s var(--ease-smooth);
   overflow: hidden;
 }
@@ -5327,6 +5369,41 @@ img, video, .card-bg-image {
   }
 }
 
+/* ── Mobile intro splash: keep the centred logo + hint readable on narrow screens ── */
+@media (max-width: 768px) {
+  .intro-logo-svg {
+    width: 64px;
+    height: 64px;
+  }
+  .intro-logo-text {
+    font-size: 1.35rem;
+    letter-spacing: 0.22em;
+    white-space: nowrap;
+  }
+  .intro-hint {
+    bottom: 36px;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    max-width: 92vw;
+    justify-content: center;
+    text-align: center;
+    flex-wrap: nowrap;
+    padding: 0 12px;
+  }
+  /* Drop the decorative side brackets on narrow screens so the hint text stays
+     centred on a single tidy line instead of wrapping around them */
+  .intro-hint .hint-bracket {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .intro-logo-text {
+    font-size: 1.1rem;
+    letter-spacing: 0.16em;
+  }
+}
+
 /* Toggle visibility rules based on state classes */
 body.portal-intro-mode {
   overflow: hidden !important;
@@ -5356,13 +5433,17 @@ body.flag-selection-mode .portal-intro-stage {
 @media (max-width: 768px) and (orientation: portrait) {
   :root {
     --cinema-mask-y-offset: 3%;
-    --cinema-video-scale: 1.28;
+    /* No extra zoom on phones: object-fit:cover already fills the tall viewport.
+       The previous 1.28 zoom over-cropped off-centre subjects (e.g. the sumo,
+       Mona Lisa and samurai scenes lost faces/edges). 1.0 = maximum scene
+       visible with no letterbox (source videos carry no baked black bars). */
+    --cinema-video-scale: 1;
   }
 
   .cinema-video {
-    transform: translate3d(0, 0, 0) scale(var(--cinema-video-scale, 1.28)) !important;
+    transform: translate3d(0, 0, 0) scale(var(--cinema-video-scale, 1)) !important;
     transform-origin: center center;
-    object-position: center clamp(28%, var(--video-y, 50%), 72%) !important;
+    object-position: center clamp(20%, var(--video-y, 50%), 80%) !important;
   }
 }
 

@@ -743,7 +743,9 @@ function processPrewarmQueue() {
   const sc = scenes[idx];
   if (sc && sc.video && sc.video.dataset.warmedUp !== 'true') {
     warmupVideo(sc.video);
-    setTimeout(processPrewarmQueue, 300); // 300ms gap
+    // Short gap: warming must keep up with fast scrolling so upcoming scenes are
+    // decoded before they cross-fade in (otherwise they render blank/white).
+    setTimeout(processPrewarmQueue, 80);
   } else {
     processPrewarmQueue();
   }
@@ -761,7 +763,14 @@ function prewarmAround(activeIdx) {
       warmupVideo(activeSc.video);
     }
 
-    const mobileNeighbors = [activeIdx + 1, activeIdx - 1, activeIdx + 2];
+    // Warm EVERY upcoming scene (scrolling only moves forward through a fixed
+    // 12-clip sequence) plus the previous one for back-scroll. The render loop
+    // never unloads ahead scenes, so once warmed they stay decoded — this is what
+    // keeps the last scenes (e.g. viking) from rendering blank under fast scroll,
+    // where a sliding window would unload/reload them and never finish in time.
+    const mobileNeighbors = [];
+    for (let n = activeIdx + 1; n < scenes.length; n++) mobileNeighbors.push(n);
+    mobileNeighbors.push(activeIdx - 1);
     prewarmQueue.length = 0;
     mobileNeighbors.forEach(n => {
       if (n >= 0 && n < scenes.length) {
@@ -837,6 +846,30 @@ function warmupVideo(video) {
     video.load();
   } catch (e) {
     logErrorDebug(`Warmup exception on ${video.id}:`, e);
+  }
+
+  // Force the decoder to buffer an actual renderable frame. load()+preload only
+  // reliably reaches HAVE_METADATA (readyState 1) for a hidden, never-played video
+  // — browsers throttle frame buffering for such videos, so an upcoming scene would
+  // still render blank/white the instant it cross-fades in. A muted play→immediate
+  // pause forces the first frames to decode (readyState climbs to >=2), so the
+  // scene is paint-ready well before it scrolls into view.
+  const forceDecode = () => {
+    if (video.dataset.warmedUp !== 'true') return; // was unloaded again meanwhile
+    try {
+      const p = video.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => { try { video.pause(); } catch (e) {} })
+         .catch(() => {});
+      } else {
+        try { video.pause(); } catch (e) {}
+      }
+    } catch (e) {}
+  };
+  if (video.readyState >= 1) {
+    forceDecode();
+  } else {
+    video.addEventListener('loadedmetadata', forceDecode, { once: true });
   }
 }
 
@@ -2986,11 +3019,12 @@ function setupCinemaEngine() {
       if (!video) return;
 
       // Proximity filter: only render and seek active and adjacent videos.
-      // Any video further than 1 index away is instantly hidden and not seeked.
-      if (Math.abs(idx - cState.activeIdx) > 1) {
+      // Any video further than 1 index away is hidden and not seeked.
+      const distFromActive = idx - cState.activeIdx;
+      if (Math.abs(distFromActive) > 1) {
         sState.currentOpacity = 0;
         sState.targetOpacity = 0;
-        
+
         if (sState.lastAppliedOpacity !== 0) {
           video.style.opacity = 0;
           sState.lastAppliedOpacity = 0;
@@ -3000,8 +3034,13 @@ function setupCinemaEngine() {
           sState.lastAppliedVisibility = 'hidden';
         }
 
-        // Proximity dynamic source unloading to prevent choking resources on mobile
-        if (cachedWindowWidth <= 768 && video.src && video.src !== '') {
+        // Source unloading limits mobile memory/decoder use, but NEVER for upcoming
+        // scenes: once an ahead scene is warmed we keep it decoded so it is paint-ready
+        // the instant it cross-fades in (no blank/white frames on scroll). Only scenes
+        // already PASSED (behind by >2) are unloaded to reclaim memory. They re-warm via
+        // prewarmAround if the user scrolls back up.
+        const unload = distFromActive < -2; // behind by more than 2 → safe to unload
+        if (cachedWindowWidth <= 768 && unload && video.src && video.src !== '') {
           if (!video.dataset.originalSrc) {
             video.dataset.originalSrc = video.getAttribute('src') || '';
           }
