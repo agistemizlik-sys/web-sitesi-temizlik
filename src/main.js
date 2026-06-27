@@ -327,9 +327,17 @@ function applyHotspotTranslations(dict, lang) {
     if (transCity) {
       const label = hotspot.querySelector('.hotspot-label');
       const telemetry = hotspot.querySelector('.hotspot-telemetry');
-      if (label) label.textContent = transCity.name;
-      if (telemetry) telemetry.textContent = transCity.coords;
-      hotspot.setAttribute('aria-label', `${transCity.name} ${lang === 'pl' ? 'pokaz region' : 'bölgesini göster'}`);
+      
+      // Fix: If it's a district (e.g. Warszawa districts), preserve the district label and coords.
+      if (label && !hotspot.dataset.iladi) {
+        label.textContent = transCity.name;
+      }
+      if (telemetry && !hotspot.dataset.iladi) {
+        telemetry.textContent = transCity.coords;
+      }
+      
+      const displayName = hotspot.dataset.iladi ? hotspot.dataset.iladi.toUpperCase() : transCity.name;
+      hotspot.setAttribute('aria-label', `${displayName} ${lang === 'pl' ? 'pokaz region' : 'bölgesini göster'}`);
     }
   });
 }
@@ -562,6 +570,102 @@ function applyCountrySelectorTranslations(dict, lang) {
   if (csoPolandSub && dict.csoCardPolandSub) csoPolandSub.textContent = dict.csoCardPolandSub;
 }
 
+function applyServiceSelectTranslations(lang) {
+  const selectItems = document.querySelectorAll('.service-select-item');
+  if (selectItems.length < 4) return;
+
+  const data = {
+    tr: [
+      {
+        badge: 'EN POPÜLER',
+        title: 'Standart',
+        desc: 'Genel düzen ve temel hijyen çözümleri',
+        tags: ['Toz Alma', 'Süpürme', 'Yüzey Hijyeni']
+      },
+      {
+        badge: 'TAVSİYE EDİLEN',
+        title: 'Detaylı',
+        desc: 'Derin temizlik ve hassas leke arındırma',
+        tags: ['Buharlı Hijyen', 'Dip Köşe', 'Leke Arındırma']
+      },
+      {
+        badge: 'B2B PROFESYONEL',
+        title: 'Kurumsal B2B',
+        desc: 'İş yeri, restoran og plaza temizliği',
+        tags: ['Ofis & Plaza', 'Esnek Saatler', 'Özel Raporlama']
+      },
+      {
+        badge: 'MEDİKAL KORUMA',
+        title: 'İlaçlama',
+        desc: 'Bakteri og haşere kontrol çözümleri',
+        tags: ['Haşere Kontrol', 'Dezenfeksiyon', 'Ortam Hijyeni']
+      }
+    ],
+    pl: [
+      {
+        badge: 'NAJPOPULARNIEJSZA',
+        title: 'Standardowe',
+        desc: 'Ogólne porządki i podstawowa czystość',
+        tags: ['Ścieranie Kurzu', 'Odkurzanie', 'Higiena Powierzchni']
+      },
+      {
+        badge: 'POLECANE',
+        title: 'Głębokie',
+        desc: 'Dokładne czyszczenie i usuwanie plam',
+        tags: ['Czyszczenie Parowe', 'Kąty i Zakamarki', 'Usuwanie Plam']
+      },
+      {
+        badge: 'PROFESJONALNE B2B',
+        title: 'Firmowe B2B',
+        desc: 'Sprzątanie biur, restauracji i lokali',
+        tags: ['Biura & Plazy', 'Elastyczne Godziny', 'Specjalny Raport']
+      },
+      {
+        badge: 'OCHRONA MEDYCZNA',
+        title: 'Dezynsekcja',
+        desc: 'Rozwiązania kontroli bakterii i szkodników',
+        tags: ['Kontrola Szkodników', 'Dezynfekcja', 'Higiena Otoczenia']
+      }
+    ]
+  };
+
+  const list = data[lang] || data.tr;
+  selectItems.forEach((item, idx) => {
+    const itemData = list[idx];
+    if (!itemData) return;
+
+    const badge = item.querySelector('.service-select-badge');
+    const title = item.querySelector('.service-select-info h4');
+    const desc = item.querySelector('.service-select-info p');
+    const tags = item.querySelectorAll('.service-select-tag-pill');
+
+    if (badge) badge.textContent = itemData.badge;
+    if (title) title.textContent = itemData.title;
+    if (desc) desc.textContent = itemData.desc;
+    tags.forEach((tag, tIdx) => {
+      if (itemData.tags[tIdx]) tag.textContent = itemData.tags[tIdx];
+    });
+  });
+
+  const headerTitle = document.querySelector('.services-select-title');
+  const headerSubtitle = document.querySelector('.services-select-subtitle');
+  const headerHud = document.querySelector('.hud-system-status');
+  const stepCounter = document.querySelector('.hud-step-counter');
+
+  if (headerTitle) {
+    headerTitle.textContent = lang === 'pl' ? 'WYBÓR USŁUGI' : 'HİZMET SEÇİMİ';
+  }
+  if (headerSubtitle) {
+    headerSubtitle.textContent = lang === 'pl' ? 'Proszę wybrać rodzaj usługi czyszczenia' : 'Lütfen almak istediğiniz temizlik hizmetini seçiniz';
+  }
+  if (headerHud) {
+    headerHud.innerHTML = `<span class="status-pulse"></span>${lang === 'pl' ? 'KATEGORIE USŁUG' : 'HİZMET KATEGORİLERİ'}`;
+  }
+  if (stepCounter) {
+    stepCounter.textContent = lang === 'pl' ? 'KROK 02' : 'ADIM 02';
+  }
+}
+
 function applyLanguage(lang) {
   STATE.language = lang;
   STATE.currentLang = lang;
@@ -579,6 +683,7 @@ function applyLanguage(lang) {
   applyBookingTranslations(dict, lang);
   applyServicesModalTranslations(dict, lang);
   applyCountrySelectorTranslations(dict, lang);
+  applyServiceSelectTranslations(lang);
 
   if (typeof calculatePriceFn === 'function') {
     calculatePriceFn();
