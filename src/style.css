@@ -1378,6 +1378,96 @@ html.bypassing-gateway #portal-stage {
   box-shadow: 0 0 15px rgba(var(--clr-accent-rgb), 0.4);
 }
 
+.reveal-footer {
+  width: 100%;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-contact-item:hover {
+  color: var(--service-color, var(--clr-accent));
+}
+
+.footer-contact-icon {
+  font-size: 0.95rem;
+  color: var(--service-color, var(--clr-accent));
+}
+
+.footer-contact-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-contact-val {
+  font-weight: 500;
+  color: #fff;
+  opacity: 0.95;
+}
+
+.footer-hours {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.5px;
+}
+
+.footer-copyright {
+  font-size: 0.68rem;
+  color: #475569;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile responsive constraints to avoid vertical overflow and keep structural integrity */
+@media (max-width: 768px) {
+  .reveal-footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    gap: 8px;
+  }
+  
+  .footer-contact-info {
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  .footer-contact-item {
+    font-size: 0.74rem;
+    gap: 6px;
+  }
+  
+  .footer-hours {
+    font-size: 0.68rem;
+  }
+  
+  .footer-copyright {
+    font-size: 0.64rem;
+  }
+}
+
 /* ==========================================================================
    11. PLACEHOLDER & PARALLAX CLASSES FOR DYNAMIC / FUTURE USAGE
    ========================================================================== */

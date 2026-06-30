@@ -420,6 +420,16 @@ function applyBookingTranslations(dict, lang) {
   if (revealTitle) revealTitle.textContent = dict.bookingTitle;
   if (revealSubtitle) revealSubtitle.textContent = dict.bookingSubtitle;
 
+  const fPhoneLbl = document.getElementById('fPhoneLbl');
+  const fEmailLbl = document.getElementById('fEmailLbl');
+  const fHoursLbl = document.getElementById('fHoursLbl');
+  const fCopyLbl = document.getElementById('fCopyLbl');
+
+  if (fPhoneLbl && dict.footerPhone) fPhoneLbl.textContent = dict.footerPhone;
+  if (fEmailLbl && dict.footerEmail) fEmailLbl.textContent = dict.footerEmail;
+  if (fHoursLbl && dict.footerWorkingHours) fHoursLbl.textContent = dict.footerWorkingHours;
+  if (fCopyLbl && dict.footerCopyright) fCopyLbl.textContent = dict.footerCopyright;
+
   const bookingForm = document.getElementById('bookingForm');
   if (bookingForm) {
     const labels = bookingForm.querySelectorAll('label');
@@ -3971,6 +3981,51 @@ function setupBookingReveal() {
       if (city && city !== STATE.selectedCity) {
         setCityState(city);
       }
+
+      // Format WhatsApp Message
+      const isPl = STATE.language === 'pl';
+      let message = '';
+      if (isPl) {
+        message = `*Aclean - Zapytanie o rezerwację*\n`;
+        message += `-------------------------\n`;
+        message += `*Imię i nazwisko:* ${name}\n`;
+        message += `*Telefon:* ${phone}\n`;
+        message += `*Miasto:* ${city}\n`;
+        message += `*Usługa:* ${service === 'standart' ? 'Standardowe' : (service === 'detayli' ? 'Głębokie' : (service === 'kurumsal' ? 'Firmowe' : 'Dezynsekcja'))}\n`;
+        if (STATE.calculator.applied) {
+          message += `\n*Szczegóły kalkulatora:*\n`;
+          message += `- *Powierzchnia:* ${STATE.calculator.area} m²\n`;
+          const freqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień (-20%)' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc (-10%)' : 'Jednorazowo');
+          message += `- *Częstotliwość:* ${freqText}\n`;
+          if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
+            message += `- *Dodatki:* ${STATE.calculator.extras.join(', ')}\n`;
+          }
+          message += `- *Cena:* ${STATE.calculator.price} PLN\n`;
+        }
+      } else {
+        message = `*Aclean Rezervasyon Talebi*\n`;
+        message += `-------------------------\n`;
+        message += `*Ad Soyad:* ${name}\n`;
+        message += `*Telefon:* ${phone}\n`;
+        message += `*Şehir:* ${city}\n`;
+        message += `*Hizmet:* ${service === 'standart' ? 'Standart Temizlik' : (service === 'detayli' ? 'Detaylı Temizlik' : (service === 'kurumsal' ? 'Kurumsal Temizlik' : 'İlaçlama'))}\n`;
+        if (STATE.calculator.applied) {
+          message += `\n*Hesaplayıcı Detayları:*\n`;
+          message += `- *Alan:* ${STATE.calculator.area} m²\n`;
+          const freqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli (-20%)' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli (-10%)' : 'Tek Seferlik');
+          message += `- *Sıklık:* ${freqText}\n`;
+          if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
+            message += `- *Ekstralar:* ${STATE.calculator.extras.join(', ')}\n`;
+          }
+          message += `- *Fiyat:* ${STATE.calculator.price} TL\n`;
+        }
+      }
+
+      // Open WhatsApp link in new window after a brief delay
+      const whatsappUrl = `https://wa.me/905320000000?text=${encodeURIComponent(message)}`;
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+      }, 350);
 
       gsap.to(form, {
         opacity: 0,
