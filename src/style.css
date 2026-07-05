@@ -852,9 +852,13 @@ html.bypassing-gateway #portal-stage {
 #cinema-section {
   position: relative;
   width: 100vw;
-  height: 4800vh; /* Scrub trigger scroll space (slower and more premium scroll range) */
+  height: 100vh; /* Fixed full-screen size. No more vertical native page scrolling */
+  height: 100dvh;
   background: #000;
   z-index: 100;
+  overflow: hidden;
+  touch-action: none; /* Disable default browser touch gesture responses (pinch, pan, scroll) */
+  user-select: none;
 }
 
 .cinema-stage {
@@ -1378,6 +1382,19 @@ html.bypassing-gateway #portal-stage {
   box-shadow: 0 0 15px rgba(var(--clr-accent-rgb), 0.4);
 }
 
+@keyframes scrollLineTouch {
+  0% { transform: translateY(-5px); opacity: 0.1; }
+  50% { transform: translateY(5px); opacity: 1; }
+  100% { transform: translateY(-5px); opacity: 0.1; }
+}
+
+/* HTML and Body scroll locks to prevent iOS Safari rubber-band page bouncing */
+html, body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
 .reveal-footer {
   width: 100%;
   margin-top: 32px;
@@ -1604,10 +1621,10 @@ html.bypassing-gateway #portal-stage {
   }
 
   .scene-text-block {
-    position: relative;
-    left: auto;
-    bottom: auto;
-    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    bottom: 68px;
+    margin: 0;
     background: rgba(10, 15, 24, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -1620,12 +1637,12 @@ html.bypassing-gateway #portal-stage {
     text-align: center;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     filter: none;
-    transform: translate3d(0, 30px, 0);
+    transform: translate3d(-50%, 30px, 0);
     transition: opacity 0.35s ease-out, transform 0.35s ease-out, visibility 0.35s ease-out;
   }
 
   .scene-text-block.active {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(-50%, 0, 0);
     filter: none;
   }
 
@@ -5762,13 +5779,28 @@ body.flag-selection-mode .portal-intro-stage {
     --cinema-mask-ellipse-x: 1.15;
     --cinema-mask-ellipse-y: 0.85;
     --cinema-mask-y-offset: 3%;
-    --cinema-video-scale: 1.28;
+    --cinema-video-scale: 1;
   }
 
   .cinema-video {
-    transform: translate3d(0, 0, 0) scale(var(--cinema-video-scale, 1.28)) !important;
+    transform: translate3d(0, 0, 0) scale(1) !important;
     transform-origin: center center;
+    object-fit: contain !important;
+    object-position: center center !important;
+  }
+
+  .cinema-video.portrait-video {
+    transform: translate3d(0, 0, 0) scale(1.28) !important;
+    transform-origin: center center;
+    object-fit: cover !important;
     object-position: center clamp(28%, var(--video-y, 50%), 72%) !important;
+  }
+
+  .cinema-video.landscape-video {
+    transform: translate3d(0, 0, 0) scale(1) !important;
+    transform-origin: center center;
+    object-fit: contain !important;
+    object-position: center center !important;
   }
 
   .cinema-iris-overlay {

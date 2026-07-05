@@ -110,7 +110,7 @@
 
     <div class="portal-logo-container parallax-layer" data-depth="0.04">
       <div class="portal-logo-glow"></div>
-      <svg class="portal-main-logo" viewBox="0 0 100 80" width="42" height="34" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg class="portal-main-logo" viewBox="0 0 100 80" width="42" height="34" fill="none" stroke="currentColor" stroke-width="1.5" role="img" aria-label="Aclean Portal Logo">
         <path d="M35,40 C20,25 20,5 35,5 C50,5 50,25 35,40 Z" />
         <path d="M65,40 C80,25 80,5 65,5 C50,5 50,25 65,40 Z" />
       </svg>
@@ -620,37 +620,37 @@
       <div class="cinema-stage">
         
         <!-- Video 1: Mona Lisa (Toilet Cleaning) -->
-        <video id="video-scene-1" class="cinema-video" src="/videos/monalisa.mp4" muted playsinline preload="auto"></video>
+        <video id="video-scene-1" class="cinema-video" src="/videos/monalisa.mp4" muted playsinline loop autoplay preload="auto"></video>
         
         <!-- Video 2: Samurai (Katana Cleaning) -->
-        <video id="video-scene-2" class="cinema-video" src="/videos/samurai.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-2" class="cinema-video" src="/videos/samurai.mp4" muted playsinline loop autoplay preload="none"></video>
         
         <!-- Video 3: Turkish Grandmother (Nene Cleaning) -->
-        <video id="video-scene-3" class="cinema-video" src="/videos/grandmother.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-3" class="cinema-video" src="/videos/grandmother.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 4: Astronaut (Station Sterilization) -->
-        <video id="video-scene-4" class="cinema-video" src="/videos/astronaut.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-4" class="cinema-video" src="/videos/astronaut.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 5: Cowboy (Saloon Cleaning) -->
-        <video id="video-scene-5" class="cinema-video" src="/videos/cowboy.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-5" class="cinema-video" src="/videos/cowboy.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 6: Gandalf (Wizard Dusting) -->
-        <video id="video-scene-6" class="cinema-video" src="/videos/gandalf.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-6" class="cinema-video" src="/videos/gandalf.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 7: Knight (Armor Cleaning) -->
-        <video id="video-scene-7" class="cinema-video" src="/videos/knight.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-7" class="cinema-video" src="/videos/knight.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 8: Monk (Zen Garden Sweeping) -->
-        <video id="video-scene-8" class="cinema-video" src="/videos/monk.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-8" class="cinema-video" src="/videos/monk.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 9: Roman (Arena Cleaning) -->
-        <video id="video-scene-9" class="cinema-video" src="/videos/roman.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-9" class="cinema-video" src="/videos/roman.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 10: Sumo (Ring Disinfection) -->
-        <video id="video-scene-10" class="cinema-video" src="/videos/sumo.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-10" class="cinema-video" src="/videos/sumo.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 11: Duchess (Palace Cleaning) -->
-        <video id="video-scene-11" class="cinema-video" src="/videos/victorian.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-11" class="cinema-video" src="/videos/victorian.mp4" muted playsinline loop autoplay preload="none"></video>
 
         <!-- Video 12: Viking (Shield/Ship Washing) -->
         <video id="video-scene-12" class="cinema-video" src="/videos/viking.mp4" muted playsinline preload="none"></video>
@@ -662,6 +662,8 @@
         <div class="cinema-loader" id="cinemaLoader" aria-hidden="true">
           <div class="loader-spinner"></div>
         </div>
+
+
 
         <!-- Hizmet Seçim Paneli (Tek Bir Karede 4 Seçilebilir Hizmet) -->
         <div class="scene-text-overlay" id="servicesTextOverlay" aria-hidden="true">
@@ -906,8 +908,8 @@
           </div>
           <p class="intro-subtitle">Kusursuzluğun Sinematik Dokunuşu</p>
           <div class="intro-scroll-hint">
-            <span>BAŞLAMAK İÇİN AŞAĞI KAYDIRIN</span>
-            <div class="scroll-line"></div>
+            <span>BAŞLAMAK İÇİN DOKUNUN VEYA KAYDIRIN</span>
+            <div class="scroll-line" style="animation: scrollLineTouch 2s infinite;"></div>
           </div>
         </div>
 
@@ -1047,7 +1049,7 @@
         
         <!-- Sağ Panel: İnteraktif Hesaplama Aracı -->
         <div class="estimator-calculator-panel">
-          <h3>TAHMİNİ FİYAT HESAPLAYICI</h3>
+          <h3 id="modalCalcTitleLbl">HİZMET TALEP FORMU</h3>
           
           <div class="calculator-inputs">
             <div class="calc-field">
@@ -1085,13 +1087,11 @@
             </div>
           </div>
           
-          <div class="calculator-receipt-box" id="calculatorReceipt" style="display: none; opacity: 0;"></div>
-          
           <div class="calculator-result-box">
-            <span class="calc-result-lbl">YAKLAŞIK MALİYET</span>
-            <div class="calc-price" id="calc-price-display">₺1.500</div>
-            <p class="calc-disclaimer">KDV Dahildir. Şehir ve kir durumuna göre değişiklik gösterebilir.</p>
-            <button class="calc-apply-btn" id="calcApplyBtn">BU SEÇİMLE REZERVASYON YAP ➔</button>
+            <span class="calc-result-lbl">TALEP DURUMU</span>
+            <div class="calc-price" id="calc-price-display" style="font-size: 1.5rem; letter-spacing: 1px; color: var(--clr-accent);">TEKLİF HAZIRLANACAK</div>
+            <p class="calc-disclaimer">Seçimlerinize göre en kısa sürede özel teklifimizle size ulaşacağız.</p>
+            <button class="calc-apply-btn" id="calcApplyBtn">TEKLİF ALMAK İÇİN BİLGİLERİ DOLDUR ➔</button>
           </div>
         </div>
         
