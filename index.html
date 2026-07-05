@@ -7,15 +7,15 @@
   <!-- SEO Meta Tags -->
   <title>Aclean | Sinematik İnteraktif Temizlik Deneyimi</title>
   <meta name="description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
-  <meta name="theme-color" content="#000000">
-  
+  <meta name="theme-color" content="#f7f6f2">
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/src/style.css">
@@ -64,9 +64,7 @@
 
     <!-- Bottom interactive hint -->
     <div class="intro-hint">
-      <span class="hint-bracket">[</span>
-      <span class="hint-text">GİRİŞ İÇİN DOKUNUN // TOUCH TO ENTER</span>
-      <span class="hint-bracket">]</span>
+      <span class="hint-text">Girmek için dokunun</span>
     </div>
   </div>
   
@@ -82,22 +80,6 @@
     <canvas id="dust-canvas" aria-hidden="true"></canvas>
     <div class="portal-ambient-bg" id="portalAmbientBg" aria-hidden="true"></div>
     
-    <div class="portal-grid-bg" aria-hidden="true">
-      <div class="grid-line horizontal"></div>
-      <div class="grid-line vertical"></div>
-      <div class="hud-corners">
-        <div class="hud-bracket hud-tl"></div>
-        <div class="hud-bracket hud-tr"></div>
-        <div class="hud-bracket hud-bl"></div>
-        <div class="hud-bracket hud-br"></div>
-      </div>
-    </div>
-    
-    <span class="telemetry-tick telemetry-tl" aria-hidden="true">SYS.STATUS: ACTIVE // TRC V2</span>
-    <span class="telemetry-tick telemetry-tr" aria-hidden="true">LATENCY: 3MS // 60HZ</span>
-    <span class="telemetry-tick telemetry-bl" aria-hidden="true">COORDS: 39.93° N, 32.85° E</span>
-    <span class="telemetry-tick telemetry-br" aria-hidden="true">SSL_AES_256 // SECURE</span>
-
     <button class="portal-audio-toggle" id="portalAudioToggle" aria-label="Sesi Kapat/Aç">
       <div class="audio-visualizer-bars">
         <span class="v-bar bar-1"></span>
@@ -105,7 +87,7 @@
         <span class="v-bar bar-3"></span>
         <span class="v-bar bar-4"></span>
       </div>
-      <span class="audio-toggle-text">AUDIO: ON</span>
+      <span class="audio-toggle-text">Ses açık</span>
     </button>
 
     <div class="portal-logo-container parallax-layer" data-depth="0.04">
@@ -115,37 +97,14 @@
         <path d="M65,40 C80,25 80,5 65,5 C50,5 50,25 65,40 Z" />
       </svg>
       <h2 class="portal-brand-name">Aclean</h2>
-      <p class="portal-brand-sub">HYGIENE GATEWAY</p>
+      <p class="portal-brand-sub">Profesyonel Temizlik Hizmetleri</p>
     </div>
 
-    <!-- Center pulse text -->
+    <!-- Center heading -->
     <div class="portal-center-hint">
-      <div class="hint-line-left"></div>
       <div class="hint-content">
-        <div class="hint-main-title">ŞEHRİNİZİ SEÇİN</div>
-        <div class="hint-sub-title">SELECT REGIONAL GATEWAY AREA</div>
-      </div>
-      <div class="hint-line-right"></div>
-    </div>
-
-    <!-- Floating Telemetry HUD -->
-    <div id="portalMapHUD" class="portal-map-hud" aria-hidden="true" style="opacity: 0;">
-      <div class="hud-scan-line"></div>
-      <div class="hud-target-reticle">
-        <svg viewBox="0 0 40 40" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="20" cy="20" r="16" stroke-dasharray="4 4" class="reticle-spin"></circle>
-          <circle cx="20" cy="20" r="6"></circle>
-          <path d="M20,2 L20,8 M20,32 L20,38 M2,20 L8,20 M32,20 L38,20" />
-        </svg>
-      </div>
-      <div class="hud-telemetry-content">
-        <div class="hud-telemetry-header">HUD.SYS // RADAR SCAN</div>
-        <div class="hud-telemetry-data">
-          <div class="hud-data-row"><span class="hud-lbl" id="hudLblCity">ŞEHİR:</span> <span class="hud-val" id="hudCityName">TARAMA DIŞI</span></div>
-          <div class="hud-data-row"><span class="hud-lbl" id="hudLblRegion">BÖLGE:</span> <span class="hud-val" id="hudRegionName">ARANIYOR</span></div>
-          <div class="hud-data-row"><span class="hud-lbl" id="hudLblCoords">KOORD:</span> <span class="hud-val" id="hudCoordinates">--° N, --° E</span></div>
-          <div class="hud-data-row"><span class="hud-lbl" id="hudLblSignal">SİNYAL:</span> <span class="hud-val status-blink" id="hudSignalStrength">ZAYIF</span></div>
-        </div>
+        <div class="hint-main-title">Şehrinizi Seçin</div>
+        <div class="hint-sub-title">Hizmet almak istediğiniz şehri haritadan seçin</div>
       </div>
     </div>
 
@@ -157,9 +116,9 @@
 
       <!-- Header -->
       <div class="cso-header">
-        <div class="cso-eyebrow">ACLEAN — HYGIENE GATEWAY</div>
+        <div class="cso-eyebrow">Aclean</div>
         <h2 class="cso-title">Ülkenizi Seçin</h2>
-        <p class="cso-subtitle">SELECT YOUR COUNTRY</p>
+        <p class="cso-subtitle">Size en yakın ekibimizle hizmet verebilmemiz için ülkenizi seçin</p>
       </div>
 
       <!-- Country Cards -->
@@ -167,7 +126,6 @@
 
         <!-- Türkiye -->
         <button class="cso-card" id="csoBtnTurkey" data-country="turkey" aria-label="Türkiye'yi seç">
-          <div class="cso-card-glow"></div>
           <div class="cso-card-inner">
             <div class="cso-flag-wrap">
               <!-- Turkey flag SVG -->
@@ -180,20 +138,18 @@
             </div>
             <div class="cso-card-label">
               <span class="cso-country-name">Türkiye</span>
-              <span class="cso-country-sub">6 Şehir · Hizmet Aktif</span>
+              <span class="cso-country-sub">6 şehirde hizmet veriyoruz</span>
             </div>
             <div class="cso-card-arrow">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </div>
-            <div class="cso-card-shimmer"></div>
           </div>
         </button>
 
         <!-- Polonya -->
         <button class="cso-card" id="csoBtnPoland" data-country="poland" aria-label="Polonya'yı seç">
-          <div class="cso-card-glow"></div>
           <div class="cso-card-inner">
             <div class="cso-flag-wrap">
               <!-- Poland flag SVG -->
@@ -204,24 +160,16 @@
             </div>
             <div class="cso-card-label">
               <span class="cso-country-name">Polonya</span>
-              <span class="cso-country-sub">YAKINDA</span>
+              <span class="cso-country-sub">Yakında hizmetinizde</span>
             </div>
             <div class="cso-card-arrow">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </div>
-            <div class="cso-card-shimmer"></div>
           </div>
         </button>
 
-      </div>
-
-      <!-- Decorative bottom line -->
-      <div class="cso-footer-line" aria-hidden="true">
-        <span class="cso-footer-dot"></span>
-        <span class="cso-footer-text">GATEWAY v2 // SECURE CONNECTION</span>
-        <span class="cso-footer-dot"></span>
       </div>
     </div>
     <!-- ── END COUNTRY SELECTOR OVERLAY ─────────────────────────────────── -->
@@ -234,24 +182,6 @@
       <div class="portal-map-wrapper">
         <div class="portal-leaflet-map" id="portalNeonMap"></div>
         <div class="portal-leaflet-map" id="portalNeonMapPoland" style="display: none;"></div>
-        <!-- Dynamic Target Lock Cinematic HUD -->
-        <div class="hud-target-lock" id="hudTargetLock" style="display: none; opacity: 0;">
-          <span class="lock-bracket tl"></span>
-          <span class="lock-bracket tr"></span>
-          <span class="lock-bracket bl"></span>
-          <span class="lock-bracket br"></span>
-          <span class="lock-text">SYS.LOCK // WARP_GEAR</span>
-        </div>
-
-        <!-- High-tech corner brackets -->
-        <span class="map-corner-bracket corner-tl"></span>
-        <span class="map-corner-bracket corner-tr"></span>
-        <span class="map-corner-bracket corner-bl"></span>
-        <span class="map-corner-bracket corner-br"></span>
-
-        <!-- Interactive coordinates crosshair overlays -->
-        <div class="map-crosshair-h"></div>
-        <div class="map-crosshair-v"></div>
       </div>
       
       <!-- Holographic Laser Connector Overlay -->
@@ -278,21 +208,10 @@
         
         <!-- Default State (Başlangıç ekranı) -->
         <div class="portal-default-panel" id="portalDefaultPanel" style="display: none; opacity: 0; pointer-events: none;">
-          <span class="cc-default-flag">⚡ SİSTEM ENTEGRASYONU</span>
-          <h3 class="cc-default-title">HİJYEN GEÇİDİ</h3>
-          <p class="cc-default-sub">Aclean Premium Hizmet Ağı</p>
+          <h3 class="cc-default-title">Aclean</h3>
+          <p class="cc-default-sub">Premium Temizlik Hizmetleri</p>
           <div class="cc-default-desc">
-            Türkiye'nin seçkin bölgelerinde sinematik temizlik standartları. Başlamak için haritadaki aktif noktalara gelin veya bir şehir seçin.
-          </div>
-          <div class="cc-default-status-panel">
-            <div class="cc-status-row">
-              <span class="cc-status-lbl">HİZMET ALANI:</span>
-              <span class="cc-status-val">6 AKTİF MERKEZ</span>
-            </div>
-            <div class="cc-status-row">
-              <span class="cc-status-lbl">AĞ GÜVENLİĞİ:</span>
-              <span class="cc-status-val">GÜVENLİ BAĞLANTI</span>
-            </div>
+            Türkiye'nin altı şehrinde profesyonel temizlik. Başlamak için haritadan bir şehir seçin.
           </div>
         </div>
         
@@ -313,24 +232,7 @@
               <li>Otel & Tatil Köyü</li>
               <li>Günlük Temizlik</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Izmir">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Izmir">Seç</button>
           </div>
 
           <!-- KART: İSTANBUL -->
@@ -347,24 +249,7 @@
               <li>İnşaat Sonrası</li>
               <li>Endüstriyel Temizlik</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Istanbul">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Istanbul">Seç</button>
           </div>
 
           <!-- KART: SAKARYA -->
@@ -381,24 +266,7 @@
               <li>Villa Bakımı</li>
               <li>Doğa Dostu Temizlik</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Sakarya">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Sakarya">Seç</button>
           </div>
 
           <!-- KART: KOCAELİ -->
@@ -415,24 +283,7 @@
               <li>Depo & Lojistik</li>
               <li>Endüstriyel Yıkama</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Kocaeli">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Kocaeli">Seç</button>
           </div>
 
           <!-- KART: SAMSUN -->
@@ -449,24 +300,7 @@
               <li>Deniz Sonrası</li>
               <li>Mevsimsel Temizlik</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Samsun">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Samsun">Seç</button>
           </div>
 
           <!-- KART: BALIKESİR -->
@@ -483,24 +317,7 @@
               <li>Tatil Evi Bakımı</li>
               <li>Sezonluk Temizlik</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Balikesir">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Balikesir">Seç</button>
           </div>
 
           <!-- KART: WARSZAWA -->
@@ -517,24 +334,7 @@
               <li>Mokotów & Bemowo</li>
               <li>Ekspresowe Sprzątanie</li>
             </ul>
-            <div class="cc-telemetry-panel">
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">OPERASYON:</span>
-                <span class="cc-tel-value status-blink">ONLINE / AKTİF</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">PİNG HIZI:</span>
-                <span class="cc-tel-value ping-val">--</span>
-              </div>
-              <div class="cc-tel-row">
-                <span class="cc-tel-label">GÜVENLİK:</span>
-                <span class="cc-tel-value">HOLO-SHIELD v4</span>
-              </div>
-              <div class="cc-tel-loader-container">
-                <div class="cc-tel-loader-bar"></div>
-              </div>
-            </div>
-            <button class="city-select-btn" data-city="Warszawa">SEÇ ➔</button>
+            <button class="city-select-btn" data-city="Warszawa">Seç</button>
           </div>
 
         </div>
@@ -666,23 +466,17 @@
         <!-- Hizmet Seçim Paneli (Tek Bir Karede 4 Seçilebilir Hizmet) -->
         <div class="scene-text-overlay" id="servicesTextOverlay" aria-hidden="true">
           <div class="services-select-card">
-            <!-- HUD decorative corner brackets -->
-            <div class="hud-corner hud-tl"></div>
-            <div class="hud-corner hud-tr"></div>
-            <div class="hud-corner hud-bl"></div>
-            <div class="hud-corner hud-br"></div>
-
             <div class="services-select-hud-header">
-              <span class="hud-system-status"><span class="status-pulse"></span>HİZMET KATEGORİLERİ</span>
-              <span class="hud-step-counter">ADIM 02</span>
+              <span class="hud-system-status">Hizmetlerimiz</span>
+              <span class="hud-step-counter">Adım 2</span>
             </div>
 
-            <h3 class="services-select-title">HİZMET SEÇİMİ</h3>
-            <p class="services-select-subtitle">Lütfen almak istediğiniz temizlik hizmetini seçiniz</p>
+            <h3 class="services-select-title">Hizmet Seçimi</h3>
+            <p class="services-select-subtitle">Almak istediğiniz temizlik hizmetini seçin</p>
             <div class="services-select-grid">
               <!-- Card 1: Standart -->
               <div class="service-select-item selected" data-service="standart" data-base-price="15">
-                <span class="service-select-badge">EN POPÜLER</span>
+                <span class="service-select-badge">En Popüler</span>
                 <div class="card-glow-overlay"></div>
                 <div class="service-select-active-indicator">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -711,7 +505,7 @@
               
               <!-- Card 2: Detaylı -->
               <div class="service-select-item" data-service="detayli" data-base-price="22">
-                <span class="service-select-badge">TAVSİYE EDİLEN</span>
+                <span class="service-select-badge">Tavsiye Edilen</span>
                 <div class="card-glow-overlay"></div>
                 <div class="service-select-active-indicator">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -737,7 +531,7 @@
 
               <!-- Card 3: Kurumsal B2B -->
               <div class="service-select-item" data-service="kurumsal" data-base-price="18">
-                <span class="service-select-badge">B2B PROFESYONEL</span>
+                <span class="service-select-badge">İşletmeler İçin</span>
                 <div class="card-glow-overlay"></div>
                 <div class="service-select-active-indicator">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -768,7 +562,7 @@
 
               <!-- Card 4: İlaçlama -->
               <div class="service-select-item" data-service="ilaclama" data-base-price="10">
-                <span class="service-select-badge">MEDİKAL KORUMA</span>
+                <span class="service-select-badge">Sertifikalı</span>
                 <div class="card-glow-overlay"></div>
                 <div class="service-select-active-indicator">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -980,12 +774,12 @@
           <div class="reveal-footer">
             <div class="footer-contact-info">
               <a href="tel:+905320000000" class="footer-contact-item">
-                <span class="footer-contact-icon">📞</span>
+                <svg class="footer-contact-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="footer-contact-label" id="fPhoneLbl">Müşteri Hizmetleri</span>
                 <span class="footer-contact-val">+90 (532) 000 00 00</span>
               </a>
               <a href="mailto:info@aclean.com" class="footer-contact-item">
-                <span class="footer-contact-icon">✉</span>
+                <svg class="footer-contact-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="footer-contact-label" id="fEmailLbl">E-posta</span>
                 <span class="footer-contact-val">info@aclean.com</span>
               </a>
@@ -1016,28 +810,36 @@
         <!-- Sol Panel: Hizmetlerin Listesi ve Detayları -->
         <div class="services-list-panel">
           <div class="service-item-detail active" data-service="standart" data-base-price="15">
-            <div class="service-icon">🏠</div>
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 10L12 3l9 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21v-6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="service-text">
               <h4>Standart Temizlik</h4>
               <p>Ev & Ofis için genel düzen ve temel hijyen çözümleri.</p>
             </div>
           </div>
           <div class="service-item-detail" data-service="detayli" data-base-price="22">
-            <div class="service-icon">✨</div>
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3c0 4.5 1.5 6 6 6-4.5 0-6 1.5-6 6 0-4.5-1.5-6-6-6 4.5 0 6-1.5 6-6z" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 13c0 2.25.75 3 3 3-2.25 0-3 .75-3 3 0-2.25-.75-3-3-3 2.25 0 3-.75 3-3z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="service-text">
               <h4>Detaylı Temizlik</h4>
               <p>Dip köşe, ince temizlik ve detaylı yüzey arındırma.</p>
             </div>
           </div>
           <div class="service-item-detail" data-service="kurumsal" data-base-price="18">
-            <div class="service-icon">🏢</div>
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="10" width="7" height="11" rx="1" stroke-linecap="round" stroke-linejoin="round"/><rect x="11" y="3" width="10" height="18" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 7h.01M18 7h.01M14 11h.01M18 11h.01M14 15h.01M18 15h.01" stroke-linecap="round"/></svg>
+            </div>
             <div class="service-text">
               <h4>Kurumsal Temizlik (B2B)</h4>
               <p>İş yeri, restoran ve plazalar için periyodik çözümler.</p>
             </div>
           </div>
           <div class="service-item-detail" data-service="ilaclama" data-base-price="10">
-            <div class="service-icon">🧪</div>
+            <div class="service-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 3h6" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 3v13a2 2 0 0 0 4 0V3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.2 12.5h3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="service-text">
               <h4>İlaçlama & Dezenfeksiyon</h4>
               <p>Böcek, haşere ve bakteri dezenfeksiyon işlemleri.</p>
@@ -1115,7 +917,7 @@
         <a href="#" class="drawer-link-item" data-target="contact">İLETİŞİM</a>
       </div>
       <div class="drawer-footer">
-        <span class="drawer-telemetry">TRC.SYS // ACTIVE</span>
+        <span class="drawer-telemetry">© 2026 Aclean</span>
       </div>
     </div>
   </div>

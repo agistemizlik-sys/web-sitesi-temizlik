@@ -587,51 +587,51 @@ function applyServiceSelectTranslations(lang) {
   const data = {
     tr: [
       {
-        badge: 'EN POPÜLER',
+        badge: 'En Popüler',
         title: 'Standart',
         desc: 'Genel düzen ve temel hijyen çözümleri',
         tags: ['Toz Alma', 'Süpürme', 'Yüzey Hijyeni']
       },
       {
-        badge: 'TAVSİYE EDİLEN',
+        badge: 'Tavsiye Edilen',
         title: 'Detaylı',
         desc: 'Derin temizlik ve hassas leke arındırma',
         tags: ['Buharlı Hijyen', 'Dip Köşe', 'Leke Arındırma']
       },
       {
-        badge: 'B2B PROFESYONEL',
+        badge: 'İşletmeler İçin',
         title: 'Kurumsal B2B',
-        desc: 'İş yeri, restoran og plaza temizliği',
+        desc: 'İş yeri, restoran ve plaza temizliği',
         tags: ['Ofis & Plaza', 'Esnek Saatler', 'Özel Raporlama']
       },
       {
-        badge: 'MEDİKAL KORUMA',
+        badge: 'Sertifikalı',
         title: 'İlaçlama',
-        desc: 'Bakteri og haşere kontrol çözümleri',
+        desc: 'Bakteri ve haşere kontrol çözümleri',
         tags: ['Haşere Kontrol', 'Dezenfeksiyon', 'Ortam Hijyeni']
       }
     ],
     pl: [
       {
-        badge: 'NAJPOPULARNIEJSZA',
+        badge: 'Najpopularniejsza',
         title: 'Standardowe',
         desc: 'Ogólne porządki i podstawowa czystość',
         tags: ['Ścieranie Kurzu', 'Odkurzanie', 'Higiena Powierzchni']
       },
       {
-        badge: 'POLECANE',
+        badge: 'Polecana',
         title: 'Głębokie',
         desc: 'Dokładne czyszczenie i usuwanie plam',
         tags: ['Czyszczenie Parowe', 'Kąty i Zakamarki', 'Usuwanie Plam']
       },
       {
-        badge: 'PROFESJONALNE B2B',
+        badge: 'Dla Firm',
         title: 'Firmowe B2B',
         desc: 'Sprzątanie biur, restauracji i lokali',
         tags: ['Biura & Plazy', 'Elastyczne Godziny', 'Specjalny Raport']
       },
       {
-        badge: 'OCHRONA MEDYCZNA',
+        badge: 'Certyfikowana',
         title: 'Dezynsekcja',
         desc: 'Rozwiązania kontroli bakterii i szkodników',
         tags: ['Kontrola Szkodników', 'Dezynfekcja', 'Higiena Otoczenia']
@@ -663,16 +663,16 @@ function applyServiceSelectTranslations(lang) {
   const stepCounter = document.querySelector('.hud-step-counter');
 
   if (headerTitle) {
-    headerTitle.textContent = lang === 'pl' ? 'WYBÓR USŁUGI' : 'HİZMET SEÇİMİ';
+    headerTitle.textContent = lang === 'pl' ? 'Wybór Usługi' : 'Hizmet Seçimi';
   }
   if (headerSubtitle) {
-    headerSubtitle.textContent = lang === 'pl' ? 'Proszę wybrać rodzaj usługi czyszczenia' : 'Lütfen almak istediğiniz temizlik hizmetini seçiniz';
+    headerSubtitle.textContent = lang === 'pl' ? 'Wybierz rodzaj usługi sprzątania' : 'Almak istediğiniz temizlik hizmetini seçin';
   }
   if (headerHud) {
-    headerHud.innerHTML = `<span class="status-pulse"></span>${lang === 'pl' ? 'KATEGORIE USŁUG' : 'HİZMET KATEGORİLERİ'}`;
+    headerHud.textContent = lang === 'pl' ? 'Nasze usługi' : 'Hizmetlerimiz';
   }
   if (stepCounter) {
-    stepCounter.textContent = lang === 'pl' ? 'KROK 02' : 'ADIM 02';
+    stepCounter.textContent = lang === 'pl' ? 'Krok 2' : 'Adım 2';
   }
 }
 
@@ -1154,8 +1154,8 @@ function setupPortalParticles() {
       if (p.y < 0) p.y = canvas.height;
       if (p.y > canvas.height) p.y = 0;
 
-      ctx.globalAlpha = p.opacity;
-      ctx.fillStyle = `hsl(${p.hue}, 80%, 65%)`;
+      ctx.globalAlpha = p.opacity * 0.45;
+      ctx.fillStyle = `hsl(${p.hue}, 30%, 55%)`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
@@ -1170,8 +1170,8 @@ function setupPortalParticles() {
 
       if (p.life <= 0) return false;
 
-      ctx.globalAlpha = p.life * 0.7;
-      ctx.fillStyle = `hsl(${p.hue}, 90%, 60%)`;
+      ctx.globalAlpha = p.life * 0.55;
+      ctx.fillStyle = `hsl(${p.hue}, 65%, 50%)`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
@@ -1305,7 +1305,7 @@ function setCityState(city) {
   // Update introductory title card text (split for sideways parting animation)
   const introCityTitle = document.getElementById('introCityTitle');
   if (introCityTitle) {
-    setSplitCityTitle(cityData.name.toUpperCase());
+    setSplitCityTitle(cityData.name.toLocaleUpperCase(lang === 'pl' ? 'pl-PL' : 'tr-TR'));
   }
 
   // Update introductory background video
@@ -1525,21 +1525,14 @@ function addLeafletMarkers(mapObj, locations) {
     const transCity = dict.cities[cityKey];
     if (!transCity) return;
 
-    const displayName = loc.districtName ? loc.districtName.toUpperCase() : transCity.name;
-    const displayCoords = loc.districtName ? `${loc.coords[0].toFixed(2)}° N, ${loc.coords[1].toFixed(2)}° E` : transCity.coords;
+    const displayName = loc.districtName ? loc.districtName : transCity.name;
 
-    // Build the custom neon reticle HTML
+    // Clean map pin: colored dot + soft pulse + city label
     const markerHtml = `
       <div class="map-hotspot" data-city="${cityKey}" data-market="${loc.market}" ${loc.districtName ? `data-iladi="${loc.districtName}"` : ''} role="button" tabindex="0">
         <div class="hotspot-pulse"></div>
         <div class="hotspot-core"></div>
-        <div class="hotspot-reticle">
-          <div class="reticle-ring ring-dashed"></div>
-          <div class="reticle-ring ring-solid"></div>
-          <div class="reticle-cross"></div>
-        </div>
         <span class="hotspot-label">${displayName}</span>
-        <span class="hotspot-telemetry">${displayCoords}</span>
       </div>
     `;
 
@@ -1606,10 +1599,11 @@ function initLeafletMap(country) {
       scrollWheelZoom: false,
       attributionControl: true,
       minZoom: 5,
-      maxZoom: 9
+      maxZoom: 9,
+      zoomSnap: 0.25
     }).setView([39.0, 35.0], 6);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(turkeyMapInstance);
 
@@ -1623,7 +1617,14 @@ function initLeafletMap(country) {
     ];
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
-    
+
+    // Fit all city pins (plus label breathing room) into view on any viewport
+    turkeyMapInstance.fitBounds(L.latLngBounds(turkeyCities.map(c => c.coords)), {
+      paddingTopLeft: [70, 80],
+      paddingBottomRight: [70, 60],
+      maxZoom: 7
+    });
+
     setTimeout(() => {
       gsap.fromTo('#portalNeonMap .map-hotspot',
         { opacity: 0, scale: 0 },
@@ -1644,7 +1645,7 @@ function initLeafletMap(country) {
       maxZoom: 13
     }).setView([52.2297, 21.0122], 11);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(polandMapInstance);
 
@@ -1658,6 +1659,11 @@ function initLeafletMap(country) {
     ];
 
     addLeafletMarkers(polandMapInstance, polandDistricts);
+
+    // Fit all district pins into view on any viewport size
+    polandMapInstance.fitBounds(L.latLngBounds(polandDistricts.map(c => c.coords)), {
+      padding: [60, 60]
+    });
 
     setTimeout(() => {
       gsap.fromTo('#portalNeonMapPoland .map-hotspot',
@@ -1758,7 +1764,7 @@ function setupPortalGateway() {
               }
               if (portalCenterHint) {
                 gsap.to(portalCenterHint, {
-                  opacity: 0.25,
+                  opacity: 1,
                   y: 0,
                   duration: 0.8,
                   ease: 'power2.out',
@@ -1817,7 +1823,7 @@ function setupPortalGateway() {
               }
               if (portalCenterHint) {
                 gsap.to(portalCenterHint, {
-                  opacity: 0.25,
+                  opacity: 1,
                   y: 0,
                   duration: 0.8,
                   ease: 'power2.out',
@@ -1863,9 +1869,9 @@ function setupPortalGateway() {
     );
 
     // 5. Center selection hint reveal
-    gsap.fromTo('.portal-center-hint', 
+    gsap.fromTo('.portal-center-hint',
       { y: 12, opacity: 0 },
-      { y: 0, opacity: 0.25, duration: 1.0, ease: 'power2.out', delay: 0.8 }
+      { y: 0, opacity: 1, duration: 1.0, ease: 'power2.out', delay: 0.8 }
     );
 
     // 6. Map and Default Panel premium presentation entry
@@ -3889,13 +3895,13 @@ function updateBookingSummaryBox() {
     : '<li>Yok</li>';
 
   summaryBox.innerHTML = `
-    <h4>SEÇİLEN DETAYLAR</h4>
+    <h4>Seçilen Detaylar</h4>
     <div class="summary-row"><span>Hizmet Türü:</span> <span class="summary-val">${serviceLabel}</span></div>
     <div class="summary-row"><span>Hizmet Alanı:</span> <span class="summary-val">${area} m²</span></div>
     <div class="summary-row"><span>Sıklık:</span> <span class="summary-val">${freqLabel}</span></div>
     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 8px; margin-bottom: 8px;">
       <span>Ekstralar:</span>
-      <ul style="padding-left: 16px; margin: 0; list-style-type: square; color: #fff; width: 100%;">
+      <ul class="summary-extras-list" style="padding-left: 16px; margin: 0; list-style-type: square; width: 100%;">
         ${extrasHtml}
       </ul>
     </div>
@@ -4307,7 +4313,7 @@ function setupServicesModal() {
     const val = parseFloat(areaRange.value || 100);
     const percentage = ((val - min) / (max - min)) * 100;
     const accentColor = document.documentElement.style.getPropertyValue('--clr-accent') || '#3366ff';
-    areaRange.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${percentage}%, rgba(255, 255, 255, 0.08) ${percentage}%, rgba(255, 255, 255, 0.08) 100%)`;
+    areaRange.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${percentage}%, #d8d4c9 ${percentage}%, #d8d4c9 100%)`;
   }
 
   function calculatePrice(isDragging = false) {
@@ -4357,7 +4363,7 @@ function setupServicesModal() {
     // Render itemized receipt details
     const receiptBox = document.getElementById('calculatorReceipt');
     if (receiptBox) {
-      const receiptTitle = isPl ? 'SZCZEGÓŁOWA WYCENA' : 'FİYAT DETAY HESAP DÖKÜMÜ';
+      const receiptTitle = isPl ? 'Szczegółowa wycena' : 'Fiyat Dökümü';
       const labelBaseArea = isPl ? 'Podstawowa Powierzchnia' : 'Taban Hizmet Alanı';
       const labelUnitPrice = isPl ? 'Koszt jednostkowy za m²' : 'Birim m² Maliyeti';
       const labelGrossCost = isPl ? 'Koszt Powierzchni Brutto' : 'Brüt Alan Maliyeti';
@@ -4414,7 +4420,7 @@ function setupServicesModal() {
 
       receiptHtml += `
         <div class="receipt-row receipt-total-row">
-          <span class="receipt-lbl" style="font-weight: 700; color: #fff;">${labelTotalEst}</span>
+          <span class="receipt-lbl receipt-total-lbl">${labelTotalEst}</span>
           <span class="receipt-leader"></span>
           <span class="receipt-val receipt-total-val" id="receipt-total-val">${formatter.format(totalCost)}</span>
         </div>
@@ -4561,7 +4567,7 @@ function openPortalGateway() {
     .to(['.hud-tl', '.hud-tr', '.hud-bl', '.hud-br'], { x: 0, y: 0, opacity: 1, duration: 0.7, ease: 'power2.out', stagger: 0.05 }, '-=0.4')
     .to('.telemetry-tick', { opacity: 0.45, duration: 0.6, stagger: 0.05, ease: 'power1.inOut' }, '-=0.4')
     .to('.portal-logo-container', { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out' }, '-=0.4')
-    .to('.portal-center-hint', { y: 0, opacity: 0.25, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+    .to('.portal-center-hint', { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.3')
     .to('.portal-map-wrapper', { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' }, '-=0.4')
     .to('.map-hotspot', { opacity: 1, scale: 1, duration: 0.7, stagger: 0.05, ease: 'back.out(1.7)' }, '-=0.8')
     .to('#portalDefaultPanel', { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.8');

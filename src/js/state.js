@@ -58,10 +58,10 @@ export const STATE = {
 
 // Regional styling and themes configuration
 export const REGION_THEMES = {
-  marmara: { accent: '#3366ff', rgb: '51, 102, 255' },
-  ege: { accent: '#ff9100', rgb: '255, 145, 0' },
-  karadeniz: { accent: '#ff3366', rgb: '255, 51, 102' },
-  mazowsze: { accent: '#ff3355', rgb: '255, 51, 85' }
+  marmara: { accent: '#2563eb', rgb: '37, 99, 235' },
+  ege: { accent: '#d97706', rgb: '217, 119, 6' },
+  karadeniz: { accent: '#dc2626', rgb: '220, 38, 38' },
+  mazowsze: { accent: '#dc2626', rgb: '220, 38, 38' }
 };
 
 export const CITY_TO_REGION = {
