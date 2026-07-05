@@ -12,11 +12,14 @@ function logDebug(...args) {
     console.log('%c[TwoRose Debug]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 3px 6px; border-radius: 4px; border: 1px solid #00e5ff;', ...args);
   }
 }
-function logErrorDebug(...args) {
-  if (DEBUG) {
-    console.error('%c[TwoRose Debug Error]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 3px 6px; border-radius: 4px; border: 1px solid #ff3366;', ...args);
+// Global window exception tracker writing directly to our visual screen logger
+window.onerror = function(message, source, lineno, colno, error) {
+  const debugHUD = document.getElementById('cinemaDebugHUD');
+  if (debugHUD) {
+    debugHUD.innerHTML = `<span style="color:#ff3366;font-weight:bold;">ERR: ${message}</span><br>at ${source}:${lineno}`;
+    debugHUD.style.opacity = '1';
   }
-}
+};
 
 // Dynamic debug toggling via hashchange event
 window.addEventListener('hashchange', () => {
@@ -521,7 +524,7 @@ function applyServicesModalTranslations(dict, lang) {
     if (ilP) ilP.textContent = lang === 'pl' ? 'Czyszczenie przeciw owadom, szkodnikom i sterylizacja sanitarna.' : 'Böcek, haşere ve bakteri dezenfeksiyon işlemleri.';
   }
 
-  const calcTitle = document.querySelector('.estimator-calculator-panel h3');
+  const calcTitle = document.getElementById('modalCalcTitleLbl');
   if (calcTitle) calcTitle.textContent = dict.modalCalcTitle;
 
   const areaLabel = document.querySelector('.calc-field:nth-child(1) label');
@@ -548,13 +551,19 @@ function applyServicesModalTranslations(dict, lang) {
 
   const extraCBs = document.querySelectorAll('.calc-cb-label');
   if (extraCBs.length >= 3) {
-    extraCBs[0].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="300" /> ${lang === 'pl' ? 'Dokładne mycie okien (+300 PLN)' : 'Detaylı Cam Temizliği (+300 TL)'}`;
-    extraCBs[1].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="250" /> ${lang === 'pl' ? 'Wnętrze piekarnika & AGD (+250 PLN)' : 'Fırın & Beyaz Eşya İçi (+250 TL)'}`;
-    extraCBs[2].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="200" /> ${lang === 'pl' ? 'Mycie balkonu (+200 PLN)' : 'Balkon Yıkama (+200 TL)'}`;
+    const isPl = lang === 'pl';
+    extraCBs[0].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="300" /> ${isPl ? 'Dokładne mycie okien' : 'Detaylı Cam Temizliği'}`;
+    extraCBs[1].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="250" /> ${isPl ? 'Wnętrze piekarnika & AGD' : 'Fırın & Beyaz Eşya İçi'}`;
+    extraCBs[2].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="200" /> ${isPl ? 'Mycie balkonu' : 'Balkon Yıkama'}`;
   }
 
   const resultLabel = document.querySelector('.calculator-result-box .calc-result-lbl');
   if (resultLabel) resultLabel.textContent = dict.modalCalcCost;
+
+  const priceDisplay = document.getElementById('calc-price-display');
+  if (priceDisplay) {
+    priceDisplay.textContent = lang === 'pl' ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK';
+  }
 
   const disclaimer = document.querySelector('.calculator-result-box .calc-disclaimer');
   if (disclaimer) disclaimer.textContent = dict.modalCalcDisclaimer;
@@ -1426,7 +1435,6 @@ window.addEventListener('DOMContentLoaded', () => {
   setupServicesModal();
   setupResizeObserver();
   setupGlobalEscapeKey();
-  setupKeyboardCinemaScroll();
 
   // Initialize interactive visual effects (Custom cursor on desktop, ambient glow globally)
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -1445,26 +1453,13 @@ window.addEventListener('DOMContentLoaded', () => {
 // 4. LENIS SMOOTH SCROLL SETUP
 // ==========================================
 function setupLenis() {
-  const lenis = new Lenis({
-    duration: 1.5,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smoothWheel: true,
-    wheelMultiplier: 0.9,
-    touchMultiplier: 1.1
-  });
-  
-  STATE.lenisInstance = lenis;
-  lenis.on('scroll', ScrollTrigger.update);
-  
-  gsap.ticker.add((time) => {
-    lenis.raf(time * 1000);
-  });
-  gsap.ticker.lagSmoothing(0);
-
-  // Lock scrolling if gateway is active
-  if (document.body.classList.contains('flag-selection-mode')) {
-    lenis.stop();
-  }
+  // Lenis smooth scroll disabled to allow clean, slide-based touchless navigation
+  STATE.lenisInstance = {
+    stop: () => {},
+    start: () => {},
+    scrollTo: () => {},
+    destroy: () => {}
+  };
 }
 
 function updateCachedHotspotCoords() {
@@ -1569,6 +1564,7 @@ function addLeafletMarkers(mapObj, locations) {
       el.addEventListener('mouseenter', onEnter);
       el.addEventListener('mouseleave', onLeave);
       el.addEventListener('click', clickHandler);
+      el.addEventListener('pointerdown', clickHandler);
       el.addEventListener('keydown', keyHandler);
 
       portalHotspotListeners.push({ hotspot: el, onEnter, onLeave, clickHandler, keyHandler });
@@ -2350,6 +2346,11 @@ function setupPortalGateway() {
         }
 
         ScrollTrigger.refresh();
+
+        // Initialize cinema engine in touch-driven step mode after portal closes
+        if (typeof window.goToCinemaStep === 'function') {
+          window.goToCinemaStep(0);
+        }
       }
     });
 
@@ -2532,6 +2533,7 @@ function setupPortalGateway() {
     };
 
     btn.addEventListener('click', clickHandler);
+    btn.addEventListener('pointerdown', clickHandler);
     btn.addEventListener('keydown', keyHandler);
 
     portalHotspotListeners.push({ hotspot: btn, clickHandler, keyHandler });
@@ -2557,15 +2559,19 @@ function setupNavScroll() {
     });
   }
 
-  // Bind navigation links & logo
+  // Bind navigation links & logo to cinema step index transitions since page scrolling is disabled
   const handleNavClick = (targetType, e) => {
     if (e) e.preventDefault();
-    if (targetType === 'home') {
-      scrollToTarget(0);
-    } else if (targetType === 'scroller') {
-      scrollToTarget('#cinema-section', cachedWindowHeight * 1.5);
-    } else if (targetType === 'contact') {
-      scrollToTarget('#cinema-section', cachedWindowHeight * 48);
+    if (typeof window.goToCinemaStep === 'function') {
+      if (targetType === 'home') {
+        window.goToCinemaStep(0);
+      } else if (targetType === 'services') {
+        window.goToCinemaStep(1);
+      } else if (targetType === 'scroller') {
+        window.goToCinemaStep(2);
+      } else if (targetType === 'contact') {
+        window.goToCinemaStep(14);
+      }
     }
   };
 
@@ -2577,6 +2583,11 @@ function setupNavScroll() {
   const homeLink = document.querySelector('.nav-links a:first-child');
   if (homeLink) {
     homeLink.addEventListener('click', (e) => handleNavClick('home', e));
+  }
+
+  const servicesLink = document.getElementById('navServicesLink');
+  if (servicesLink) {
+    servicesLink.addEventListener('click', (e) => handleNavClick('services', e));
   }
 
   const scrollerLink = document.getElementById('navScrollerLink');
@@ -2682,16 +2693,16 @@ function setupMobileDrawer() {
       link.classList.add('active');
 
       setTimeout(() => {
-        if (target === 'home') {
-          scrollToTarget(0);
-        } else if (target === 'services') {
-          if (servicesLink) {
-            servicesLink.click();
+        if (typeof window.goToCinemaStep === 'function') {
+          if (target === 'home') {
+            window.goToCinemaStep(0);
+          } else if (target === 'services') {
+            window.goToCinemaStep(1);
+          } else if (target === 'cinema') {
+            window.goToCinemaStep(2);
+          } else if (target === 'contact') {
+            window.goToCinemaStep(14);
           }
-        } else if (target === 'cinema') {
-          scrollToTarget('#cinema-section', window.innerHeight * 1.5);
-        } else if (target === 'contact') {
-          scrollToTarget('#cinema-section', window.innerHeight * 48);
         }
       }, 300);
     });
@@ -2849,6 +2860,26 @@ function setupCinemaEngine() {
       // Backup original source URL
       if (!sc.video.dataset.originalSrc) {
         sc.video.dataset.originalSrc = sc.video.getAttribute('src') || '';
+      }
+
+      // Automatic aspect-ratio detection for mobile responsive view styling
+      const checkAspectRatio = () => {
+        if (sc.video.videoWidth && sc.video.videoHeight) {
+          const ratio = sc.video.videoWidth / sc.video.videoHeight;
+          if (ratio < 1.0) {
+            sc.video.classList.add('portrait-video');
+            sc.video.classList.remove('landscape-video');
+          } else {
+            sc.video.classList.add('landscape-video');
+            sc.video.classList.remove('portrait-video');
+          }
+        }
+      };
+
+      if (sc.video.readyState >= 1) {
+        checkAspectRatio();
+      } else {
+        sc.video.addEventListener('loadedmetadata', checkAspectRatio);
       }
 
       // Track file loading errors once
@@ -3139,10 +3170,10 @@ function setupCinemaEngine() {
       const video = sc.video;
       if (!video) return;
 
-      // Proximity filter: only render and seek active and adjacent videos.
-      // Any video further than 1 index away is hidden and not seeked.
+      // Proximity filter: only render active and adjacent videos (within distance of 2 steps)
+      // to keep them loaded and ready for smooth, zero-latency slide transitions.
       const distFromActive = idx - cState.activeIdx;
-      if (Math.abs(distFromActive) > 1) {
+      if (Math.abs(distFromActive) > 2) {
         sState.currentOpacity = 0;
         sState.targetOpacity = 0;
 
@@ -3154,48 +3185,25 @@ function setupCinemaEngine() {
           video.style.visibility = 'hidden';
           sState.lastAppliedVisibility = 'hidden';
         }
-
-        // Source unloading limits mobile memory/decoder use, but NEVER for upcoming
-        // scenes: once an ahead scene is warmed we keep it decoded so it is paint-ready
-        // the instant it cross-fades in (no blank/white frames on scroll). Only scenes
-        // already PASSED (behind by >2) are unloaded to reclaim memory. They re-warm via
-        // prewarmAround if the user scrolls back up.
-        const unload = distFromActive < -2; // behind by more than 2 → safe to unload
-        if (cachedWindowWidth <= 768 && unload && video.src && video.src !== '') {
-          if (!video.dataset.originalSrc) {
-            video.dataset.originalSrc = video.getAttribute('src') || '';
-          }
-          video.removeAttribute('src');
-          try {
-            video.load();
-          } catch (e) {}
-          video.dataset.warmedUp = 'false';
-          video.dataset.unlocked = 'false';
-        }
         return;
       }
 
-      // Restore video source if dynamically unloaded (proximity loader)
-      if (cachedWindowWidth <= 768 && (!video.src || video.src === '')) {
-        const originalSrc = video.dataset.originalSrc || video.getAttribute('src');
-        if (originalSrc) {
-          video.setAttribute('src', originalSrc);
-          video.load();
-          video.dataset.warmedUp = 'true';
+      // Lerp time (Only for non-active videos to sync their state, letting active video run naturally)
+      if (idx !== cState.activeIdx) {
+        sState.currentTime += (sState.targetTime - sState.currentTime) * timeLerp;
+        // Clamp to actual video duration if available
+        if (!isNaN(video.duration) && video.duration > 0) {
+          if (sState.targetTime > video.duration) sState.targetTime = video.duration;
+          if (sState.currentTime > video.duration) sState.currentTime = video.duration;
         }
-      }
-
-      // Lerp time
-      sState.currentTime += (sState.targetTime - sState.currentTime) * timeLerp;
-      // Clamp to actual video duration if available
-      if (!isNaN(video.duration) && video.duration > 0) {
-        if (sState.targetTime > video.duration) sState.targetTime = video.duration;
-        if (sState.currentTime > video.duration) sState.currentTime = video.duration;
-      }
-      if (Math.abs(sState.targetTime - sState.currentTime) < 0.01) {
-        sState.currentTime = sState.targetTime;
+        if (Math.abs(sState.targetTime - sState.currentTime) < 0.01) {
+          sState.currentTime = sState.targetTime;
+        } else {
+          settled = false;
+        }
       } else {
-        settled = false;
+        // Active video: simply match currentTime with native player head
+        sState.currentTime = video.currentTime;
       }
 
       // Lerp opacity
@@ -3234,8 +3242,8 @@ function setupCinemaEngine() {
         sState.lastAppliedVideoY = roundedVideoY;
       }
 
-      // Keep active video paused to prevent autonomous playback
-      if (!video.paused) {
+      // Only pause non-active videos to prevent autonomous background playback
+      if (idx !== cState.activeIdx && !video.paused) {
         try {
           video.pause();
         } catch (err) {}
@@ -3261,8 +3269,9 @@ function setupCinemaEngine() {
         }
       }
 
-      // Apply native seeking
-      if (video.readyState >= 1) {
+      // Apply native seeking only to non-active videos to align their positions, 
+      // allowing the active video to play smoothly in its own time without feedback jitter.
+      if (idx !== cState.activeIdx && video.readyState >= 1) {
         const seekDiff = Math.abs(video.currentTime - sState.currentTime);
         if (seekDiff > 0.05) {
           settled = false;
@@ -3325,400 +3334,319 @@ function setupCinemaEngine() {
   // Launch the rendering loop immediately for initial setup
   triggerCinemaLoop();
 
-  trigger = ScrollTrigger.create({
-    trigger: '#cinema-section',
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: true,
-    onUpdate: (self) => {
-      const p = self.progress; // 0.0 -> 1.0
-      const cState = STATE.cinema;
+  // Custom Step-Based Touchless Navigation State
+  let currentStep = 0; // Steps: 0 (Intro), 1 (Services), 2-13 (12 Scenes), 14 (Booking)
+  const totalSteps = 15;
+  let isTransitioning = false;
 
-      // Wake up the LERP rendering loop if it is suspended
-      triggerCinemaLoop();
+  // Central Navigation Engine: maps step changes to cinema state values
+  function goToStep(targetStep, direction = 1) {
+    if (targetStep < 0 || targetStep >= totalSteps) return;
+    
+    isTransitioning = true;
+    currentStep = targetStep;
 
-      // Update navigation progress bar (GPU-accelerated scaleX)
-      if (navProgressBar) {
-        navProgressBar.style.transform = `scaleX(${p})`;
-      }
+    // Wake up LERP loop
+    triggerCinemaLoop();
 
-      // Update active navigation link
-      updateActiveNavLink(p);
+    // Map step to equivalent progress (0.0 to 1.0)
+    let p = 0;
+    if (targetStep === 0) p = 0.0;
+    else if (targetStep === 1) p = 0.30;
+    else if (targetStep >= 2 && targetStep <= 13) {
+      // Scale 12 character scenes between 0.50 and 0.92
+      p = 0.50 + ((targetStep - 2) * (0.42 / 11));
+    } else p = 0.98; // Booking reveal
 
-      // State variable to track hero visibility within this context
-      if (typeof self.heroVisible === 'undefined') {
-        self.heroVisible = true;
-      }
-
-      // Set target opacities to 0 if we scroll past the introductory phase
-      if (p > 0.10) {
-        cState.introVideoState.targetOpacity = 0;
-        cState.introTextState.targetOpacity = 0;
-      }
-
-      // ── PHASE 1: LANDING HERO OVERLAY (0.00 -> 0.10) ──
-      if (p <= 0.10) {
-        const pNorm = p / 0.10; // 0.0 -> 1.0
-        const pTextNorm = Math.min(1, p / 0.08); // 0.0 -> 1.0
-
-        // Set target values for the split text parting offsets and opacity
-        cState.introTextState.targetOffset = pTextNorm * 120;
-        cState.introTextState.targetOpacity = 1 - pTextNorm;
-
-        // Set target values for the active intro background video
-        if (!activeIntroVideoEl) {
-          activeIntroVideoEl = document.querySelector('.cinema-intro-card .intro-video.active');
-        }
-        if (activeIntroVideoEl) {
-          // Premium zoom constraint: max scale of 1.15 at p=0.10 (scale = 1 + pNorm * 0.15)
-          cState.introVideoState.targetScale = 1 + pNorm * 0.15;
-          cState.introVideoState.targetTranslateY = pNorm * -50;
-        }
-        
-        cState.introVideoState.targetOpacity = 1 - pNorm;
-
-        // Fade in/out heroOverlay (simple backdrop layout toggle)
-        const ratio_in = Math.min(1, p / 0.06);
-        let ratio_out = 1;
-        if (p >= 0.08) {
-          ratio_out = Math.max(0, 1 - (p - 0.08) / 0.02);
-        }
-        const elementOpacity = ratio_in * ratio_out;
-        if (heroOverlay) {
-          heroOverlay.style.opacity = elementOpacity;
-          if (elementOpacity > 0) {
-            heroOverlay.style.pointerEvents = 'all';
-            heroOverlay.style.visibility = 'visible';
-            self.heroVisible = true;
-          } else {
-            heroOverlay.style.pointerEvents = 'none';
-            heroOverlay.style.visibility = 'hidden';
-            self.heroVisible = false;
-          }
-        }
-
-        // Stick nav
-        if (mainNav) {
-          mainNav.style.opacity = ratio_in;
-        }
-
-        // Iris stays closed, scene opacities stay 0
-        cState.targetRadius = 0;
-        cState.targetX = 50;
-        cState.targetY = 50;
-        cState.sceneStates.forEach((s) => {
-          s.targetOpacity = 0;
-          s.targetTime = 0;
-        });
-
-        // Reset active scene and remove active classes
-        if (cState.activeIdx !== -1) {
-          cState.activeIdx = -1;
-          scenes.forEach(sc => {
-            if (sc.video) {
-              sc.video.classList.remove('active');
-            }
-          });
-        }
-
-        // Hide all text blocks
-        if (cState.activeTextBlockIdx !== -1) {
-          cState.activeTextBlockIdx = -1;
-          textBlocks.forEach(block => block.classList.remove('active'));
-        }
-        return;
-      }
-
-      // Hide hero overlay once scrolled past
-      if (self.heroVisible) {
-        if (heroOverlay) {
-          heroOverlay.style.opacity = 0;
-          heroOverlay.style.pointerEvents = 'none';
-          heroOverlay.style.visibility = 'hidden';
-        }
-        self.heroVisible = false;
-      }
-
-      if (mainNav) {
-        mainNav.style.opacity = 1;
-      }
-
-        // ── PHASE 2: TRANSITION & SCREEN DARKENING (0.10 -> 0.15) ──
-        if (p > 0.10 && p <= 0.15) {
-          cState.targetRadius = 0;
-          cState.targetX = 50;
-          cState.targetY = 50;
-
-          cState.sceneStates.forEach((s) => {
-            s.targetOpacity = 0;
-            s.targetTime = 0;
-          });
-
-          if (cState.activeIdx !== -1) {
-            cState.activeIdx = -1;
-            scenes.forEach(sc => {
-              if (sc.video) sc.video.classList.remove('active');
-            });
-          }
-
-          if (cState.activeTextBlockIdx !== -1) {
-            cState.activeTextBlockIdx = -1;
-            textBlocks.forEach(block => block.classList.remove('active'));
-          }
-
-          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
-            servicesSelectCard.classList.remove('active');
-          }
-
-          closeBookingScreen();
-          return;
-        }
-
-        // ── PHASE 3: 4 SERVICE CARDS SHOWCASE (0.15 -> 0.45) ──
-        if (p > 0.15 && p <= 0.45) {
-          cState.targetRadius = 0;
-          cState.targetX = 50;
-          cState.targetY = 50;
-
-          cState.sceneStates.forEach((s) => {
-            s.targetOpacity = 0;
-            s.targetTime = 0;
-          });
-
-          if (cState.activeIdx !== -1) {
-            cState.activeIdx = -1;
-            scenes.forEach(sc => {
-              if (sc.video) sc.video.classList.remove('active');
-            });
-          }
-
-          if (cState.activeTextBlockIdx !== -1) {
-            cState.activeTextBlockIdx = -1;
-            textBlocks.forEach(block => block.classList.remove('active'));
-          }
-
-          if (servicesSelectCard && !servicesSelectCard.classList.contains('active')) {
-            servicesSelectCard.classList.add('active');
-          }
-
-          closeBookingScreen();
-          return;
-        }
-
-        // ── PHASE 4: IRIS OPENING TRANSITION (0.45 -> 0.50) ──
-        if (p > 0.45 && p <= 0.50) {
-          const ratio = (p - 0.45) / 0.05; // 0.0 -> 1.0
-          cState.targetRadius = ratio * 120;
-          
-          cState.sceneStates[0].targetOpacity = ratio;
-          cState.sceneStates[0].targetTime = 0;
-          cState.sceneStates[0].targetVideoY = scenes[0].yStart || 0;
-          cState.targetX = scenes[0].irisX;
-          cState.targetY = scenes[0].irisY;
-
-          for (let idx = 1; idx < 12; idx++) {
-            cState.sceneStates[idx].targetOpacity = 0;
-            cState.sceneStates[idx].targetTime = 0;
-          }
-
-          if (cState.activeIdx !== -1) {
-            cState.activeIdx = -1;
-            scenes.forEach(sc => {
-              if (sc.video) sc.video.classList.remove('active');
-            });
-          }
-
-          if (cState.activeTextBlockIdx !== -1) {
-            cState.activeTextBlockIdx = -1;
-            textBlocks.forEach(block => block.classList.remove('active'));
-          }
-
-          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
-            servicesSelectCard.classList.remove('active');
-          }
-
-          closeBookingScreen();
-          return;
-        }
-
-        // ── PHASE 5: 12 CHARACTER VIDEOS SCROLL-SCRUB (0.50 -> 0.92) ──
-        if (p > 0.50 && p <= 0.92) {
-          cState.targetRadius = 120;
-
-          const start_range = 0.50;
-          const end_range = 0.92;
-          const total_range = end_range - start_range; // 0.42
-          const segmentSize = total_range / 12; // 0.035
-
-          const scrubProgress = p - start_range;
-          const activeIdx = Math.max(0, Math.min(Math.floor(scrubProgress / segmentSize), 11));
-          
-          cState.targetX = scenes[activeIdx].irisX;
-          cState.targetY = scenes[activeIdx].irisY;
-
-          if (cState.activeIdx !== activeIdx) {
-            cState.activeIdx = activeIdx;
-            prewarmAround(activeIdx);
-            logDebug(`Active scene shifted to index: ${activeIdx}`);
-
-            scenes.forEach((sc, idx) => {
-              if (sc.video) {
-                if (idx === activeIdx) {
-                  sc.video.classList.add('active');
-                  warmupVideo(sc.video);
-                } else {
-                  sc.video.classList.remove('active');
-                }
-              }
-            });
-          }
-
-          // Calculate mid-points for all 12 scenes
-          const midPoints = [];
-          for (let i = 0; i < 12; i++) {
-            midPoints.push(start_range + (i + 0.5) * segmentSize);
-          }
-
-          // Calculate target opacities using overlapping linear cross-fade
-          const targetOpacities = Array(12).fill(0);
-          if (p <= midPoints[0]) {
-            targetOpacities[0] = 1.0;
-          } else if (p >= midPoints[11]) {
-            targetOpacities[11] = 1.0;
-          } else {
-            // Find which two mid-points p lies between
-            let activeSegmentIdx = 0;
-            for (let i = 0; i < 11; i++) {
-              if (p >= midPoints[i] && p <= midPoints[i + 1]) {
-                activeSegmentIdx = i;
-                break;
-              }
-            }
-            const t = (p - midPoints[activeSegmentIdx]) / (midPoints[activeSegmentIdx + 1] - midPoints[activeSegmentIdx]);
-            
-            // Symmetric cross-fade with a dead-zone (transition only within [0.35, 0.65])
-            // For t < 0.35: only activeSegmentIdx is visible (opacity 1.0).
-            // For t > 0.65: only activeSegmentIdx + 1 is visible (opacity 1.0).
-            // Between 0.35 and 0.65: clean fade from i to i+1.
-            // This prevents multiple overlapping videos and removes the double exposure bug.
-            if (t < 0.35) {
-              targetOpacities[activeSegmentIdx] = 1.0;
-              targetOpacities[activeSegmentIdx + 1] = 0.0;
-            } else if (t > 0.65) {
-              targetOpacities[activeSegmentIdx] = 0.0;
-              targetOpacities[activeSegmentIdx + 1] = 1.0;
-            } else {
-              const normalizedT = (t - 0.35) / 0.30;
-              targetOpacities[activeSegmentIdx] = 1.0 - normalizedT;
-              targetOpacities[activeSegmentIdx + 1] = normalizedT;
-            }
-          }
-
-          // Calculate playheads, panning Y-coords, and assign opacities
-          for (let idx = 0; idx < 12; idx++) {
-            const sState = cState.sceneStates[idx];
-            const sc = scenes[idx];
-            const video = sc.video;
-            const duration = getSafeDuration(video);
-
-            // Wide scrub range: from midPoints[idx-1] to midPoints[idx+1]
-            const scrubStart = idx > 0 ? midPoints[idx - 1] : start_range;
-            const scrubEnd = idx < 11 ? midPoints[idx + 1] : end_range;
-
-            if (p <= scrubStart) {
-              sState.targetTime = 0;
-              sState.targetVideoY = sc.yStart || 0;
-            } else if (p >= scrubEnd) {
-              sState.targetTime = duration;
-              sState.targetVideoY = sc.yEnd || 100;
-            } else {
-              const local_p = (p - scrubStart) / (scrubEnd - scrubStart);
-              sState.targetTime = local_p * duration;
-              sState.targetVideoY = (sc.yStart || 0) + ((sc.yEnd || 100) - (sc.yStart || 0)) * local_p;
-            }
-
-            sState.targetOpacity = targetOpacities[idx];
-          }
-
-          let targetTextBlockIdx = activeIdx;
-          if (cState.activeTextBlockIdx !== targetTextBlockIdx) {
-            cState.activeTextBlockIdx = targetTextBlockIdx;
-            logDebug(`Text overlay shifted to index: ${targetTextBlockIdx}`);
-            textBlocks.forEach((block, idx) => {
-              if (idx === targetTextBlockIdx) {
-                block.classList.add('active');
-              } else {
-                block.classList.remove('active');
-              }
-            });
-          }
-
-          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
-            servicesSelectCard.classList.remove('active');
-          }
-
-          closeBookingScreen();
-          return;
-        }
-
-        // ── PHASE 6: IRIS CLOSING & TELEPORT TO BOOKING (0.92 -> 0.96) ──
-        if (p > 0.92 && p <= 0.96) {
-          const ratio = (p - 0.92) / 0.04; // 0.0 -> 1.0
-          cState.targetRadius = Math.max(0, 120 - ratio * 120);
-
-          cState.sceneStates[11].targetOpacity = 1.0 - ratio;
-          cState.sceneStates[11].targetTime = getSafeDuration(scenes[11].video);
-          cState.sceneStates[11].targetVideoY = scenes[11].yEnd || 100;
-
-          for (let idx = 0; idx < 11; idx++) {
-            cState.sceneStates[idx].targetOpacity = 0;
-            cState.sceneStates[idx].targetTime = 0;
-          }
-
-          if (cState.activeTextBlockIdx !== -1) {
-            cState.activeTextBlockIdx = -1;
-            textBlocks.forEach(block => block.classList.remove('active'));
-          }
-
-          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
-            servicesSelectCard.classList.remove('active');
-          }
-
-          closeBookingScreen();
-          return;
-        }
-
-        // ── PHASE 7: BOOKING REVEAL SCREEN (p > 0.96) ──
-        if (p > 0.96) {
-          cState.targetRadius = 0;
-          cState.sceneStates.forEach(s => s.targetOpacity = 0);
-          
-          if (cState.activeIdx !== -1) {
-            cState.activeIdx = -1;
-            scenes.forEach(sc => {
-              if (sc.video) {
-                sc.video.classList.remove('active');
-              }
-            });
-          }
-
-          if (cState.activeTextBlockIdx !== -1) {
-            cState.activeTextBlockIdx = -1;
-            textBlocks.forEach(block => block.classList.remove('active'));
-          }
-
-          if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
-            servicesSelectCard.classList.remove('active');
-          }
-
-          openBookingScreen();
-        }
+    // Update progress bar
+    if (navProgressBar) {
+      gsap.to(navProgressBar, { scaleX: p, duration: 0.5, ease: 'power2.out' });
     }
-  });
 
-  // Force initial state update immediately to initialize style states on load
-  trigger.update();
-  STATE.cinemaTrigger = trigger;
+    updateActiveNavLink(p);
+
+    const cState = STATE.cinema;
+
+    // Reset target opacity rules
+    if (p > 0.10) {
+      cState.introVideoState.targetOpacity = 0;
+      cState.introTextState.targetOpacity = 0;
+    }
+
+    // ── PHASE 1: LANDING HERO OVERLAY (p === 0.0) ──
+    if (targetStep === 0) {
+      cState.introTextState.targetOffset = 0;
+      cState.introTextState.targetOpacity = 1;
+
+      if (!activeIntroVideoEl) {
+        activeIntroVideoEl = document.querySelector('.cinema-intro-card .intro-video.active');
+      }
+      if (activeIntroVideoEl) {
+        cState.introVideoState.targetScale = 1.0;
+        cState.introVideoState.targetTranslateY = 0;
+      }
+      cState.introVideoState.targetOpacity = 1;
+
+      if (heroOverlay) {
+        heroOverlay.style.opacity = 1;
+        heroOverlay.style.pointerEvents = 'all';
+        heroOverlay.style.visibility = 'visible';
+      }
+      if (mainNav) mainNav.style.opacity = 0;
+
+      cState.targetRadius = 0;
+      cState.targetX = 50;
+      cState.targetY = 50;
+      cState.sceneStates.forEach((s) => {
+        s.targetOpacity = 0;
+        s.targetTime = 0;
+      });
+
+      if (cState.activeIdx !== -1) {
+        cState.activeIdx = -1;
+        scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
+      }
+      if (cState.activeTextBlockIdx !== -1) {
+        cState.activeTextBlockIdx = -1;
+        textBlocks.forEach(block => block.classList.remove('active'));
+      }
+      isTransitioning = false;
+      return;
+    }
+
+    // Hide heroOverlay
+    if (heroOverlay) {
+      heroOverlay.style.opacity = 0;
+      heroOverlay.style.pointerEvents = 'none';
+      heroOverlay.style.visibility = 'hidden';
+    }
+    if (mainNav) mainNav.style.opacity = 1;
+
+    // ── PHASE 3: 4 SERVICE CARDS SHOWCASE (targetStep === 1) ──
+    if (targetStep === 1) {
+      cState.targetRadius = 0;
+      cState.targetX = 50;
+      cState.targetY = 50;
+      cState.sceneStates.forEach((s) => {
+        s.targetOpacity = 0;
+        s.targetTime = 0;
+      });
+
+      if (cState.activeIdx !== -1) {
+        cState.activeIdx = -1;
+        scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
+      }
+      if (cState.activeTextBlockIdx !== -1) {
+        cState.activeTextBlockIdx = -1;
+        textBlocks.forEach(block => block.classList.remove('active'));
+      }
+
+      if (servicesSelectCard && !servicesSelectCard.classList.contains('active')) {
+        servicesSelectCard.classList.add('active');
+      }
+
+      closeBookingScreen();
+      isTransitioning = false;
+      return;
+    }
+
+    // Hide services select card past Step 1
+    if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+      servicesSelectCard.classList.remove('active');
+    }
+
+    // ── PHASE 5: 12 CHARACTER VIEWS (targetStep: 2 -> 13) ──
+    if (targetStep >= 2 && targetStep <= 13) {
+      const activeIdx = targetStep - 2;
+      
+      // Auto-Opening Iris during initial transition
+      gsap.to(cState, {
+        targetRadius: 120,
+        targetX: scenes[activeIdx].irisX,
+        targetY: scenes[activeIdx].irisY,
+        duration: 0.65,
+        ease: 'power2.out'
+      });
+
+      if (cState.activeIdx !== activeIdx) {
+        cState.activeIdx = activeIdx;
+        prewarmAround(activeIdx);
+
+        scenes.forEach((sc, idx) => {
+          if (sc.video) {
+            if (idx === activeIdx) {
+              sc.video.classList.add('active');
+              warmupVideo(sc.video);
+              
+              // Smooth Video Auto-Play Integration:
+              // Fade in and play active video from the beginning (0s) to show full flow
+              try {
+                sc.video.currentTime = 0;
+                const p = sc.video.play();
+                if (p && typeof p.then === 'function') {
+                  p.catch(() => {});
+                }
+              } catch (e) {}
+            } else {
+              sc.video.classList.remove('active');
+              try { sc.video.pause(); } catch(e) {}
+            }
+          }
+        });
+      }
+
+      // Smoothly cross-fade opacities and animate vertical video flow using GSAP
+      cState.sceneStates.forEach((sState, idx) => {
+        if (idx === activeIdx) {
+          // Initialize active video position at start (0% or yStart) for incoming active scene
+          sState.targetVideoY = scenes[idx]?.yStart || 0;
+          sState.currentVideoY = scenes[idx]?.yStart || 0;
+
+          // Smoothly animate targetVideoY from yStart to yEnd over 4.5 seconds (automated flowing sweep)
+          gsap.killTweensOf(sState, 'targetVideoY');
+          gsap.fromTo(sState,
+            { targetVideoY: scenes[idx]?.yStart || 0 },
+            { 
+              targetVideoY: scenes[idx]?.yEnd || 100, 
+              duration: 4.5, 
+              ease: 'power1.inOut',
+              overwrite: 'auto'
+            }
+          );
+
+          gsap.to(sState, {
+            targetOpacity: 1.0,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
+        } else {
+          // Reset position and fade out inactive scenes
+          gsap.killTweensOf(sState, 'targetVideoY');
+          gsap.to(sState, {
+            targetOpacity: 0.0,
+            targetVideoY: scenes[idx]?.yStart || 0,
+            duration: 0.5,
+            ease: 'power2.out'
+          });
+        }
+
+        // Let the video elements run naturally; update target time to match auto-play
+        if (idx === activeIdx) {
+          gsap.killTweensOf(sState, 'targetTime');
+          const checkProgress = () => {
+            if (cState.activeIdx === activeIdx && scenes[idx]?.video) {
+              sState.targetTime = scenes[idx].video.currentTime;
+              requestAnimationFrame(checkProgress);
+            }
+          };
+          checkProgress();
+        } else {
+          sState.targetTime = 0;
+        }
+      });
+
+      // Update text overlays
+      textBlocks.forEach((block, idx) => {
+        if (idx === activeIdx) {
+          block.classList.add('active');
+        } else {
+          block.classList.remove('active');
+        }
+      });
+      cState.activeTextBlockIdx = activeIdx;
+
+      closeBookingScreen();
+      isTransitioning = false;
+      return;
+    }
+
+    // ── PHASE 7: BOOKING REVEAL SCREEN (targetStep === 14) ──
+    if (targetStep === 14) {
+      // Close Iris overlay smoothly
+      gsap.to(cState, {
+        targetRadius: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        onComplete: () => {
+          cState.sceneStates.forEach(s => s.targetOpacity = 0);
+          if (cState.activeIdx !== -1) {
+            cState.activeIdx = -1;
+            scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
+          }
+          if (cState.activeTextBlockIdx !== -1) {
+            cState.activeTextBlockIdx = -1;
+            textBlocks.forEach(block => block.classList.remove('active'));
+          }
+          openBookingScreen();
+          isTransitioning = false;
+        }
+      });
+    }
+  }
+
+  // Unified Tap-to-Advance Cinema Navigation (Click based transition)
+  let lastGestureTime = 0;
+
+  const handleCinemaTap = (e) => {
+    // If the portal gateway/map stage is still active, ignore clicks
+    if (
+      document.body.classList.contains('portal-intro-mode') ||
+      document.body.classList.contains('flag-selection-mode')
+    ) {
+      return;
+    }
+
+    // Ignore clicks on form inputs, interactive select items, menus, and modals
+    if (
+      e.target.closest('#main-nav') ||
+      e.target.closest('.mobile-menu-drawer') ||
+      e.target.closest('#mobileMenuToggle') ||
+      e.target.closest('.services-select-card') ||
+      e.target.closest('.booking-reveal-screen') ||
+      e.target.closest('#services-modal') ||
+      e.target.closest('button') ||
+      e.target.closest('a') ||
+      e.target.closest('input') ||
+      e.target.closest('select') ||
+      e.target.closest('label')
+    ) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastGestureTime < 600) return; // Debounce double clicks
+
+    if (currentStep < totalSteps - 1) {
+      lastGestureTime = now;
+      goToStep(currentStep + 1); // Advance to next scene on click
+    }
+  };
+
+  // Bind tap events globally to capture all screen clicks (using bubbling to allow inner button clicks to fire first)
+  window.addEventListener('click', handleCinemaTap);
+  window.addEventListener('touchend', (e) => {
+    // Prevent double trigger on mobile devices with hybrid click/touch
+    if (e.target.closest('input') || e.target.closest('select') || e.target.closest('button')) {
+      return;
+    }
+  }, { passive: true });
+
+  // Strictly block all mouse wheel scrolling globally on the window to prevent scroll animations
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+  // Expose global callback to map nav logo and nav links to steps
+  if (navHomeLink) navHomeLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(0); });
+  if (navScrollerLink) navScrollerLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(2); });
+  if (navContactLink) navContactLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(14); });
+  const navLogo = document.getElementById('navLogo');
+  if (navLogo) navLogo.addEventListener('click', (e) => { e.preventDefault(); goToStep(0); });
+
+  // Expose goToStep globally for external bindings
+  window.goToCinemaStep = goToStep;
+  // Set initial step 0 state
+  goToStep(0);
 }
 
 // ==========================================
@@ -3730,6 +3658,13 @@ function openBookingScreen() {
   if (bookingRevealEl.hasAttribute('hidden')) {
     logDebug('Triggering final booking screen fade-in.');
     bookingRevealEl.removeAttribute('hidden');
+    
+    // Hide main navigation header to prevent visual collision on mobile
+    const mainNav = document.getElementById('main-nav');
+    if (mainNav) {
+      gsap.to(mainNav, { opacity: 0, duration: 0.3, ease: 'power2.out', onComplete: () => { mainNav.style.visibility = 'hidden'; } });
+    }
+
     gsap.fromTo('.reveal-content-box',
       { scale: 0.95, opacity: 0 },
       { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
@@ -3744,6 +3679,13 @@ function closeBookingScreen() {
   if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
     logDebug('Hiding booking screen.');
     bookingRevealEl.setAttribute('hidden', '');
+
+    // Restore main navigation header visibility
+    const mainNav = document.getElementById('main-nav');
+    if (mainNav) {
+      mainNav.style.visibility = 'visible';
+      gsap.to(mainNav, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+    }
   }
 }
 
@@ -3807,52 +3749,30 @@ function selectServiceGlobal(service) {
     calculatePriceFn();
   }
 
-  // Programmatic scroll-advance on service selection in the scroll section (Phase 3)
-  if (STATE.cinemaTrigger) {
-    const startScroll = STATE.cinemaTrigger.start;
-    const endScroll = STATE.cinemaTrigger.end;
-    const totalScroll = endScroll - startScroll;
-    const currentScrollY = window.scrollY;
-    const currentProgress = (currentScrollY - startScroll) / totalScroll;
-
-    // Check if we are currently inside the services selection scroll range (0.15 -> 0.45)
-    if (currentProgress > 0.12 && currentProgress < 0.46) {
-      // Auto-scroll to progress 0.50 (where Phase 5 starts - Mona Lisa, Astronaut, etc.)
-      const targetScrollY = startScroll + totalScroll * 0.50;
-      
-      // Delay slightly to let the user see the selected state feedback
-      setTimeout(() => {
-        if (STATE.lenisInstance) {
-          STATE.lenisInstance.scrollTo(targetScrollY, {
-            duration: 1.5,
-            easing: (t) => 1 - Math.pow(1 - t, 3) // easeOutCubic
-          });
-        } else {
-          window.scrollTo({
-            top: targetScrollY,
-            behavior: 'smooth'
-          });
-        }
-      }, 700);
+  // Programmatic advance on service selection in the touchless engine (Phase 3)
+  // Auto-advance to step 2 (Mona Lisa) after 700ms to let the user see the selection feedback
+  setTimeout(() => {
+    if (typeof window.goToCinemaStep === 'function') {
+      window.goToCinemaStep(2);
     }
-  }
+  }, 700);
 }
 
-function getServiceLabelTR(service) {
+function getServiceLabelTranslated(service, dict) {
   const labels = {
-    'standart': 'Standart Temizlik',
-    'detayli': 'Detaylı Temizlik',
-    'kurumsal': 'Kurumsal Temizlik (B2B)',
-    'ilaclama': 'İlaçlama & Dezenfeksiyon'
+    'standart': dict.serviceStandart || 'Standart Temizlik',
+    'detayli': dict.serviceDetayli || 'Detaylı Temizlik',
+    'kurumsal': dict.serviceKurumsal || 'Kurumsal Temizlik (B2B)',
+    'ilaclama': dict.serviceIlaclama || 'İlaçlama & Dezenfeksiyon'
   };
   return labels[service] || service;
 }
 
-function getFrequencyLabelTR(coeff) {
+function getFrequencyLabelTranslated(coeff, dict) {
   const labels = {
-    '1': 'Tek Seferlik',
-    '0.8': 'Haftalık Düzenli (%20 İndirim)',
-    '0.9': 'Aylık Düzenli (%10 İndirim)'
+    '1': dict.calcFreqSingle || 'Tek Seferlik',
+    '0.8': dict.calcFreqWeekly || 'Haftalık Düzenli (%20 İndirim)',
+    '0.9': dict.calcFreqMonthly || 'Aylık Düzenli (%10 İndirim)'
   };
   return labels[coeff] || 'Düzenli';
 }
@@ -3881,31 +3801,27 @@ function updateBookingSummaryBox() {
   }
 
   const { serviceType, area, frequency, extras, price } = STATE.calculator;
+  const lang = STATE.language || 'tr';
+  const isPl = lang === 'pl';
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
 
-  const serviceLabel = getServiceLabelTR(serviceType);
-  const freqLabel = getFrequencyLabelTR(frequency);
-  const formattedPrice = new Intl.NumberFormat('tr-TR', { 
-    style: 'currency', 
-    currency: 'TRY', 
-    maximumFractionDigits: 0 
-  }).format(price);
-
+  const serviceLabel = getServiceLabelTranslated(serviceType, dict);
+  const freqLabel = getFrequencyLabelTranslated(frequency, dict);
   const extrasHtml = extras.length > 0 
     ? extras.map(ext => `<li>${ext}</li>`).join('')
-    : '<li>Yok</li>';
-
+    : `<li>${dict.summaryNone || 'Yok'}</li>`;
   summaryBox.innerHTML = `
-    <h4>Seçilen Detaylar</h4>
-    <div class="summary-row"><span>Hizmet Türü:</span> <span class="summary-val">${serviceLabel}</span></div>
-    <div class="summary-row"><span>Hizmet Alanı:</span> <span class="summary-val">${area} m²</span></div>
-    <div class="summary-row"><span>Sıklık:</span> <span class="summary-val">${freqLabel}</span></div>
+    <h4>${dict.summaryTitle || 'SEÇİLEN DETAYLAR'}</h4>
+    <div class="summary-row"><span>${dict.summaryService || 'Hizmet Türü:'}</span> <span class="summary-val">${serviceLabel}</span></div>
+    <div class="summary-row"><span>${dict.summaryArea || 'Hizmet Alanı:'}</span> <span class="summary-val">${area} m²</span></div>
+    <div class="summary-row"><span>${dict.summaryFrequency || 'Sıklık:'}</span> <span class="summary-val">${freqLabel}</span></div>
     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 8px; margin-bottom: 8px;">
-      <span>Ekstralar:</span>
-      <ul class="summary-extras-list" style="padding-left: 16px; margin: 0; list-style-type: square; width: 100%;">
+      <span>${dict.summaryExtras || 'Ekstralar:'}</span>
+      <ul style="padding-left: 16px; margin: 0; list-style-type: square; color: #fff; width: 100%;">
         ${extrasHtml}
       </ul>
     </div>
-    <div class="summary-row"><span>Tahmini Tutar:</span> <span class="summary-price">${formattedPrice}</span></div>
+    <div class="summary-row"><span>${dict.summaryEstimated || 'Durum:'}</span> <span class="summary-price" style="font-size: 0.95rem; color: var(--clr-accent);">${isPl ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK'}</span></div>
   `;
   
   gsap.killTweensOf(summaryBox);
@@ -3959,10 +3875,35 @@ function setupBookingReveal() {
         submitBtn.style.cursor = 'not-allowed';
       }
 
-      const name = document.getElementById('cName')?.value || '';
-      const phone = document.getElementById('cPhone')?.value || '';
+      const name = document.getElementById('cName')?.value.trim() || '';
+      const phone = document.getElementById('cPhone')?.value.trim() || '';
       const city = document.getElementById('cCity')?.value || '';
       const service = document.getElementById('cService')?.value || '';
+
+      const isPl = STATE.language === 'pl';
+
+      // Robust client-side validation
+      if (!name || name.length < 3) {
+        alert(isPl ? 'Proszę wpisać poprawne imię i nazwisko (min. 3 znaki).' : 'Lütfen geçerli bir ad soyad giriniz (en az 3 karakter).');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          submitBtn.style.cursor = 'pointer';
+        }
+        return;
+      }
+
+      // Simple but robust numeric/phone regex checks
+      const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+      if (!cleanPhone || cleanPhone.length < 9) {
+        alert(isPl ? 'Proszę wpisać poprawny numer telefonu (min. 9 cyfr).' : 'Lütfen geçerli bir telefon numarası giriniz (en az 9 haneli).');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          submitBtn.style.cursor = 'pointer';
+        }
+        return;
+      }
 
       const payload = {
         name,
@@ -3989,41 +3930,50 @@ function setupBookingReveal() {
       }
 
       // Format WhatsApp Message
-      const isPl = STATE.language === 'pl';
       let message = '';
       if (isPl) {
-        message = `*Aclean - Zapytanie o rezerwację*\n`;
+        let serviceText = 'Nie określono';
+        if (service === 'standart') serviceText = 'Standardowe';
+        else if (service === 'detayli') serviceText = 'Głębokie';
+        else if (service === 'kurumsal') serviceText = 'Firmowe (B2B)';
+        else if (service === 'ilaclama') serviceText = 'Dezynsekcja';
+
+        message = `*Aclean - Zapytanie o ofertę*\n`;
         message += `-------------------------\n`;
         message += `*Imię i nazwisko:* ${name}\n`;
         message += `*Telefon:* ${phone}\n`;
         message += `*Miasto:* ${city}\n`;
-        message += `*Usługa:* ${service === 'standart' ? 'Standardowe' : (service === 'detayli' ? 'Głębokie' : (service === 'kurumsal' ? 'Firmowe' : 'Dezynsekcja'))}\n`;
+        message += `*Usługa:* ${serviceText}\n`;
         if (STATE.calculator.applied) {
-          message += `\n*Szczegóły kalkulatora:*\n`;
+          message += `\n*Szczegóły zapytania:*\n`;
           message += `- *Powierzchnia:* ${STATE.calculator.area} m²\n`;
-          const freqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień (-20%)' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc (-10%)' : 'Jednorazowo');
+          const freqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc' : 'Jednorazowo');
           message += `- *Częstotliwość:* ${freqText}\n`;
           if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
             message += `- *Dodatki:* ${STATE.calculator.extras.join(', ')}\n`;
           }
-          message += `- *Cena:* ${STATE.calculator.price} PLN\n`;
         }
       } else {
-        message = `*Aclean Rezervasyon Talebi*\n`;
+        let serviceText = 'Belirtilmedi';
+        if (service === 'standart') serviceText = 'Standart Temizlik';
+        else if (service === 'detayli') serviceText = 'Detaylı Temizlik';
+        else if (service === 'kurumsal') serviceText = 'Kurumsal Temizlik (B2B)';
+        else if (service === 'ilaclama') serviceText = 'İlaçlama & Dezenfeksiyon';
+
+        message = `*Aclean Hizmet Teklifi Talebi*\n`;
         message += `-------------------------\n`;
         message += `*Ad Soyad:* ${name}\n`;
         message += `*Telefon:* ${phone}\n`;
         message += `*Şehir:* ${city}\n`;
-        message += `*Hizmet:* ${service === 'standart' ? 'Standart Temizlik' : (service === 'detayli' ? 'Detaylı Temizlik' : (service === 'kurumsal' ? 'Kurumsal Temizlik' : 'İlaçlama'))}\n`;
+        message += `*Hizmet:* ${serviceText}\n`;
         if (STATE.calculator.applied) {
-          message += `\n*Hesaplayıcı Detayları:*\n`;
+          message += `\n*Talep Detayları:*\n`;
           message += `- *Alan:* ${STATE.calculator.area} m²\n`;
-          const freqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli (-20%)' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli (-10%)' : 'Tek Seferlik');
+          const freqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
           message += `- *Sıklık:* ${freqText}\n`;
           if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
             message += `- *Ekstralar:* ${STATE.calculator.extras.join(', ')}\n`;
           }
-          message += `- *Fiyat:* ${STATE.calculator.price} TL\n`;
         }
       }
 
@@ -4115,58 +4065,6 @@ function setupGlobalEscapeKey() {
   });
 }
 
-function setupKeyboardCinemaScroll() {
-  window.addEventListener('keydown', (e) => {
-    // Ignore if selection gateway is active, or if booking screen is open, or services modal is open
-    if (document.body.classList.contains('flag-selection-mode')) return;
-    
-    const servicesModal = document.getElementById('services-modal');
-    if (servicesModal && !servicesModal.hasAttribute('hidden')) return;
-
-    const bookingReveal = document.getElementById('bookingReveal');
-    if (bookingReveal && !bookingReveal.hasAttribute('hidden')) return;
-
-    // Accessibility: Do not intercept keys if user is typing in a text field, textarea, or editable element
-    const active = document.activeElement;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
-      return;
-    }
-
-    // Check if key is ArrowUp, ArrowDown, PageUp, PageDown, or Spacebar
-    // Skip spacebar hijack for interactive elements (dropdowns, buttons, inputs)
-    if (e.key === ' ' && ['SELECT', 'BUTTON', 'INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
-      return;
-    }
-    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) {
-      e.preventDefault();
-      
-      const isDown = ['ArrowDown', 'PageDown', ' '].includes(e.key) && !e.shiftKey;
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      
-      // Each scene block spans 200% window height (2 * windowHeight)
-      const step = windowHeight * 2.0;
-      
-      let targetScroll = scrollY + (isDown ? step : -step);
-      
-      // Clamp scroll position
-      const maxScroll = document.documentElement.scrollHeight - windowHeight;
-      targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-      
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.scrollTo(targetScroll, {
-          duration: 1.4,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
-        });
-      } else {
-        window.scrollTo({
-          top: targetScroll,
-          behavior: 'smooth'
-        });
-      }
-    }
-  });
-}
 
 // ==========================================
 // 10. SERVICES & PRICING ESTIMATOR ENGINE
@@ -4446,24 +4344,14 @@ function setupServicesModal() {
     }
 
     if (isDragging) {
-      // Instant update to prevent visual lag while actively dragging the slider
       currentCostObject.val = totalCost;
       if (priceDisplay) {
-        priceDisplay.textContent = formatter.format(totalCost);
+        priceDisplay.textContent = lang === 'pl' ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK';
       }
     } else {
-      // Animate price rolls smoothly (GSAP rolling number)
-      gsap.to(currentCostObject, {
-        val: totalCost,
-        duration: 0.45,
-        ease: 'power2.out',
-        overwrite: 'auto',
-        onUpdate: () => {
-          if (priceDisplay) {
-            priceDisplay.textContent = formatter.format(Math.round(currentCostObject.val));
-          }
-        }
-      });
+      if (priceDisplay) {
+        priceDisplay.textContent = lang === 'pl' ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK';
+      }
     }
   }
   
