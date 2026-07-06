@@ -5325,25 +5325,19 @@ body.flag-selection-mode .portal-intro-stage {
     --cinema-video-scale: 1;
   }
 
-  .cinema-video {
-    transform: translate3d(0, 0, 0) scale(1) !important;
-    transform-origin: center center;
-    object-fit: contain !important;
-    object-position: center center !important;
-  }
-
-  .cinema-video.portrait-video {
-    transform: translate3d(0, 0, 0) scale(1.28) !important;
-    transform-origin: center center;
-    object-fit: cover !important;
-    object-position: center clamp(28%, var(--video-y, 50%), 72%) !important;
-  }
-
+  /* Full-bleed on phones: every scene video covers the whole stage with no
+     letterboxing and no artificial zoom. Landscape sources (832x464) crop at
+     the sides, portrait sources (560x704) crop top/bottom; the clamped
+     --video-y keeps the automated vertical pan from over-cropping subjects.
+     .portrait-video / .landscape-video classes stay on the elements (JS
+     classification) in case per-orientation framing is needed later. */
+  .cinema-video,
+  .cinema-video.portrait-video,
   .cinema-video.landscape-video {
     transform: translate3d(0, 0, 0) scale(1) !important;
     transform-origin: center center;
-    object-fit: contain !important;
-    object-position: center center !important;
+    object-fit: cover !important;
+    object-position: center clamp(28%, var(--video-y, 50%), 72%) !important;
   }
 
   .cinema-iris-overlay {
