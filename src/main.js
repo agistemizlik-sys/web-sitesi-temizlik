@@ -683,6 +683,11 @@ function applyServiceSelectTranslations(lang) {
   if (stepCounter) {
     stepCounter.textContent = lang === 'pl' ? 'Krok 2' : 'Adım 2';
   }
+
+  const continueLabel = document.querySelector('#servicesContinueBtn .btn-label');
+  if (continueLabel) {
+    continueLabel.textContent = lang === 'pl' ? 'Kontynuuj' : 'Devam Et';
+  }
 }
 
 function applyLanguage(lang) {
@@ -1598,6 +1603,7 @@ function initLeafletMap(country) {
       maxZoom: 9,
       zoomSnap: 0.25
     }).setView([39.0, 35.0], 6);
+    window.turkeyMapInstance = turkeyMapInstance;
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -1640,6 +1646,7 @@ function initLeafletMap(country) {
       minZoom: 10,
       maxZoom: 13
     }).setView([52.2297, 21.0122], 11);
+    window.polandMapInstance = polandMapInstance;
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -1728,7 +1735,6 @@ function setupPortalGateway() {
       if (mapTr) mapTr.style.display = 'block';
       if (mapPl) mapPl.style.display = 'none';
       destroyLeafletMap('poland');
-      initLeafletMap('turkey');
 
       // Animate card out with a quick scale-up
       gsap.to(csoBtnTurkey, {
@@ -1756,6 +1762,9 @@ function setupPortalGateway() {
                   opacity: 1,
                   duration: 0.8,
                   ease: 'power3.out',
+                  onComplete: () => {
+                    initLeafletMap('turkey');
+                  }
                 });
               }
               if (portalCenterHint) {
@@ -1787,7 +1796,6 @@ function setupPortalGateway() {
       if (mapTr) mapTr.style.display = 'none';
       if (mapPl) mapPl.style.display = 'block';
       destroyLeafletMap('turkey');
-      initLeafletMap('poland');
 
       // Animate card out with a quick scale-up
       gsap.to(csoBtnPoland, {
@@ -1815,6 +1823,9 @@ function setupPortalGateway() {
                   opacity: 1,
                   duration: 0.8,
                   ease: 'power3.out',
+                  onComplete: () => {
+                    initLeafletMap('poland');
+                  }
                 });
               }
               if (portalCenterHint) {
@@ -3249,8 +3260,19 @@ function setupCinemaEngine() {
         } catch (err) {}
       }
 
-      // Unlock iOS WebKit decoder trick
-      if (cachedWindowWidth <= 768 && video.readyState >= 1 && video.dataset.unlocked !== 'true' && video.dataset.unlockAttempting !== 'true') {
+      // Self-heal: keep the visible active video playing (throttled to 1s attempts)
+      if (idx === cState.activeIdx && video.paused && sState.currentOpacity > 0.5 && document.visibilityState === 'visible') {
+        const lastResume = parseFloat(video.dataset.lastResumeAttempt || '0');
+        if (nowMs - lastResume > 1000) {
+          video.dataset.lastResumeAttempt = nowMs.toString();
+          const rp = video.play();
+          if (rp && typeof rp.then === 'function') rp.catch(() => {});
+        }
+      }
+
+      // Unlock iOS WebKit decoder trick (never on the active video — the
+      // play-then-pause probe would freeze the scene that is currently playing)
+      if (cachedWindowWidth <= 768 && idx !== cState.activeIdx && video.readyState >= 1 && video.dataset.unlocked !== 'true' && video.dataset.unlockAttempting !== 'true') {
         video.dataset.unlockAttempting = 'true';
         const playPromise = video.play();
         if (playPromise !== undefined) {
@@ -3402,14 +3424,11 @@ function setupCinemaEngine() {
         s.targetTime = 0;
       });
 
-      if (cState.activeIdx !== -1) {
-        cState.activeIdx = -1;
-        scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
-      }
-      if (cState.activeTextBlockIdx !== -1) {
-        cState.activeTextBlockIdx = -1;
-        textBlocks.forEach(block => block.classList.remove('active'));
-      }
+      cState.activeIdx = -1;
+      scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
+      cState.activeTextBlockIdx = -1;
+      textBlocks.forEach(block => block.classList.remove('active'));
+      closeBookingScreen();
       isTransitioning = false;
       return;
     }
@@ -3432,14 +3451,10 @@ function setupCinemaEngine() {
         s.targetTime = 0;
       });
 
-      if (cState.activeIdx !== -1) {
-        cState.activeIdx = -1;
-        scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
-      }
-      if (cState.activeTextBlockIdx !== -1) {
-        cState.activeTextBlockIdx = -1;
-        textBlocks.forEach(block => block.classList.remove('active'));
-      }
+      cState.activeIdx = -1;
+      scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
+      cState.activeTextBlockIdx = -1;
+      textBlocks.forEach(block => block.classList.remove('active'));
 
       if (servicesSelectCard && !servicesSelectCard.classList.contains('active')) {
         servicesSelectCard.classList.add('active');
@@ -3460,12 +3475,16 @@ function setupCinemaEngine() {
       const activeIdx = targetStep - 2;
       
       // Auto-Opening Iris during initial transition
+      // (onUpdate wakes the LERP loop: it self-suspends when settled, and these
+      // tweens move the targets AFTER goToStep returns — without the wake-up the
+      // scene can stay invisible even though its video is playing)
       gsap.to(cState, {
         targetRadius: 120,
         targetX: scenes[activeIdx].irisX,
         targetY: scenes[activeIdx].irisY,
         duration: 0.65,
-        ease: 'power2.out'
+        ease: 'power2.out',
+        onUpdate: triggerCinemaLoop
       });
 
       if (cState.activeIdx !== activeIdx) {
@@ -3506,18 +3525,20 @@ function setupCinemaEngine() {
           gsap.killTweensOf(sState, 'targetVideoY');
           gsap.fromTo(sState,
             { targetVideoY: scenes[idx]?.yStart || 0 },
-            { 
-              targetVideoY: scenes[idx]?.yEnd || 100, 
-              duration: 4.5, 
+            {
+              targetVideoY: scenes[idx]?.yEnd || 100,
+              duration: 4.5,
               ease: 'power1.inOut',
-              overwrite: 'auto'
+              overwrite: 'auto',
+              onUpdate: triggerCinemaLoop
             }
           );
 
           gsap.to(sState, {
             targetOpacity: 1.0,
             duration: 0.5,
-            ease: 'power2.out'
+            ease: 'power2.out',
+            onUpdate: triggerCinemaLoop
           });
         } else {
           // Reset position and fade out inactive scenes
@@ -3526,7 +3547,8 @@ function setupCinemaEngine() {
             targetOpacity: 0.0,
             targetVideoY: scenes[idx]?.yStart || 0,
             duration: 0.5,
-            ease: 'power2.out'
+            ease: 'power2.out',
+            onUpdate: triggerCinemaLoop
           });
         }
 
@@ -3567,6 +3589,7 @@ function setupCinemaEngine() {
         targetRadius: 0,
         duration: 0.6,
         ease: 'power2.out',
+        onUpdate: triggerCinemaLoop,
         onComplete: () => {
           cState.sceneStates.forEach(s => s.targetOpacity = 0);
           if (cState.activeIdx !== -1) {
@@ -3584,17 +3607,35 @@ function setupCinemaEngine() {
     }
   }
 
-  // Unified Tap-to-Advance Cinema Navigation (Click based transition)
+  // Unified Cinema Navigation: tap, wheel, keyboard and swipe all map to steps
   let lastGestureTime = 0;
+  const servicesModalEl = document.getElementById('services-modal');
+
+  const portalActive = () =>
+    document.body.classList.contains('portal-intro-mode') ||
+    document.body.classList.contains('flag-selection-mode');
+
+  const gestureDebounced = (ms) => {
+    const now = Date.now();
+    if (now - lastGestureTime < ms) return true;
+    lastGestureTime = now;
+    return false;
+  };
+
+  const stepNext = () => {
+    if (currentStep < totalSteps - 1) goToStep(currentStep + 1);
+  };
+  const stepPrev = () => {
+    if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
+      goToStep(13);
+      return;
+    }
+    if (currentStep > 0) goToStep(currentStep - 1);
+  };
 
   const handleCinemaTap = (e) => {
     // If the portal gateway/map stage is still active, ignore clicks
-    if (
-      document.body.classList.contains('portal-intro-mode') ||
-      document.body.classList.contains('flag-selection-mode')
-    ) {
-      return;
-    }
+    if (portalActive()) return;
 
     // Ignore clicks on form inputs, interactive select items, menus, and modals
     if (
@@ -3613,28 +3654,61 @@ function setupCinemaEngine() {
       return;
     }
 
-    const now = Date.now();
-    if (now - lastGestureTime < 600) return; // Debounce double clicks
-
-    if (currentStep < totalSteps - 1) {
-      lastGestureTime = now;
-      goToStep(currentStep + 1); // Advance to next scene on click
-    }
+    if (gestureDebounced(600)) return;
+    stepNext(); // Advance to next scene on click
   };
 
   // Bind tap events globally to capture all screen clicks (using bubbling to allow inner button clicks to fire first)
   window.addEventListener('click', handleCinemaTap);
-  window.addEventListener('touchend', (e) => {
-    // Prevent double trigger on mobile devices with hybrid click/touch
-    if (e.target.closest('input') || e.target.closest('select') || e.target.closest('button')) {
-      return;
-    }
-  }, { passive: true });
 
-  // Strictly block all mouse wheel scrolling globally on the window to prevent scroll animations
+  // Wheel: step navigation in the cinema, native scrolling inside overlays/portal
   window.addEventListener('wheel', (e) => {
+    if (portalActive()) return; // portal & country selector keep native scroll
+    if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer')) return;
     e.preventDefault();
+    if (Math.abs(e.deltaY) < 10) return;
+    if (gestureDebounced(800)) return;
+    if (e.deltaY > 0) stepNext();
+    else stepPrev();
   }, { passive: false });
+
+  // Keyboard: arrows / page keys / space mirror the wheel behaviour
+  window.addEventListener('keydown', (e) => {
+    if (portalActive()) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (servicesModalEl && !servicesModalEl.hasAttribute('hidden')) return;
+    const bookingOpen = bookingRevealEl && !bookingRevealEl.hasAttribute('hidden');
+
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+      if (bookingOpen) return; // let the form keep its keys
+      e.preventDefault();
+      if (gestureDebounced(500)) return;
+      stepNext();
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      if (gestureDebounced(500)) return;
+      stepPrev();
+    }
+  });
+
+  // Touch swipe: swipe up = next scene, swipe down = previous scene
+  let touchStartY = null;
+  window.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0] ? e.touches[0].clientY : null;
+  }, { passive: true });
+  window.addEventListener('touchend', (e) => {
+    if (touchStartY === null) return;
+    const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchStartY;
+    const dy = endY - touchStartY;
+    touchStartY = null;
+    if (portalActive()) return;
+    if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer, #main-nav, input, select, textarea, button, a')) return;
+    if (Math.abs(dy) < 50) return; // short movement counts as a tap (click handler)
+    if (gestureDebounced(600)) return;
+    if (dy < 0) stepNext();
+    else stepPrev();
+  }, { passive: true });
 
   // Expose global callback to map nav logo and nav links to steps
   if (navHomeLink) navHomeLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(0); });
@@ -3642,6 +3716,16 @@ function setupCinemaEngine() {
   if (navContactLink) navContactLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(14); });
   const navLogo = document.getElementById('navLogo');
   if (navLogo) navLogo.addEventListener('click', (e) => { e.preventDefault(); goToStep(0); });
+
+  // "Continue" button on the services selection card
+  const servicesContinueBtn = document.getElementById('servicesContinueBtn');
+  if (servicesContinueBtn) {
+    servicesContinueBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      goToStep(2);
+    });
+  }
 
   // Expose goToStep globally for external bindings
   window.goToCinemaStep = goToStep;

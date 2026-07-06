@@ -4008,6 +4008,46 @@ img, video, .card-bg-image {
   z-index: 2;
 }
 
+/* Continue button under the service grid */
+.services-continue-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  padding: 12px 32px;
+  background: var(--clr-ink);
+  color: #fff;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  box-shadow: 0 8px 20px rgba(27, 29, 34, 0.18);
+  transition:
+    transform 0.3s var(--ease-smooth),
+    background-color 0.3s var(--ease-smooth),
+    box-shadow 0.3s var(--ease-smooth);
+  position: relative;
+  z-index: 2;
+}
+
+.services-continue-btn:hover {
+  background: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(27, 29, 34, 0.24);
+}
+
+.services-continue-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .services-continue-btn {
+    margin-top: 16px;
+    padding: 11px 26px;
+    font-size: 0.76rem;
+  }
+}
 
 /* ================================================================
    SERVICE CARDS — INDIVIDUAL ITEMS
