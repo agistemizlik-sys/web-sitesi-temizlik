@@ -2721,6 +2721,49 @@ function setupMobileDrawer() {
 }
 
 // ==========================================
+// 5.9. AMBIENT BACKFILL RENDERER
+// Draws a tiny cover-cropped copy of the active scene video into the
+// #cinemaBackfill canvas; CSS blur scales it into a full-screen ambient
+// fill behind fitted (object-fit: contain) videos.
+// ==========================================
+let backfillCanvas = null;
+let backfillCtx = null;
+
+function drawCinemaBackfill(video) {
+  if (!video || video.readyState < 2 || !video.videoWidth) return;
+  if (!backfillCanvas) {
+    backfillCanvas = document.getElementById('cinemaBackfill');
+    if (!backfillCanvas) return;
+    backfillCtx = backfillCanvas.getContext('2d');
+  }
+  if (!backfillCtx) return;
+
+  // Tiny internal resolution matching the viewport aspect: the CSS blur
+  // erases all detail anyway, so drawing stays essentially free per frame.
+  const vw = window.innerWidth || 1;
+  const vh = window.innerHeight || 1;
+  const cw = 96;
+  const ch = Math.max(1, Math.round(cw * (vh / vw)));
+  if (backfillCanvas.width !== cw) backfillCanvas.width = cw;
+  if (backfillCanvas.height !== ch) backfillCanvas.height = ch;
+
+  // Cover-crop the video frame into the canvas
+  const canvasRatio = cw / ch;
+  const videoRatio = video.videoWidth / video.videoHeight;
+  let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
+  if (videoRatio > canvasRatio) {
+    sw = video.videoHeight * canvasRatio;
+    sx = (video.videoWidth - sw) / 2;
+  } else {
+    sh = video.videoWidth / canvasRatio;
+    sy = (video.videoHeight - sh) / 2;
+  }
+  try {
+    backfillCtx.drawImage(video, sx, sy, sw, sh, 0, 0, cw, ch);
+  } catch (e) {}
+}
+
+// ==========================================
 // 6. CINEMATIC INTERACTIVE SCROLL-SCRUB
 // ==========================================
 function setupCinemaEngine() {
@@ -3361,6 +3404,12 @@ function setupCinemaEngine() {
   const totalSteps = 15;
   let isTransitioning = false;
 
+  // Ambient backfill layer (blurred live copy of the active scene)
+  const backfillEl = document.getElementById('cinemaBackfill');
+  const setBackfillActive = (on) => {
+    if (backfillEl) backfillEl.classList.toggle('active', on);
+  };
+
   // Central Navigation Engine: maps step changes to cinema state values
   function goToStep(targetStep, direction = 1) {
     if (targetStep < 0 || targetStep >= totalSteps) return;
@@ -3428,6 +3477,7 @@ function setupCinemaEngine() {
       scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
       cState.activeTextBlockIdx = -1;
       textBlocks.forEach(block => block.classList.remove('active'));
+      setBackfillActive(false);
       closeBookingScreen();
       isTransitioning = false;
       return;
@@ -3460,6 +3510,7 @@ function setupCinemaEngine() {
         servicesSelectCard.classList.add('active');
       }
 
+      setBackfillActive(false);
       closeBookingScreen();
       isTransitioning = false;
       return;
@@ -3473,6 +3524,10 @@ function setupCinemaEngine() {
     // ── PHASE 5: 12 CHARACTER VIEWS (targetStep: 2 -> 13) ──
     if (targetStep >= 2 && targetStep <= 13) {
       const activeIdx = targetStep - 2;
+
+      // Ambient backfill follows the active scene
+      setBackfillActive(true);
+      if (scenes[activeIdx]?.video) drawCinemaBackfill(scenes[activeIdx].video);
       
       // Auto-Opening Iris during initial transition
       // (onUpdate wakes the LERP loop: it self-suspends when settled, and these
@@ -3558,6 +3613,7 @@ function setupCinemaEngine() {
           const checkProgress = () => {
             if (cState.activeIdx === activeIdx && scenes[idx]?.video) {
               sState.targetTime = scenes[idx].video.currentTime;
+              drawCinemaBackfill(scenes[idx].video);
               requestAnimationFrame(checkProgress);
             }
           };
@@ -3591,6 +3647,7 @@ function setupCinemaEngine() {
         ease: 'power2.out',
         onUpdate: triggerCinemaLoop,
         onComplete: () => {
+          setBackfillActive(false);
           cState.sceneStates.forEach(s => s.targetOpacity = 0);
           if (cState.activeIdx !== -1) {
             cState.activeIdx = -1;

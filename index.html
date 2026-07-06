@@ -418,7 +418,11 @@
       
       <!-- Video Stage -->
       <div class="cinema-stage">
-        
+
+        <!-- Ambient backfill: a blurred live copy of the active scene fills the
+             screen behind the fitted video, so no viewport ever shows bars -->
+        <canvas id="cinemaBackfill" class="cinema-backfill" aria-hidden="true"></canvas>
+
         <!-- Video 1: Mona Lisa (Toilet Cleaning) -->
         <video id="video-scene-1" class="cinema-video" src="/videos/monalisa.mp4" muted playsinline loop autoplay preload="auto"></video>
         

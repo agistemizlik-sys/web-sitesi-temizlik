@@ -855,6 +855,50 @@ html.bypassing-gateway #portal-stage {
   visibility: visible;
 }
 
+/* ── AMBIENT BACKFILL (blurred live copy of the active scene) ──
+   Sits behind the videos and always covers the stage, so a fitted
+   (object-fit: contain) foreground video never leaves visible bars. */
+.cinema-backfill {
+  position: absolute;
+  top: -6%;
+  left: -6%;
+  width: 112%;
+  height: 112%;
+  z-index: 1;
+  filter: blur(38px) brightness(0.68) saturate(1.15);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-smooth);
+  pointer-events: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.cinema-backfill.active {
+  opacity: 1;
+}
+
+/* Portrait/square sources on landscape screens: never crop the subject —
+   fit the full frame and let the backfill cover the sides. */
+.cinema-video.portrait-video {
+  object-fit: contain;
+  -o-object-fit: contain;
+  object-position: center center;
+  background-color: transparent;
+}
+
+/* Any portrait-shaped viewport (phones and tablets held upright): every
+   source is fitted whole; the backfill covers the rest of the screen. */
+@media (orientation: portrait) {
+  .cinema-video,
+  .cinema-video.landscape-video,
+  .cinema-video.portrait-video {
+    object-fit: contain;
+    -o-object-fit: contain;
+    object-position: center center;
+    background-color: transparent;
+  }
+}
+
 /* Scene Text Overlay & Blocks (Responsive & Readable) */
 .scene-text-overlay {
   position: absolute;
@@ -5325,19 +5369,15 @@ body.flag-selection-mode .portal-intro-stage {
     --cinema-video-scale: 1;
   }
 
-  /* Full-bleed on phones: every scene video covers the whole stage with no
-     letterboxing and no artificial zoom. Landscape sources (832x464) crop at
-     the sides, portrait sources (560x704) crop top/bottom; the clamped
-     --video-y keeps the automated vertical pan from over-cropping subjects.
-     .portrait-video / .landscape-video classes stay on the elements (JS
-     classification) in case per-orientation framing is needed later. */
+  /* Phones: sources are fitted whole (no cropping, no zoom hacks); the
+     .cinema-backfill layer behind them keeps the screen fully covered.
+     Fit rules live in the global (orientation: portrait) block — here we
+     only neutralise the legacy scale transform. */
   .cinema-video,
   .cinema-video.portrait-video,
   .cinema-video.landscape-video {
     transform: translate3d(0, 0, 0) scale(1) !important;
     transform-origin: center center;
-    object-fit: cover !important;
-    object-position: center clamp(28%, var(--video-y, 50%), 72%) !important;
   }
 
   .cinema-iris-overlay {
