@@ -2720,6 +2720,15 @@ function setupMobileDrawer() {
   });
 }
 
+// Browser chrome tint: dark while the cinema is on screen, warm paper on the
+// light portal screens (mobile address/tool bars follow this meta).
+function setThemeColor(color) {
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta && meta.getAttribute('content') !== color) {
+    meta.setAttribute('content', color);
+  }
+}
+
 // ==========================================
 // 5.9. AMBIENT BACKFILL RENDERER
 // Draws a tiny cover-cropped copy of the active scene video into the
@@ -3413,9 +3422,19 @@ function setupCinemaEngine() {
   // Central Navigation Engine: maps step changes to cinema state values
   function goToStep(targetStep, direction = 1) {
     if (targetStep < 0 || targetStep >= totalSteps) return;
-    
+
     isTransitioning = true;
     currentStep = targetStep;
+
+    // Keep the browser chrome dark, but only once the cinema is actually on
+    // screen (the engine also runs goToStep(0) during initial setup while the
+    // light portal is still showing)
+    if (
+      !document.body.classList.contains('portal-intro-mode') &&
+      !document.body.classList.contains('flag-selection-mode')
+    ) {
+      setThemeColor('#000000');
+    }
 
     // Wake up LERP loop
     triggerCinemaLoop();
@@ -4531,6 +4550,9 @@ function openPortalGateway() {
   if (!portalStage || !mainContent) return;
 
   window.portalWarping = true; // Lock hover calculations during return transition
+
+  // Back on the light portal — restore the warm paper browser chrome tint
+  setThemeColor('#f7f6f2');
 
   // Clear previous cinema states & video playheads
   resetCinemaState();

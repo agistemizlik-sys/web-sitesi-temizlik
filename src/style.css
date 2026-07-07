@@ -63,11 +63,20 @@ html::-webkit-scrollbar {
 }
 
 body {
-  background-color: var(--clr-bg);
+  /* Cinema-native black: any viewport gap around the fixed stage (mobile
+     URL-bar show/hide, overscroll, keyboard resize) must flash dark, never
+     white. The light portal screens override this below — they paint their
+     own full-viewport backgrounds anyway. */
+  background-color: #000;
   color: var(--clr-text);
   font-family: var(--font-sans);
   overflow-x: hidden;
   line-height: 1.6;
+}
+
+body.portal-intro-mode,
+body.flag-selection-mode {
+  background-color: var(--clr-bg);
 }
 
 body.flag-selection-mode {

@@ -145,6 +145,21 @@ yumuşak; backlog #3-b). **`.cinema-backfill` katmanını ve `contain`
 seçicilerindeki `background: transparent`'ı kaldırmayın** — bant/siyah kutu
 bunlardan korunuyor.
 
+**Beyaz-boşluk korumaları ("ekran altı beyaz kaldı" düzeltmesi):**
+- `body` zemini varsayılan **siyahtır**; yalnız `portal-intro-mode` /
+  `flag-selection-mode` sınıflarında `--clr-bg` (açık) olur. Mobilde adres
+  çubuğu gizlenirken/görünürken, overscroll'da veya klavye açılınca fixed
+  sahnenin etrafında oluşan boşluklar bu sayede siyah kalır — sinemada asla
+  beyaz parlamaz. Portal ekranları kendi tam-ekran zeminlerini boyadığı için
+  açık tema etkilenmez. **Bu kuralı `background: var(--clr-bg)`'ye geri
+  çevirmeyin.**
+- `theme-color` meta dinamiktir (`setThemeColor`, main.js): sinema ekranda
+  iken `#000000` (goToStep, portal sınıfları yokken), portala dönüşte
+  `#f7f6f2` (openPortalGateway). Mobil tarayıcının üst/alt çubukları böylece
+  içerikle uyumlu renkte kalır.
+- Viewport meta `viewport-fit=cover` içerir: iOS'ta sayfa home-indicator
+  bölgesinin altına uzanır; sinema alt kenarında beyaz sistem şeridi kalmaz.
+
 ## 3. Sıradaki İşler (öncelik sırasıyla)
 
 1. **Sahne adım göstergesi:** 12 sahnede kullanıcı nerede olduğunu görmüyor.
