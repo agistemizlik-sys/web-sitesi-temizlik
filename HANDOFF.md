@@ -90,60 +90,25 @@ sözleşmesini tanımlar. **Yeni bir stil/refactor bu kurallara uymalıdır.**
 | 11 Düşes | victorian.mp4 | 832×464 | 1.793 (yatay) | 5.2s |
 | 12 Viking | viking.mp4 | 832×464 | 1.793 (yatay) | 5.2s |
 
-**Şehir giriş videoları (`.intro-video`):** city_istanbul/izmir/samsun/
-kocaeli/sakarya/balikesir.mp4 → 2160×3840 (9:16 dikey, 10s);
-city_warszawa.mp4 → 832×464 (yatay, 5.2s).
+**Kaplama mimarisi — "Tam Ekran Kaplama + Kalibre Edilmiş Odak Kaydırma (Cover + Focal Panning)" (Nihai Hali):**
 
-**Kaplama mimarisi — "fit + ambiyans dolgu" (9c27ef7 sonrası nihai hali):**
+Ekran her zaman %100 dolu, siyah barlar veya bulanıklık kirliliği yok. Tüm videolar hem masaüstünde hem de mobilde **`object-fit: cover !important` (Tam Ekran Kaplama)** modunda çalışmaktadır.
 
-İki katman birlikte çalışır; ekran her zaman %100 dolu, video ise asla
-bozulmaz/kırpılıp konusunu kaybetmez ("tam kaplayan ama tam oturmuş"):
+Karakterlerin dikey mobil kadrajda kırpılmaması, sahnenin tamamının organik şekilde gösterilmesi ve premium bir tam ekran hissi sunulması için her videonun yatay kaydırma değerleri dinamik sinematik salınımlarla (slow-panning) canlandırılmıştır:
 
-1. **Ambiyans dolgu katmanı** — `#cinemaBackfill` canvas'ı
-   (`.cinema-backfill`), `.cinema-stage` içinde videoların ARKASINDA
-   (z-index 1 / videolar 2 / iris 8):
-   - Konum: `top/left: -6%`, `width/height: 112%` (blur kenar solmasını
-     taşırarak gizler).
-   - Görsel: `filter: blur(38px) brightness(0.68) saturate(1.15)`,
-     `opacity` geçişi 0.6s; `.active` sınıfı `goToStep` tarafından yönetilir
-     (sahne adımları 2–13'te açık; 0/1/14'te kapalı).
-   - İçerik: `drawCinemaBackfill(video)` (main.js) aktif videonun karesini
-     **96 × round(96·vh/vw)** iç çözünürlükte cover-kırpımla çizer; sahne
-     aktifken `checkProgress` rAF'inde her karede güncellenir (blur nedeniyle
-     maliyet ihmal edilebilir).
-2. **Ön plan videosu** — eleman her zaman `width/height: 100%` (= viewport):
-   - **Yatay viewport + yatay kaynak (832×464 ≈ 16:9):** `object-fit: cover`,
-     `object-position: center var(--video-y)` — ORİJİNAL sinematik davranış,
-     değişmedi (oranlar ~eş olduğundan kırpma <%1).
-   - **Yatay viewport + dikey/kare kaynak** (`.portrait-video`):
-     `object-fit: contain; object-position: center` + `background:
-     transparent` — kare tam görünür, yanları dolgu kaplar.
-   - **Dikey viewport (her genişlikte, `@media (orientation: portrait)`):**
-     TÜM kaynaklar `contain` — telefonda yatay sahneler bütünüyle görünür
-     (eski `cover` yaklaşımı samurayda sadece kılıcı, monalisa'da esprinin
-     tamamını kırpıyordu), üst/alt boşluğu dolgu kaplar.
-   - `scale()` hilesi YOK (eski `scale(1.28)` kaldırıldı); `--video-y` pan'i
-     yalnız cover'lı (yatay masaüstü) sahnelerde kadraj etkisi yapar.
-   - `.cinema-video` taban `background-color: #000`, `contain` alan
-     seçicilerde `transparent` (dolgunun görünmesi için şart — `contain`'de
-     eleman kutusunun boş kısmını element arka planı boyar!).
-- `.portrait-video` / `.landscape-video` sınıfları JS'te otomatik
-  (`checkAspectRatio`, eşik: oran < 1.0 → portrait; knight 1.0 → landscape).
-- Iris maskesi mobil portrait parametreleri: `--cinema-mask-ellipse-x: 1.15`,
-  `--cinema-mask-ellipse-y: 0.85`, `--cinema-mask-y-offset: 3%`.
-- Şehir giriş videoları (`.intro-video`, 2160×3840): her viewport'ta `cover`
-  — yüksek çözünürlüklü ve 9:16 olduğundan dolguya ihtiyaç yok.
-- Doğrulama (2026-07-06): 375×812'de samuray/monalisa contain + dolgu aktif
-  (canvas 96×208, opacity 1), video elemanı 375×812; 1280×800'de viking
-  `cover` (orijinal), monalisa `contain` + dolgu. Hepsi opacity 1, oynar
-  durumda.
+1. **Samuray (Scene 2):** `%15` ile `%50` yatay koordinatları arasında yavaş salınım (`panSamurai` 14s).
+2. **Astronot (Scene 4):** `%35` ile `%65` yatay koordinatları arasında yavaş salınım (`panAstronaut` 15s).
+3. **Kovboy (Scene 5):** `%25` ile `%68` yatay koordinatları arasında yavaş salınım (`panCowboy` 13s).
+4. **Büyücü / Gandalf (Scene 6):** `%40` ile `%75` yatay koordinatları arasında yavaş salınım (`panGandalf` 16s).
+5. **Keşiş (Scene 8):** `%30` ile `%70` yatay koordinatları arasında yavaş salınım (`panMonk` 14s).
+6. **Şövalye (Scene 9):** `%35` ile `%72` yatay koordinatları arasında yavaş salınım (`panRoman` 15s).
+7. **Düşes (Scene 11):** `%25` ile `%60` yatay koordinatları arasında yavaş salınım (`panVictorian` 14s).
+8. **Viking (Scene 12):** `%35` ile `%75` yatay koordinatları arasında yavaş salınım (`panViking` 13s).
 
-**Yeni video eklerken:** herhangi bir çözünürlük kabul; `scenes` dizisine
-`yStart/yEnd/irisX/irisY` tanımlayın — fit/dolgu kuralları otomatik. Tercihen
-≥1080p kaynak kullanın (mevcut 832×464/560×704 kaynaklar büyük ekranlarda
-yumuşak; backlog #3-b). **`.cinema-backfill` katmanını ve `contain`
-seçicilerindeki `background: transparent`'ı kaldırmayın** — bant/siyah kutu
-bunlardan korunuyor.
+**Masaüstünde Dikey Videolar (Mona Lisa, Sumo, Teyze):**
+- Masaüstü yatay ekranları tam kapladıkları için dikeyde panning limitleri (`yStart`, `yEnd`) daraltılarak (Mona Lisa: `18% - 72%`, Sumo: `12% - 82%`, Teyze: `15% - 85%`) dikey akış esnasında karakterlerin yüzlerinin kesilmesi tamamen önlenmiştir.
+
+**Yeni video eklerken:** Herhangi bir çözünürlük kabul; `scenes` dizisine `yStart/yEnd/irisX/irisY` tanımlayın. Tercihen ≥1080p kaynak kullanın. Kadraj kaymaları `style.css` altındaki `@media (orientation: portrait)` kurallarıyla dengelenecektir.
 
 **Beyaz-boşluk korumaları ("ekran altı beyaz kaldı" düzeltmesi):**
 - `body` zemini varsayılan **siyahtır**; yalnız `portal-intro-mode` /

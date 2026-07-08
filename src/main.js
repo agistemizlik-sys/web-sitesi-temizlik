@@ -12,6 +12,13 @@ function logDebug(...args) {
     console.log('%c[TwoRose Debug]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 3px 6px; border-radius: 4px; border: 1px solid #00e5ff;', ...args);
   }
 }
+function logErrorDebug(...args) {
+  if (DEBUG) {
+    console.error('%c[TwoRose Error]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 3px 6px; border-radius: 4px; border: 1px solid #ff3366;', ...args);
+  } else {
+    console.error(...args);
+  }
+}
 // Global window exception tracker writing directly to our visual screen logger
 window.onerror = function(message, source, lineno, colno, error) {
   const debugHUD = document.getElementById('cinemaDebugHUD');
@@ -747,10 +754,13 @@ function resetCinemaState() {
       state.targetOpacity = 0;
       state.currentVideoY = 50;
       state.targetVideoY = 50;
+      state.currentVideoX = 50;
+      state.targetVideoX = 50;
       // Optimization cache variables
       state.lastAppliedOpacity = null;
       state.lastAppliedVisibility = null;
       state.lastAppliedVideoY = null;
+      state.lastAppliedVideoX = null;
     });
   }
 
@@ -1621,10 +1631,16 @@ function initLeafletMap(country) {
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
 
     // Fit all city pins (plus label breathing room) into view on any viewport
+    const isMobile = window.innerWidth <= 768;
+    const isTinyMobile = window.innerWidth <= 480;
+    const turkeyPaddingTL = isTinyMobile ? [10, 15] : (isMobile ? [25, 45] : [70, 80]);
+    const turkeyPaddingBR = isTinyMobile ? [10, 15] : (isMobile ? [25, 30] : [70, 60]);
+    const turkeyMaxZoom = isTinyMobile ? 5.75 : (isMobile ? 6.25 : 7);
+
     turkeyMapInstance.fitBounds(L.latLngBounds(turkeyCities.map(c => c.coords)), {
-      paddingTopLeft: [70, 80],
-      paddingBottomRight: [70, 60],
-      maxZoom: 7
+      paddingTopLeft: turkeyPaddingTL,
+      paddingBottomRight: turkeyPaddingBR,
+      maxZoom: turkeyMaxZoom
     });
 
     setTimeout(() => {
@@ -1664,8 +1680,12 @@ function initLeafletMap(country) {
     addLeafletMarkers(polandMapInstance, polandDistricts);
 
     // Fit all district pins into view on any viewport size
+    const isMobilePL = window.innerWidth <= 768;
+    const isTinyMobilePL = window.innerWidth <= 480;
+    const polandPadding = isTinyMobilePL ? [8, 8] : (isMobilePL ? [20, 20] : [60, 60]);
+
     polandMapInstance.fitBounds(L.latLngBounds(polandDistricts.map(c => c.coords)), {
-      padding: [60, 60]
+      padding: polandPadding
     });
 
     setTimeout(() => {
@@ -2367,17 +2387,21 @@ function setupPortalGateway() {
 
     // Epic sci-fi zoom-in teleportation timeline (Spiral Warp Exponential Plunge)
     tl.to('.portal-logo-container', { y: -65, scale: 0.75, opacity: 0, duration: 0.45, ease: 'power2.in' })
-      .to('.portal-center-hint', { opacity: 0, scale: 0.6, duration: 0.35, ease: 'power2.in' }, 0)
-      .to('#hudTargetLock', { opacity: 0, scale: 0.3, rotation: 35, duration: 0.45, ease: 'power2.in' }, 0)
-      .to('.portal-map-wrapper', {
-        scale: 11,
-        rotationZ: -25,
-        rotateX: 0,
-        rotateY: 0,
-        opacity: 0,
-        duration: 1.15,
-        ease: 'power4.in'
-      }, 0)
+      .to('.portal-center-hint', { opacity: 0, scale: 0.6, duration: 0.35, ease: 'power2.in' }, 0);
+
+    if (document.getElementById('hudTargetLock')) {
+      tl.to('#hudTargetLock', { opacity: 0, scale: 0.3, rotation: 35, duration: 0.45, ease: 'power2.in' }, 0);
+    }
+
+    tl.to('.portal-map-wrapper', {
+      scale: 11,
+      rotationZ: -25,
+      rotateX: 0,
+      rotateY: 0,
+      opacity: 0,
+      duration: 1.15,
+      ease: 'power4.in'
+    }, 0)
       .to(portalStage, { opacity: 0, duration: 0.95, ease: 'power2.out' }, '-=0.75')
       .to('#main-content', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '-=0.45');
   };
@@ -2902,18 +2926,18 @@ function setupCinemaEngine() {
 
   // Populate module-level scenes array
   scenes = [
-    { video: v1, irisX: 50, irisY: 60, yStart: 0, yEnd: 100 }, // Mona Lisa
-    { video: v2, irisX: 50, irisY: 50, yStart: 0, yEnd: 90 },  // Samurai
-    { video: v3, irisX: 50, irisY: 45, yStart: 0, yEnd: 100 }, // Grandmother
-    { video: v4, irisX: 50, irisY: 50, yStart: 0, yEnd: 90 },  // Astronaut
-    { video: v5, irisX: 50, irisY: 50, yStart: 0, yEnd: 95 },  // Cowboy
-    { video: v6, irisX: 50, irisY: 50, yStart: 0, yEnd: 95 },  // Gandalf
-    { video: v7, irisX: 50, irisY: 50, yStart: 0, yEnd: 95 },  // Knight
-    { video: v8, irisX: 50, irisY: 50, yStart: 0, yEnd: 100 }, // Monk
-    { video: v9, irisX: 50, irisY: 50, yStart: 0, yEnd: 100 }, // Roman
-    { video: v10, irisX: 50, irisY: 50, yStart: 0, yEnd: 100 },// Sumo
-    { video: v11, irisX: 50, irisY: 50, yStart: 0, yEnd: 95 }, // Victorian (Duchess)
-    { video: v12, irisX: 50, irisY: 50, yStart: 0, yEnd: 100 } // Viking
+    { video: v1, irisX: 50, irisY: 60, yStart: 18, yEnd: 72, xStart: 50, xEnd: 50 }, // Mona Lisa (Portrait)
+    { video: v2, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 15, xEnd: 85 },  // Samurai (Landscape)
+    { video: v3, irisX: 50, irisY: 45, yStart: 15, yEnd: 85, xStart: 50, xEnd: 50 }, // Grandmother (Portrait)
+    { video: v4, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 35, xEnd: 65 },  // Astronaut (Landscape)
+    { video: v5, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 20, xEnd: 80 },  // Cowboy (Landscape)
+    { video: v6, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 35, xEnd: 65 },  // Gandalf (Landscape)
+    { video: v7, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55 }, // Knight (Square)
+    { video: v8, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 15, xEnd: 85 }, // Monk (Landscape)
+    { video: v9, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70 }, // Roman (Landscape)
+    { video: v10, irisX: 50, irisY: 50, yStart: 12, yEnd: 82, xStart: 50, xEnd: 50 },// Sumo (Portrait)
+    { video: v11, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 20, xEnd: 80 }, // Victorian (Landscape)
+    { video: v12, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 15, xEnd: 85 } // Viking (Landscape)
   ];
 
   let trigger = null;
@@ -3285,9 +3309,18 @@ function setupCinemaEngine() {
         settled = false;
       }
 
+      // Lerp videoX
+      sState.currentVideoX += (sState.targetVideoX - sState.currentVideoX) * timeLerp;
+      if (Math.abs(sState.targetVideoX - sState.currentVideoX) < 0.05) {
+        sState.currentVideoX = sState.targetVideoX;
+      } else {
+        settled = false;
+      }
+
       // Apply values to DOM elements if changed (Optimized with Write Caching)
       const roundedOpacity = Math.round(sState.currentOpacity * 100) / 100;
       const roundedVideoY = Math.round(sState.currentVideoY * 10) / 10;
+      const roundedVideoX = Math.round(sState.currentVideoX * 10) / 10;
 
       // Keep visibility visible for active and adjacent videos so they are processed/loaded by the browser
       if (sState.lastAppliedVisibility !== 'visible') {
@@ -3303,6 +3336,11 @@ function setupCinemaEngine() {
       if (sState.lastAppliedVideoY !== roundedVideoY) {
         video.style.setProperty('--video-y', `${roundedVideoY}%`);
         sState.lastAppliedVideoY = roundedVideoY;
+      }
+
+      if (sState.lastAppliedVideoX !== roundedVideoX) {
+        video.style.setProperty('--video-x', `${roundedVideoX}%`);
+        sState.lastAppliedVideoX = roundedVideoX;
       }
 
       // Only pause non-active videos to prevent autonomous background playback
@@ -3372,6 +3410,8 @@ function setupCinemaEngine() {
       }
     });
 
+
+
     // Loader indicator logic: disabled per customer request
     const needsLoader = false;
     if (needsLoader !== isLoaderActive) {
@@ -3413,11 +3453,6 @@ function setupCinemaEngine() {
   const totalSteps = 15;
   let isTransitioning = false;
 
-  // Ambient backfill layer (blurred live copy of the active scene)
-  const backfillEl = document.getElementById('cinemaBackfill');
-  const setBackfillActive = (on) => {
-    if (backfillEl) backfillEl.classList.toggle('active', on);
-  };
 
   // Central Navigation Engine: maps step changes to cinema state values
   function goToStep(targetStep, direction = 1) {
@@ -3435,6 +3470,8 @@ function setupCinemaEngine() {
     ) {
       setThemeColor('#000000');
     }
+
+
 
     // Wake up LERP loop
     triggerCinemaLoop();
@@ -3496,7 +3533,6 @@ function setupCinemaEngine() {
       scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
       cState.activeTextBlockIdx = -1;
       textBlocks.forEach(block => block.classList.remove('active'));
-      setBackfillActive(false);
       closeBookingScreen();
       isTransitioning = false;
       return;
@@ -3528,8 +3564,6 @@ function setupCinemaEngine() {
       if (servicesSelectCard && !servicesSelectCard.classList.contains('active')) {
         servicesSelectCard.classList.add('active');
       }
-
-      setBackfillActive(false);
       closeBookingScreen();
       isTransitioning = false;
       return;
@@ -3544,9 +3578,7 @@ function setupCinemaEngine() {
     if (targetStep >= 2 && targetStep <= 13) {
       const activeIdx = targetStep - 2;
 
-      // Ambient backfill follows the active scene
-      setBackfillActive(true);
-      if (scenes[activeIdx]?.video) drawCinemaBackfill(scenes[activeIdx].video);
+
       
       // Auto-Opening Iris during initial transition
       // (onUpdate wakes the LERP loop: it self-suspends when settled, and these
@@ -3594,8 +3626,10 @@ function setupCinemaEngine() {
           // Initialize active video position at start (0% or yStart) for incoming active scene
           sState.targetVideoY = scenes[idx]?.yStart || 0;
           sState.currentVideoY = scenes[idx]?.yStart || 0;
+          sState.targetVideoX = scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50;
+          sState.currentVideoX = scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50;
 
-          // Smoothly animate targetVideoY from yStart to yEnd over 4.5 seconds (automated flowing sweep)
+          // Smoothly animate targetVideoY from yStart to yEnd over 4.5 seconds (automated flowing sweep, loops back/forth)
           gsap.killTweensOf(sState, 'targetVideoY');
           gsap.fromTo(sState,
             { targetVideoY: scenes[idx]?.yStart || 0 },
@@ -3603,6 +3637,23 @@ function setupCinemaEngine() {
               targetVideoY: scenes[idx]?.yEnd || 100,
               duration: 4.5,
               ease: 'power1.inOut',
+              repeat: -1,
+              yoyo: true,
+              overwrite: 'auto',
+              onUpdate: triggerCinemaLoop
+            }
+          );
+
+          // Smoothly animate targetVideoX from xStart to xEnd over 4.5 seconds (automated horizontal sweep, loops back/forth)
+          gsap.killTweensOf(sState, 'targetVideoX');
+          gsap.fromTo(sState,
+            { targetVideoX: scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50 },
+            {
+              targetVideoX: scenes[idx]?.xEnd !== undefined ? scenes[idx].xEnd : 50,
+              duration: 4.5,
+              ease: 'power1.inOut',
+              repeat: -1,
+              yoyo: true,
               overwrite: 'auto',
               onUpdate: triggerCinemaLoop
             }
@@ -3617,9 +3668,11 @@ function setupCinemaEngine() {
         } else {
           // Reset position and fade out inactive scenes
           gsap.killTweensOf(sState, 'targetVideoY');
+          gsap.killTweensOf(sState, 'targetVideoX');
           gsap.to(sState, {
             targetOpacity: 0.0,
             targetVideoY: scenes[idx]?.yStart || 0,
+            targetVideoX: scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50,
             duration: 0.5,
             ease: 'power2.out',
             onUpdate: triggerCinemaLoop
@@ -3632,7 +3685,7 @@ function setupCinemaEngine() {
           const checkProgress = () => {
             if (cState.activeIdx === activeIdx && scenes[idx]?.video) {
               sState.targetTime = scenes[idx].video.currentTime;
-              drawCinemaBackfill(scenes[idx].video);
+
               requestAnimationFrame(checkProgress);
             }
           };
@@ -3666,7 +3719,6 @@ function setupCinemaEngine() {
         ease: 'power2.out',
         onUpdate: triggerCinemaLoop,
         onComplete: () => {
-          setBackfillActive(false);
           cState.sceneStates.forEach(s => s.targetOpacity = 0);
           if (cState.activeIdx !== -1) {
             cState.activeIdx = -1;
@@ -3885,6 +3937,10 @@ function selectServiceGlobal(service) {
   const serviceTextOverlay = document.getElementById('sceneTextOverlay');
   if (serviceTextOverlay) {
     serviceTextOverlay.setAttribute('data-active-service', service);
+  }
+  const cinemaSec = document.getElementById('cinema-section');
+  if (cinemaSec) {
+    cinemaSec.setAttribute('data-active-service', service);
   }
 
   // Update the booking form select input

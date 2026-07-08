@@ -32,7 +32,9 @@ export const STATE = {
       currentOpacity: 0,
       targetOpacity: 0,
       currentVideoY: 50, // default center
-      targetVideoY: 50
+      targetVideoY: 50,
+      currentVideoX: 50, // default center
+      targetVideoX: 50
     })),
     introVideoState: {
       currentTime: 0,
