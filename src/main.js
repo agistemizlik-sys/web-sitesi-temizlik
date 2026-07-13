@@ -5117,6 +5117,32 @@ function setupBookingReveal() {
         }
       }
 
+      // Send Lead to Backoffice Panel API asynchronously
+      const apiEndpoint = "http://45.76.83.185/api/leads";
+      const leadPayload = {
+        name: name,
+        phone: phone,
+        source: "WEBSITE",
+        sourceDetail: `Seçilen Şehir: ${city}, Tarih: ${date}`,
+        notes: isPl 
+          ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Obszar: ${priceRange} m²` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}`
+          : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Alan: ${priceRange} m²` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}`,
+        tags: [service, city]
+      };
+
+      fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "hc_live_7x9f2m4a1v8"
+        },
+        body: JSON.stringify(leadPayload)
+      }).then(res => {
+        logDebug("Lead synced with backoffice database successfully:", res);
+      }).catch(err => {
+        logErrorDebug("Backoffice lead synchronization failed:", err);
+      });
+
       // Open WhatsApp link in new window after a brief delay
       const cleanWaPhone = (dict.contactPhoneValue || '905320000000').replace(/[^0-9]/g, '');
       const whatsappUrl = `https://wa.me/${cleanWaPhone}?text=${encodeURIComponent(message)}`;
