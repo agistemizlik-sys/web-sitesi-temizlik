@@ -2108,9 +2108,40 @@ function addLeafletMarkers(mapObj, locations) {
   });
 }
 
-function initLeafletMap(country) {
-  if (typeof L === 'undefined') {
-    logErrorDebug('Leaflet is not defined. Map cannot be initialized.');
+let leafletLoadedPromise = null;
+function ensureLeafletLoaded() {
+  if (typeof L !== 'undefined') return Promise.resolve();
+  if (leafletLoadedPromise) return leafletLoadedPromise;
+  leafletLoadedPromise = new Promise((resolve, reject) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    link.crossOrigin = '';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+    script.crossOrigin = '';
+    script.onload = () => {
+      logDebug('Leaflet script and CSS loaded dynamically.');
+      resolve();
+    };
+    script.onerror = (err) => {
+      logErrorDebug('Leaflet script dynamic loading failed.', err);
+      reject(err);
+    };
+    document.head.appendChild(script);
+  });
+  return leafletLoadedPromise;
+}
+
+async function initLeafletMap(country) {
+  try {
+    await ensureLeafletLoaded();
+  } catch (err) {
+    logErrorDebug('Leaflet map cannot be initialized: dynamic assets failed to load.', err);
     return;
   }
   if (country === 'turkey') {
@@ -5175,6 +5206,44 @@ function setupBookingReveal() {
       }).catch(err => {
         logErrorDebug("Backoffice lead synchronization failed:", err);
       });
+
+      // ─── ADS & ANALYTICS TRACKING EVENT TRIGGERS ─────────────────────────
+      try {
+        // Google Analytics & Google Ads Event Triggers
+        if (typeof gtag === 'function') {
+          // Google Ads Conversion Event
+          // ⚠️ NOT: 'AW-XXXXXXXXXX/LABEL_VALUE' kısmını gerçek conversion label'ınızla değiştirin
+          gtag('event', 'conversion', {
+            'send_to': 'AW-XXXXXXXXXX/LABEL_VALUE',
+            'value': 1.0,
+            'currency': isPl ? 'PLN' : 'TRY'
+          });
+
+          // Google Analytics Lead Event
+          gtag('event', 'generate_lead', {
+            'event_category': 'Engagement',
+            'event_label': 'WhatsApp Booking',
+            'value': 1.0,
+            'currency': isPl ? 'PLN' : 'TRY',
+            'city': city,
+            'service': serviceText
+          });
+        }
+
+        // Meta Pixel Lead Event Trigger (Facebook Pixel)
+        if (typeof fbq === 'function') {
+          fbq('track', 'Lead', {
+            value: 1.0,
+            currency: isPl ? 'PLN' : 'TRY',
+            content_name: serviceText,
+            content_category: 'Cleaning Booking',
+            content_ids: [city]
+          });
+        }
+      } catch (trackErr) {
+        console.warn("[TRACKING] Hata oluştu:", trackErr);
+      }
+      // ───────────────────────────────────────────────────────────────────────
 
       // Open WhatsApp link in new window after a brief delay
       const cleanWaPhone = (dict.contactPhoneValue || '905320000000').replace(/[^0-9]/g, '');

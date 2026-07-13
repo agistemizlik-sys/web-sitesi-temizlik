@@ -64,11 +64,42 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/src/style.css">
 
-  <!-- Leaflet Map CSS and JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+
+  <!-- ── ANALYTICS & ADS TRACKING CODES ────────────────────────────────────── -->
+  <!-- Google tag (gtag.js) - Google Analytics & Ads -->
+  <!-- ⚠️ NOT: Kampanyanız başladığında 'AW-1647895123' ve 'G-XXXXXXXXXX' yazan yerleri kendi ID'lerinizle değiştirin -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-XXXXXXXXXX'); // Google Analytics (GA4) ID
+    gtag('config', 'AW-XXXXXXXXXX'); // Google Ads Conversion ID
+  </script>
+
+  <!-- Meta Pixel Code (Facebook Pixel) -->
+  <!-- ⚠️ NOT: 'PIXEL_ID_BURAYA' yazan yeri kendi Meta Pixel ID'niz ile değiştirin -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'PIXEL_ID_BURAYA');
+    fbq('track', 'PageView');
+  </script>
+  <!-- ───────────────────────────────────────────────────────────────────────── -->
 </head>
 <body class="portal-intro-mode">
+  <!-- Meta Pixel noscript fallback -->
+  <noscript>
+    <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=PIXEL_ID_BURAYA&ev=PageView&noscript=1"/>
+  </noscript>
   
   <!-- ── PORTAL SCROLL INTRO ─────────────────────────────────────────────── -->
   <div id="portal-intro-stage" class="portal-intro-stage" aria-hidden="true">
