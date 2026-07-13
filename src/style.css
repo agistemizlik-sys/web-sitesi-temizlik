@@ -555,7 +555,7 @@ html.bypassing-gateway #portal-stage {
 
 .cc-gateway-sub {
   font-size: 0.72rem;
-  color: var(--clr-muted);
+  color: rgba(255, 255, 255, 0.65);
   margin-bottom: 16px;
   letter-spacing: 0.5px;
   transition: transform 0.5s var(--ease-spring);
@@ -587,12 +587,18 @@ html.bypassing-gateway #portal-stage {
 
 .cc-features li {
   font-size: 0.75rem;
-  color: var(--clr-muted);
+  color: rgba(255, 255, 255, 0.65);
   margin-bottom: 6px;
   position: relative;
   padding-left: 14px;
   transform: translate3d(0, 0, 0);
   transition: color 0.3s var(--ease-smooth), transform 0.4s var(--ease-spring);
+}
+
+.cc-gateway-card:focus-visible,
+.service-select-item:focus-visible {
+  outline: 2px solid var(--clr-accent) !important;
+  outline-offset: 4px !important;
 }
 
 .cc-gateway-card:hover .cc-features li,
@@ -618,6 +624,8 @@ html.bypassing-gateway #portal-stage {
 }
 
 .city-select-btn {
+  display: inline-block;
+  text-align: center;
   background: rgba(var(--column-accent-rgb), 0.06);
   border: 1px solid rgba(var(--column-accent-rgb), 0.3);
   padding: 8px 20px;
@@ -1314,6 +1322,117 @@ html.bypassing-gateway #portal-stage {
   box-shadow: 0 0 0 3px rgba(var(--clr-accent-rgb), 0.12);
 }
 
+/* Pricing range slider styling */
+/* Pricing range slider styling */
+.price-slider-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.price-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.price-range-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--clr-accent);
+  letter-spacing: 0.5px;
+  font-family: var(--font-sans);
+}
+
+.form-field-cinema input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, var(--clr-accent) 0%, var(--clr-accent) var(--value-percent, 0%), #e5e7eb var(--value-percent, 0%), #e5e7eb 100%);
+  border-radius: 99px;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 10px 0 6px 0;
+  cursor: pointer;
+}
+
+.form-field-cinema input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--clr-accent);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.form-field-cinema input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.form-field-cinema input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--clr-accent);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+.form-field-cinema input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+.extras-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.extra-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid var(--clr-line-strong);
+  border-radius: 99px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--clr-ink);
+  outline: none;
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+}
+
+.extra-btn:hover {
+  border-color: var(--clr-accent);
+  background: rgba(var(--clr-accent-rgb), 0.04);
+  transform: translateY(-1px);
+}
+
+.extra-btn.active {
+  background: var(--clr-accent);
+  border-color: var(--clr-accent);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(var(--clr-accent-rgb), 0.25);
+}
+
+.extra-icon {
+  font-size: 0.95rem;
+}
+
 .cinema-submit-btn {
   width: 100%;
   background: var(--clr-ink);
@@ -1614,7 +1733,7 @@ html, body {
     font-size: 0.6rem;
   }
 
-  .booking-reveal-screen .form-field-cinema input,
+  .booking-reveal-screen .form-field-cinema input:not([type="range"]),
   .booking-reveal-screen .form-field-cinema select {
     padding: 12px 14px;
     font-size: 1rem; /* Prevent iOS Safari auto-zoom on focus */
@@ -1653,7 +1772,7 @@ html, body {
     .booking-reveal-screen .form-field-cinema label {
       font-size: 0.55rem !important;
     }
-    .booking-reveal-screen .form-field-cinema input,
+    .booking-reveal-screen .form-field-cinema input:not([type="range"]),
     .booking-reveal-screen .form-field-cinema select {
       padding: 8px 12px !important;
       min-height: 38px !important;
@@ -2748,60 +2867,170 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   transform: translate3d(-50%, -2px, 0) !important;
 }
 
+/* Compact styling for Warsaw districts to prevent collisions */
+.map-hotspot[data-market="mazowsze"] .hotspot-label {
+  font-size: 10.5px !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 4px rgba(27, 29, 34, 0.12) !important;
+}
+
+/* Hide labels on low zoom except on hover to avoid overlap */
+.map-zoom-low .hotspot-label {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.18s ease, transform 0.18s ease !important;
+}
+.map-zoom-low .map-hotspot:hover .hotspot-label {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 /* Poland Districts offsets */
-.map-hotspot[data-iladi="Śródmieście"] .hotspot-label {
-  top: -48px !important;
+.map-hotspot[data-city="Srodmiescie"] .hotspot-label {
+  top: -46px !important;
   left: 50% !important;
   transform: translate3d(-50%, 0, 0) !important;
 }
-.map-hotspot[data-iladi="Śródmieście"] .hotspot-telemetry {
-  top: -66px !important;
-  left: 50% !important;
-  transform: translate3d(-50%, 0, 0) !important;
-}
-.map-hotspot[data-iladi="Śródmieście"]:hover .hotspot-label {
+.map-hotspot[data-city="Srodmiescie"]:hover .hotspot-label {
   transform: translate3d(-50%, -2px, 0) !important;
 }
 
-.map-hotspot[data-iladi="Wola"] .hotspot-label {
+.map-hotspot[data-city="Zoliborz"] .hotspot-label {
+  top: 6px !important;
+  left: -22px !important;
+  transform: translate3d(-100%, 0, 0) !important;
+}
+.map-hotspot[data-city="Zoliborz"]:hover .hotspot-label {
+  transform: translate3d(-100%, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Mokotow"] .hotspot-label {
   top: 42px !important;
-  left: -40px !important;
+  left: 50% !important;
   transform: translate3d(-50%, 0, 0) !important;
 }
-.map-hotspot[data-iladi="Wola"] .hotspot-telemetry {
-  top: 68px !important;
-  left: -40px !important;
+
+.map-hotspot[data-city="Wola"] .hotspot-label {
+  top: 6px !important;
+  left: -22px !important;
+  transform: translate3d(-100%, 0, 0) !important;
+}
+.map-hotspot[data-city="Wola"]:hover .hotspot-label {
+  transform: translate3d(-100%, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Praga-Polnoc"] .hotspot-label {
+  top: 6px !important;
+  left: 58px !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+.map-hotspot[data-city="Praga-Polnoc"]:hover .hotspot-label {
+  transform: translate3d(0, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Bielany"] .hotspot-label {
+  top: -46px !important;
+  left: 50% !important;
   transform: translate3d(-50%, 0, 0) !important;
 }
-.map-hotspot[data-iladi="Wola"]:hover .hotspot-label {
+.map-hotspot[data-city="Bielany"]:hover .hotspot-label {
   transform: translate3d(-50%, -2px, 0) !important;
 }
 
-.map-hotspot[data-iladi="Mokotów"] .hotspot-label {
+.map-hotspot[data-city="Ursynow"] .hotspot-label {
+  top: 42px !important;
+  left: -20px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Ursynow"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Praga-Poludnie"] .hotspot-label {
+  top: 42px !important;
+  left: 75px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+
+.map-hotspot[data-city="Targowek"] .hotspot-label {
+  top: -46px !important;
+  left: 80px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Targowek"]:hover .hotspot-label {
+  transform: translate3d(-50%, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Bemowo"] .hotspot-label {
+  top: 6px !important;
+  left: -22px !important;
+  transform: translate3d(-100%, 0, 0) !important;
+}
+.map-hotspot[data-city="Bemowo"]:hover .hotspot-label {
+  transform: translate3d(-100%, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Ochota"] .hotspot-label {
+  top: 42px !important;
+  left: -25px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+
+.map-hotspot[data-city="Ursus"] .hotspot-label {
+  top: 6px !important;
+  left: -22px !important;
+  transform: translate3d(-100%, 0, 0) !important;
+}
+.map-hotspot[data-city="Ursus"]:hover .hotspot-label {
+  transform: translate3d(-100%, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Wlochy"] .hotspot-label {
   top: 42px !important;
   left: 65px !important;
   transform: translate3d(-50%, 0, 0) !important;
 }
-.map-hotspot[data-iladi="Mokotów"] .hotspot-telemetry {
-  top: 68px !important;
-  left: 65px !important;
+
+.map-hotspot[data-city="Pruszkow"] .hotspot-label {
+  top: 42px !important;
+  left: 50% !important;
   transform: translate3d(-50%, 0, 0) !important;
 }
-.map-hotspot[data-iladi="Mokotów"]:hover .hotspot-label {
+
+.map-hotspot[data-city="Piastow"] .hotspot-label {
+  top: -46px !important;
+  left: 50% !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+.map-hotspot[data-city="Piastow"]:hover .hotspot-label {
   transform: translate3d(-50%, -2px, 0) !important;
 }
 
-.map-hotspot[data-iladi="Bemowo"] .hotspot-label {
-  top: -48px !important;
-  left: -40px !important;
+.map-hotspot[data-city="Wilanow"] .hotspot-label {
+  top: 6px !important;
+  left: 58px !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+.map-hotspot[data-city="Wilanow"]:hover .hotspot-label {
+  transform: translate3d(0, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Sulejowek"] .hotspot-label {
+  top: 6px !important;
+  left: 58px !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+.map-hotspot[data-city="Sulejowek"]:hover .hotspot-label {
+  transform: translate3d(0, -2px, 0) !important;
+}
+
+.map-hotspot[data-city="Konstancin-Jeziorna"] .hotspot-label {
+  top: -46px !important;
+  left: 50% !important;
   transform: translate3d(-50%, 0, 0) !important;
 }
-.map-hotspot[data-iladi="Bemowo"] .hotspot-telemetry {
-  top: -66px !important;
-  left: -40px !important;
-  transform: translate3d(-50%, 0, 0) !important;
-}
-.map-hotspot[data-iladi="Bemowo"]:hover .hotspot-label {
+.map-hotspot[data-city="Konstancin-Jeziorna"]:hover .hotspot-label {
   transform: translate3d(-50%, -2px, 0) !important;
 }
 
@@ -4684,9 +4913,9 @@ img, video, .card-bg-image {
     font-size: 7.5px !important;
   }
 
-  /* Keep mobile quick selector hidden */
+  /* Show mobile quick selector on small viewports */
   .mobile-city-selector {
-    display: none !important;
+    display: block !important;
     width: 100%;
     max-width: 480px;
     margin: 24px auto 0 auto;
@@ -5256,7 +5485,7 @@ img, video, .card-bg-image {
 /* Background alignments for a seamless composite image when merged */
 .intro-panel-left .intro-panel-bg {
   left: 0;
-  background-position: left center;
+  background-position: center center;
 }
 
 .intro-panel-center .intro-panel-bg {
@@ -5266,7 +5495,7 @@ img, video, .card-bg-image {
 
 .intro-panel-right .intro-panel-bg {
   left: -66.666vw;
-  background-position: right center;
+  background-position: center center;
 }
 
 /* Separator borders between panels */

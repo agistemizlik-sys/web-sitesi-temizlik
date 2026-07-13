@@ -9,6 +9,50 @@
   <meta name="description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
   <meta name="theme-color" content="#f7f6f2">
 
+  <!-- OpenGraph Social Sharing -->
+  <meta property="og:title" content="Aclean | Sinematik İnteraktif Temizlik Deneyimi">
+  <meta property="og:description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
+  <meta property="og:image" content="https://acleanserwis.com/images/og-image.png">
+  <meta property="og:url" content="https://acleanserwis.com">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Aclean | Sinematik İnteraktif Temizlik Deneyimi">
+  <meta name="twitter:description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
+
+  <!-- Multilingual Indexing Guidance -->
+  <link rel="alternate" hreflang="tr" href="https://acleanserwis.com/?lang=tr" />
+  <link rel="alternate" hreflang="pl" href="https://acleanserwis.com/?lang=pl" />
+  <link rel="alternate" hreflang="x-default" href="https://acleanserwis.com/" />
+  <link rel="canonical" href="https://acleanserwis.com" />
+
+  <!-- Structured Local Business Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Aclean",
+    "image": "https://acleanserwis.com/images/og-image.png",
+    "url": "https://acleanserwis.com",
+    "telephone": "+905320000000",
+    "priceRange": "$$",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "TR"
+    },
+    "areaServed": [
+      {"@type": "AdministrativeArea", "name": "İstanbul"},
+      {"@type": "AdministrativeArea", "name": "İzmir"},
+      {"@type": "AdministrativeArea", "name": "Kocaeli"},
+      {"@type": "AdministrativeArea", "name": "Sakarya"},
+      {"@type": "AdministrativeArea", "name": "Samsun"},
+      {"@type": "AdministrativeArea", "name": "Balıkesir"},
+      {"@type": "AdministrativeArea", "name": "Warszawa"}
+    ]
+  }
+  </script>
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
@@ -232,7 +276,7 @@
               <li>Otel & Tatil Köyü</li>
               <li>Günlük Temizlik</li>
             </ul>
-            <button class="city-select-btn" data-city="Izmir">Seç</button>
+            <span class="city-select-btn" data-city="Izmir">Seç</span>
           </div>
 
           <!-- KART: İSTANBUL -->
@@ -249,7 +293,7 @@
               <li>İnşaat Sonrası</li>
               <li>Endüstriyel Temizlik</li>
             </ul>
-            <button class="city-select-btn" data-city="Istanbul">Seç</button>
+            <span class="city-select-btn" data-city="Istanbul">Seç</span>
           </div>
 
           <!-- KART: SAKARYA -->
@@ -266,7 +310,7 @@
               <li>Villa Bakımı</li>
               <li>Doğa Dostu Temizlik</li>
             </ul>
-            <button class="city-select-btn" data-city="Sakarya">Seç</button>
+            <span class="city-select-btn" data-city="Sakarya">Seç</span>
           </div>
 
           <!-- KART: KOCAELİ -->
@@ -283,7 +327,7 @@
               <li>Depo & Lojistik</li>
               <li>Endüstriyel Yıkama</li>
             </ul>
-            <button class="city-select-btn" data-city="Kocaeli">Seç</button>
+            <span class="city-select-btn" data-city="Kocaeli">Seç</span>
           </div>
 
           <!-- KART: SAMSUN -->
@@ -300,7 +344,7 @@
               <li>Deniz Sonrası</li>
               <li>Mevsimsel Temizlik</li>
             </ul>
-            <button class="city-select-btn" data-city="Samsun">Seç</button>
+            <span class="city-select-btn" data-city="Samsun">Seç</span>
           </div>
 
           <!-- KART: BALIKESİR -->
@@ -317,7 +361,7 @@
               <li>Tatil Evi Bakımı</li>
               <li>Sezonluk Temizlik</li>
             </ul>
-            <button class="city-select-btn" data-city="Balikesir">Seç</button>
+            <span class="city-select-btn" data-city="Balikesir">Seç</span>
           </div>
 
           <!-- KART: WARSZAWA -->
@@ -334,7 +378,7 @@
               <li>Mokotów & Bemowo</li>
               <li>Ekspresowe Sprzątanie</li>
             </ul>
-            <button class="city-select-btn" data-city="Warszawa">Seç</button>
+            <span class="city-select-btn" data-city="Warszawa">Seç</span>
           </div>
 
         </div>
@@ -426,40 +470,40 @@
         <canvas id="cinemaBackfill" class="cinema-backfill" aria-hidden="true"></canvas>
 
         <!-- Video 1: Mona Lisa (Toilet Cleaning) -->
-        <video id="video-scene-1" class="cinema-video" src="/videos/monalisa.mp4" muted playsinline loop autoplay preload="auto"></video>
+        <video id="video-scene-1" class="cinema-video" src="/videos/monalisa.mp4" muted playsinline loop preload="auto"></video>
         
         <!-- Video 2: Samurai (Katana Cleaning) -->
-        <video id="video-scene-2" class="cinema-video" src="/videos/samurai.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-2" class="cinema-video" src="/videos/samurai.mp4" muted playsinline loop preload="none"></video>
         
         <!-- Video 3: Turkish Grandmother (Nene Cleaning) -->
-        <video id="video-scene-3" class="cinema-video" src="/videos/grandmother.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-3" class="cinema-video" src="/videos/grandmother.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 4: Astronaut (Station Sterilization) -->
-        <video id="video-scene-4" class="cinema-video" src="/videos/astronaut.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-4" class="cinema-video" src="/videos/astronaut.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 5: Cowboy (Saloon Cleaning) -->
-        <video id="video-scene-5" class="cinema-video" src="/videos/cowboy.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-5" class="cinema-video" src="/videos/cowboy.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 6: Gandalf (Wizard Dusting) -->
-        <video id="video-scene-6" class="cinema-video" src="/videos/gandalf.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-6" class="cinema-video" src="/videos/gandalf.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 7: Knight (Armor Cleaning) -->
-        <video id="video-scene-7" class="cinema-video" src="/videos/knight.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-7" class="cinema-video" src="/videos/knight.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 8: Monk (Zen Garden Sweeping) -->
-        <video id="video-scene-8" class="cinema-video" src="/videos/monk.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-8" class="cinema-video" src="/videos/monk.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 9: Roman (Arena Cleaning) -->
-        <video id="video-scene-9" class="cinema-video" src="/videos/roman.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-9" class="cinema-video" src="/videos/roman.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 10: Sumo (Ring Disinfection) -->
-        <video id="video-scene-10" class="cinema-video" src="/videos/sumo.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-10" class="cinema-video" src="/videos/sumo.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 11: Duchess (Palace Cleaning) -->
-        <video id="video-scene-11" class="cinema-video" src="/videos/victorian.mp4" muted playsinline loop autoplay preload="none"></video>
+        <video id="video-scene-11" class="cinema-video" src="/videos/victorian.mp4" muted playsinline loop preload="none"></video>
 
         <!-- Video 12: Viking (Shield/Ship Washing) -->
-        <video id="video-scene-12" class="cinema-video" src="/videos/viking.mp4" muted playsinline preload="none"></video>
+        <video id="video-scene-12" class="cinema-video" src="/videos/viking.mp4" muted playsinline loop preload="none"></video>
         
         <!-- Cartoon Iris-Out Overlay Mask -->
         <div class="cinema-iris-overlay" id="irisOverlay" aria-hidden="true"></div>
@@ -596,6 +640,55 @@
                 </div>
 
               </div>
+
+              <!-- Card 5: İnşaat Sonrası Temizlik -->
+              <div class="service-select-item" data-service="insaat_sonrasi" data-base-price="12">
+                <span class="service-select-badge">Ağır Kir & Pył</span>
+                <div class="card-glow-overlay"></div>
+                <div class="service-select-active-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="service-select-icon">
+                  <svg class="service-select-svg svg-paint-roller" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 3h12a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 6h2a1 1 0 0 1 1 1v6a3 3 0 0 1-3 3h-7v4a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 9v2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="service-select-info">
+                  <h4>İnşaat Sonrası</h4>
+                  <p>Tadilat ve inşaat sonrası derin temizlik</p>
+                  <div class="service-select-tags">
+                    <span class="service-select-tag-pill">Tadilat Sonrası</span>
+                    <span class="service-select-tag-pill">İnce Toz Temizliği</span>
+                    <span class="service-select-tag-pill">Kalıntı Arındırma</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 6: Taşınma Öncesi/Sonrası Temizlik -->
+              <div class="service-select-item" data-service="tasinma_sonrasi" data-base-price="7">
+                <span class="service-select-badge">Kolay Taşınma</span>
+                <div class="card-glow-overlay"></div>
+                <div class="service-select-active-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="service-select-icon">
+                  <svg class="service-select-svg svg-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18-3H3v3h18V5z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 12v5m-3-3l3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="service-select-info">
+                  <h4>Taşınma Temizliği</h4>
+                  <p>Taşınma öncesi veya sonrası detaylı temizlik</p>
+                  <div class="service-select-tags">
+                    <span class="service-select-tag-pill">Boş Ev Temizliği</span>
+                    <span class="service-select-tag-pill">Dolap İçi Hijyen</span>
+                    <span class="service-select-tag-pill">Taşınma Öncesi/Sonrası</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <button type="button" class="services-continue-btn" id="servicesContinueBtn">
@@ -696,12 +789,12 @@
           <div class="intro-bg-container">
             <div class="intro-bg-overlay"></div>
             <video id="intro-video-istanbul" class="intro-video" src="/videos/city_istanbul.mp4" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-izmir" class="intro-video" src="/videos/city_izmir.mp4" muted playsinline loop preload="none"></video>
-            <video id="intro-video-samsun" class="intro-video" src="/videos/city_samsun.mp4" muted playsinline loop preload="none"></video>
-            <video id="intro-video-kocaeli" class="intro-video" src="/videos/city_kocaeli.mp4" muted playsinline loop preload="none"></video>
-            <video id="intro-video-sakarya" class="intro-video" src="/videos/city_sakarya.mp4" muted playsinline loop preload="none"></video>
-            <video id="intro-video-balikesir" class="intro-video" src="/videos/city_balikesir.mp4" muted playsinline loop preload="none"></video>
-            <video id="intro-video-warszawa" class="intro-video" src="/videos/city_warszawa.mp4" muted playsinline loop preload="none"></video>
+            <video id="intro-video-izmir" class="intro-video" src="/videos/city_izmir.mp4" muted playsinline loop preload="auto"></video>
+            <video id="intro-video-samsun" class="intro-video" src="/videos/city_samsun.mp4" muted playsinline loop preload="auto"></video>
+            <video id="intro-video-kocaeli" class="intro-video" src="/videos/city_kocaeli.mp4" muted playsinline loop preload="auto"></video>
+            <video id="intro-video-sakarya" class="intro-video" src="/videos/city_sakarya.mp4" muted playsinline loop preload="auto"></video>
+            <video id="intro-video-balikesir" class="intro-video" src="/videos/city_balikesir.mp4" muted playsinline loop preload="auto"></video>
+            <video id="intro-video-warszawa" class="intro-video" src="/videos/city_warszawa.mp4" muted playsinline loop preload="auto"></video>
           </div>
 
           <div class="intro-eyebrow">PREMİUM HİJYEN DENEYİMİ</div>
@@ -764,7 +857,58 @@
                   <option value="detayli">Detaylı Temizlik</option>
                   <option value="kurumsal">Kurumsal Temizlik (B2B)</option>
                   <option value="ilaclama">İlaçlama & Dezenfeksiyon</option>
+                  <option value="insaat_sonrasi">İnşaat Sonrası Temizlik</option>
+                  <option value="tasinma_sonrasi">Taşınma Öncesi/Sonrası Temizlik</option>
                 </select>
+              </div>
+            </div>
+            
+            <div class="form-row-double">
+              <div class="form-field-cinema">
+                <label for="cDate" id="lblBookingLabelDate">REZERVASYON TARİHİ</label>
+                <input type="date" id="cDate" required />
+              </div>
+              <div class="form-field-cinema">
+                <label for="cFrequency" id="lblBookingLabelFrequency">TEMİZLİK SIKLIĞI</label>
+                <select id="cFrequency">
+                  <option value="tekseferlik">Tek Seferlik Temizlik</option>
+                  <option value="haftalik">Haftalık Düzenli Temizlik</option>
+                  <option value="aylik">Aylık Düzenli Temizlik</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-field-cinema price-slider-container" style="margin-top: 10px;">
+              <div class="price-header-row">
+                <label for="cPriceRange" id="lblBookingLabelPrice">HİZMET ALANI (m²)</label>
+                <span id="priceRangeVal" class="price-range-val">...</span>
+              </div>
+              <input type="range" id="cPriceRange" min="20" max="400" step="5" value="80" />
+            </div>
+
+            <div class="form-field-cinema extras-container" style="margin-top: 10px; margin-bottom: 12px;">
+              <label id="lblBookingLabelExtras">EKSTRA HİZMETLER (SEÇİLEBİLİR)</label>
+              <div class="extras-grid">
+                <button type="button" class="extra-btn" data-extra="balkon" data-price-tr="100" data-price-pl="10">
+                  <span class="extra-icon">🧺</span>
+                  <span class="extra-label-text" id="lblExtraBalkon">Balkon Yıkama</span>
+                </button>
+                <button type="button" class="extra-btn" data-extra="bulasik" data-price-tr="80" data-price-pl="8">
+                  <span class="extra-icon">🍽️</span>
+                  <span class="extra-label-text" id="lblExtraBulasik">Bulaşık Yıkama</span>
+                </button>
+                <button type="button" class="extra-btn" data-extra="pet" data-price-tr="120" data-price-pl="12">
+                  <span class="extra-icon">🐾</span>
+                  <span class="extra-label-text" id="lblExtraPet">Evcil Hayvan</span>
+                </button>
+                <button type="button" class="extra-btn" data-extra="firin" data-price-tr="150" data-price-pl="15">
+                  <span class="extra-icon">🍳</span>
+                  <span class="extra-label-text" id="lblExtraFirin">Fırın İçi</span>
+                </button>
+                <button type="button" class="extra-btn" data-extra="utu" data-price-tr="100" data-price-pl="10">
+                  <span class="extra-icon">👕</span>
+                  <span class="extra-label-text" id="lblExtraUtu">Ütü Yapma</span>
+                </button>
               </div>
             </div>
 
@@ -810,7 +954,7 @@
   <!-- ==========================================
        HİZMETLER & FİYAT HESAPLAMA MODALI
        ========================================== -->
-  <div id="services-modal" class="cinema-modal" data-lenis-prevent hidden>
+  <div id="services-modal" class="cinema-modal" data-lenis-prevent role="dialog" aria-modal="true" aria-labelledby="modalCalcTitleLbl" hidden>
     <div class="modal-backdrop" id="servicesBackdrop"></div>
     <div class="modal-wrapper services-wrapper">
       <button class="modal-close-btn" id="closeServicesBtn" aria-label="Kapat">&times;</button>
@@ -885,16 +1029,16 @@
               <label>EKSTRA DETAYLAR</label>
               <div class="calc-checkbox-group">
                 <label class="calc-cb-label">
-                  <input type="checkbox" class="calc-extra-cb" value="300" />
-                  Detaylı Cam Temizliği (+300 TL)
+                  <input type="checkbox" class="calc-extra-cb" value="0" />
+                  Detaylı Cam Temizliği
                 </label>
                 <label class="calc-cb-label">
-                  <input type="checkbox" class="calc-extra-cb" value="250" />
-                  Fırın & Beyaz Eşya İçi (+250 TL)
+                  <input type="checkbox" class="calc-extra-cb" value="0" />
+                  Fırın & Beyaz Eşya İçi
                 </label>
                 <label class="calc-cb-label">
-                  <input type="checkbox" class="calc-extra-cb" value="200" />
-                  Balkon Yıkama (+200 TL)
+                  <input type="checkbox" class="calc-extra-cb" value="0" />
+                  Balkon Yıkama
                 </label>
               </div>
             </div>
@@ -914,7 +1058,7 @@
   <!-- ==========================================
        MOBİL NAVİGASYON MENU ÇEKMECESİ (Drawer)
        ========================================== -->
-  <div id="mobile-menu-drawer" class="mobile-drawer" hidden>
+  <div id="mobile-menu-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobil Menü" hidden>
     <div class="drawer-backdrop" id="mobileDrawerBackdrop"></div>
     <div class="drawer-wrapper">
       <div class="drawer-header">
@@ -934,6 +1078,71 @@
   </div>
 
   <div class="portal-warp-flash" id="portalWarpFlash" aria-hidden="true" style="opacity: 0; pointer-events: none;"></div>
+
+  <!-- ── INVISIBLE SEO ARTICLES FOR SEARCH ENGINE INDEXING ─────────────────── -->
+  <section class="sr-only" id="seo-articles" aria-hidden="false">
+    <article lang="tr">
+      <h2>İstanbul, İzmir ve Türkiye Genelinde Profesyonel ve Premium Temizlik Hizmetleri</h2>
+      <p>
+        Günümüzün hızlı tempolu yaşamında ev temizliği ve ofis hijyeni, yaşam kalitesini doğrudan etkileyen en önemli unsurların başında gelir. Aclean olarak, İzmir temizlik şirketi, İstanbul premium temizlik, Kocaeli profesyonel ev temizliği, Sakarya derin temizlik, Samsun temizlik hizmetleri ve Balıkesir temizlik firması arayışlarınızda en üst düzey standartları sunuyoruz.
+      </p>
+      <h3>Hizmet Seçeneklerimiz ve Profesjonalne Çözümler</h3>
+      <ul>
+        <li>
+          <strong>Standart Temizlik:</strong> Günlük toz alma, yer silme, banyo ve mutfak düzenlemesi gibi evlerinizin genel ferahlığını koruyan rutin temizlik çözümleri.
+        </li>
+        <li>
+          <strong>Detaylı Temizlik:</strong> Dip bucak derin hijyen sağlayan, derz temizliği, kireç sökme, koltuk vakumlama ve mutfak dolaplarının iç-dış dezenfeksiyonunu içeren derinlemesine temizlik hizmeti.
+        </li>
+        <li>
+          <strong>İnşaat Sonrası Temizlik:</strong> Tadilat tozu arındırma, boya ve alçı lekesi kazıma, fayans ve derz çimento temizliği gibi en zorlu şantiye kalıntılarını ortadan kaldıran uzman kadromuzla yanınızdayız.
+        </li>
+        <li>
+          <strong>Taşınma Öncesi/Sonrası Temizlik:</strong> Boş ev sterilizasyonu, kapı ve pencere silimi, dolap içi detay silimi ve yeni evinize yerleşmeden önce önceki kiracılardan kalan tüm izlerin dezenfekte edilmesi.
+        </li>
+        <li>
+          <strong>Kurumsal Temizlik (B2B):</strong> Ofisler, lobiler, iş merkezleri ve ticari alanlar için sessiz ve profesyonel iş yeri temizlik planları.
+        </li>
+        <li>
+          <strong>İlaçlama ve Dezenfeksiyon:</strong> Haşere kontrolü, böcek ilaçlama ve dezenfeksiyon hizmetleriyle yaşam alanlarınızı bakteri ve virüslerden koruyan bakanlık onaylı bariyer çözümleri.
+        </li>
+      </ul>
+      <p>
+        Aclean'in interaktif ve sinematik rezervasyon motoru sayesinde İstanbul, İzmir, Kocaeli, Sakarya, Balıkesir ve Samsun bölgelerinde anında m² bazlı fiyat analizi yapabilir, ihtiyacınız olan hijyen hizmetini tek tuşla WhatsApp üzerinden rezerve edebilirsiniz.
+      </p>
+    </article>
+
+    <article lang="pl">
+      <h2>Profesjonalne i Kompleksowe Usługi Sprzątania w Warszawie i Aglomeracji Warszawskiej</h2>
+      <p>
+        Utrzymanie czystości w domu lub biurze to klucz do zdrowego i komfortowego życia. Firma sprzątająca Warszawa Aclean oferuje najwyższej jakości usługi porządkowe dopasowane do indywidualnych potrzeb. Świadczymy usługi na terenie dzielnic takich jak Śródmieście, Mokotów, Wola, Ursynów, Bemowo, Białołęka, Praga-Północ, Praga-Południe, Targówek, Ochota, Żoliborz, Bielany, Ursus, Włochy, Wilanów, Wawer, Rembertów oraz Wesoła, a także w miastach aglomeracji warszawskiej: Piaseczno, Pruszków, Ząbki, Marki, Sulejówek, Józefów, Piastów, Łomianki i Konstancin-Jeziorna.
+      </p>
+      <h3>Nasze Usługi i Specjalistyczne Sprzątanie</h3>
+      <ul>
+        <li>
+          <strong>Standardowe Sprzątanie:</strong> Regularne odkurzanie, mycie podłóg, ścieranie kurzu z mebli, dezynfekcja łazienki oraz frontów kuchennych, gwarantujące świeżość każdego dnia.
+        </li>
+        <li>
+          <strong>Głębokie Sprzątanie:</strong> Szczegółowe czyszczenie spoin (fug), usuwanie osadów z kamienia i mydła w łazienkach, odkurzanie pod ciężkimi meblami oraz głęboka sterylizacja parowa.
+        </li>
+        <li>
+          <strong>Sprzątanie Po Remoncie i Budowie:</strong> Odkurzanie pyłu budowlanego filtrami HEPA, ręczne usuwanie plam z farby i gipsu, chemiczne czyszczenie płytek oraz mycie okien poremontowych z naklejek ochronnych.
+        </li>
+        <li>
+          <strong>Sprzątanie Przed/Po Przeprowadzce:</strong> Sterylizacja pustego domu przed wprowadzeniem się, głębokie mycie wnętrza szafek i szuflad, odkażanie drzwi, klamek i sprzętów AGD w celu usunięcia śladów po poprzednich lokatorach.
+        </li>
+        <li>
+          <strong>Sprzątanie Biur i B2B:</strong> Okresowa dezynfekcja obszarów wspólnych, biurek, sprzętów biurowych oraz ciche odkurzanie bez zakłócania pracy personelu.
+        </li>
+        <li>
+          <strong>Dezynsekcja i Dezynfekcja:</strong> Bezpieczne zwalczanie szkodników, roztoczy i bakterii, dezynfekcja gniazd owadów oraz sterylizacja po zamgławianiu atestowanymi preparatami.
+        </li>
+      </ul>
+      <p>
+        Dzięki naszemu innowacyjnemu interaktywnemu systemowi wyceny online, mieszkańcy Warszawy i okolic mogą błyskawicznie sprawdzić koszt usługi dla wybranego metrażu (m²), dobrać usługi dodatkowe i przesłać zgłoszenie bezpośrednio na WhatsApp w celu szybkiej rezerwacji terminu.
+      </p>
+    </article>
+  </section>
 
   <script type="module" src="/src/main.js"></script>
 </body>

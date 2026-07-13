@@ -73,7 +73,35 @@ export const CITY_TO_REGION = {
   Izmir: 'ege',
   Balikesir: 'ege',
   Samsun: 'karadeniz',
-  Warszawa: 'mazowsze'
+  Warszawa: 'mazowsze',
+  // Warsaw Districts
+  Srodmiescie: 'mazowsze',
+  Mokotow: 'mazowsze',
+  Wola: 'mazowsze',
+  Ursynow: 'mazowsze',
+  Bemowo: 'mazowsze',
+  Bialoleka: 'mazowsze',
+  'Praga-Polnoc': 'mazowsze',
+  'Praga-Poludnie': 'mazowsze',
+  Targowek: 'mazowsze',
+  Ochota: 'mazowsze',
+  Zoliborz: 'mazowsze',
+  Bielany: 'mazowsze',
+  Ursus: 'mazowsze',
+  Wlochy: 'mazowsze',
+  Wilanow: 'mazowsze',
+  Wawer: 'mazowsze',
+  Rembertow: 'mazowsze',
+  Wesola: 'mazowsze',
+  // Warsaw Suburbs
+  Zabki: 'mazowsze',
+  Marki: 'mazowsze',
+  Sulejowek: 'mazowsze',
+  Jozefow: 'mazowsze',
+  Pruszkow: 'mazowsze',
+  Piastow: 'mazowsze',
+  Piaseczno: 'mazowsze',
+  'Konstancin-Jeziorna': 'mazowsze'
 };
 
 export const CITY_NAMES_TR = {

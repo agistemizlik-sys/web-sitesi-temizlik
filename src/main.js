@@ -259,6 +259,158 @@ function applyPageMetaTranslations(dict, lang) {
   if (metaDesc) metaDesc.setAttribute('content', dict.description);
   document.documentElement.setAttribute('lang', lang);
 
+  // Dynamic H1 Heading Translation
+  const mainH1 = document.querySelector('h1.sr-only');
+  if (mainH1 && dict.h1Title) {
+    mainH1.textContent = dict.h1Title;
+  }
+
+  // Dynamic OpenGraph Metadata Update
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute('content', dict.title);
+  
+  const ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc) ogDesc.setAttribute('content', dict.description);
+
+  // Dynamic Twitter Cards Metadata Update
+  const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+  if (twitterTitle) twitterTitle.setAttribute('content', dict.title);
+  
+  const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+  if (twitterDesc) twitterDesc.setAttribute('content', dict.description);
+
+  // Dynamic LocalBusiness JSON-LD Structured Data Update
+  const schemaScript = document.querySelector('script[type="application/ld+json"]');
+  if (schemaScript) {
+    const isPl = lang === 'pl';
+    const schema = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "ProfessionalService",
+          "name": "Aclean",
+          "image": "https://acleanserwis.com/images/og-image.png",
+          "url": "https://acleanserwis.com",
+          "telephone": isPl ? "+48221234567" : "+905320000000",
+          "priceRange": "$$",
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": isPl ? "PL" : "TR",
+            "addressLocality": isPl ? "Warszawa" : "İstanbul"
+          },
+          "areaServed": isPl ? [
+            {"@type": "AdministrativeArea", "name": "Warszawa"},
+            {"@type": "AdministrativeArea", "name": "Śródmieście"},
+            {"@type": "AdministrativeArea", "name": "Mokotów"},
+            {"@type": "AdministrativeArea", "name": "Wola"},
+            {"@type": "AdministrativeArea", "name": "Ursynów"},
+            {"@type": "AdministrativeArea", "name": "Bemowo"},
+            {"@type": "AdministrativeArea", "name": "Białołęka"},
+            {"@type": "AdministrativeArea", "name": "Praga-Północ"},
+            {"@type": "AdministrativeArea", "name": "Praga-Południe"},
+            {"@type": "AdministrativeArea", "name": "Targówek"},
+            {"@type": "AdministrativeArea", "name": "Ochota"},
+            {"@type": "AdministrativeArea", "name": "Żoliborz"},
+            {"@type": "AdministrativeArea", "name": "Bielany"},
+            {"@type": "AdministrativeArea", "name": "Ursus"},
+            {"@type": "AdministrativeArea", "name": "Włochy"},
+            {"@type": "AdministrativeArea", "name": "Wilanów"},
+            {"@type": "AdministrativeArea", "name": "Wawer"},
+            {"@type": "AdministrativeArea", "name": "Rembertów"},
+            {"@type": "AdministrativeArea", "name": "Wesoła"},
+            {"@type": "AdministrativeArea", "name": "Ząbki"},
+            {"@type": "AdministrativeArea", "name": "Marki"},
+            {"@type": "AdministrativeArea", "name": "Sulejówek"},
+            {"@type": "AdministrativeArea", "name": "Józefów"},
+            {"@type": "AdministrativeArea", "name": "Pruszków"},
+            {"@type": "AdministrativeArea", "name": "Piastów"},
+            {"@type": "AdministrativeArea", "name": "Łomianki"},
+            {"@type": "AdministrativeArea", "name": "Piaseczno"},
+            {"@type": "AdministrativeArea", "name": "Konstancin-Jeziorna"}
+          ] : [
+            {"@type": "AdministrativeArea", "name": "İstanbul"},
+            {"@type": "AdministrativeArea", "name": "İzmir"},
+            {"@type": "AdministrativeArea", "name": "Kocaeli"},
+            {"@type": "AdministrativeArea", "name": "Sakarya"},
+            {"@type": "AdministrativeArea", "name": "Samsun"},
+            {"@type": "AdministrativeArea", "name": "Balıkesir"}
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": isPl ? [
+            {
+              "@type": "Question",
+              "name": "W jakich dzielnicach Warszawy i okolicach świadczycie usługi sprzątania?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Świadczymy usługi we wszystkich dzielnicach Warszawy (m.in. Śródmieście, Mokotów, Wola, Wilanów, Ursynów, Bemowo) oraz w miastach aglomeracji warszawskiej (Piaseczno, Pruszków, Ząbki, Marki itp.)."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Co dokładnie wchodzi w zakres sprzątania po remoncie i budowie?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sprzątanie po remoncie obejmuje usuwanie pyłu budowlanego filtrami HEPA, czyszczenie plam po farbach, gipsie i klejach, mycie okien poremontowych z folii ochronnych oraz sterylizację pomieszczeń."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Jak szybko można zamówić sprzątanie przed przeprowadzką?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Dzięki naszemu kalkulatorowi m² online możesz szybko wybrać parametry usługi, a rezerwację sfinalizować bezpośrednio przez WhatsApp w zaledwie kilka minut."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Czy usługi dezynsekcji i dezynfekcji są bezpieczne dla zwierząt domowych?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Tak, stosujemy atestowane preparaty, które są w pełni bezpieczne dla ludzi i zwierząt domowych. Przed zabiegiem nasz specjalista przekaże szczegółowe zalecenia."
+              }
+            }
+          ] : [
+            {
+              "@type": "Question",
+              "name": "Aclean hangi şehirlerde premium temizlik hizmeti sunmaktadır?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Aclean; İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir illerinde profesyonel temizlik ekipleriyle premium standartlarda hizmet vermektedir."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "İnşaat sonrası temizlik hizmetine neler dahildir?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "İnşaat sonrası temizlikte; tadilat tozlarının arındırılması, kaba çöplerin atılması, boya, alçı ve çimento kalıntılarının özel kimyasallarla kazınması ve derinlemesine dezenfeksiyon dahildir."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Taşınma öncesi boş ev temizliği fiyatı nasıl hesaplanır?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Fiyatlarımız hizmet alacağınız alanın net metrekaresine (m²) göre şeffaf bir şekilde hesaplanır. Sürpriz ek ücretlerle karşılaşmazsınız."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "İlaçlama ve dezenfeksiyon hizmeti alırken nelere dikkat edilmelidir?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Aclean, Sağlık Bakanlığı onaylı ilaçlar ve profesyonel ekipmanlar kullanarak haşere kontrolü ve antiviral dezenfeksiyon hizmeti sunar. İşlem öncesi ve sonrası gerekli bilgilendirmeler tarafınıza yapılır."
+              }
+            }
+          ]
+        }
+      ]
+    };
+    schemaScript.textContent = JSON.stringify(schema, null, 2);
+  }
+
   const introEyebrow = document.querySelector('.intro-eyebrow');
   const introSubtitle = document.querySelector('.intro-subtitle');
   const introScrollHint = document.querySelector('.intro-scroll-hint span');
@@ -415,6 +567,15 @@ function applyGatewayCardTranslations(dict, lang) {
       if (cityNameEl) cityNameEl.textContent = transCity.name;
       if (cityMarketEl) cityMarketEl.textContent = transCity.market;
     }
+    if (lang === 'pl') {
+      if (cityKey === 'Istanbul') {
+        btn.style.display = 'flex';
+      } else {
+        btn.style.display = 'none';
+      }
+    } else {
+      btn.style.display = 'flex';
+    }
   });
 
   const currentCityLabel = document.getElementById('currentCityLabel');
@@ -435,10 +596,100 @@ function applyBookingTranslations(dict, lang) {
   const fHoursLbl = document.getElementById('fHoursLbl');
   const fCopyLbl = document.getElementById('fCopyLbl');
 
-  if (fPhoneLbl && dict.footerPhone) fPhoneLbl.textContent = dict.footerPhone;
-  if (fEmailLbl && dict.footerEmail) fEmailLbl.textContent = dict.footerEmail;
+  if (fPhoneLbl) {
+    if (dict.footerPhone) fPhoneLbl.textContent = dict.footerPhone;
+    const phoneValSpan = fPhoneLbl.parentNode.querySelector('.footer-contact-val');
+    const phoneLink = fPhoneLbl.closest('a');
+    if (phoneValSpan && dict.contactPhone) phoneValSpan.textContent = dict.contactPhone;
+    if (phoneLink && dict.contactPhoneValue) phoneLink.setAttribute('href', `tel:${dict.contactPhoneValue}`);
+  }
+  if (fEmailLbl) {
+    if (dict.footerEmail) fEmailLbl.textContent = dict.footerEmail;
+    const emailValSpan = fEmailLbl.parentNode.querySelector('.footer-contact-val');
+    const emailLink = fEmailLbl.closest('a');
+    if (emailValSpan && dict.contactEmail) emailValSpan.textContent = dict.contactEmail;
+    if (emailLink && dict.contactEmail) emailLink.setAttribute('href', `mailto:${dict.contactEmail}`);
+  }
   if (fHoursLbl && dict.footerWorkingHours) fHoursLbl.textContent = dict.footerWorkingHours;
   if (fCopyLbl && dict.footerCopyright) fCopyLbl.textContent = dict.footerCopyright;
+
+  // Translate ilaclama service selection card headers & tags dynamically
+  const cardIlaclama = document.querySelector('.service-select-item[data-service="ilaclama"]');
+  if (cardIlaclama) {
+    const h4 = cardIlaclama.querySelector('h4');
+    const p = cardIlaclama.querySelector('.service-select-info p');
+    const pills = cardIlaclama.querySelectorAll('.service-select-tag-pill');
+    
+    if (lang === 'pl') {
+      if (h4) h4.textContent = 'Dezynsekcja & Dezynfekcja';
+      if (p) p.textContent = 'Rozwiązania do zwalczania bakterii i szkodników';
+      if (pills.length >= 3) {
+        pills[0].textContent = 'Kontrola szkodników';
+        pills[1].textContent = 'Sterylizacja';
+        pills[2].textContent = 'Atestowane środki';
+      }
+    } else {
+      if (h4) h4.textContent = 'İlaçlama';
+      if (p) p.textContent = 'Bakteri ve haşere kontrol çözümleri';
+      if (pills.length >= 3) {
+        pills[0].textContent = 'Haşere Kontrol';
+        pills[1].textContent = 'Sterilizasyon';
+        pills[2].textContent = 'Bakanlık Onaylı';
+      }
+    }
+  }
+
+  // Translate insaat_sonrasi service selection card headers & tags dynamically
+  const cardInsaat = document.querySelector('.service-select-item[data-service="insaat_sonrasi"]');
+  if (cardInsaat) {
+    const h4 = cardInsaat.querySelector('h4');
+    const p = cardInsaat.querySelector('.service-select-info p');
+    const pills = cardInsaat.querySelectorAll('.service-select-tag-pill');
+    
+    if (lang === 'pl') {
+      if (h4) h4.textContent = 'Po budowie / remoncie';
+      if (p) p.textContent = 'Głębokie sprzątanie po budowie i remontach';
+      if (pills.length >= 3) {
+        pills[0].textContent = 'Po remoncie';
+        pills[1].textContent = 'Usuwanie pyłu';
+        pills[2].textContent = 'Czyszczenie spoin';
+      }
+    } else {
+      if (h4) h4.textContent = 'İnşaat Sonrası';
+      if (p) p.textContent = 'Tadilat ve inşaat sonrası derin temizlik';
+      if (pills.length >= 3) {
+        pills[0].textContent = 'Tadilat Sonrası';
+        pills[1].textContent = 'İnce Toz Temizliği';
+        pills[2].textContent = 'Kalıntı Arındırma';
+      }
+    }
+  }
+
+  // Translate tasinma_sonrasi service selection card headers & tags dynamically
+  const cardTasinma = document.querySelector('.service-select-item[data-service="tasinma_sonrasi"]');
+  if (cardTasinma) {
+    const h4 = cardTasinma.querySelector('h4');
+    const p = cardTasinma.querySelector('.service-select-info p');
+    const pills = cardTasinma.querySelectorAll('.service-select-tag-pill');
+    
+    if (lang === 'pl') {
+      if (h4) h4.textContent = 'Przed/po przeprowadzce';
+      if (p) p.textContent = 'Głębokie sprzątanie przed lub po przeprowadzce';
+      if (pills.length >= 3) {
+        pills[0].textContent = 'Puste mieszkanie';
+        pills[1].textContent = 'Czyszczenie szafek';
+        pills[2].textContent = 'Przeprowadzka';
+      }
+    } else {
+      if (h4) h4.textContent = 'Taşınma Temizliği';
+      if (p) p.textContent = 'Taşınma öncesi veya sonrası detaylı temizlik';
+      if (pills.length >= 3) {
+        pills[0].textContent = 'Boş Ev Temizliği';
+        pills[1].textContent = 'Dolap İçi Hijyen';
+        pills[2].textContent = 'Taşınma Öncesi/Sonrası';
+      }
+    }
+  }
 
   const bookingForm = document.getElementById('bookingForm');
   if (bookingForm) {
@@ -449,6 +700,49 @@ function applyBookingTranslations(dict, lang) {
       labels[2].textContent = dict.bookingLabelCity;
       labels[3].textContent = dict.bookingLabelType;
     }
+    const lblDate = document.getElementById('lblBookingLabelDate');
+    const lblPrice = document.getElementById('lblBookingLabelPrice');
+    if (lblDate && dict.bookingLabelDate) {
+      lblDate.textContent = dict.bookingLabelDate;
+    }
+    if (lblPrice && dict.bookingLabelPrice) {
+      lblPrice.textContent = dict.bookingLabelPrice;
+    }
+    
+    // Translate extra service labels
+    const lblExtras = document.getElementById('lblBookingLabelExtras');
+    if (lblExtras && dict.bookingLabelExtras) lblExtras.textContent = dict.bookingLabelExtras;
+    const lblExBalkon = document.getElementById('lblExtraBalkon');
+    if (lblExBalkon && dict.extraBalkon) lblExBalkon.textContent = dict.extraBalkon;
+    const lblExBulasik = document.getElementById('lblExtraBulasik');
+    if (lblExBulasik && dict.extraBulasik) lblExBulasik.textContent = dict.extraBulasik;
+    const lblExPet = document.getElementById('lblExtraPet');
+    if (lblExPet && dict.extraPet) lblExPet.textContent = dict.extraPet;
+    const lblExFirin = document.getElementById('lblExtraFirin');
+    if (lblExFirin && dict.extraFirin) lblExFirin.textContent = dict.extraFirin;
+    const lblExUtu = document.getElementById('lblExtraUtu');
+    if (lblExUtu && dict.extraUtu) lblExUtu.textContent = dict.extraUtu;
+
+    // Translate frequency label & options
+    const lblFrequency = document.getElementById('lblBookingLabelFrequency');
+    if (lblFrequency && dict.bookingLabelFrequency) lblFrequency.textContent = dict.bookingLabelFrequency;
+    const cFrequencySelect = document.getElementById('cFrequency');
+    if (cFrequencySelect) {
+      cFrequencySelect.options[0].textContent = lang === 'pl' ? 'Jednorazowo' : 'Tek Seferlik Temizlik';
+      cFrequencySelect.options[1].textContent = lang === 'pl' ? 'Co tydzień' : 'Haftalık Düzenli Temizlik';
+      cFrequencySelect.options[2].textContent = lang === 'pl' ? 'Co miesiąc' : 'Aylık Düzenli Temizlik';
+    }
+
+    const lblM2Sel = document.getElementById('lblM2Selected');
+    if (lblM2Sel && dict.bookingLabelM2Selected) {
+      lblM2Sel.textContent = dict.bookingLabelM2Selected;
+    }
+    const lblEstimated = document.getElementById('lblEstimatedPrice');
+    if (lblEstimated && dict.bookingEstimatedPrice) {
+      lblEstimated.textContent = dict.bookingEstimatedPrice;
+    }
+    updatePriceSliderConfig();
+
     const submitBtn = bookingForm.querySelector('.cinema-submit-btn');
     if (submitBtn) submitBtn.textContent = dict.bookingSubmit;
   }
@@ -462,10 +756,18 @@ function applyBookingTranslations(dict, lang) {
     const previousVal = cCitySelect.value;
     cCitySelect.innerHTML = '';
     if (lang === 'pl') {
-      const opt = document.createElement('option');
-      opt.value = 'Warszawa';
-      opt.textContent = dict.cities.Warszawa ? dict.cities.Warszawa.name : 'WARSZAWA';
-      cCitySelect.appendChild(opt);
+      const plCities = [
+        'Warszawa', 'Srodmiescie', 'Mokotow', 'Wola', 'Ursynow', 'Bemowo', 'Bialoleka',
+        'Praga-Polnoc', 'Praga-Poludnie', 'Targowek', 'Ochota', 'Zoliborz', 'Bielany',
+        'Ursus', 'Wlochy', 'Wilanow', 'Wawer', 'Rembertow', 'Wesola',
+        'Zabki', 'Marki', 'Sulejowek', 'Jozefow', 'Pruszkow', 'Piastow', 'Piaseczno', 'Konstancin-Jeziorna'
+      ];
+      plCities.forEach(cityKey => {
+        const opt = document.createElement('option');
+        opt.value = cityKey;
+        opt.textContent = dict.cities[cityKey] ? dict.cities[cityKey].name : cityKey;
+        cCitySelect.appendChild(opt);
+      });
     } else {
       const trCities = ['Izmir', 'Sakarya', 'Istanbul', 'Kocaeli', 'Samsun', 'Balikesir'];
       trCities.forEach(cityKey => {
@@ -483,11 +785,13 @@ function applyBookingTranslations(dict, lang) {
   const cServiceSelect = document.getElementById('cService');
   if (cServiceSelect) {
     const options = cServiceSelect.querySelectorAll('option');
-    if (options.length >= 4) {
+    if (options.length >= 6) {
       options[0].textContent = lang === 'pl' ? 'Standardowe Sprzątanie' : 'Standart Temizlik';
       options[1].textContent = lang === 'pl' ? 'Głębokie Sprzątanie' : 'Detaylı Temizlik';
       options[2].textContent = lang === 'pl' ? 'Sprzątanie Firmowe (B2B)' : 'Kurumsal Temizlik (B2B)';
       options[3].textContent = lang === 'pl' ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
+      options[4].textContent = lang === 'pl' ? 'Sprzątanie po budowie / remoncie' : 'İnşaat Sonrası Temizlik';
+      options[5].textContent = lang === 'pl' ? 'Sprzątanie przed/po przeprowadzce' : 'Taşınma Öncesi/Sonrası Temizlik';
     }
   }
 
@@ -527,8 +831,8 @@ function applyServicesModalTranslations(dict, lang) {
 
     const ilH4 = serviceDetails[3].querySelector('h4');
     const ilP = serviceDetails[3].querySelector('p');
-    if (ilH4) ilH4.textContent = lang === 'pl' ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
-    if (ilP) ilP.textContent = lang === 'pl' ? 'Czyszczenie przeciw owadom, szkodnikom i sterylizacja sanitarna.' : 'Böcek, haşere ve bakteri dezenfeksiyon işlemleri.';
+    if (ilH4) ilH4.textContent = lang === 'pl' ? 'Sprzątanie po budowie / Przeprowadzka' : 'İnşaat / Taşınma Temizliği';
+    if (ilP) ilP.textContent = lang === 'pl' ? 'Dokładne usuwanie pyłu budowlanego, resztek farby i gipsu.' : 'Tadilat kalıntıları, toz ve kaba pislik arındırma.';
   }
 
   const calcTitle = document.getElementById('modalCalcTitleLbl');
@@ -559,9 +863,20 @@ function applyServicesModalTranslations(dict, lang) {
   const extraCBs = document.querySelectorAll('.calc-cb-label');
   if (extraCBs.length >= 3) {
     const isPl = lang === 'pl';
-    extraCBs[0].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="300" /> ${isPl ? 'Dokładne mycie okien' : 'Detaylı Cam Temizliği'}`;
-    extraCBs[1].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="250" /> ${isPl ? 'Wnętrze piekarnika & AGD' : 'Fırın & Beyaz Eşya İçi'}`;
-    extraCBs[2].innerHTML = `<input type="checkbox" class="calc-extra-cb" value="200" /> ${isPl ? 'Mycie balkonu' : 'Balkon Yıkama'}`;
+    const cbTexts = [
+      isPl ? 'Dokładne mycie okien' : 'Detaylı Cam Temizliği',
+      isPl ? 'Wnętrze piekarnika & AGD' : 'Fırın & Beyaz Eşya İçi',
+      isPl ? 'Mycie balkonu' : 'Balkon Yıkama'
+    ];
+    extraCBs.forEach((label, idx) => {
+      const cb = label.querySelector('.calc-extra-cb');
+      if (cb) {
+        while (label.childNodes.length > 0 && label.lastChild !== cb) {
+          label.removeChild(label.lastChild);
+        }
+        label.appendChild(document.createTextNode(' ' + cbTexts[idx]));
+      }
+    });
   }
 
   const resultLabel = document.querySelector('.calculator-result-box .calc-result-lbl');
@@ -1260,7 +1575,7 @@ function updateIntroVideoState(city) {
   
   const hasTarget = cachedIntroVideos.some(v => v.id === targetId);
   if (!hasTarget) {
-    targetId = 'intro-video-istanbul';
+    targetId = CITY_TO_REGION[city] === 'mazowsze' ? 'intro-video-warszawa' : 'intro-video-istanbul';
   }
   
   cachedIntroVideos.forEach(video => {
@@ -1268,14 +1583,9 @@ function updateIntroVideoState(city) {
       video.classList.add('active');
       activeIntroVideoEl = video; // Track active reference
       video.loop = true;
+      
       video.play().catch(e => {
         logErrorDebug(`Autoplay blocked or failed for intro video: ${video.id}`, e);
-        // Robust fallback to istanbul
-        if (targetId !== 'intro-video-istanbul') {
-          setTimeout(() => {
-            updateIntroVideoState('istanbul');
-          }, 50);
-        }
       });
     } else {
       video.classList.remove('active');
@@ -1287,11 +1597,18 @@ function updateIntroVideoState(city) {
   });
 }
 
-function setCityState(city) {
+function setCityState(city, shouldReset = true) {
   if (!city) return;
 
+  const lang = STATE.language || STATE.currentLang || 'tr';
+  if (lang === 'pl' && city === 'Istanbul') {
+    city = 'Warszawa';
+  }
+
   // Reset previous cinema scroll states & video playheads
-  resetCinemaState();
+  if (shouldReset) {
+    resetCinemaState();
+  }
 
   STATE.selectedCity = city;
   const region = CITY_TO_REGION[city] || 'marmara';
@@ -1303,7 +1620,6 @@ function setCityState(city) {
   document.documentElement.style.setProperty('--clr-accent-rgb', theme.rgb);
 
   // Get localized city data
-  const lang = STATE.language || STATE.currentLang || 'tr';
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
   const cityData = dict.cities[city] || { name: city.toUpperCase(), sub: '' };
 
@@ -1352,10 +1668,10 @@ function setupPortalIntroClick() {
     const nx = (clientX / window.innerWidth) - 0.5;
     const ny = (clientY / window.innerHeight) - 0.5;
 
-    // Subtle 3D tilting motion on background images
-    gsap.to('.intro-panel-left .intro-panel-bg', { x: nx * 22, y: ny * 22, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('.intro-panel-center .intro-panel-bg', { x: nx * -12, y: ny * -12, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('.intro-panel-right .intro-panel-bg', { x: nx * 22, y: ny * 22, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+    // Subtle 3D tilting motion on background images (synchronized to prevent segmentation)
+    gsap.to('.intro-panel-left .intro-panel-bg', { x: nx * 15, y: ny * 15, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('.intro-panel-center .intro-panel-bg', { x: nx * 15, y: ny * 15, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('.intro-panel-right .intro-panel-bg', { x: nx * 15, y: ny * 15, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
 
     // Move borders slightly for shifting depth
     gsap.to('.panel-border', { x: nx * 8, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
@@ -1425,8 +1741,79 @@ function setupPortalIntroClick() {
   introStage.addEventListener('touchstart', onTriggerIntro, { passive: true });
 }
 
-// ==========================================
+// ── AD CAMPAIGN & GEOTARGETING ROUTING ENGINE ────────────────────────────
+function skipPortalDirectToCity(city) {
+  if (!city) return;
+  const plCities = [
+    'Warszawa', 'Srodmiescie', 'Mokotow', 'Wola', 'Ursynow', 'Bemowo', 'Bialoleka',
+    'Praga-Polnoc', 'Praga-Poludnie', 'Targowek', 'Ochota', 'Zoliborz', 'Bielany',
+    'Ursus', 'Wlochy', 'Wilanow', 'Wawer', 'Rembertow', 'Wesola',
+    'Zabki', 'Marki', 'Sulejowek', 'Jozefow', 'Pruszkow', 'Piastow', 'Piaseczno', 'Konstancin-Jeziorna'
+  ];
+  const matchedPlCity = plCities.find(c => c.toLowerCase() === city.toLowerCase());
+  
+  const trCities = ['Izmir', 'Sakarya', 'Istanbul', 'Kocaeli', 'Samsun', 'Balikesir'];
+  const matchedTrCity = trCities.find(c => c.toLowerCase() === city.toLowerCase());
 
+  let targetCity = '';
+  let lang = 'tr';
+
+  if (matchedPlCity) {
+    targetCity = matchedPlCity;
+    lang = 'pl';
+  } else if (matchedTrCity) {
+    targetCity = matchedTrCity;
+    lang = 'tr';
+  } else {
+    return;
+  }
+
+  STATE.language = lang;
+  applyLanguage(lang);
+  setCityState(targetCity, true);
+
+  const introStage = document.getElementById('portal-intro-stage');
+  if (introStage) {
+    introStage.style.display = 'none';
+    introStage.remove();
+  }
+
+  const csoOverlay = document.getElementById('country-selector-overlay');
+  if (csoOverlay) {
+    csoOverlay.style.display = 'none';
+    csoOverlay.classList.add('cso-hidden');
+  }
+
+  const portalStage = document.getElementById('portal-stage');
+  if (portalStage) {
+    portalStage.style.display = 'none';
+  }
+
+  document.body.classList.remove('portal-intro-mode');
+  document.body.classList.remove('flag-selection-mode');
+
+  if (STATE.lenisInstance) {
+    STATE.lenisInstance.start();
+    STATE.lenisInstance.scrollTo(0, { immediate: true });
+  }
+  window.scrollTo(0, 0);
+
+  if (typeof stopParticleLoop === 'function') {
+    stopParticleLoop();
+  }
+
+  if (typeof window.goToCinemaStep === 'function') {
+    window.goToCinemaStep(1);
+  }
+
+  if (typeof prewarmAround === 'function') {
+    prewarmAround(0);
+  }
+
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState({ stage: 'cinema' }, '');
+  }
+}
 
 // ==========================================
 // 3. INITIALIZATION
@@ -1460,8 +1847,97 @@ window.addEventListener('DOMContentLoaded', () => {
   setupHolographicClickRipples();
   setupAudioToggle();
 
+  // Auto-detect browser language and location (using timezone and language preferences)
+  const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+  const languages = navigator.languages || [browserLang];
+  const hasPolishLang = languages.some(l => l.toLowerCase().startsWith('pl'));
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+  const isPolandLocation = timezone.includes('Warsaw') || hasPolishLang;
+  const defaultLang = isPolandLocation ? 'pl' : 'tr';
+  applyLanguage(defaultLang);
+
   // Initialize selected service states & texts
   selectServiceGlobal('standart');
+
+  // Ad Campaign and Geotargeting Parameters Checks
+  const urlParams = new URLSearchParams(window.location.search);
+  const cityParam = urlParams.get('city');
+  const langParam = urlParams.get('lang');
+
+  if (cityParam) {
+    skipPortalDirectToCity(cityParam);
+  } else if (langParam) {
+    const targetLang = langParam.toLowerCase() === 'pl' ? 'pl' : 'tr';
+    STATE.language = targetLang;
+    applyLanguage(targetLang);
+    
+    // Automatically skip the country selection overlay and show the appropriate map
+    const csoOverlay = document.getElementById('country-selector-overlay');
+    if (csoOverlay) {
+      csoOverlay.classList.add('cso-hidden');
+      csoOverlay.style.opacity = '0';
+      csoOverlay.style.pointerEvents = 'none';
+    }
+    
+    document.body.classList.remove('portal-intro-mode');
+    document.body.classList.add('flag-selection-mode');
+    
+    const introStage = document.getElementById('portal-intro-stage');
+    if (introStage) {
+      introStage.style.display = 'none';
+      introStage.remove();
+    }
+    
+    const mapTr = document.getElementById('portalNeonMap');
+    const mapPl = document.getElementById('portalNeonMapPoland');
+    const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
+    const portalCenterHint = document.querySelector('.portal-center-hint');
+    
+    if (targetLang === 'pl') {
+      if (mapTr) mapTr.style.display = 'none';
+      if (mapPl) mapPl.style.display = 'block';
+      destroyLeafletMap('turkey');
+      setTimeout(() => {
+        initLeafletMap('poland');
+      }, 50);
+    } else {
+      if (mapTr) mapTr.style.display = 'block';
+      if (mapPl) mapPl.style.display = 'none';
+      destroyLeafletMap('poland');
+      setTimeout(() => {
+        initLeafletMap('turkey');
+      }, 50);
+    }
+    
+    if (mapSelectorStage) {
+      mapSelectorStage.style.pointerEvents = '';
+      mapSelectorStage.style.opacity = '1';
+    }
+    if (portalCenterHint) {
+      portalCenterHint.style.opacity = '1';
+      portalCenterHint.style.transform = 'none';
+    }
+  }
+
+  // Clear saved city to satisfy "yenilediginde kaldıgı yerden devam etmesin" requirement
+  localStorage.removeItem('tworose_city');
+
+  // Initialize History state
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState({ stage: 'country' }, '');
+  }
+
+  // popstate routing event listener for back/forward navigation in Chrome
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.stage) {
+      navigateToStage(e.state.stage, false);
+    } else {
+      navigateToStage('country', false);
+    }
+  });
+
+  // Set initial slider config
+  updatePriceSliderConfig();
 });
 
 // ==========================================
@@ -1539,7 +2015,7 @@ function addLeafletMarkers(mapObj, locations) {
 
     // Clean map pin: colored dot + soft pulse + city label
     const markerHtml = `
-      <div class="map-hotspot" data-city="${cityKey}" data-market="${loc.market}" ${loc.districtName ? `data-iladi="${loc.districtName}"` : ''} role="button" tabindex="0">
+      <div class="map-hotspot" data-city="${cityKey}" data-market="${loc.market}" ${loc.districtName ? `data-iladi="${loc.districtName}"` : ''} data-coords="${loc.coords[0].toFixed(2)}° N, ${loc.coords[1].toFixed(2)}° E" role="button" tabindex="0">
         <div class="hotspot-pulse"></div>
         <div class="hotspot-core"></div>
         <span class="hotspot-label">${displayName}</span>
@@ -1600,6 +2076,10 @@ function addLeafletMarkers(mapObj, locations) {
 }
 
 function initLeafletMap(country) {
+  if (typeof L === 'undefined') {
+    logErrorDebug('Leaflet is not defined. Map cannot be initialized.');
+    return;
+  }
   if (country === 'turkey') {
     if (turkeyMapInstance) {
       turkeyMapInstance.invalidateSize();
@@ -1659,8 +2139,9 @@ function initLeafletMap(country) {
       zoomControl: true,
       scrollWheelZoom: false,
       attributionControl: true,
-      minZoom: 10,
-      maxZoom: 13
+      minZoom: 8,
+      maxZoom: 14,
+      zoomSnap: 0.25
     }).setView([52.2297, 21.0122], 11);
     window.polandMapInstance = polandMapInstance;
 
@@ -1669,12 +2150,32 @@ function initLeafletMap(country) {
     }).addTo(polandMapInstance);
 
     const polandDistricts = [
-      { key: 'Warszawa', coords: [52.2300, 21.0100], districtName: 'Śródmieście', market: 'mazowsze' },
-      { key: 'Warszawa', coords: [52.1900, 21.0200], districtName: 'Mokotów', market: 'mazowsze' },
-      { key: 'Warszawa', coords: [52.2350, 20.9600], districtName: 'Wola', market: 'mazowsze' },
-      { key: 'Warszawa', coords: [52.1400, 21.0400], districtName: 'Ursynów', market: 'mazowsze' },
-      { key: 'Warszawa', coords: [52.2500, 20.9100], districtName: 'Bemowo', market: 'mazowsze' },
-      { key: 'Warszawa', coords: [52.3200, 21.0100], districtName: 'Białołęka', market: 'mazowsze' }
+      { key: 'Srodmiescie', coords: [52.2300, 21.0100], districtName: 'Śródmieście', market: 'mazowsze' },
+      { key: 'Mokotow', coords: [52.1900, 21.0200], districtName: 'Mokotów', market: 'mazowsze' },
+      { key: 'Wola', coords: [52.2350, 20.9600], districtName: 'Wola', market: 'mazowsze' },
+      { key: 'Ursynow', coords: [52.1400, 21.0400], districtName: 'Ursynów', market: 'mazowsze' },
+      { key: 'Bemowo', coords: [52.2500, 20.9100], districtName: 'Bemowo', market: 'mazowsze' },
+      { key: 'Bialoleka', coords: [52.3200, 21.0100], districtName: 'Białołęka', market: 'mazowsze' },
+      { key: 'Praga-Polnoc', coords: [52.2530, 21.0370], districtName: 'Praga-Północ', market: 'mazowsze' },
+      { key: 'Praga-Poludnie', coords: [52.2350, 21.0800], districtName: 'Praga-Południe', market: 'mazowsze' },
+      { key: 'Targowek', coords: [52.2750, 21.0600], districtName: 'Targówek', market: 'mazowsze' },
+      { key: 'Ochota', coords: [52.2130, 20.9800], districtName: 'Ochota', market: 'mazowsze' },
+      { key: 'Zoliborz', coords: [52.2680, 20.9850], districtName: 'Żoliborz', market: 'mazowsze' },
+      { key: 'Bielany', coords: [52.2850, 20.9300], districtName: 'Bielany', market: 'mazowsze' },
+      { key: 'Ursus', coords: [52.1950, 20.8900], districtName: 'Ursus', market: 'mazowsze' },
+      { key: 'Wlochy', coords: [52.1850, 20.9250], districtName: 'Włochy', market: 'mazowsze' },
+      { key: 'Wilanow', coords: [52.1650, 21.0900], districtName: 'Wilanów', market: 'mazowsze' },
+      { key: 'Wawer', coords: [52.1800, 21.1500], districtName: 'Wawer', market: 'mazowsze' },
+      { key: 'Rembertow', coords: [52.2580, 21.1600], districtName: 'Rembertów', market: 'mazowsze' },
+      { key: 'Wesola', coords: [52.2450, 21.2200], districtName: 'Wesoła', market: 'mazowsze' },
+      { key: 'Zabki', coords: [52.2900, 21.1100], districtName: 'Ząbki', market: 'mazowsze' },
+      { key: 'Marki', coords: [52.3300, 21.1000], districtName: 'Marki', market: 'mazowsze' },
+      { key: 'Sulejowek', coords: [52.2350, 21.2800], districtName: 'Sulejówek', market: 'mazowsze' },
+      { key: 'Jozefow', coords: [52.1300, 21.2300], districtName: 'Józefów', market: 'mazowsze' },
+      { key: 'Pruszkow', coords: [52.1700, 20.8100], districtName: 'Pruszków', market: 'mazowsze' },
+      { key: 'Piastow', coords: [52.1900, 20.8400], districtName: 'Piastów', market: 'mazowsze' },
+      { key: 'Piaseczno', coords: [52.0700, 21.0200], districtName: 'Piaseczno', market: 'mazowsze' },
+      { key: 'Konstancin-Jeziorna', coords: [52.0900, 21.1200], districtName: 'Konstancin-Jeziorna', market: 'mazowsze' }
     ];
 
     addLeafletMarkers(polandMapInstance, polandDistricts);
@@ -1687,6 +2188,22 @@ function initLeafletMap(country) {
     polandMapInstance.fitBounds(L.latLngBounds(polandDistricts.map(c => c.coords)), {
       padding: polandPadding
     });
+
+    const updateZoomClass = () => {
+      const zoom = polandMapInstance.getZoom();
+      const mapEl = document.getElementById('portalNeonMapPoland');
+      if (mapEl) {
+        if (zoom < 11.5) {
+          mapEl.classList.add('map-zoom-low');
+        } else {
+          mapEl.classList.remove('map-zoom-low');
+        }
+      }
+    };
+    polandMapInstance.on('zoomend', updateZoomClass);
+    polandMapInstance.on('viewreset', updateZoomClass);
+    updateZoomClass();
+    setTimeout(updateZoomClass, 400);
 
     setTimeout(() => {
       gsap.fromTo('#portalNeonMapPoland .map-hotspot',
@@ -1746,6 +2263,10 @@ function setupPortalGateway() {
   if (csoBtnTurkey) {
     csoBtnTurkey.addEventListener('click', () => {
       if (!csoOverlay) return;
+
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ stage: 'map' }, '');
+      }
 
       STATE.language = 'tr';
       applyLanguage('tr');
@@ -1807,6 +2328,10 @@ function setupPortalGateway() {
   if (csoBtnPoland) {
     csoBtnPoland.addEventListener('click', () => {
       if (!csoOverlay) return;
+
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ stage: 'map' }, '');
+      }
 
       STATE.language = 'pl';
       applyLanguage('pl');
@@ -2122,10 +2647,10 @@ function setupPortalGateway() {
         const iladi = element.dataset.iladi;
         if (iladi) {
           displayName = iladi.toUpperCase();
-          if (element.classList.contains('map-hotspot')) {
-            const telemetryText = element.querySelector('.hotspot-telemetry');
-            if (telemetryText) displayCoords = telemetryText.textContent;
-          }
+        }
+        const coordsAttr = element.dataset.coords;
+        if (coordsAttr) {
+          displayCoords = coordsAttr;
         }
       }
 
@@ -2222,6 +2747,10 @@ function setupPortalGateway() {
 
   // Triggers selection state machine transition with cinematic warp zoom teleportation
   const triggerSelection = (city, clientX, clientY, clickedElement = null) => {
+    if (window.portalWarping) return;
+    if (STATE.language === 'pl' && city === 'Istanbul') {
+      city = 'Warszawa';
+    }
     window.portalWarping = true; // Lock mouse hover and tilt calculations immediately
 
     // Lock initial inline opacities to 0 to prevent any visual flash of hero content on selection zoom
@@ -2381,6 +2910,10 @@ function setupPortalGateway() {
         // Initialize cinema engine in touch-driven step mode after portal closes
         if (typeof window.goToCinemaStep === 'function') {
           window.goToCinemaStep(0);
+        }
+
+        if (window.history && window.history.pushState) {
+          window.history.pushState({ stage: 'cinema' }, '');
         }
       }
     });
@@ -2543,9 +3076,14 @@ function setupPortalGateway() {
       mobileCityBtns.forEach(b => b.classList.remove('active-click'));
       btn.classList.add('active-click');
       
+      let targetCity = city;
+      if (STATE.language === 'pl' && targetCity === 'Istanbul') {
+        targetCity = 'Warszawa';
+      }
+      
       // Look up corresponding geographical hotspot coordinates to center zoom-in warp animation
       const hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
-        h => h.dataset.city.toLowerCase() === city.toLowerCase()
+        h => h.dataset.city.toLowerCase() === targetCity.toLowerCase()
       );
       
       let cx = window.innerWidth / 2;
@@ -2557,7 +3095,7 @@ function setupPortalGateway() {
         cy = rect.top + rect.height / 2;
       }
       
-      triggerSelection(city, cx, cy);
+      triggerSelection(targetCity, cx, cy);
     };
 
     const keyHandler = (e) => {
@@ -2597,6 +3135,9 @@ function setupNavScroll() {
   // Bind navigation links & logo to cinema step index transitions since page scrolling is disabled
   const handleNavClick = (targetType, e) => {
     if (e) e.preventDefault();
+    if (document.body.classList.contains('portal-intro-mode') || document.body.classList.contains('flag-selection-mode')) {
+      return;
+    }
     if (typeof window.goToCinemaStep === 'function') {
       if (targetType === 'home') {
         window.goToCinemaStep(0);
@@ -2817,11 +3358,24 @@ function setupCinemaEngine() {
   cacheItemBounds();
   window.addEventListener('resize', cacheItemBounds);
 
-  // Set up click, mousemove (for spotlight and 3D tilt), and mouseleave listeners for the selectable items
+  // Set up click, keydown, mousemove (for spotlight and 3D tilt), and mouseleave listeners for the selectable items
   serviceSelectItems.forEach((item, idx) => {
-    item.addEventListener('click', () => {
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('role', 'radio');
+    item.setAttribute('aria-checked', item.classList.contains('selected') ? 'true' : 'false');
+
+    const selectItem = () => {
       const service = item.dataset.service;
       selectServiceGlobal(service);
+    };
+
+    item.addEventListener('click', selectItem);
+
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectItem();
+      }
     });
 
     item.addEventListener('mousemove', (e) => {
@@ -2926,18 +3480,18 @@ function setupCinemaEngine() {
 
   // Populate module-level scenes array
   scenes = [
-    { video: v1, irisX: 50, irisY: 60, yStart: 18, yEnd: 72, xStart: 50, xEnd: 50 }, // Mona Lisa (Portrait)
-    { video: v2, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 15, xEnd: 85 },  // Samurai (Landscape)
-    { video: v3, irisX: 50, irisY: 45, yStart: 15, yEnd: 85, xStart: 50, xEnd: 50 }, // Grandmother (Portrait)
-    { video: v4, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 35, xEnd: 65 },  // Astronaut (Landscape)
-    { video: v5, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 20, xEnd: 80 },  // Cowboy (Landscape)
-    { video: v6, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 35, xEnd: 65 },  // Gandalf (Landscape)
-    { video: v7, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55 }, // Knight (Square)
-    { video: v8, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 15, xEnd: 85 }, // Monk (Landscape)
-    { video: v9, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70 }, // Roman (Landscape)
-    { video: v10, irisX: 50, irisY: 50, yStart: 12, yEnd: 82, xStart: 50, xEnd: 50 },// Sumo (Portrait)
-    { video: v11, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 20, xEnd: 80 }, // Victorian (Landscape)
-    { video: v12, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 15, xEnd: 85 } // Viking (Landscape)
+    { video: v1, irisX: 50, irisY: 60, yStart: 18, yEnd: 72, xStart: 50, xEnd: 50, duration: 12 }, // Mona Lisa (Portrait)
+    { video: v2, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 15, xEnd: 50, duration: 14 },  // Samurai (Landscape)
+    { video: v3, irisX: 50, irisY: 45, yStart: 15, yEnd: 85, xStart: 50, xEnd: 50, duration: 12 }, // Grandmother (Portrait)
+    { video: v4, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 35, xEnd: 65, duration: 15 },  // Astronaut (Landscape)
+    { video: v5, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 25, xEnd: 68, duration: 13 },  // Cowboy (Landscape)
+    { video: v6, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 40, xEnd: 75, duration: 16 },  // Gandalf (Landscape)
+    { video: v7, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55, duration: 12 }, // Knight (Square)
+    { video: v8, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70, duration: 14 }, // Monk (Landscape)
+    { video: v9, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 35, xEnd: 72, duration: 15 }, // Roman (Landscape)
+    { video: v10, irisX: 50, irisY: 50, yStart: 12, yEnd: 82, xStart: 50, xEnd: 50, duration: 12 },// Sumo (Portrait)
+    { video: v11, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 25, xEnd: 60, duration: 14 }, // Victorian (Landscape)
+    { video: v12, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 35, xEnd: 75, duration: 13 } // Viking (Landscape)
   ];
 
   let trigger = null;
@@ -3385,7 +3939,7 @@ function setupCinemaEngine() {
       // allowing the active video to play smoothly in its own time without feedback jitter.
       if (idx !== cState.activeIdx && video.readyState >= 1) {
         const seekDiff = Math.abs(video.currentTime - sState.currentTime);
-        if (seekDiff > 0.05) {
+        if (seekDiff > 0.15) {
           settled = false;
           const lastSeekTime = parseFloat(video.dataset.lastSeekTime || '0');
           const seekDuration = nowMs - lastSeekTime;
@@ -3460,6 +4014,7 @@ function setupCinemaEngine() {
 
     isTransitioning = true;
     currentStep = targetStep;
+    window.currentCinemaStep = targetStep;
 
     // Keep the browser chrome dark, but only once the cinema is actually on
     // screen (the engine also runs goToStep(0) during initial setup while the
@@ -3629,35 +4184,9 @@ function setupCinemaEngine() {
           sState.targetVideoX = scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50;
           sState.currentVideoX = scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50;
 
-          // Smoothly animate targetVideoY from yStart to yEnd over 4.5 seconds (automated flowing sweep, loops back/forth)
+          // Kill any active manual tweens to prevent fighting playhead synchronization
           gsap.killTweensOf(sState, 'targetVideoY');
-          gsap.fromTo(sState,
-            { targetVideoY: scenes[idx]?.yStart || 0 },
-            {
-              targetVideoY: scenes[idx]?.yEnd || 100,
-              duration: 4.5,
-              ease: 'power1.inOut',
-              repeat: -1,
-              yoyo: true,
-              overwrite: 'auto',
-              onUpdate: triggerCinemaLoop
-            }
-          );
-
-          // Smoothly animate targetVideoX from xStart to xEnd over 4.5 seconds (automated horizontal sweep, loops back/forth)
           gsap.killTweensOf(sState, 'targetVideoX');
-          gsap.fromTo(sState,
-            { targetVideoX: scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50 },
-            {
-              targetVideoX: scenes[idx]?.xEnd !== undefined ? scenes[idx].xEnd : 50,
-              duration: 4.5,
-              ease: 'power1.inOut',
-              repeat: -1,
-              yoyo: true,
-              overwrite: 'auto',
-              onUpdate: triggerCinemaLoop
-            }
-          );
 
           gsap.to(sState, {
             targetOpacity: 1.0,
@@ -3684,7 +4213,26 @@ function setupCinemaEngine() {
           gsap.killTweensOf(sState, 'targetTime');
           const checkProgress = () => {
             if (cState.activeIdx === activeIdx && scenes[idx]?.video) {
-              sState.targetTime = scenes[idx].video.currentTime;
+              const vid = scenes[idx].video;
+              sState.targetTime = vid.currentTime;
+
+              // Synchronize the spotlight/scene sweep directly with video playhead progress
+              if (vid.duration > 0) {
+                const duration = vid.duration;
+                const phase = (vid.currentTime / duration) * Math.PI;
+                const yoyoFactor = Math.sin(phase);
+
+                const yStart = scenes[idx]?.yStart || 0;
+                const yEnd = scenes[idx]?.yEnd || 100;
+                const xStart = scenes[idx]?.xStart !== undefined ? scenes[idx].xStart : 50;
+                const xEnd = scenes[idx]?.xEnd !== undefined ? scenes[idx].xEnd : 50;
+
+                sState.targetVideoY = yStart + (yEnd - yStart) * yoyoFactor;
+                sState.targetVideoX = xStart + (xEnd - xStart) * yoyoFactor;
+
+                // Continuously wake up the rendering loop
+                triggerCinemaLoop();
+              }
 
               requestAnimationFrame(checkProgress);
             }
@@ -3871,6 +4419,10 @@ function openBookingScreen() {
     logDebug('Triggering final booking screen fade-in.');
     bookingRevealEl.removeAttribute('hidden');
     
+    if (window.history && window.history.pushState) {
+      window.history.pushState({ stage: 'booking' }, '');
+    }
+    
     // Hide main navigation header to prevent visual collision on mobile
     const mainNav = document.getElementById('main-nav');
     if (mainNav) {
@@ -3889,6 +4441,10 @@ function openBookingScreen() {
 // ==========================================
 function closeBookingScreen() {
   if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
+    if (window.history && window.history.state && window.history.state.stage === 'booking') {
+      window.history.back();
+      return;
+    }
     logDebug('Hiding booking screen.');
     bookingRevealEl.setAttribute('hidden', '');
 
@@ -3910,8 +4466,10 @@ function selectServiceGlobal(service) {
   selectItems.forEach(item => {
     if (item.dataset.service === service) {
       item.classList.add('selected');
+      item.setAttribute('aria-checked', 'true');
     } else {
       item.classList.remove('selected');
+      item.setAttribute('aria-checked', 'false');
     }
   });
 
@@ -3961,17 +4519,23 @@ function selectServiceGlobal(service) {
 
   updateBookingSummaryBox();
 
+  if (typeof updatePriceSliderDisplay === 'function') {
+    updatePriceSliderDisplay();
+  }
+
   if (typeof calculatePriceFn === 'function') {
     calculatePriceFn();
   }
 
   // Programmatic advance on service selection in the touchless engine (Phase 3)
   // Auto-advance to step 2 (Mona Lisa) after 700ms to let the user see the selection feedback
-  setTimeout(() => {
-    if (typeof window.goToCinemaStep === 'function') {
-      window.goToCinemaStep(2);
-    }
-  }, 700);
+  if (window.currentCinemaStep === 1) {
+    setTimeout(() => {
+      if (window.currentCinemaStep === 1 && typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(2);
+      }
+    }, 700);
+  }
 }
 
 function getServiceLabelTranslated(service, dict) {
@@ -3979,7 +4543,9 @@ function getServiceLabelTranslated(service, dict) {
     'standart': dict.serviceStandart || 'Standart Temizlik',
     'detayli': dict.serviceDetayli || 'Detaylı Temizlik',
     'kurumsal': dict.serviceKurumsal || 'Kurumsal Temizlik (B2B)',
-    'ilaclama': dict.serviceIlaclama || 'İlaçlama & Dezenfeksiyon'
+    'ilaclama': dict.serviceIlaclama || 'İlaçlama & Dezenfeksiyon',
+    'insaat_sonrasi': dict.serviceInsaatSonrasi || 'İnşaat Sonrası Temizlik',
+    'tasinma_sonrasi': dict.serviceTasinmaSonrasi || 'Taşınma Öncesi/Sonrası Temizlik'
   };
   return labels[service] || service;
 }
@@ -4048,10 +4614,271 @@ function updateBookingSummaryBox() {
   );
 }
 
+function updatePriceSliderDisplay() {
+  const slider = document.getElementById('cPriceRange');
+  const label = document.getElementById('priceRangeVal');
+  const serviceSelect = document.getElementById('cService');
+  if (!slider || !label) return;
+
+  const area = parseInt(slider.value) || 80;
+  const lang = STATE.language || 'tr';
+  const isPl = lang === 'pl';
+  const serviceType = serviceSelect ? serviceSelect.value : 'standart';
+  
+  // Calculate percentage for gradient track fill
+  const min = parseFloat(slider.min) || 20;
+  const max = parseFloat(slider.max) || 400;
+  const percent = ((area - min) / (max - min)) * 100;
+  slider.style.setProperty('--value-percent', `${percent}%`);
+
+  // Calculate estimated price
+  let rate = 40; // Default Turkish Standard
+  if (isPl) {
+    if (serviceType === 'standart') rate = 4;
+    else if (serviceType === 'detayli') rate = 6;
+    else if (serviceType === 'kurumsal') rate = 8;
+    else if (serviceType === 'ilaclama') rate = 3;
+    else if (serviceType === 'insaat_sonrasi') rate = 15;
+    else if (serviceType === 'tasinma_sonrasi') rate = 7;
+  } else {
+    if (serviceType === 'standart') rate = 40;
+    else if (serviceType === 'detayli') rate = 60;
+    else if (serviceType === 'kurumsal') rate = 80;
+    else if (serviceType === 'ilaclama') rate = 30;
+    else if (serviceType === 'insaat_sonrasi') rate = 120;
+    else if (serviceType === 'tasinma_sonrasi') rate = 70;
+  }
+  
+  const basePrice = area * rate;
+  
+  // Calculate selected extras price
+  let extraSum = 0;
+  const activeExtras = document.querySelectorAll('.extra-btn.active');
+  activeExtras.forEach(btn => {
+    const priceVal = isPl ? parseFloat(btn.dataset.pricePl) : parseFloat(btn.dataset.priceTr);
+    extraSum += priceVal || 0;
+  });
+
+  const estimatedPrice = basePrice + extraSum;
+  const currency = isPl ? ' PLN' : ' TL';
+
+  // Toggle visibility of price slider and extras container
+  const extrasContainer = document.querySelector('.extras-container');
+  const sliderContainer = document.querySelector('.price-slider-container');
+  if (serviceType === 'ilaclama') {
+    if (extrasContainer) extrasContainer.style.display = 'none';
+    if (sliderContainer) sliderContainer.style.display = 'none';
+  } else {
+    if (extrasContainer) extrasContainer.style.display = 'block';
+    if (sliderContainer) sliderContainer.style.display = 'block';
+  }
+
+  // Update label text to show area and price
+  if (serviceType === 'ilaclama') {
+    label.textContent = isPl ? `${area} m² (Zapytaj o cenę)` : `${area} m² (Özel Fiyat Teklifi)`;
+  } else {
+    label.textContent = `${area} m² (${estimatedPrice.toLocaleString()}${currency})`;
+  }
+}
+
+function updatePriceSliderConfig() {
+  const slider = document.getElementById('cPriceRange');
+  if (!slider) return;
+  
+  slider.min = '20';
+  slider.max = '400';
+  slider.step = '5';
+  
+  const val = parseInt(slider.value) || 80;
+  if (val < 20 || val > 400) {
+    slider.value = '80';
+  }
+  
+  updatePriceSliderDisplay();
+}
+
+function navigateToStage(stage, shouldPush = true) {
+  logDebug(`navigateToStage: ${stage}, shouldPush: ${shouldPush}`);
+  if (shouldPush && window.history && window.history.pushState) {
+    window.history.pushState({ stage }, '');
+  }
+
+  const portalStage = document.getElementById('portal-stage');
+  const csoOverlay = document.getElementById('country-selector-overlay');
+  const mainContent = document.getElementById('main-content');
+  const bookingReveal = document.getElementById('bookingReveal');
+  const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
+  const portalCenterHint = document.querySelector('.portal-center-hint');
+  const mapTr = document.getElementById('portalNeonMap');
+  const mapPl = document.getElementById('portalNeonMapPoland');
+
+  if (stage === 'country') {
+    if (portalStage) {
+      portalStage.style.display = 'block';
+      portalStage.style.opacity = '1';
+      portalStage.style.pointerEvents = 'all';
+    }
+    if (csoOverlay) {
+      csoOverlay.classList.remove('cso-hidden');
+      csoOverlay.style.opacity = '1';
+      csoOverlay.style.pointerEvents = 'all';
+      csoOverlay.style.transform = '';
+      gsap.set('#csoBtnPoland', { scale: 1, opacity: 1 });
+      gsap.set('#csoBtnTurkey', { scale: 1, opacity: 1 });
+    }
+    if (mapSelectorStage) {
+      mapSelectorStage.style.opacity = '0';
+      mapSelectorStage.style.pointerEvents = 'none';
+    }
+    if (portalCenterHint) {
+      portalCenterHint.style.opacity = '0';
+    }
+    document.body.classList.add('flag-selection-mode');
+    
+    if (mainContent) {
+      mainContent.style.opacity = '0';
+      mainContent.style.pointerEvents = 'none';
+    }
+    if (bookingReveal) {
+      bookingReveal.setAttribute('hidden', '');
+    }
+    const mainNav = document.getElementById('main-nav');
+    if (mainNav) {
+      mainNav.style.visibility = 'visible';
+      gsap.set(mainNav, { opacity: 1 });
+    }
+
+    if (typeof startParticleLoop === 'function') startParticleLoop();
+
+  } else if (stage === 'map') {
+    if (portalStage) {
+      portalStage.style.display = 'block';
+      portalStage.style.opacity = '1';
+      portalStage.style.pointerEvents = 'all';
+      const portalMapWrapper = document.querySelector('.portal-map-wrapper');
+      if (portalMapWrapper) {
+        gsap.set(portalMapWrapper, { scale: 1, rotationZ: 0, rotateX: 0, rotateY: 0, opacity: 1 });
+      }
+      gsap.set('.portal-logo-container', { y: 0, scale: 1, opacity: 1 });
+      const targetLock = document.getElementById('hudTargetLock');
+      if (targetLock) {
+        targetLock.style.display = 'block';
+        gsap.set(targetLock, { opacity: 1, scale: 1, rotation: 0 });
+      }
+    }
+    if (csoOverlay) {
+      csoOverlay.classList.add('cso-hidden');
+      csoOverlay.style.opacity = '0';
+      csoOverlay.style.pointerEvents = 'none';
+    }
+    if (mapSelectorStage) {
+      mapSelectorStage.style.opacity = '1';
+      mapSelectorStage.style.pointerEvents = 'all';
+    }
+    if (portalCenterHint) {
+      portalCenterHint.style.opacity = '1';
+    }
+    
+    if (STATE.language === 'pl') {
+      if (mapTr) mapTr.style.display = 'none';
+      if (mapPl) mapPl.style.display = 'block';
+      initLeafletMap('poland');
+    } else {
+      if (mapTr) mapTr.style.display = 'block';
+      if (mapPl) mapPl.style.display = 'none';
+      initLeafletMap('turkey');
+    }
+    
+    document.body.classList.add('flag-selection-mode');
+    
+    if (mainContent) {
+      mainContent.style.opacity = '0';
+      mainContent.style.pointerEvents = 'none';
+    }
+    if (bookingReveal) {
+      bookingReveal.setAttribute('hidden', '');
+    }
+    
+    if (typeof startParticleLoop === 'function') startParticleLoop();
+
+  } else if (stage === 'cinema') {
+    if (portalStage) {
+      portalStage.style.display = 'none';
+    }
+    document.body.classList.remove('flag-selection-mode');
+    
+    if (mainContent) {
+      mainContent.style.opacity = '1';
+      mainContent.style.pointerEvents = 'all';
+    }
+    if (bookingReveal) {
+      bookingReveal.setAttribute('hidden', '');
+    }
+    
+    const mainNav = document.getElementById('main-nav');
+    if (mainNav) {
+      mainNav.style.visibility = 'visible';
+      gsap.set(mainNav, { opacity: 1 });
+    }
+
+    if (STATE.lenisInstance) {
+      STATE.lenisInstance.start();
+    }
+    ScrollTrigger.refresh();
+
+  } else if (stage === 'booking') {
+    if (portalStage) {
+      portalStage.style.display = 'none';
+    }
+    document.body.classList.remove('flag-selection-mode');
+    
+    if (mainContent) {
+      mainContent.style.opacity = '1';
+      mainContent.style.pointerEvents = 'all';
+    }
+    if (bookingReveal) {
+      bookingReveal.removeAttribute('hidden');
+      gsap.fromTo('.reveal-content-box',
+        { scale: 0.95, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+      );
+    }
+    
+    // Sync price display and extras visibility
+    updatePriceSliderDisplay();
+    const mainNav = document.getElementById('main-nav');
+    if (mainNav) {
+      gsap.to(mainNav, { opacity: 0, duration: 0.3, ease: 'power2.out', onComplete: () => { mainNav.style.visibility = 'hidden'; } });
+    }
+  }
+}
+
 function setupBookingReveal() {
   const form = document.getElementById('bookingForm');
   const successState = document.getElementById('bookingSuccessState');
   const okBtn = document.getElementById('successOkBtn');
+
+  const slider = document.getElementById('cPriceRange');
+  if (slider) {
+    slider.addEventListener('input', () => {
+      updatePriceSliderDisplay();
+    });
+  }
+
+  // Bind extra services toggle buttons
+  const extraBtns = document.querySelectorAll('.extra-btn');
+  extraBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      
+      // Trigger subtle tick/click sound feedback if available
+      if (typeof window.playTickSound === 'function') {
+        window.playTickSound();
+      }
+      
+      updatePriceSliderDisplay();
+    });
+  });
 
   // Bi-directional state/color synchronization on city changes in dropdown
   const citySelect = document.getElementById('cCity');
@@ -4059,8 +4886,16 @@ function setupBookingReveal() {
     citySelect.addEventListener('change', (e) => {
       const city = e.target.value;
       if (city && CITY_TO_REGION[city]) {
-        setCityState(city);
+        setCityState(city, false);
       }
+    });
+  }
+
+  // Recalculate price when frequency changes
+  const frequencySelect = document.getElementById('cFrequency');
+  if (frequencySelect) {
+    frequencySelect.addEventListener('change', () => {
+      updatePriceSliderDisplay();
     });
   }
 
@@ -4075,6 +4910,7 @@ function setupBookingReveal() {
         STATE.calculator.applied = false;
         updateBookingSummaryBox();
       }
+      updatePriceSliderDisplay();
     });
   }
 
@@ -4095,8 +4931,11 @@ function setupBookingReveal() {
       const phone = document.getElementById('cPhone')?.value.trim() || '';
       const city = document.getElementById('cCity')?.value || '';
       const service = document.getElementById('cService')?.value || '';
+      const date = document.getElementById('cDate')?.value || '';
+      const priceRange = document.getElementById('cPriceRange')?.value || '';
 
       const isPl = STATE.language === 'pl';
+      const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
 
       // Robust client-side validation
       if (!name || name.length < 3) {
@@ -4111,7 +4950,8 @@ function setupBookingReveal() {
 
       // Simple but robust numeric/phone regex checks
       const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
-      if (!cleanPhone || cleanPhone.length < 9) {
+      const isNumeric = /^\d+$/.test(cleanPhone);
+      if (!cleanPhone || cleanPhone.length < 9 || !isNumeric) {
         alert(isPl ? 'Proszę wpisać poprawny numer telefonu (min. 9 cyfr).' : 'Lütfen geçerli bir telefon numarası giriniz (en az 9 haneli).');
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -4126,6 +4966,8 @@ function setupBookingReveal() {
         phone,
         city,
         service,
+        date,
+        priceRange,
         calculatorApplied: STATE.calculator.applied
       };
 
@@ -4152,7 +4994,35 @@ function setupBookingReveal() {
         if (service === 'standart') serviceText = 'Standardowe';
         else if (service === 'detayli') serviceText = 'Głębokie';
         else if (service === 'kurumsal') serviceText = 'Firmowe (B2B)';
-        else if (service === 'ilaclama') serviceText = 'Dezynsekcja';
+        else if (service === 'ilaclama') serviceText = 'Dezynsekcja & Dezynfekcja';
+        else if (service === 'insaat_sonrasi') serviceText = 'Sprzątanie po budowie / remoncie';
+        else if (service === 'tasinma_sonrasi') serviceText = 'Sprzątanie przed/po przeprowadzce';
+
+        let rate = 4;
+        if (service === 'standart') rate = 4;
+        else if (service === 'detayli') rate = 6;
+        else if (service === 'kurumsal') rate = 8;
+        else if (service === 'ilaclama') rate = 3;
+        else if (service === 'insaat_sonrasi') rate = 15;
+        else if (service === 'tasinma_sonrasi') rate = 7;
+
+        let extraSum = 0;
+        const extraNames = [];
+        const activeExtras = document.querySelectorAll('.extra-btn.active');
+        activeExtras.forEach(btn => {
+          const priceVal = parseFloat(btn.dataset.pricePl) || 0;
+          extraSum += priceVal;
+          const labelText = btn.querySelector('.extra-label-text')?.textContent || '';
+          extraNames.push(labelText);
+        });
+
+        const frequencySelect = document.getElementById('cFrequency');
+        const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
+        const estPrice = ((parseInt(priceRange) || 80) * rate) + extraSum;
+
+        let freqText = 'Jednorazowo';
+        if (frequencyVal === 'haftalik') freqText = 'Co tydzień';
+        else if (frequencyVal === 'aylik') freqText = 'Co miesiąc';
 
         message = `*Aclean - Zapytanie o ofertę*\n`;
         message += `-------------------------\n`;
@@ -4160,11 +5030,24 @@ function setupBookingReveal() {
         message += `*Telefon:* ${phone}\n`;
         message += `*Miasto:* ${city}\n`;
         message += `*Usługa:* ${serviceText}\n`;
+        message += `*Częstotliwość:* ${freqText}\n`;
+        message += `*Data rezerwacji:* ${date}\n`;
+        if (service !== 'ilaclama') {
+          message += `*Obszar usługi:* ${priceRange} m²\n`;
+        }
+        if (extraNames.length > 0) {
+          message += `*Dodatkowe Usługi:* ${extraNames.join(', ')}\n`;
+        }
+        if (service === 'ilaclama') {
+          message += `*Szacowany koszt:* Indywidualna wycena (Zapytaj o cenę)\n`;
+        } else {
+          message += `*Szacowany koszt:* ${estPrice} PLN\n`;
+        }
         if (STATE.calculator.applied) {
           message += `\n*Szczegóły zapytania:*\n`;
           message += `- *Powierzchnia:* ${STATE.calculator.area} m²\n`;
-          const freqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc' : 'Jednorazowo');
-          message += `- *Częstotliwość:* ${freqText}\n`;
+          const calcFreqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc' : 'Jednorazowo');
+          message += `- *Częstotliwość:* ${calcFreqText}\n`;
           if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
             message += `- *Dodatki:* ${STATE.calculator.extras.join(', ')}\n`;
           }
@@ -4175,6 +5058,34 @@ function setupBookingReveal() {
         else if (service === 'detayli') serviceText = 'Detaylı Temizlik';
         else if (service === 'kurumsal') serviceText = 'Kurumsal Temizlik (B2B)';
         else if (service === 'ilaclama') serviceText = 'İlaçlama & Dezenfeksiyon';
+        else if (service === 'insaat_sonrasi') serviceText = 'İnşaat Sonrası Temizlik';
+        else if (service === 'tasinma_sonrasi') serviceText = 'Taşınma Öncesi/Sonrası Temizlik';
+
+        let rate = 40;
+        if (service === 'standart') rate = 40;
+        else if (service === 'detayli') rate = 60;
+        else if (service === 'kurumsal') rate = 80;
+        else if (service === 'ilaclama') rate = 30;
+        else if (service === 'insaat_sonrasi') rate = 120;
+        else if (service === 'tasinma_sonrasi') rate = 70;
+
+        let extraSum = 0;
+        const extraNames = [];
+        const activeExtras = document.querySelectorAll('.extra-btn.active');
+        activeExtras.forEach(btn => {
+          const priceVal = parseFloat(btn.dataset.priceTr) || 0;
+          extraSum += priceVal;
+          const labelText = btn.querySelector('.extra-label-text')?.textContent || '';
+          extraNames.push(labelText);
+        });
+
+        const frequencySelect = document.getElementById('cFrequency');
+        const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
+        const estPrice = ((parseInt(priceRange) || 80) * rate) + extraSum;
+
+        let freqText = 'Tek Seferlik Temizlik';
+        if (frequencyVal === 'haftalik') freqText = 'Haftalık Düzenli Temizlik';
+        else if (frequencyVal === 'aylik') freqText = 'Aylık Düzenli Temizlik';
 
         message = `*Aclean Hizmet Teklifi Talebi*\n`;
         message += `-------------------------\n`;
@@ -4182,11 +5093,24 @@ function setupBookingReveal() {
         message += `*Telefon:* ${phone}\n`;
         message += `*Şehir:* ${city}\n`;
         message += `*Hizmet:* ${serviceText}\n`;
+        message += `*Temizlik Sıklığı:* ${freqText}\n`;
+        message += `*Rezervasyon Tarihi:* ${date}\n`;
+        if (service !== 'ilaclama') {
+          message += `*Hizmet Alanı:* ${priceRange} m²\n`;
+        }
+        if (extraNames.length > 0) {
+          message += `*Ekstra Hizmetler:* ${extraNames.join(', ')}\n`;
+        }
+        if (service === 'ilaclama') {
+          message += `*Tahmini Tutar:* Özel Fiyat Teklifi (İletişime geçilecek)\n`;
+        } else {
+          message += `*Tahmini Tutar:* ${estPrice} TL\n`;
+        }
         if (STATE.calculator.applied) {
           message += `\n*Talep Detayları:*\n`;
           message += `- *Alan:* ${STATE.calculator.area} m²\n`;
-          const freqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
-          message += `- *Sıklık:* ${freqText}\n`;
+          const calcFreqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
+          message += `- *Sıklık:* ${calcFreqText}\n`;
           if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
             message += `- *Ekstralar:* ${STATE.calculator.extras.join(', ')}\n`;
           }
@@ -4194,7 +5118,8 @@ function setupBookingReveal() {
       }
 
       // Open WhatsApp link in new window after a brief delay
-      const whatsappUrl = `https://wa.me/905320000000?text=${encodeURIComponent(message)}`;
+      const cleanWaPhone = (dict.contactPhoneValue || '905320000000').replace(/[^0-9]/g, '');
+      const whatsappUrl = `https://wa.me/${cleanWaPhone}?text=${encodeURIComponent(message)}`;
       setTimeout(() => {
         window.open(whatsappUrl, '_blank');
       }, 350);
@@ -4264,6 +5189,9 @@ function setupBookingReveal() {
       }
     });
   }
+
+  // Initial load sync
+  updatePriceSliderDisplay();
 }
 
 function setupGlobalEscapeKey() {
@@ -4434,56 +5362,44 @@ function setupServicesModal() {
     const lang = STATE.language || 'tr';
     const isPl = lang === 'pl';
 
-    // Format based on current language
-    const formatter = new Intl.NumberFormat(isPl ? 'pl-PL' : 'tr-TR', {
-      style: 'currency',
-      currency: isPl ? 'PLN' : 'TRY',
-      maximumFractionDigits: 0
-    });
-
-    const conversionRate = isPl ? 0.12 : 1.0;
-
     const area = areaRange ? parseInt(areaRange.value || 100) : 100;
-    const freqCoeff = frequencySelect ? parseFloat(frequencySelect.value || 1) : 1;
     
     // Update slider fill track
     updateSliderBackground();
     
-    const basePrice = currentBasePrice * conversionRate;
-    const baseCost = area * basePrice;
-    
-    let extraCost = 0;
     const activeExtras = [];
     if (extraCbs) {
       extraCbs.forEach(cb => {
         if (cb.checked) {
-          const val = parseFloat(cb.value || 0) * conversionRate;
-          extraCost += val;
-          const labelText = cb.parentElement.textContent.trim().split('(+')[0].trim();
+          const labelText = cb.parentElement.textContent.replace(/\(\+.*?\)/g, '').trim();
           activeExtras.push(labelText);
         }
       });
     }
-    
-    const totalCost = Math.round((baseCost * freqCoeff) + extraCost);
     
     // Update STATE calculator
     STATE.calculator.serviceType = currentServiceType;
     STATE.calculator.area = area;
     STATE.calculator.frequency = frequencySelect ? frequencySelect.value : '1';
     STATE.calculator.extras = activeExtras;
-    STATE.calculator.price = totalCost;
+    STATE.calculator.price = 0; // No price value
 
-    // Render itemized receipt details
+    // Render Request Summary
     const receiptBox = document.getElementById('calculatorReceipt');
     if (receiptBox) {
-      const receiptTitle = isPl ? 'Szczegółowa wycena' : 'Fiyat Dökümü';
-      const labelBaseArea = isPl ? 'Podstawowa Powierzchnia' : 'Taban Hizmet Alanı';
-      const labelUnitPrice = isPl ? 'Koszt jednostkowy za m²' : 'Birim m² Maliyeti';
-      const labelGrossCost = isPl ? 'Koszt Powierzchni Brutto' : 'Brüt Alan Maliyeti';
-      const labelDiscount = isPl ? 'Rabat za Regularność' : 'Düzenli Sıklık İndirimi';
-      const labelExtraPrefix = isPl ? 'Dodatkowo' : 'Ekstra';
-      const labelTotalEst = isPl ? 'Szacowana Suma' : 'Tahmini Toplam Tutar';
+      const receiptTitle = isPl ? 'Podsumowanie Zapytania' : 'Talep Özeti';
+      const labelBaseArea = isPl ? 'Obszar Usługi' : 'Temizlik Alanı';
+      const labelFrequency = isPl ? 'Częstotliwość' : 'Temizlik Sıklığı';
+      const labelExtras = isPl ? 'Dodatkowe Opcje' : 'Ekstra Seçenekler';
+      const labelStatus = isPl ? 'Status Oferty' : 'Teklif Durumu';
+      
+      let freqText = '';
+      const freqVal = frequencySelect ? frequencySelect.value : '1';
+      if (isPl) {
+        freqText = freqVal === '0.8' ? 'Co tydzień (Regularnie)' : (freqVal === '0.9' ? 'Co miesiąc (Regularnie)' : 'Jednorazowo');
+      } else {
+        freqText = freqVal === '0.8' ? 'Haftalık Düzenli' : (freqVal === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
+      }
 
       let receiptHtml = `
         <h4>${receiptTitle}</h4>
@@ -4493,50 +5409,29 @@ function setupServicesModal() {
           <span class="receipt-val">${area} m²</span>
         </div>
         <div class="receipt-row">
-          <span class="receipt-lbl">${labelUnitPrice}</span>
+          <span class="receipt-lbl">${labelFrequency}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val">${formatter.format(basePrice)}</span>
-        </div>
-        <div class="receipt-row">
-          <span class="receipt-lbl">${labelGrossCost}</span>
-          <span class="receipt-leader"></span>
-          <span class="receipt-val">${formatter.format(baseCost)}</span>
+          <span class="receipt-val">${freqText}</span>
         </div>
       `;
 
-      if (freqCoeff !== 1) {
-        const discountPct = Math.round((1 - freqCoeff) * 100);
-        const discountVal = baseCost * (1 - freqCoeff);
+      if (activeExtras.length > 0) {
         receiptHtml += `
           <div class="receipt-row">
-            <span class="receipt-lbl">${labelDiscount} (-%${discountPct})</span>
+            <span class="receipt-lbl">${labelExtras}</span>
             <span class="receipt-leader"></span>
-            <span class="receipt-val discount-green">-${formatter.format(discountVal)}</span>
+            <span class="receipt-val">${activeExtras.join(', ')}</span>
           </div>
         `;
       }
 
-      if (extraCbs) {
-        extraCbs.forEach(cb => {
-          if (cb.checked) {
-            const val = parseFloat(cb.value || 0) * conversionRate;
-            const labelText = cb.parentElement.textContent.trim().split('(+')[0].trim();
-            receiptHtml += `
-              <div class="receipt-row">
-                <span class="receipt-lbl">${labelExtraPrefix}: ${labelText}</span>
-                <span class="receipt-leader"></span>
-                <span class="receipt-val">+${formatter.format(val)}</span>
-              </div>
-            `;
-          }
-        });
-      }
-
       receiptHtml += `
         <div class="receipt-row receipt-total-row">
-          <span class="receipt-lbl receipt-total-lbl">${labelTotalEst}</span>
+          <span class="receipt-lbl receipt-total-lbl">${labelStatus}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val receipt-total-val" id="receipt-total-val">${formatter.format(totalCost)}</span>
+          <span class="receipt-val receipt-total-val" style="color: var(--clr-accent); font-weight: 700; text-transform: uppercase;">
+            ${isPl ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK'}
+          </span>
         </div>
       `;
 
@@ -4559,15 +5454,8 @@ function setupServicesModal() {
       }
     }
 
-    if (isDragging) {
-      currentCostObject.val = totalCost;
-      if (priceDisplay) {
-        priceDisplay.textContent = lang === 'pl' ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK';
-      }
-    } else {
-      if (priceDisplay) {
-        priceDisplay.textContent = lang === 'pl' ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK';
-      }
+    if (priceDisplay) {
+      priceDisplay.textContent = isPl ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK';
     }
   }
   
@@ -4854,15 +5742,26 @@ function setupCinemaAmbientLight() {
   light.setAttribute('aria-hidden', 'true');
   targetContainer.appendChild(light);
 
+  let sectionTop = 0;
+  let sectionHeight = 0;
+  const updateSectionBounds = () => {
+    const rect = section.getBoundingClientRect();
+    sectionTop = rect.top + window.scrollY;
+    sectionHeight = rect.height;
+  };
+  updateSectionBounds();
+  window.addEventListener('resize', updateSectionBounds);
+  window.addEventListener('scroll', updateSectionBounds, { passive: true });
+
   let lightTicking = false;
   let lightMX = 0;
   let lightMY = 0;
 
   if (!('ontouchstart' in window)) {
     window.addEventListener('mousemove', (e) => {
-      // Check viewport visibility
-      const rect = section.getBoundingClientRect();
-      const inView = rect.top <= cachedWindowHeight && rect.bottom >= 0;
+      // Check viewport visibility using cached bounds
+      const relativeTop = sectionTop - window.scrollY;
+      const inView = relativeTop <= cachedWindowHeight && (relativeTop + sectionHeight) >= 0;
       if (!inView) return;
 
       lightMX = e.clientX;
