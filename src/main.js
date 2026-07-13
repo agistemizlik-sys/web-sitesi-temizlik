@@ -288,6 +288,7 @@ function applyPageMetaTranslations(dict, lang) {
       "@graph": [
         {
           "@type": "ProfessionalService",
+          "@id": "https://acleanserwis.com/#service",
           "name": "Aclean",
           "image": "https://acleanserwis.com/images/og-image.png",
           "url": "https://acleanserwis.com",
@@ -335,6 +336,38 @@ function applyPageMetaTranslations(dict, lang) {
             {"@type": "AdministrativeArea", "name": "Samsun"},
             {"@type": "AdministrativeArea", "name": "Balıkesir"}
           ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://acleanserwis.com/#service-insaat",
+          "name": isPl ? "Sprzątanie po budowie / remoncie" : "İnşaat Sonrası Temizlik",
+          "serviceType": "Post-Construction Cleaning",
+          "provider": { "@id": "https://acleanserwis.com/#service" },
+          "description": isPl
+            ? "Odkurzanie pyłu budowlanego filtrami HEPA, usuwanie plam z farby i gipsu, mycie okien poremontowych."
+            : "Tadilat ve inşaat sonrası toz arındırma, boya, alçı ve çimento kalıntılarının temizliği.",
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": isPl ? "PLN" : "TRY",
+            "price": isPl ? "15" : "120",
+            "description": isPl ? "Od 15 PLN za m²." : "m² başına 120 TL'den başlayan fiyatlarla."
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://acleanserwis.com/#service-tasinma",
+          "name": isPl ? "Sprzątanie przed/po przeprowadzce" : "Taşınma Öncesi/Sonrası Temizlik",
+          "serviceType": "Move-in / Move-out Cleaning",
+          "provider": { "@id": "https://acleanserwis.com/#service" },
+          "description": isPl
+            ? "Głęboka sterylizacja pustego domu, mycie wnętrza szafek i szuflad przed wprowadzeniem się."
+            : "Yeni evinize yerleşmeden önce kapı, pencere ve mutfak dolapları dahil derin hijyen temizliği.",
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": isPl ? "PLN" : "TRY",
+            "price": isPl ? "7" : "70",
+            "description": isPl ? "Od 7 PLN za m²." : "m² başına 70 TL'den başlayan fiyatlarla."
+          }
         },
         {
           "@type": "FAQPage",
