@@ -161,3 +161,47 @@ npm run build   # prod build — 76b1af3 itibarıyla temiz geçiyor
 
 Şehir seçimi `localStorage.tworose_city`'ye yazılır; portalı yeniden görmek
 için silin. Ses tercihi `tworose_audio_muted`.
+
+---
+
+## 5. SEO Katmanı (2026-07-13, commit ee5fa03 + 862976b)
+
+Tamamen **salt-ekleme** olarak kuruldu; görünür deneyime ve motor koduna
+dokunulmadı (`index.html` toplam +134/−0 satır; `style.css`/`main.js`
+değişmedi). Kaldırmayın, sadeleştirmeyin.
+
+**Neler var:**
+- `<head>`: robots (`max-image-preview:large`), author, OG tam seti
+  (site_name, locale tr_TR + pl_PL alternate, image 1200×630 + boyut/tip/alt),
+  Twitter kartı + görsel, dns-prefetch (gtm, facebook, unpkg, cartocdn a/b/c),
+  LCP preload (`soap_foam_bubbles.png`, `fetchpriority=high`).
+- **5 JSON-LD bloğu** (hepsi `@id` ile bağlı graf): ProfessionalService,
+  Organization (+6 hizmetlik OfferCatalog, Instagram sameAs, contactPoint),
+  WebSite, WebPage (primaryImageOfPage), Organization logo takviyesi
+  (`logo-512.png` — Google raster ≥112px kuralı).
+- **Canonical-sync script'i** (head içi inline): `?lang=pl|tr` URL'lerinde
+  canonical'ı kendine çevirir — hreflang hedefleri self-canonical olmalı.
+  `main.js` canonical'a dokunmaz; bu script kaldırılırsa PL indekslemesi bozulur.
+- **Varlıklar:** `og-image.png` (1200×630, marka logo path'lerinden, sitede
+  render edilmez), `favicon-96.png` + `apple-touch-icon.png` (favicon.svg'den
+  birebir raster; apple olanı opak `#f7f6f2` zemin — iOS şeffaflığı siyaha
+  bindirir), `logo-512.png`, `site.webmanifest` (`display: browser` —
+  davranış değiştirmez), `404.html` (noindex; CF Pages'te SPA fallback yerine
+  gerçek 404 döner — meşru URL'ler yalnızca `/` + query olduğundan güvenli).
+- **sitemap.xml:** 3 URL + hreflang + image uzantısı (og + 7 landmark).
+- Görünmez `sr-only` SEO makaleleri (TR + PL, Warszawa ilçeleri dahil) zaten
+  vardı; şemadaki hizmet adları bu makalelerle birebir tutarlıdır — birini
+  değiştirirseniz diğerini de güncelleyin.
+
+**Senkron kuralları:**
+- İçerik (hizmet/SSS/iletişim) değişirse: sr-only makaleler + JSON-LD +
+  (merge edilirse) Cloudflare middleware bot snapshot'ı birlikte güncellenir.
+- `translations.js` PL `description` gerçek hizmet alanını yazar
+  (Warszawa + aglomeracja); servis verilmeyen şehir eklemeyin.
+
+**Lansman kontrol listesi (kod dışı):**
+1. Google Search Console'da alan doğrula, `sitemap.xml` gönder.
+2. `G-XXXXXXXXXX` / `AW-XXXXXXXXXX` / `PIXEL_ID_BURAYA` placeholder'larını
+   gerçek ID'lerle değiştir (şu an tracking veri toplamıyor).
+3. Middleware branch'i merge edilirken: bot snapshot'ına 5 şema bloğunu taşı,
+   `?lang` varyantlarında canonical'ın self-referencing olduğunu doğrula.
