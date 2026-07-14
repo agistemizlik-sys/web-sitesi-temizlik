@@ -158,14 +158,34 @@
   }
   </script>
 
+  <!-- Organization logo supplement (raster; merges with #organization via @id) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://acleanserwis.com/#organization",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://acleanserwis.com/images/logo-512.png",
+      "width": 512,
+      "height": 512
+    }
+  }
+  </script>
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
 
   <!-- Resource hints for third-party scripts (DNS only — no socket warming to preserve critical-path timing) -->
   <link rel="dns-prefetch" href="https://www.googletagmanager.com">
   <link rel="dns-prefetch" href="https://connect.facebook.net">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
+  <link rel="dns-prefetch" href="https://b.basemaps.cartocdn.com">
+  <link rel="dns-prefetch" href="https://c.basemaps.cartocdn.com">
 
   <!-- LCP hint: intro panels paint this background first (Core Web Vitals) -->
   <link rel="preload" as="image" href="/images/soap_foam_bubbles.png" fetchpriority="high">

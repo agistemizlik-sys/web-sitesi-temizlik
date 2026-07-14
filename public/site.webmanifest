@@ -1,0 +1,27 @@
+{
+  "name": "Aclean — Premium Temizlik Hizmetleri",
+  "short_name": "Aclean",
+  "description": "İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir ve Warszawa'da sinematik interaktif premium temizlik deneyimi.",
+  "lang": "tr",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f7f6f2",
+  "theme_color": "#f7f6f2",
+  "icons": [
+    {
+      "src": "/favicon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
