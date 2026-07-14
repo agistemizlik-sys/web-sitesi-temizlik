@@ -8,24 +8,46 @@
   <title>Aclean | Sinematik İnteraktif Temizlik Deneyimi</title>
   <meta name="description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
   <meta name="theme-color" content="#f7f6f2">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="author" content="Aclean">
 
   <!-- OpenGraph Social Sharing -->
   <meta property="og:title" content="Aclean | Sinematik İnteraktif Temizlik Deneyimi">
   <meta property="og:description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
   <meta property="og:image" content="https://acleanserwis.com/images/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:url" content="https://acleanserwis.com">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Aclean">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:locale:alternate" content="pl_PL">
+  <meta property="og:image:alt" content="Aclean — premium temizlik hizmetleri">
 
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Aclean | Sinematik İnteraktif Temizlik Deneyimi">
   <meta name="twitter:description" content="İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.">
+  <meta name="twitter:image" content="https://acleanserwis.com/images/og-image.png">
+  <meta name="twitter:image:alt" content="Aclean — premium temizlik hizmetleri">
 
   <!-- Multilingual Indexing Guidance -->
   <link rel="alternate" hreflang="tr" href="https://acleanserwis.com/?lang=tr" />
   <link rel="alternate" hreflang="pl" href="https://acleanserwis.com/?lang=pl" />
   <link rel="alternate" hreflang="x-default" href="https://acleanserwis.com/" />
   <link rel="canonical" href="https://acleanserwis.com" />
+
+  <!-- Additive: self-referencing canonical for ?lang= URL variants (hreflang targets must be self-canonical) -->
+  <script>
+    (function () {
+      var l = new URLSearchParams(location.search).get('lang');
+      if (l === 'pl' || l === 'tr') {
+        var c = document.querySelector('link[rel="canonical"]');
+        if (c) c.setAttribute('href', 'https://acleanserwis.com/?lang=' + l);
+      }
+    })();
+  </script>
 
   <!-- Structured Local Business Schema -->
   <script type="application/ld+json">
@@ -53,8 +75,100 @@
   }
   </script>
 
+  <!-- Organization & Brand Identity Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://acleanserwis.com/#organization",
+    "name": "Aclean",
+    "url": "https://acleanserwis.com",
+    "logo": "https://acleanserwis.com/favicon.svg",
+    "image": "https://acleanserwis.com/images/og-image.png",
+    "description": "İzmir, İstanbul, Kocaeli, Sakarya, Samsun, Balıkesir ve Warszawa'da standart, detaylı, inşaat sonrası, taşınma, kurumsal ve dezenfeksiyon temizlik hizmetleri sunan premium temizlik firması.",
+    "email": "info@aclean.com",
+    "telephone": "+905320000000",
+    "sameAs": [
+      "https://instagram.com/acleanserwis"
+    ],
+    "areaServed": [
+      {"@type": "AdministrativeArea", "name": "İstanbul"},
+      {"@type": "AdministrativeArea", "name": "İzmir"},
+      {"@type": "AdministrativeArea", "name": "Kocaeli"},
+      {"@type": "AdministrativeArea", "name": "Sakarya"},
+      {"@type": "AdministrativeArea", "name": "Samsun"},
+      {"@type": "AdministrativeArea", "name": "Balıkesir"},
+      {"@type": "AdministrativeArea", "name": "Warszawa"}
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+905320000000",
+      "email": "info@aclean.com",
+      "contactType": "customer service",
+      "availableLanguage": ["Turkish", "Polish"]
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Temizlik Hizmetleri",
+      "itemListElement": [
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Standart Temizlik", "description": "Günlük toz alma, yer silme, banyo ve mutfak düzenlemesi gibi rutin temizlik çözümleri."}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Detaylı Temizlik", "description": "Derz temizliği, kireç sökme, koltuk vakumlama ve mutfak dolaplarının dezenfeksiyonunu içeren derinlemesine temizlik."}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "İnşaat Sonrası Temizlik", "description": "Tadilat tozu arındırma, boya ve alçı lekesi kazıma, fayans ve derz temizliği."}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Taşınma Öncesi/Sonrası Temizlik", "description": "Boş ev sterilizasyonu, kapı ve pencere silimi, dolap içi detay temizliği."}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Kurumsal Temizlik (B2B)", "description": "Ofisler, lobiler ve ticari alanlar için profesyonel iş yeri temizlik planları."}},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "İlaçlama ve Dezenfeksiyon", "description": "Haşere kontrolü, böcek ilaçlama ve bakanlık onaylı dezenfeksiyon hizmetleri."}}
+      ]
+    }
+  }
+  </script>
+
+  <!-- WebSite Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://acleanserwis.com/#website",
+    "url": "https://acleanserwis.com",
+    "name": "Aclean",
+    "description": "Sinematik ve interaktif premium temizlik deneyimi — Türkiye ve Warszawa.",
+    "inLanguage": ["tr", "pl"],
+    "publisher": {"@id": "https://acleanserwis.com/#organization"}
+  }
+  </script>
+
+  <!-- WebPage Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": "https://acleanserwis.com/#webpage",
+    "url": "https://acleanserwis.com",
+    "name": "Aclean | Sinematik İnteraktif Temizlik Deneyimi",
+    "description": "İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.",
+    "inLanguage": "tr",
+    "isPartOf": {"@id": "https://acleanserwis.com/#website"},
+    "about": {"@id": "https://acleanserwis.com/#organization"},
+    "primaryImageOfPage": {
+      "@type": "ImageObject",
+      "url": "https://acleanserwis.com/images/og-image.png",
+      "width": 1200,
+      "height": 630
+    },
+    "dateModified": "2026-07-13"
+  }
+  </script>
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Resource hints for third-party scripts (DNS only — no socket warming to preserve critical-path timing) -->
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://connect.facebook.net">
+
+  <!-- LCP hint: intro panels paint this background first (Core Web Vitals) -->
+  <link rel="preload" as="image" href="/images/soap_foam_bubbles.png" fetchpriority="high">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

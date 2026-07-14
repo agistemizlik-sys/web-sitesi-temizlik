@@ -129,7 +129,7 @@ export const TRANSLATIONS = {
   pl: {
     title: "Aclean | Kinowe Interaktywne Wrażenia Sprzątania",
     h1Title: "Aclean - Kinowe i Interaktywne Usługi Sprzątania Premium",
-    description: "Kompleksowe usługi sprzątania premium w Warszawie, Krakowie, Gdańsku, Poznaniu, Wrocławiu i Łodzi. Poznaj legendarne kinowe sceny.",
+    description: "Kompleksowe usługi sprzątania premium w Warszawie i aglomeracji warszawskiej — Mokotów, Wola, Ursynów, Piaseczno, Pruszków. Poznaj legendarne kinowe sceny.",
     sysStatus: "© 2026 Aclean",
     audioOn: "Dźwięk włączony",
     audioOff: "Dźwięk wyłączony",
