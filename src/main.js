@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { STATE, REGION_THEMES, CITY_TO_REGION, CITY_NAMES_TR, CITY_NAMES_TR_TITLE } from './js/state.js';
 import { TRANSLATIONS, SERVICE_SCENE_TEXTS, SERVICE_SCENE_TEXTS_PL } from './js/translations.js';
+import { initAttribution, trackConversion } from './js/tracking.js';
 gsap.registerPlugin(ScrollTrigger);
 
 // Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
@@ -1971,6 +1972,32 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Set initial slider config
   updatePriceSliderConfig();
+
+  // ── PAID ADS ENGINE: deferred tracking initialization ──
+  const idleInit = () => {
+    initAttribution();
+
+    // wa.me / tel: / mailto: clicks — first-party conversion triggers.
+    document.addEventListener('click', (e) => {
+      const anchor = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!anchor) return;
+      const href = anchor.getAttribute('href') || '';
+      const common = { lang: STATE.language || 'tr', city: STATE.selectedCity || '' };
+      if (href.includes('wa.me') || href.includes('api.whatsapp.com')) {
+        trackConversion('contact_whatsapp', common);
+      } else if (href.startsWith('tel:')) {
+        trackConversion('contact_phone', common);
+      } else if (href.startsWith('mailto:')) {
+        trackConversion('contact_email', common);
+      }
+    }, { capture: true, passive: true });
+  };
+
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(idleInit);
+  } else {
+    setTimeout(idleInit, 1500);
+  }
 });
 
 // ==========================================
@@ -5209,6 +5236,13 @@ function setupBookingReveal() {
 
       // ─── ADS & ANALYTICS TRACKING EVENT TRIGGERS ─────────────────────────
       try {
+        trackConversion('generate_lead', {
+          city: city,
+          service: serviceText,
+          lang: STATE.language,
+          user: { name: name, phone: phone }
+        });
+
         // Google Analytics & Google Ads Event Triggers
         if (typeof gtag === 'function') {
           // Google Ads Conversion Event
