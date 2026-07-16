@@ -35,7 +35,7 @@ const META = {
     ogLocale: 'tr_TR',
     title: 'Aclean | Sinematik İnteraktif Temizlik Deneyimi',
     description:
-      "İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.",
+      "İzmir, İstanbul, Sakarya, Kocaeli, Samsun, Balıkesir ve Antalya'da premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.",
   },
   pl: {
     htmlLang: 'pl',
@@ -54,12 +54,13 @@ const CITY_META = {
   sakarya:   { lang: 'tr', name: 'Sakarya',   title: "Sakarya Temizlik Hizmeti | Aclean",   description: "Sakarya'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
   samsun:    { lang: 'tr', name: 'Samsun',    title: "Samsun Temizlik Hizmeti | Aclean",    description: "Samsun'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
   balikesir: { lang: 'tr', name: 'Balıkesir', title: "Balıkesir Temizlik Hizmeti | Aclean", description: "Balıkesir'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  antalya:   { lang: 'tr', name: 'Antalya',   title: "Antalya Temizlik Hizmeti | Aclean",   description: "Antalya'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
   warszawa:  { lang: 'pl', name: 'Warszawa',  title: 'Sprzątanie Warszawa | Aclean',        description: 'Profesjonalne sprzątanie mieszkań, biur i firm w Warszawie. Sprzątanie standardowe, głębokie, B2B oraz dezynsekcja. Zamów wycenę online.' },
 };
 
 const FAQ = {
   tr: [
-    ["Aclean hangi şehirlerde temizlik hizmeti veriyor?", "Türkiye'de İstanbul, İzmir, Kocaeli, Sakarya, Samsun ve Balıkesir'de; Polonya'da ise Warszawa'da profesyonel temizlik hizmeti veriyoruz."],
+    ["Aclean hangi şehirlerde temizlik hizmeti veriyor?", "Türkiye'de İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir ve Antalya'da; Polonya'da ise Warszawa'da profesyonel temizlik hizmeti veriyoruz."],
     ["Hangi temizlik hizmetlerini sunuyorsunuz?", "Standart temizlik, detaylı (derin) temizlik, kurumsal (B2B) temizlik ile ilaçlama & dezenfeksiyon hizmetleri sunuyoruz."],
     ["Temizlik fiyatları nasıl belirleniyor?", "Fiyat; alan (m²), hizmet türü, temizlik sıklığı ve ekstra taleplere (detaylı cam temizliği, fırın & beyaz eşya içi, balkon yıkama) göre belirlenir. Talebinizi ilettikten sonra size özel teklif hazırlıyoruz."],
     ["Rezervasyon nasıl yapılır?", "Sitemizdeki formu doldurmanız yeterli; talebiniz WhatsApp üzerinden ekibimize ulaşır ve en kısa sürede sizinle iletişime geçeriz."],
@@ -67,7 +68,7 @@ const FAQ = {
     ["Kurumsal (B2B) temizlik hizmeti veriyor musunuz?", "Evet; ofis, restoran, plaza ve iş yerleri için periyodik kurumsal temizlik çözümleri sunuyoruz."],
   ],
   pl: [
-    ["W jakich miastach Aclean świadczy usługi sprzątania?", "W Polsce działamy w Warszawie, a w Turcji w Stambule, Izmirze, Kocaeli, Sakarii, Samsunie i Balıkesirze."],
+    ["W jakich miastach Aclean świadczy usługi sprzątania?", "W Polsce działamy w Warszawie, a w Turcji w Stambule, Izmirze, Kocaeli, Sakarii, Samsunie, Balıkesirze i Antalyi."],
     ["Jakie usługi sprzątania oferujecie?", "Sprzątanie standardowe, głębokie sprzątanie, sprzątanie firmowe (B2B) oraz dezynsekcję i dezynfekcję."],
     ["Jak ustalane są ceny sprzątania?", "Cena zależy od powierzchni (m²), rodzaju usługi, częstotliwości oraz dodatków (mycie okien, czyszczenie piekarnika i AGD, mycie balkonu). Po przesłaniu zapytania przygotowujemy indywidualną ofertę."],
     ["Jak dokonać rezerwacji?", "Wystarczy wypełnić formularz na stronie — zapytanie trafia do naszego zespołu przez WhatsApp i szybko się z Tobą kontaktujemy."],
@@ -92,8 +93,8 @@ const SERVICES = {
 };
 
 const CITIES_LABEL = {
-  tr: 'İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir (Türkiye) ve Warszawa (Polonya)',
-  pl: 'Warszawa (Polska) oraz Stambuł, Izmir, Kocaeli, Sakarya, Samsun i Balıkesir (Turcja)',
+  tr: 'İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir, Antalya (Türkiye) ve Warszawa (Polonya)',
+  pl: 'Warszawa (Polska) oraz Stambuł, Izmir, Kocaeli, Sakarya, Samsun, Balıkesir i Antalya (Turcja)',
 };
 
 /** İstek URL'inden kanonik varyant URL'ini üretir (yalnız tanımlı parametreler korunur). */
@@ -155,6 +156,7 @@ function buildSchemaGraph(lang, city) {
           { '@type': 'City', name: 'Sakarya', address: { '@type': 'PostalAddress', addressCountry: 'TR' } },
           { '@type': 'City', name: 'Samsun', address: { '@type': 'PostalAddress', addressCountry: 'TR' } },
           { '@type': 'City', name: 'Balıkesir', address: { '@type': 'PostalAddress', addressCountry: 'TR' } },
+          { '@type': 'City', name: 'Antalya', address: { '@type': 'PostalAddress', addressCountry: 'TR' } },
           { '@type': 'City', name: 'Warszawa', address: { '@type': 'PostalAddress', addressCountry: 'PL' } },
         ],
         makesOffer: SERVICES[lang].map(([name, description]) => ({

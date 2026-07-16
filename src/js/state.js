@@ -60,6 +60,7 @@ export const STATE = {
 
 // Regional styling and themes configuration
 export const REGION_THEMES = {
+  akdeniz: { accent: '#0d9488', rgb: '13, 148, 136' },
   marmara: { accent: '#2563eb', rgb: '37, 99, 235' },
   ege: { accent: '#d97706', rgb: '217, 119, 6' },
   karadeniz: { accent: '#dc2626', rgb: '220, 38, 38' },
@@ -73,6 +74,7 @@ export const CITY_TO_REGION = {
   Izmir: 'ege',
   Balikesir: 'ege',
   Samsun: 'karadeniz',
+  Antalya: 'akdeniz',
   Warszawa: 'mazowsze',
   // Warsaw Districts
   Srodmiescie: 'mazowsze',
@@ -111,6 +113,7 @@ export const CITY_NAMES_TR = {
   Izmir: 'İZMİR',
   Balikesir: 'BALIKESİR',
   Samsun: 'SAMSUN',
+  Antalya: 'ANTALYA',
   Warszawa: 'WARSZAWA'
 };
 
@@ -121,5 +124,6 @@ export const CITY_NAMES_TR_TITLE = {
   Izmir: 'İzmir',
   Balikesir: 'Balıkesir',
   Samsun: 'Samsun',
+  Antalya: 'Antalya',
   Warszawa: 'Warszawa'
 };

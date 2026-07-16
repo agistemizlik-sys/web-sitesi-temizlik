@@ -2196,7 +2196,8 @@ async function initLeafletMap(country) {
       { key: 'Sakarya', coords: [40.7560, 30.3784], market: 'marmara' },
       { key: 'Izmir', coords: [38.4237, 27.1428], market: 'ege' },
       { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege' },
-      { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz' }
+      { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz' },
+      { key: 'Antalya', coords: [36.8969, 30.7133], market: 'akdeniz' }
     ];
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
