@@ -874,8 +874,10 @@ function applyServicesModalTranslations(dict, lang) {
 
   const areaLabel = document.querySelector('.calc-field:nth-child(1) label');
   if (areaLabel) {
-    const areaVal = document.getElementById('calc-area-range') ? document.getElementById('calc-area-range').value : 100;
-    areaLabel.innerHTML = `${lang === 'pl' ? 'POWIERZCHNIA' : 'ALAN'} (m²): <span id="area-val-label">${areaVal}</span> m²`;
+    const areaVal = document.getElementById('calc-area-range') ? parseInt(document.getElementById('calc-area-range').value) : 3;
+    const layouts = lang === 'pl' ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
+    const layoutText = layouts[areaVal] || areaVal;
+    areaLabel.innerHTML = `${lang === 'pl' ? 'LICZBA POKOI / TYP DOMU' : 'ODA SAYISI / EV TİPİ'}: <span id="area-val-label">${layoutText}</span>`;
   }
 
   const freqLabel = document.querySelector('.calc-field:nth-child(2) label');
@@ -4651,6 +4653,46 @@ function getFrequencyLabelTranslated(coeff, dict) {
   return labels[coeff] || 'Düzenli';
 }
 
+const ROOM_LAYOUTS_TR = {
+  1: "1+0 (Stüdyo)",
+  2: "1+1",
+  3: "2+1",
+  4: "3+1",
+  5: "4+1",
+  6: "5+1",
+  7: "Dubleks / Villa"
+};
+
+const ROOM_LAYOUTS_PL = {
+  1: "1+0 (Studio)",
+  2: "1+1 (2 Pokoje)",
+  3: "2+1 (3 Pokoje)",
+  4: "3+1 (4 Pokoje)",
+  5: "4+1 (5 Pokoi)",
+  6: "5+1 (6 Pokoi)",
+  7: "Dupleks / Willa"
+};
+
+const PRICING_MATRIX_TR = {
+  1: { standart: 1000, detayli: 1500, insaat_sonrasi: 3000, tasinma_sonrasi: 1800, kurumsal: 2000 },
+  2: { standart: 1300, detayli: 1950, insaat_sonrasi: 3900, tasinma_sonrasi: 2300, kurumsal: 2600 },
+  3: { standart: 1600, detayli: 2400, insaat_sonrasi: 4800, tasinma_sonrasi: 2800, kurumsal: 3200 },
+  4: { standart: 1900, detayli: 2850, insaat_sonrasi: 5700, tasinma_sonrasi: 3350, kurumsal: 3800 },
+  5: { standart: 2400, detayli: 3600, insaat_sonrasi: 7200, tasinma_sonrasi: 4200, kurumsal: 4800 },
+  6: { standart: 3000, detayli: 4500, insaat_sonrasi: 9000, tasinma_sonrasi: 5200, kurumsal: 6000 },
+  7: { standart: 4000, detayli: 6000, insaat_sonrasi: 12000, tasinma_sonrasi: 7000, kurumsal: 8000 }
+};
+
+const PRICING_MATRIX_PL = {
+  1: { standart: 120, detayli: 180, insaat_sonrasi: 360, tasinma_sonrasi: 210, kurumsal: 240 },
+  2: { standart: 150, detayli: 225, insaat_sonrasi: 450, tasinma_sonrasi: 260, kurumsal: 300 },
+  3: { standart: 180, detayli: 270, insaat_sonrasi: 540, tasinma_sonrasi: 315, kurumsal: 360 },
+  4: { standart: 220, detayli: 330, insaat_sonrasi: 660, tasinma_sonrasi: 385, kurumsal: 440 },
+  5: { standart: 260, detayli: 390, insaat_sonrasi: 780, tasinma_sonrasi: 455, kurumsal: 520 },
+  6: { standart: 320, detayli: 480, insaat_sonrasi: 960, tasinma_sonrasi: 560, kurumsal: 640 },
+  7: { standart: 450, detayli: 675, insaat_sonrasi: 1350, tasinma_sonrasi: 780, kurumsal: 900 }
+};
+
 function updateBookingSummaryBox() {
   const summaryBox = document.getElementById('bookingSelectionSummary');
   if (!summaryBox) return;
@@ -4684,10 +4726,14 @@ function updateBookingSummaryBox() {
   const extrasHtml = extras.length > 0 
     ? extras.map(ext => `<li>${ext}</li>`).join('')
     : `<li>${dict.summaryNone || 'Yok'}</li>`;
+    
+  const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
+  const layoutText = layouts[parseInt(area)] || area;
+
   summaryBox.innerHTML = `
     <h4>${dict.summaryTitle || 'SEÇİLEN DETAYLAR'}</h4>
     <div class="summary-row"><span>${dict.summaryService || 'Hizmet Türü:'}</span> <span class="summary-val">${serviceLabel}</span></div>
-    <div class="summary-row"><span>${dict.summaryArea || 'Hizmet Alanı:'}</span> <span class="summary-val">${area} m²</span></div>
+    <div class="summary-row"><span>${dict.summaryArea || (isPl ? 'Liczba pokoi / typ:' : 'Oda Sayısı / Ev Tipi:')}</span> <span class="summary-val">${layoutText}</span></div>
     <div class="summary-row"><span>${dict.summaryFrequency || 'Sıklık:'}</span> <span class="summary-val">${freqLabel}</span></div>
     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 8px; margin-bottom: 8px;">
       <span>${dict.summaryExtras || 'Ekstralar:'}</span>
@@ -4712,36 +4758,24 @@ function updatePriceSliderDisplay() {
   const serviceSelect = document.getElementById('cService');
   if (!slider || !label) return;
 
-  const area = parseInt(slider.value) || 80;
+  const roomVal = parseInt(slider.value) || 3;
   const lang = STATE.language || 'tr';
   const isPl = lang === 'pl';
   const serviceType = serviceSelect ? serviceSelect.value : 'standart';
   
   // Calculate percentage for gradient track fill
-  const min = parseFloat(slider.min) || 20;
-  const max = parseFloat(slider.max) || 400;
-  const percent = ((area - min) / (max - min)) * 100;
+  const min = 1;
+  const max = 7;
+  const percent = ((roomVal - min) / (max - min)) * 100;
   slider.style.setProperty('--value-percent', `${percent}%`);
 
-  // Calculate estimated price
-  let rate = 40; // Default Turkish Standard
-  if (isPl) {
-    if (serviceType === 'standart') rate = 4;
-    else if (serviceType === 'detayli') rate = 6;
-    else if (serviceType === 'kurumsal') rate = 8;
-    else if (serviceType === 'ilaclama') rate = 3;
-    else if (serviceType === 'insaat_sonrasi') rate = 15;
-    else if (serviceType === 'tasinma_sonrasi') rate = 7;
-  } else {
-    if (serviceType === 'standart') rate = 40;
-    else if (serviceType === 'detayli') rate = 60;
-    else if (serviceType === 'kurumsal') rate = 80;
-    else if (serviceType === 'ilaclama') rate = 30;
-    else if (serviceType === 'insaat_sonrasi') rate = 120;
-    else if (serviceType === 'tasinma_sonrasi') rate = 70;
-  }
-  
-  const basePrice = area * rate;
+  const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
+  const layoutText = layouts[roomVal] || roomVal.toString();
+
+  // Calculate base price from matrix
+  const matrix = isPl ? PRICING_MATRIX_PL : PRICING_MATRIX_TR;
+  const servicePricing = matrix[roomVal] || matrix[3];
+  let basePrice = servicePricing[serviceType] || servicePricing['standart'] || 0;
   
   // Calculate selected extras price
   let extraSum = 0;
@@ -4767,23 +4801,27 @@ function updatePriceSliderDisplay() {
 
   // Update label text to show area and price
   if (serviceType === 'ilaclama') {
-    label.textContent = isPl ? `${area} m² (Zapytaj o cenę)` : `${area} m² (Özel Fiyat Teklifi)`;
+    label.textContent = isPl ? `${layoutText} (Zapytaj o cenę)` : `${layoutText} (Özel Fiyat Teklifi)`;
   } else {
-    label.textContent = `${area} m² (${estimatedPrice.toLocaleString()}${currency})`;
+    label.textContent = `${layoutText} (${estimatedPrice.toLocaleString()}${currency})`;
   }
+
+  // Sync back to state
+  STATE.calculator.area = roomVal;
+  STATE.calculator.price = estimatedPrice;
 }
 
 function updatePriceSliderConfig() {
   const slider = document.getElementById('cPriceRange');
   if (!slider) return;
   
-  slider.min = '20';
-  slider.max = '400';
-  slider.step = '5';
+  slider.min = '1';
+  slider.max = '7';
+  slider.step = '1';
   
-  const val = parseInt(slider.value) || 80;
-  if (val < 20 || val > 400) {
-    slider.value = '80';
+  const val = parseInt(slider.value) || 3;
+  if (val < 1 || val > 7) {
+    slider.value = '3';
   }
   
   updatePriceSliderDisplay();
@@ -5090,14 +5128,6 @@ function setupBookingReveal() {
         else if (service === 'insaat_sonrasi') serviceText = 'Sprzątanie po budowie / remoncie';
         else if (service === 'tasinma_sonrasi') serviceText = 'Sprzątanie przed/po przeprowadzce';
 
-        let rate = 4;
-        if (service === 'standart') rate = 4;
-        else if (service === 'detayli') rate = 6;
-        else if (service === 'kurumsal') rate = 8;
-        else if (service === 'ilaclama') rate = 3;
-        else if (service === 'insaat_sonrasi') rate = 15;
-        else if (service === 'tasinma_sonrasi') rate = 7;
-
         let extraSum = 0;
         const extraNames = [];
         const activeExtras = document.querySelectorAll('.extra-btn.active');
@@ -5110,7 +5140,11 @@ function setupBookingReveal() {
 
         const frequencySelect = document.getElementById('cFrequency');
         const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
-        const estPrice = ((parseInt(priceRange) || 80) * rate) + extraSum;
+        
+        const roomIdx = parseInt(priceRange) || 3;
+        const servicePricing = PRICING_MATRIX_PL[roomIdx] || PRICING_MATRIX_PL[3];
+        const basePrice = servicePricing[service] || servicePricing['standart'] || 0;
+        const estPrice = basePrice + extraSum;
 
         let freqText = 'Jednorazowo';
         if (frequencyVal === 'haftalik') freqText = 'Co tydzień';
@@ -5125,7 +5159,8 @@ function setupBookingReveal() {
         message += `*Częstotliwość:* ${freqText}\n`;
         message += `*Data rezerwacji:* ${date}\n`;
         if (service !== 'ilaclama') {
-          message += `*Obszar usługi:* ${priceRange} m²\n`;
+          const layoutText = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
+          message += `*Typ domu / Pokoje:* ${layoutText}\n`;
         }
         if (extraNames.length > 0) {
           message += `*Dodatkowe Usługi:* ${extraNames.join(', ')}\n`;
@@ -5137,7 +5172,8 @@ function setupBookingReveal() {
         }
         if (STATE.calculator.applied) {
           message += `\n*Szczegóły zapytania:*\n`;
-          message += `- *Powierzchnia:* ${STATE.calculator.area} m²\n`;
+          const layoutText = ROOM_LAYOUTS_PL[parseInt(STATE.calculator.area)] || STATE.calculator.area;
+          message += `- *Pokoje:* ${layoutText}\n`;
           const calcFreqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc' : 'Jednorazowo');
           message += `- *Częstotliwość:* ${calcFreqText}\n`;
           if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
@@ -5153,14 +5189,6 @@ function setupBookingReveal() {
         else if (service === 'insaat_sonrasi') serviceText = 'İnşaat Sonrası Temizlik';
         else if (service === 'tasinma_sonrasi') serviceText = 'Taşınma Öncesi/Sonrası Temizlik';
 
-        let rate = 40;
-        if (service === 'standart') rate = 40;
-        else if (service === 'detayli') rate = 60;
-        else if (service === 'kurumsal') rate = 80;
-        else if (service === 'ilaclama') rate = 30;
-        else if (service === 'insaat_sonrasi') rate = 120;
-        else if (service === 'tasinma_sonrasi') rate = 70;
-
         let extraSum = 0;
         const extraNames = [];
         const activeExtras = document.querySelectorAll('.extra-btn.active');
@@ -5173,7 +5201,11 @@ function setupBookingReveal() {
 
         const frequencySelect = document.getElementById('cFrequency');
         const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
-        const estPrice = ((parseInt(priceRange) || 80) * rate) + extraSum;
+        
+        const roomIdx = parseInt(priceRange) || 3;
+        const servicePricing = PRICING_MATRIX_TR[roomIdx] || PRICING_MATRIX_TR[3];
+        const basePrice = servicePricing[service] || servicePricing['standart'] || 0;
+        const estPrice = basePrice + extraSum;
 
         let freqText = 'Tek Seferlik Temizlik';
         if (frequencyVal === 'haftalik') freqText = 'Haftalık Düzenli Temizlik';
@@ -5188,7 +5220,8 @@ function setupBookingReveal() {
         message += `*Temizlik Sıklığı:* ${freqText}\n`;
         message += `*Rezervasyon Tarihi:* ${date}\n`;
         if (service !== 'ilaclama') {
-          message += `*Hizmet Alanı:* ${priceRange} m²\n`;
+          const layoutText = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
+          message += `*Oda Sayısı / Ev Tipi:* ${layoutText}\n`;
         }
         if (extraNames.length > 0) {
           message += `*Ekstra Hizmetler:* ${extraNames.join(', ')}\n`;
@@ -5200,7 +5233,8 @@ function setupBookingReveal() {
         }
         if (STATE.calculator.applied) {
           message += `\n*Talep Detayları:*\n`;
-          message += `- *Alan:* ${STATE.calculator.area} m²\n`;
+          const layoutText = ROOM_LAYOUTS_TR[parseInt(STATE.calculator.area)] || STATE.calculator.area;
+          message += `- *Oda / Tip:* ${layoutText}\n`;
           const calcFreqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
           message += `- *Sıklık:* ${calcFreqText}\n`;
           if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
@@ -5211,14 +5245,17 @@ function setupBookingReveal() {
 
       // Send Lead to Backoffice Panel API asynchronously
       const apiEndpoint = "http://45.76.83.185/api/leads";
+      const roomIdx = parseInt(priceRange) || 3;
+      const notesLayoutTextPl = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
+      const notesLayoutTextTr = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
       const leadPayload = {
         name: name,
         phone: phone,
         source: "WEBSITE",
         sourceDetail: `Seçilen Şehir: ${city}, Tarih: ${date}`,
         notes: isPl 
-          ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Obszar: ${priceRange} m²` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}`
-          : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Alan: ${priceRange} m²` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}`,
+          ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Pokoje: ${notesLayoutTextPl}` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}`
+          : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Oda Sayısı/Ev Tipi: ${notesLayoutTextTr}` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}`,
         tags: [service, city]
       };
 
@@ -5498,7 +5535,11 @@ function setupServicesModal() {
 
   if (areaRange) {
     areaRange.addEventListener('input', (e) => {
-      if (areaLabel) areaLabel.textContent = e.target.value;
+      const roomVal = parseInt(e.target.value) || 3;
+      const lang = STATE.language || 'tr';
+      const isPl = lang === 'pl';
+      const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
+      if (areaLabel) areaLabel.textContent = layouts[roomVal] || roomVal;
       calculatePrice(true);
     });
   }
@@ -5513,9 +5554,9 @@ function setupServicesModal() {
   
   function updateSliderBackground() {
     if (!areaRange) return;
-    const min = parseFloat(areaRange.min || 20);
-    const max = parseFloat(areaRange.max || 500);
-    const val = parseFloat(areaRange.value || 100);
+    const min = 1;
+    const max = 7;
+    const val = parseFloat(areaRange.value || 3);
     const percentage = ((val - min) / (max - min)) * 100;
     const accentColor = document.documentElement.style.getPropertyValue('--clr-accent') || '#3366ff';
     areaRange.style.background = `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${percentage}%, #d8d4c9 ${percentage}%, #d8d4c9 100%)`;
@@ -5525,7 +5566,7 @@ function setupServicesModal() {
     const lang = STATE.language || 'tr';
     const isPl = lang === 'pl';
 
-    const area = areaRange ? parseInt(areaRange.value || 100) : 100;
+    const area = areaRange ? parseInt(areaRange.value || 3) : 3;
     
     // Update slider fill track
     updateSliderBackground();
@@ -5551,7 +5592,7 @@ function setupServicesModal() {
     const receiptBox = document.getElementById('calculatorReceipt');
     if (receiptBox) {
       const receiptTitle = isPl ? 'Podsumowanie Zapytania' : 'Talep Özeti';
-      const labelBaseArea = isPl ? 'Obszar Usługi' : 'Temizlik Alanı';
+      const labelBaseArea = isPl ? 'Liczba pokoi / typ' : 'Oda Sayısı / Ev Tipi';
       const labelFrequency = isPl ? 'Częstotliwość' : 'Temizlik Sıklığı';
       const labelExtras = isPl ? 'Dodatkowe Opcje' : 'Ekstra Seçenekler';
       const labelStatus = isPl ? 'Status Oferty' : 'Teklif Durumu';
@@ -5564,12 +5605,15 @@ function setupServicesModal() {
         freqText = freqVal === '0.8' ? 'Haftalık Düzenli' : (freqVal === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
       }
 
+      const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
+      const layoutText = layouts[area] || area.toString();
+
       let receiptHtml = `
         <h4>${receiptTitle}</h4>
         <div class="receipt-row">
           <span class="receipt-lbl">${labelBaseArea}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val">${area} m²</span>
+          <span class="receipt-val">${layoutText}</span>
         </div>
         <div class="receipt-row">
           <span class="receipt-lbl">${labelFrequency}</span>
