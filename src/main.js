@@ -4674,23 +4674,23 @@ const ROOM_LAYOUTS_PL = {
 };
 
 const PRICING_MATRIX_TR = {
-  1: { standart: 3500, detayli: 4500, insaat_sonrasi: 9000, tasinma_sonrasi: 5500, kurumsal: 6500 },
-  2: { standart: 4200, detayli: 5500, insaat_sonrasi: 11000, tasinma_sonrasi: 6800, kurumsal: 7800 },
-  3: { standart: 5000, detayli: 6800, insaat_sonrasi: 13500, tasinma_sonrasi: 8200, kurumsal: 9200 },
-  4: { standart: 6200, detayli: 8500, insaat_sonrasi: 16500, tasinma_sonrasi: 10000, kurumsal: 11500 },
-  5: { standart: 8000, detayli: 11000, insaat_sonrasi: 21000, tasinma_sonrasi: 13000, kurumsal: 14500 },
-  6: { standart: 10500, detayli: 14500, insaat_sonrasi: 27000, tasinma_sonrasi: 17000, kurumsal: 19000 },
-  7: { standart: 14000, detayli: 19500, insaat_sonrasi: 36000, tasinma_sonrasi: 22500, kurumsal: 25000 }
+  1: { standart: 3500, detayli: 4500, insaat_sonrasi: 7000, tasinma_sonrasi: 5000, kurumsal: 6000 },
+  2: { standart: 4200, detayli: 5400, insaat_sonrasi: 8400, tasinma_sonrasi: 6000, kurumsal: 7200 },
+  3: { standart: 5300, detayli: 6800, insaat_sonrasi: 10500, tasinma_sonrasi: 7500, kurumsal: 9000 },
+  4: { standart: 6600, detayli: 8600, insaat_sonrasi: 13300, tasinma_sonrasi: 9500, kurumsal: 11500 },
+  5: { standart: 8400, detayli: 10800, insaat_sonrasi: 16800, tasinma_sonrasi: 12000, kurumsal: 14500 },
+  6: { standart: 10500, detayli: 13500, insaat_sonrasi: 21000, tasinma_sonrasi: 15000, kurumsal: 18000 },
+  7: { standart: 14000, detayli: 18000, insaat_sonrasi: 28000, tasinma_sonrasi: 20000, kurumsal: 24000 }
 };
 
 const PRICING_MATRIX_PL = {
-  1: { standart: 420, detayli: 540, insaat_sonrasi: 1080, tasinma_sonrasi: 660, kurumsal: 780 },
-  2: { standart: 500, detayli: 660, insaat_sonrasi: 1320, tasinma_sonrasi: 820, kurumsal: 940 },
-  3: { standart: 600, detayli: 820, insaat_sonrasi: 1620, tasinma_sonrasi: 980, kurumsal: 1100 },
-  4: { standart: 740, detayli: 1020, insaat_sonrasi: 1980, tasinma_sonrasi: 1200, kurumsal: 1380 },
-  5: { standart: 960, detayli: 1320, insaat_sonrasi: 2520, tasinma_sonrasi: 1560, kurumsal: 1740 },
-  6: { standart: 1260, detayli: 1740, insaat_sonrasi: 3240, tasinma_sonrasi: 2040, kurumsal: 2280 },
-  7: { standart: 1680, detayli: 2340, insaat_sonrasi: 4320, tasinma_sonrasi: 2700, kurumsal: 3000 }
+  1: { standart: 420, detayli: 540, insaat_sonrasi: 840, tasinma_sonrasi: 600, kurumsal: 720 },
+  2: { standart: 500, detayli: 650, insaat_sonrasi: 1000, tasinma_sonrasi: 720, kurumsal: 860 },
+  3: { standart: 630, detayli: 810, insaat_sonrasi: 1260, tasinma_sonrasi: 900, kurumsal: 1080 },
+  4: { standart: 800, detayli: 1020, insaat_sonrasi: 1600, tasinma_sonrasi: 1140, kurumsal: 1370 },
+  5: { standart: 1000, detayli: 1300, insaat_sonrasi: 2000, tasinma_sonrasi: 1440, kurumsal: 1720 },
+  6: { standart: 1260, detayli: 1620, insaat_sonrasi: 2520, tasinma_sonrasi: 1800, kurumsal: 2160 },
+  7: { standart: 1680, detayli: 2160, insaat_sonrasi: 3360, tasinma_sonrasi: 2400, kurumsal: 2880 }
 };
 
 function updateBookingSummaryBox() {
