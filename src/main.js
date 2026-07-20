@@ -4737,7 +4737,7 @@ function updateBookingSummaryBox() {
     <div class="summary-row"><span>${dict.summaryFrequency || 'Sıklık:'}</span> <span class="summary-val">${freqLabel}</span></div>
     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 8px; margin-bottom: 8px;">
       <span>${dict.summaryExtras || 'Ekstralar:'}</span>
-      <ul style="padding-left: 16px; margin: 0; list-style-type: square; color: #fff; width: 100%;">
+      <ul style="padding-left: 16px; margin: 0; list-style-type: square; color: var(--clr-muted); width: 100%;">
         ${extrasHtml}
       </ul>
     </div>
