@@ -771,6 +771,12 @@ function applyBookingTranslations(dict, lang) {
     if (lblM2Sel && dict.bookingLabelM2Selected) {
       lblM2Sel.textContent = dict.bookingLabelM2Selected;
     }
+    const lblPromo = document.getElementById('lblBookingLabelPromo');
+    if (lblPromo && dict.bookingLabelPromo) lblPromo.textContent = dict.bookingLabelPromo;
+    const promoInput = document.getElementById('cPromoCode');
+    if (promoInput && dict.promoPlaceholder) promoInput.placeholder = dict.promoPlaceholder;
+    const btnApplyPromo = document.getElementById('btnApplyPromo');
+    if (btnApplyPromo && dict.promoApplyBtn) btnApplyPromo.textContent = dict.promoApplyBtn;
     const lblEstimated = document.getElementById('lblEstimatedPrice');
     if (lblEstimated && dict.bookingEstimatedPrice) {
       lblEstimated.textContent = dict.bookingEstimatedPrice;
@@ -1870,6 +1876,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupNavScroll();
   setupMobileDrawer();
   setupBookingReveal();
+  setupPromoCodeLogic();
   setupServicesModal();
   setupResizeObserver();
   setupGlobalEscapeKey();
@@ -4730,11 +4737,16 @@ function updateBookingSummaryBox() {
   const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
   const layoutText = layouts[parseInt(area)] || area;
 
+  const promoHtml = STATE.calculator.promoCode ? `
+    <div class="summary-row"><span>${isPl ? 'Kod partnerski/rabatowy:' : 'Referans / Kupon Kodu:'}</span> <span class="summary-val" style="color: var(--clr-accent); font-weight: 700;">${STATE.calculator.promoCode}${STATE.calculator.discountRate > 0 ? ` (%${Math.round(STATE.calculator.discountRate * 100)} İndirim)` : ''}</span></div>
+  ` : '';
+
   summaryBox.innerHTML = `
     <h4>${dict.summaryTitle || 'SEÇİLEN DETAYLAR'}</h4>
     <div class="summary-row"><span>${dict.summaryService || 'Hizmet Türü:'}</span> <span class="summary-val">${serviceLabel}</span></div>
     <div class="summary-row"><span>${dict.summaryArea || (isPl ? 'Liczba pokoi / typ:' : 'Oda Sayısı / Ev Tipi:')}</span> <span class="summary-val">${layoutText}</span></div>
     <div class="summary-row"><span>${dict.summaryFrequency || 'Sıklık:'}</span> <span class="summary-val">${freqLabel}</span></div>
+    ${promoHtml}
     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 8px; margin-bottom: 8px;">
       <span>${dict.summaryExtras || 'Ekstralar:'}</span>
       <ul style="padding-left: 16px; margin: 0; list-style-type: square; color: var(--clr-muted); width: 100%;">
@@ -4980,6 +4992,86 @@ function navigateToStage(stage, shouldPush = true) {
     if (mainNav) {
       gsap.to(mainNav, { opacity: 0, duration: 0.3, ease: 'power2.out', onComplete: () => { mainNav.style.visibility = 'hidden'; } });
     }
+  }
+}
+
+// ==========================================
+// AFFILIATE & PROMO CODE SYSTEM
+// ==========================================
+const KNOWN_DISCOUNT_CODES = {
+  'INDIRIM10': 0.10,
+  'ACLAN10': 0.10,
+  'EMLAK10': 0.10,
+  'ACLAN20': 0.20,
+  'RABAT10': 0.10,
+  'RABAT20': 0.20
+};
+
+function setupPromoCodeLogic() {
+  const promoInput = document.getElementById('cPromoCode');
+  const applyBtn = document.getElementById('btnApplyPromo');
+  const feedbackEl = document.getElementById('promoCodeFeedback');
+  if (!promoInput || !applyBtn || !feedbackEl) return;
+
+  function applyCode(rawCode, isAuto = false) {
+    const code = (rawCode || '').trim().toUpperCase();
+    const isPl = STATE.language === 'pl';
+    const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+
+    if (!code) {
+      STATE.calculator.promoCode = null;
+      STATE.calculator.discountRate = 0;
+      feedbackEl.style.display = 'none';
+      feedbackEl.textContent = '';
+      if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
+      return;
+    }
+
+    if (KNOWN_DISCOUNT_CODES.hasOwnProperty(code)) {
+      const discountRate = KNOWN_DISCOUNT_CODES[code];
+      const discountPct = Math.round(discountRate * 100);
+      STATE.calculator.promoCode = code;
+      STATE.calculator.discountRate = discountRate;
+
+      const template = dict.promoValidDiscount || '✓ Kod Uygulandı: {code} (%{discount} İndirim!)';
+      feedbackEl.textContent = template.replace('{code}', code).replace('{discount}', discountPct);
+      feedbackEl.style.color = '#10b981';
+      feedbackEl.style.display = 'block';
+    } else {
+      STATE.calculator.promoCode = code;
+      STATE.calculator.discountRate = 0;
+
+      const template = dict.promoValidTracking || '✓ Emlakçı Referans Kodu Onaylandı ({code})';
+      feedbackEl.textContent = template.replace('{code}', code);
+      feedbackEl.style.color = '#3b82f6';
+      feedbackEl.style.display = 'block';
+    }
+
+    if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
+    logDebug('Promo / Affiliate code applied:', code, 'Discount:', STATE.calculator.discountRate);
+  }
+
+  applyBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    applyCode(promoInput.value);
+  });
+
+  promoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      applyCode(promoInput.value);
+    }
+  });
+
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = urlParams.get('ref') || urlParams.get('aff') || urlParams.get('referral') || urlParams.get('promo');
+    if (refParam) {
+      promoInput.value = refParam.toUpperCase();
+      applyCode(refParam, true);
+    }
+  } catch (err) {
+    logErrorDebug('Error parsing URL referral parameter:', err);
   }
 }
 
@@ -5243,6 +5335,11 @@ function setupBookingReveal() {
         }
       }
 
+      const activeCode = (document.getElementById('cPromoCode')?.value || STATE.calculator.promoCode || '').trim().toUpperCase();
+      if (activeCode) {
+        message += isPl ? `*Kod partnerski/rabatowy:* ${activeCode}\n` : `*Emlakçı / İndirim Kodu:* ${activeCode}\n`;
+      }
+
       // Send Lead to Backoffice Panel API asynchronously
       const apiEndpoint = "http://45.76.83.185/api/leads";
       const roomIdx = parseInt(priceRange) || 3;
@@ -5254,9 +5351,11 @@ function setupBookingReveal() {
         source: "WEBSITE",
         sourceDetail: `Seçilen Şehir: ${city}, Tarih: ${date}`,
         notes: isPl 
-          ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Pokoje: ${notesLayoutTextPl}` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}`
-          : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Oda Sayısı/Ev Tipi: ${notesLayoutTextTr}` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}`,
-        tags: [service, city]
+          ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Pokoje: ${notesLayoutTextPl}` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`
+          : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Oda Sayısı/Ev Tipi: ${notesLayoutTextTr}` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`,
+        tags: activeCode ? [service, city, `aff:${activeCode}`] : [service, city],
+        affiliateCode: activeCode || null,
+        promoCode: activeCode || null
       };
 
       fetch(apiEndpoint, {

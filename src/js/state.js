@@ -12,7 +12,9 @@ export const STATE = {
     area: 100,
     frequency: '1',
     extras: [],
-    price: 1500
+    price: 1500,
+    promoCode: null,
+    discountRate: 0
   },
   
   // Cinematic Scrubbing Interpolation States
