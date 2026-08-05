@@ -5340,8 +5340,6 @@ function setupBookingReveal() {
         message += isPl ? `*Kod partnerski/rabatowy:* ${activeCode}\n` : `*Emlakçı / İndirim Kodu:* ${activeCode}\n`;
       }
 
-      // Send Lead to Backoffice Panel API asynchronously
-      const apiEndpoint = "http://45.76.83.185/api/leads";
       const roomIdx = parseInt(priceRange) || 3;
       const notesLayoutTextPl = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
       const notesLayoutTextTr = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
@@ -5358,17 +5356,28 @@ function setupBookingReveal() {
         promoCode: activeCode || null
       };
 
-      fetch(apiEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "hc_live_7x9f2m4a1v8"
-        },
-        body: JSON.stringify(leadPayload)
-      }).then(res => {
+      // Send Lead to Backoffice Panel API asynchronously with HTTP/HTTPS fallback
+      const primaryEndpoint = window.location.protocol === 'https:' 
+        ? "https://45.76.83.185/api/leads" 
+        : "http://45.76.83.185/api/leads";
+      const fallbackEndpoint = "http://45.76.83.185/api/leads";
+
+      const sendLeadReq = (url) => {
+        return fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "hc_live_7x9f2m4a1v8"
+          },
+          body: JSON.stringify(leadPayload)
+        });
+      };
+
+      sendLeadReq(primaryEndpoint).then(res => {
         logDebug("Lead synced with backoffice database successfully:", res);
       }).catch(err => {
-        logErrorDebug("Backoffice lead synchronization failed:", err);
+        logErrorDebug("Primary endpoint failed, trying HTTP fallback...", err);
+        sendLeadReq(fallbackEndpoint).catch(e => logErrorDebug("Backoffice lead synchronization failed:", e));
       });
 
       // ─── ADS & ANALYTICS TRACKING EVENT TRIGGERS ─────────────────────────
