@@ -5143,290 +5143,119 @@ function setupBookingReveal() {
     });
   }
 
-  // Handle Form Submission
-  if (form) {
-    form.addEventListener('submit', (e) => {
+  // Handle Form Submission via both button click and form submit event
+  const btnSubmit = document.getElementById('btnSubmitBooking') || form?.querySelector('.cinema-submit-btn');
+
+  const doSubmit = (e) => {
+    if (e) {
       e.preventDefault();
+      e.stopPropagation();
+    }
 
-      // Disable submit button during animation/load sequence to prevent double submissions
-      const submitBtn = form.querySelector('.cinema-submit-btn');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.5';
-        submitBtn.style.cursor = 'not-allowed';
-      }
+    const name = document.getElementById('cName')?.value.trim() || '';
+    const phone = document.getElementById('cPhone')?.value.trim() || '';
+    const city = document.getElementById('cCity')?.value || 'Izmir';
+    const service = document.getElementById('cService')?.value || 'standart';
+    const dateInput = document.getElementById('cDate')?.value || '';
+    const priceRange = document.getElementById('cPriceRange')?.value || '3';
 
-      const name = document.getElementById('cName')?.value.trim() || '';
-      const phone = document.getElementById('cPhone')?.value.trim() || '';
-      const city = document.getElementById('cCity')?.value || '';
-      const service = document.getElementById('cService')?.value || '';
-      const date = document.getElementById('cDate')?.value || '';
-      const priceRange = document.getElementById('cPriceRange')?.value || '';
+    const isPl = STATE.language === 'pl';
 
-      const isPl = STATE.language === 'pl';
-      const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+    if (!name || name.length < 2) {
+      alert(isPl ? 'Proszę wpisać imię i nazwisko.' : 'Lütfen geçerli bir Ad Soyad giriniz.');
+      return;
+    }
 
-      // Robust client-side validation
-      if (!name || name.length < 3) {
-        alert(isPl ? 'Proszę wpisać poprawne imię i nazwisko (min. 3 znaki).' : 'Lütfen geçerli bir ad soyad giriniz (en az 3 karakter).');
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.style.opacity = '1';
-          submitBtn.style.cursor = 'pointer';
-        }
-        return;
-      }
+    const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+    if (!cleanPhone || cleanPhone.length < 7) {
+      alert(isPl ? 'Proszę wpisać poprawny numer telefonu.' : 'Lütfen geçerli bir Telefon Numarası giriniz.');
+      return;
+    }
 
-      // Simple but robust numeric/phone regex checks
-      const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
-      const isNumeric = /^\d+$/.test(cleanPhone);
-      if (!cleanPhone || cleanPhone.length < 9 || !isNumeric) {
-        alert(isPl ? 'Proszę wpisać poprawny numer telefonu (min. 9 cyfr).' : 'Lütfen geçerli bir telefon numarası giriniz (en az 9 haneli).');
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.style.opacity = '1';
-          submitBtn.style.cursor = 'pointer';
-        }
-        return;
-      }
+    if (btnSubmit) {
+      btnSubmit.disabled = true;
+      btnSubmit.style.opacity = '0.5';
+      btnSubmit.style.cursor = 'not-allowed';
+    }
 
-      const payload = {
-        name,
-        phone,
-        city,
-        service,
-        date,
-        priceRange,
-        calculatorApplied: STATE.calculator.applied
-      };
+    const date = dateInput || new Date().toISOString().split('T')[0];
+    const activeCode = (document.getElementById('cPromoCode')?.value || STATE.calculator.promoCode || '').trim().toUpperCase();
+    const roomIdx = parseInt(priceRange) || 3;
+    const notesLayoutTextPl = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
+    const notesLayoutTextTr = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
 
-      if (STATE.calculator.applied) {
-        payload.calculatorDetails = {
-          serviceType: STATE.calculator.serviceType,
-          area: STATE.calculator.area,
-          frequency: STATE.calculator.frequency,
-          extras: STATE.calculator.extras,
-          price: STATE.calculator.price
-        };
-      }
+    let serviceText = 'Belirtilmedi';
+    if (service === 'standart') serviceText = isPl ? 'Standardowe' : 'Standart Temizlik';
+    else if (service === 'detayli') serviceText = isPl ? 'Głębokie' : 'Detaylı Temizlik';
+    else if (service === 'kurumsal') serviceText = isPl ? 'Firmowe (B2B)' : 'Kurumsal Temizlik (B2B)';
+    else if (service === 'ilaclama') serviceText = isPl ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
+    else if (service === 'insaat_sonrasi') serviceText = isPl ? 'Sprzątanie po budowie / remoncie' : 'İnşaat Sonrası Temizlik';
+    else if (service === 'tasinma_sonrasi') serviceText = isPl ? 'Sprzątanie przed/po przeprowadzce' : 'Taşınma Öncesi/Sonrası Temizlik';
 
-      logDebug('Booking form submitted. Staging payload:', payload);
+    const extraNames = [];
+    const activeExtras = document.querySelectorAll('.extra-btn.active');
+    activeExtras.forEach(btn => {
+      const labelText = btn.querySelector('.extra-label-text')?.textContent || '';
+      if (labelText) extraNames.push(labelText);
+    });
 
-      if (city && city !== STATE.selectedCity) {
-        setCityState(city);
-      }
+    const frequencySelect = document.getElementById('cFrequency');
+    const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
+    let freqText = isPl ? 'Jednorazowo' : 'Tek Seferlik Temizlik';
+    if (frequencyVal === 'haftalik') freqText = isPl ? 'Co tydzień' : 'Haftalık Düzenli Temizlik';
+    else if (frequencyVal === 'aylik') freqText = isPl ? 'Co miesiąc' : 'Aylık Düzenli Temizlik';
 
-      // Format WhatsApp Message
-      let message = '';
-      if (isPl) {
-        let serviceText = 'Nie określono';
-        if (service === 'standart') serviceText = 'Standardowe';
-        else if (service === 'detayli') serviceText = 'Głębokie';
-        else if (service === 'kurumsal') serviceText = 'Firmowe (B2B)';
-        else if (service === 'ilaclama') serviceText = 'Dezynsekcja & Dezynfekcja';
-        else if (service === 'insaat_sonrasi') serviceText = 'Sprzątanie po budowie / remoncie';
-        else if (service === 'tasinma_sonrasi') serviceText = 'Sprzątanie przed/po przeprowadzce';
+    const leadPayload = {
+      name: name,
+      phone: phone,
+      source: "WEBSITE",
+      sourceDetail: `Seçilen Şehir: ${city}, Tarih: ${date}`,
+      notes: isPl 
+        ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Pokoje: ${notesLayoutTextPl}` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`
+        : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Oda Sayısı/Ev Tipi: ${notesLayoutTextTr}` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`,
+      tags: activeCode ? [service, city, `aff:${activeCode}`] : [service, city],
+      affiliateCode: activeCode || null,
+      promoCode: activeCode || null
+    };
 
-        let extraSum = 0;
-        const extraNames = [];
-        const activeExtras = document.querySelectorAll('.extra-btn.active');
-        activeExtras.forEach(btn => {
-          const priceVal = parseFloat(btn.dataset.pricePl) || 0;
-          extraSum += priceVal;
-          const labelText = btn.querySelector('.extra-label-text')?.textContent || '';
-          extraNames.push(labelText);
-        });
+    // Send Lead to Backoffice Panel API asynchronously via Cloudflare Function Relay & direct fallback
+    const primaryEndpoint = "/api/leads";
+    const fallbackEndpoint = "http://45.76.83.185/api/leads";
 
-        const frequencySelect = document.getElementById('cFrequency');
-        const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
-        
-        const roomIdx = parseInt(priceRange) || 3;
-        const servicePricing = PRICING_MATRIX_PL[roomIdx] || PRICING_MATRIX_PL[3];
-        const basePrice = servicePricing[service] || servicePricing['standart'] || 0;
-        const estPrice = basePrice + extraSum;
-
-        let freqText = 'Jednorazowo';
-        if (frequencyVal === 'haftalik') freqText = 'Co tydzień';
-        else if (frequencyVal === 'aylik') freqText = 'Co miesiąc';
-
-        message = `*Aclean - Zapytanie o ofertę*\n`;
-        message += `-------------------------\n`;
-        message += `*Imię i nazwisko:* ${name}\n`;
-        message += `*Telefon:* ${phone}\n`;
-        message += `*Miasto:* ${city}\n`;
-        message += `*Usługa:* ${serviceText}\n`;
-        message += `*Częstotliwość:* ${freqText}\n`;
-        message += `*Data rezerwacji:* ${date}\n`;
-        if (service !== 'ilaclama') {
-          const layoutText = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
-          message += `*Typ domu / Pokoje:* ${layoutText}\n`;
-        }
-        if (extraNames.length > 0) {
-          message += `*Dodatkowe Usługi:* ${extraNames.join(', ')}\n`;
-        }
-        if (service === 'ilaclama') {
-          message += `*Szacowany koszt:* Indywidualna wycena (Zapytaj o cenę)\n`;
-        } else {
-          message += `*Szacowany koszt:* ${estPrice} PLN\n`;
-        }
-        if (STATE.calculator.applied) {
-          message += `\n*Szczegóły zapytania:*\n`;
-          const layoutText = ROOM_LAYOUTS_PL[parseInt(STATE.calculator.area)] || STATE.calculator.area;
-          message += `- *Pokoje:* ${layoutText}\n`;
-          const calcFreqText = STATE.calculator.frequency === '0.8' ? 'Co tydzień' : (STATE.calculator.frequency === '0.9' ? 'Co miesiąc' : 'Jednorazowo');
-          message += `- *Częstotliwość:* ${calcFreqText}\n`;
-          if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
-            message += `- *Dodatki:* ${STATE.calculator.extras.join(', ')}\n`;
-          }
-        }
-      } else {
-        let serviceText = 'Belirtilmedi';
-        if (service === 'standart') serviceText = 'Standart Temizlik';
-        else if (service === 'detayli') serviceText = 'Detaylı Temizlik';
-        else if (service === 'kurumsal') serviceText = 'Kurumsal Temizlik (B2B)';
-        else if (service === 'ilaclama') serviceText = 'İlaçlama & Dezenfeksiyon';
-        else if (service === 'insaat_sonrasi') serviceText = 'İnşaat Sonrası Temizlik';
-        else if (service === 'tasinma_sonrasi') serviceText = 'Taşınma Öncesi/Sonrası Temizlik';
-
-        let extraSum = 0;
-        const extraNames = [];
-        const activeExtras = document.querySelectorAll('.extra-btn.active');
-        activeExtras.forEach(btn => {
-          const priceVal = parseFloat(btn.dataset.priceTr) || 0;
-          extraSum += priceVal;
-          const labelText = btn.querySelector('.extra-label-text')?.textContent || '';
-          extraNames.push(labelText);
-        });
-
-        const frequencySelect = document.getElementById('cFrequency');
-        const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
-        
-        const roomIdx = parseInt(priceRange) || 3;
-        const servicePricing = PRICING_MATRIX_TR[roomIdx] || PRICING_MATRIX_TR[3];
-        const basePrice = servicePricing[service] || servicePricing['standart'] || 0;
-        const estPrice = basePrice + extraSum;
-
-        let freqText = 'Tek Seferlik Temizlik';
-        if (frequencyVal === 'haftalik') freqText = 'Haftalık Düzenli Temizlik';
-        else if (frequencyVal === 'aylik') freqText = 'Aylık Düzenli Temizlik';
-
-        message = `*Aclean Hizmet Teklifi Talebi*\n`;
-        message += `-------------------------\n`;
-        message += `*Ad Soyad:* ${name}\n`;
-        message += `*Telefon:* ${phone}\n`;
-        message += `*Şehir:* ${city}\n`;
-        message += `*Hizmet:* ${serviceText}\n`;
-        message += `*Temizlik Sıklığı:* ${freqText}\n`;
-        message += `*Rezervasyon Tarihi:* ${date}\n`;
-        if (service !== 'ilaclama') {
-          const layoutText = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
-          message += `*Oda Sayısı / Ev Tipi:* ${layoutText}\n`;
-        }
-        if (extraNames.length > 0) {
-          message += `*Ekstra Hizmetler:* ${extraNames.join(', ')}\n`;
-        }
-        if (service === 'ilaclama') {
-          message += `*Tahmini Tutar:* Özel Fiyat Teklifi (İletişime geçilecek)\n`;
-        } else {
-          message += `*Tahmini Tutar:* ${estPrice} TL\n`;
-        }
-        if (STATE.calculator.applied) {
-          message += `\n*Talep Detayları:*\n`;
-          const layoutText = ROOM_LAYOUTS_TR[parseInt(STATE.calculator.area)] || STATE.calculator.area;
-          message += `- *Oda / Tip:* ${layoutText}\n`;
-          const calcFreqText = STATE.calculator.frequency === '0.8' ? 'Haftalık Düzenli' : (STATE.calculator.frequency === '0.9' ? 'Aylık Düzenli' : 'Tek Seferlik');
-          message += `- *Sıklık:* ${calcFreqText}\n`;
-          if (STATE.calculator.extras && STATE.calculator.extras.length > 0) {
-            message += `- *Ekstralar:* ${STATE.calculator.extras.join(', ')}\n`;
-          }
-        }
-      }
-
-      const activeCode = (document.getElementById('cPromoCode')?.value || STATE.calculator.promoCode || '').trim().toUpperCase();
-      if (activeCode) {
-        message += isPl ? `*Kod partnerski/rabatowy:* ${activeCode}\n` : `*Emlakçı / İndirim Kodu:* ${activeCode}\n`;
-      }
-
-      const roomIdx = parseInt(priceRange) || 3;
-      const notesLayoutTextPl = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
-      const notesLayoutTextTr = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
-      const leadPayload = {
-        name: name,
-        phone: phone,
-        source: "WEBSITE",
-        sourceDetail: `Seçilen Şehir: ${city}, Tarih: ${date}`,
-        notes: isPl 
-          ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Pokoje: ${notesLayoutTextPl}` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`
-          : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Oda Sayısı/Ev Tipi: ${notesLayoutTextTr}` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`,
-        tags: activeCode ? [service, city, `aff:${activeCode}`] : [service, city],
-        affiliateCode: activeCode || null,
-        promoCode: activeCode || null
-      };
-
-      // Send Lead to Backoffice Panel API asynchronously via Cloudflare Function Relay & direct fallback
-      const primaryEndpoint = "/api/leads";
-      const fallbackEndpoint = "http://45.76.83.185/api/leads";
-
-      const sendLeadReq = (url) => {
-        return fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": "hc_live_7x9f2m4a1v8"
-          },
-          body: JSON.stringify(leadPayload)
-        });
-      };
-
-      sendLeadReq(primaryEndpoint).then(res => {
-        logDebug("Lead synced with backoffice database successfully:", res);
-      }).catch(err => {
-        logErrorDebug("Relay endpoint failed, trying direct HTTP fallback...", err);
-        sendLeadReq(fallbackEndpoint).catch(e => logErrorDebug("Backoffice lead synchronization failed:", e));
+    const sendLeadReq = (url) => {
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "hc_live_7x9f2m4a1v8"
+        },
+        body: JSON.stringify(leadPayload)
       });
+    };
 
-      // ─── ADS & ANALYTICS TRACKING EVENT TRIGGERS ─────────────────────────
-      try {
-        trackConversion('generate_lead', {
-          city: city,
-          service: serviceText,
-          lang: STATE.language,
-          user: { name: name, phone: phone }
-        });
+    sendLeadReq(primaryEndpoint).then(res => {
+      logDebug("Lead synced with backoffice database successfully:", res);
+    }).catch(err => {
+      logErrorDebug("Relay endpoint failed, trying direct HTTP fallback...", err);
+      sendLeadReq(fallbackEndpoint).catch(e => logErrorDebug("Backoffice lead synchronization failed:", e));
+    });
 
-        // Google Analytics & Google Ads Event Triggers
-        if (typeof gtag === 'function') {
-          gtag('event', 'conversion', {
-            'send_to': 'AW-XXXXXXXXXX/LABEL_VALUE',
-            'value': 1.0,
-            'currency': isPl ? 'PLN' : 'TRY'
-          });
-
-          gtag('event', 'generate_lead', {
-            'event_category': 'Engagement',
-            'event_label': 'Website Booking',
-            'value': 1.0,
-            'currency': isPl ? 'PLN' : 'TRY',
-            'city': city,
-            'service': serviceText
-          });
-        }
-
-        // Meta Pixel Lead Event Trigger (Facebook Pixel)
-        if (typeof fbq === 'function') {
-          fbq('track', 'Lead', {
-            value: 1.0,
-            currency: isPl ? 'PLN' : 'TRY',
-            content_name: serviceText,
-            content_category: 'Cleaning Booking',
-            content_ids: [city]
-          });
-        }
-      } catch (trackErr) {
-        console.warn("[TRACKING] Hata oluştu:", trackErr);
+    // Tracking Event Triggers
+    try {
+      trackConversion('generate_lead', { city: city, service: serviceText, lang: STATE.language, user: { name: name, phone: phone } });
+      if (typeof gtag === 'function') {
+        gtag('event', 'conversion', { 'send_to': 'AW-XXXXXXXXXX/LABEL_VALUE', 'value': 1.0, 'currency': isPl ? 'PLN' : 'TRY' });
+        gtag('event', 'generate_lead', { 'event_category': 'Engagement', 'event_label': 'Website Booking', 'value': 1.0, 'currency': isPl ? 'PLN' : 'TRY', 'city': city, 'service': serviceText });
       }
-      // ───────────────────────────────────────────────────────────────────────
+      if (typeof fbq === 'function') {
+        fbq('track', 'Lead', { value: 1.0, currency: isPl ? 'PLN' : 'TRY', content_name: serviceText, content_category: 'Cleaning Booking', content_ids: [city] });
+      }
+    } catch (trackErr) {
+      console.warn("[TRACKING] Hata oluştu:", trackErr);
+    }
 
+    // Instant GSAP Transition to Success State Screen
+    if (form) {
       gsap.to(form, {
         opacity: 0,
         duration: 0.3,
@@ -5436,10 +5265,10 @@ function setupBookingReveal() {
           
           if (successState) {
             successState.removeAttribute('hidden');
+            successState.style.display = 'block';
             gsap.fromTo(successState,
               { scale: 0.9, opacity: 0 },
               { scale: 1, opacity: 1, duration: 0.4, ease: 'power2.out', onComplete: () => {
-                // Celebrate booking request submission with double celebratory dust burst
                 const check = successState.querySelector('.success-check');
                 if (check && typeof window.triggerDust === 'function') {
                   const rect = check.getBoundingClientRect();
@@ -5453,7 +5282,14 @@ function setupBookingReveal() {
           }
         }
       });
-    });
+    }
+  };
+
+  if (btnSubmit) {
+    btnSubmit.addEventListener('click', doSubmit);
+  }
+  if (form) {
+    form.addEventListener('submit', doSubmit);
   }
 
   // Reset booking reveal screen and replay movie

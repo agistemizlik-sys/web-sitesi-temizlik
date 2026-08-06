@@ -1014,22 +1014,22 @@
           <h2 class="reveal-title">Efsanevi Temizlik Sona Erdi</h2>
           <p class="reveal-subtitle">Kusursuz hijyen, sanat eseri gibi parlaklık. Aclean ile evinizde efsanevi bir çağı başlatın.</p>
           
-          <form class="reveal-form" id="bookingForm">
+          <form class="reveal-form" id="bookingForm" onsubmit="return false;">
             <div class="form-row-double">
               <div class="form-field-cinema">
                 <label for="cName">AD SOYAD</label>
-                <input type="text" id="cName" required placeholder="Ahmet Yılmaz" />
+                <input type="text" id="cName" placeholder="Ahmet Yılmaz" />
               </div>
               <div class="form-field-cinema">
                 <label for="cPhone">TELEFON</label>
-                <input type="tel" id="cPhone" required placeholder="0555 555 55 55" />
+                <input type="tel" id="cPhone" placeholder="0555 555 55 55" />
               </div>
             </div>
             
             <div class="form-row-double">
               <div class="form-field-cinema">
                 <label for="cCity">HİZMET ALINACAK ŞEHİR</label>
-                <select id="cCity" required>
+                <select id="cCity">
                   <option value="Izmir">İzmir</option>
                   <option value="Sakarya">Sakarya</option>
                   <option value="Istanbul">İstanbul</option>
@@ -1055,7 +1055,7 @@
             <div class="form-row-double">
               <div class="form-field-cinema">
                 <label for="cDate" id="lblBookingLabelDate">REZERVASYON TARİHİ</label>
-                <input type="date" id="cDate" required />
+                <input type="date" id="cDate" />
               </div>
               <div class="form-field-cinema">
                 <label for="cFrequency" id="lblBookingLabelFrequency">TEMİZLİK SIKLIĞI</label>
@@ -1114,7 +1114,7 @@
               Seçilen Paket: <span id="summaryText">...</span>
             </div>
 
-            <button type="submit" class="cinema-submit-btn">REZERVASYON TALEBİ GÖNDER</button>
+            <button type="button" id="btnSubmitBooking" class="cinema-submit-btn">REZERVASYON TALEBİ GÖNDER</button>
           </form>
 
           <!-- Başarı Ekranı -->
