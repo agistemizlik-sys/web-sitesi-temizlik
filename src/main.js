@@ -785,6 +785,13 @@ function applyBookingTranslations(dict, lang) {
 
     const submitBtn = bookingForm.querySelector('.cinema-submit-btn');
     if (submitBtn) submitBtn.textContent = dict.bookingSubmit;
+
+    const successTitle = document.getElementById('lblBookingSuccessTitle');
+    if (successTitle && dict.bookingSuccessTitle) successTitle.textContent = dict.bookingSuccessTitle;
+    const successText = document.getElementById('lblBookingSuccessText');
+    if (successText && dict.bookingSuccessText) successText.textContent = dict.bookingSuccessText;
+    const successOk = document.getElementById('successOkBtn');
+    if (successOk && dict.bookingSuccessOk) successOk.textContent = dict.bookingSuccessOk;
   }
 
   const cCitySelect = document.getElementById('cCity');
@@ -5356,10 +5363,8 @@ function setupBookingReveal() {
         promoCode: activeCode || null
       };
 
-      // Send Lead to Backoffice Panel API asynchronously with HTTP/HTTPS fallback
-      const primaryEndpoint = window.location.protocol === 'https:' 
-        ? "https://45.76.83.185/api/leads" 
-        : "http://45.76.83.185/api/leads";
+      // Send Lead to Backoffice Panel API asynchronously via Cloudflare Function Relay & direct fallback
+      const primaryEndpoint = "/api/leads";
       const fallbackEndpoint = "http://45.76.83.185/api/leads";
 
       const sendLeadReq = (url) => {
@@ -5376,7 +5381,7 @@ function setupBookingReveal() {
       sendLeadReq(primaryEndpoint).then(res => {
         logDebug("Lead synced with backoffice database successfully:", res);
       }).catch(err => {
-        logErrorDebug("Primary endpoint failed, trying HTTP fallback...", err);
+        logErrorDebug("Relay endpoint failed, trying direct HTTP fallback...", err);
         sendLeadReq(fallbackEndpoint).catch(e => logErrorDebug("Backoffice lead synchronization failed:", e));
       });
 
@@ -5391,18 +5396,15 @@ function setupBookingReveal() {
 
         // Google Analytics & Google Ads Event Triggers
         if (typeof gtag === 'function') {
-          // Google Ads Conversion Event
-          // ⚠️ NOT: 'AW-XXXXXXXXXX/LABEL_VALUE' kısmını gerçek conversion label'ınızla değiştirin
           gtag('event', 'conversion', {
             'send_to': 'AW-XXXXXXXXXX/LABEL_VALUE',
             'value': 1.0,
             'currency': isPl ? 'PLN' : 'TRY'
           });
 
-          // Google Analytics Lead Event
           gtag('event', 'generate_lead', {
             'event_category': 'Engagement',
-            'event_label': 'WhatsApp Booking',
+            'event_label': 'Website Booking',
             'value': 1.0,
             'currency': isPl ? 'PLN' : 'TRY',
             'city': city,
@@ -5424,13 +5426,6 @@ function setupBookingReveal() {
         console.warn("[TRACKING] Hata oluştu:", trackErr);
       }
       // ───────────────────────────────────────────────────────────────────────
-
-      // Open WhatsApp link in new window after a brief delay
-      const cleanWaPhone = (dict.contactPhoneValue || '905320000000').replace(/[^0-9]/g, '');
-      const whatsappUrl = `https://wa.me/${cleanWaPhone}?text=${encodeURIComponent(message)}`;
-      setTimeout(() => {
-        window.open(whatsappUrl, '_blank');
-      }, 350);
 
       gsap.to(form, {
         opacity: 0,
