@@ -17,7 +17,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    const panelEndpoint = "http://45.76.83.185/api/leads";
+    const panelEndpoint = "http://64.177.116.243/api/leads";
     
     const response = await fetch(panelEndpoint, {
       method: "POST",

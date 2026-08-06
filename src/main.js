@@ -5220,7 +5220,7 @@ function setupBookingReveal() {
 
     // Send Lead to Backoffice Panel API asynchronously via Cloudflare Function Relay & direct fallback
     const primaryEndpoint = "/api/leads";
-    const fallbackEndpoint = "http://45.76.83.185/api/leads";
+    const fallbackEndpoint = "http://64.177.116.243/api/leads";
 
     const sendLeadReq = (url) => {
       return fetch(url, {
