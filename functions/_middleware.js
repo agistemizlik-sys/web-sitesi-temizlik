@@ -258,6 +258,11 @@ export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
 
+  // API yolları için middleware'i tamamen atla
+  if (url.pathname.startsWith('/api/')) {
+    return next();
+  }
+
   // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)
   if (url.hostname === 'www.acleanserwis.com') {
     url.hostname = 'acleanserwis.com';
