@@ -5218,9 +5218,9 @@ function setupBookingReveal() {
       promoCode: activeCode || null
     };
 
-    // Send Lead to Backoffice Panel API asynchronously via Cloudflare Function Relay & direct fallback
-    const primaryEndpoint = "/api/leads";
-    const fallbackEndpoint = "http://64.177.116.243/api/leads";
+    // Send Lead directly to VDS Panel API (http://64.177.116.243/api/leads)
+    const directVdsEndpoint = "http://64.177.116.243/api/leads";
+    const relayEndpoint = "/api/leads";
 
     const sendLeadReq = (url) => {
       return fetch(url, {
@@ -5233,11 +5233,17 @@ function setupBookingReveal() {
       });
     };
 
-    sendLeadReq(primaryEndpoint).then(res => {
-      logDebug("Lead synced with backoffice database successfully:", res);
+    // Send directly to VDS panel API endpoint
+    sendLeadReq(directVdsEndpoint).then(res => {
+      if (res.ok) {
+        logDebug("Lead synced directly to VDS panel successfully:", res);
+      } else {
+        logErrorDebug("Direct VDS response not OK (status " + res.status + "), trying relay...", res);
+        sendLeadReq(relayEndpoint).catch(() => {});
+      }
     }).catch(err => {
-      logErrorDebug("Relay endpoint failed, trying direct HTTP fallback...", err);
-      sendLeadReq(fallbackEndpoint).catch(e => logErrorDebug("Backoffice lead synchronization failed:", e));
+      logErrorDebug("Direct VDS fetch failed, trying relay fallback...", err);
+      sendLeadReq(relayEndpoint).catch(e => logErrorDebug("Relay fallback also failed:", e));
     });
 
     // Tracking Event Triggers
