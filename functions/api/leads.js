@@ -1,11 +1,11 @@
 /**
  * Cloudflare Pages Function Relay for Lead API
  * /api/leads
- * Relays lead payload to panel backend server (http://64.177.116.243/api/leads)
+ * Relays lead payload to panel backend server (https://panel.acleanserwis.com/api/leads)
  * preventing Mixed Content / CORS issues on HTTPS.
  */
 
-const PANEL_ENDPOINT = "http://64.177.116.243/api/leads";
+const PANEL_ENDPOINT = "https://panel.acleanserwis.com/api/leads";
 
 export async function onRequestPost(context) {
   const { request } = context;

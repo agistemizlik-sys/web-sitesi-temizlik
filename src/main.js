@@ -2080,6 +2080,41 @@ function startTelemetryFluctuation(card) {
 }
 
 
+function showComingSoonNotice(cityKey, displayName, transCity) {
+  const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+  let toast = document.getElementById('comingSoonNoticeToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'comingSoonNoticeToast';
+    toast.className = 'coming-soon-toast';
+    document.body.appendChild(toast);
+  }
+
+  const badgeText = dict.comingSoonBadge || 'YAKINDA GELECEK';
+  const noticeText = dict.comingSoonNotice || 'Bu şehrimizde hizmetlerimiz çok yakında aktif olacaktır!';
+
+  toast.innerHTML = `
+    <div class="cs-toast-content">
+      <div class="cs-toast-icon">✨</div>
+      <div class="cs-toast-body">
+        <div class="cs-toast-header">
+          <span class="cs-city-name">${displayName}</span>
+          <span class="cs-badge">${badgeText}</span>
+        </div>
+        <p class="cs-toast-text">${noticeText}</p>
+      </div>
+      <button class="cs-toast-close" onclick="document.getElementById('comingSoonNoticeToast').classList.remove('active')">&times;</button>
+    </div>
+  `;
+
+  setTimeout(() => toast.classList.add('active'), 10);
+
+  if (window.csToastTimer) clearTimeout(window.csToastTimer);
+  window.csToastTimer = setTimeout(() => {
+    if (toast) toast.classList.remove('active');
+  }, 6000);
+}
+
 function addLeafletMarkers(mapObj, locations) {
   const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
   locations.forEach(loc => {
@@ -2088,13 +2123,24 @@ function addLeafletMarkers(mapObj, locations) {
     if (!transCity) return;
 
     const displayName = loc.districtName ? loc.districtName : transCity.name;
+    const isComingSoon = loc.status === 'coming_soon' || transCity.status === 'coming_soon';
 
     // Clean map pin: colored dot + soft pulse + city label
     const markerHtml = `
-      <div class="map-hotspot" data-city="${cityKey}" data-market="${loc.market}" ${loc.districtName ? `data-iladi="${loc.districtName}"` : ''} data-coords="${loc.coords[0].toFixed(2)}° N, ${loc.coords[1].toFixed(2)}° E" role="button" tabindex="0">
+      <div class="map-hotspot ${isComingSoon ? 'is-coming-soon' : ''}" 
+           data-city="${cityKey}" 
+           data-market="${loc.market}" 
+           data-status="${isComingSoon ? 'coming_soon' : 'active'}"
+           ${loc.districtName ? `data-iladi="${loc.districtName}"` : ''} 
+           data-coords="${loc.coords[0].toFixed(2)}° N, ${loc.coords[1].toFixed(2)}° E" 
+           role="button" 
+           tabindex="0">
         <div class="hotspot-pulse"></div>
         <div class="hotspot-core"></div>
-        <span class="hotspot-label">${displayName}</span>
+        <span class="hotspot-label">
+          ${displayName}
+          ${isComingSoon ? `<span class="cs-tag">${dict.comingSoonTag || 'YAKINDA'}</span>` : ''}
+        </span>
       </div>
     `;
 
@@ -2116,6 +2162,10 @@ function addLeafletMarkers(mapObj, locations) {
       const onLeave = (e) => revertToDefaultFn && revertToDefaultFn(e);
       const clickHandler = (e) => {
         e.stopPropagation();
+        if (isComingSoon) {
+          showComingSoonNotice(cityKey, displayName, transCity);
+          return;
+        }
         const cx = e.clientX || window.innerWidth / 2;
         const cy = e.clientY || window.innerHeight / 2;
         if (triggerSelectionFn) triggerSelectionFn(cityKey, cx, cy, el);
@@ -2207,13 +2257,28 @@ async function initLeafletMap(country) {
     }).addTo(turkeyMapInstance);
 
     const turkeyCities = [
-      { key: 'Istanbul', coords: [41.0082, 28.9784], market: 'marmara' },
-      { key: 'Kocaeli', coords: [40.7654, 29.9408], market: 'marmara' },
-      { key: 'Sakarya', coords: [40.7560, 30.3784], market: 'marmara' },
-      { key: 'Izmir', coords: [38.4237, 27.1428], market: 'ege' },
-      { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege' },
-      { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz' },
-      { key: 'Antalya', coords: [36.8969, 30.7133], market: 'akdeniz' }
+      { key: 'Istanbul', coords: [41.0082, 28.9784], market: 'marmara', status: 'active' },
+      { key: 'Kocaeli', coords: [40.7654, 29.9408], market: 'marmara', status: 'active' },
+      { key: 'Sakarya', coords: [40.7560, 30.3784], market: 'marmara', status: 'active' },
+      { key: 'Izmir', coords: [38.4237, 27.1428], market: 'ege', status: 'active' },
+      { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege', status: 'active' },
+      { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz', status: 'active' },
+      { key: 'Antalya', coords: [36.8969, 30.7133], market: 'akdeniz', status: 'active' },
+
+      // Inactive Cities (Yakında Gelecek)
+      { key: 'Ankara', coords: [39.9334, 32.8597], market: 'icanadolu', status: 'coming_soon' },
+      { key: 'Bursa', coords: [40.1885, 29.0610], market: 'marmara', status: 'coming_soon' },
+      { key: 'Adana', coords: [37.0000, 35.3213], market: 'akdeniz', status: 'coming_soon' },
+      { key: 'Gaziantep', coords: [37.0662, 37.3833], market: 'guneydogu', status: 'coming_soon' },
+      { key: 'Konya', coords: [37.8746, 32.4932], market: 'icanadolu', status: 'coming_soon' },
+      { key: 'Eskisehir', coords: [39.7667, 30.5256], market: 'icanadolu', status: 'coming_soon' },
+      { key: 'Trabzon', coords: [41.0027, 39.7168], market: 'karadeniz', status: 'coming_soon' },
+      { key: 'Bodrum', coords: [37.0344, 27.4305], market: 'ege', status: 'coming_soon' },
+      { key: 'Kayseri', coords: [38.7312, 35.4787], market: 'icanadolu', status: 'coming_soon' },
+      { key: 'Mersin', coords: [36.8121, 34.6415], market: 'akdeniz', status: 'coming_soon' },
+      { key: 'Diyarbakir', coords: [37.9144, 40.2306], market: 'guneydogu', status: 'coming_soon' },
+      { key: 'Erzurum', coords: [39.9043, 41.2679], market: 'dogu', status: 'coming_soon' },
+      { key: 'Denizli', coords: [37.7765, 29.0864], market: 'ege', status: 'coming_soon' }
     ];
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
@@ -5220,7 +5285,7 @@ function setupBookingReveal() {
 
     // Send Lead to Backoffice Panel API via Cloudflare Function Relay (HTTPS)
     const primaryEndpoint = "/api/leads";
-    const directVdsEndpoint = "http://64.177.116.243/api/leads";
+    const directVdsEndpoint = "https://panel.acleanserwis.com/api/leads";
 
     const sendLeadReq = (url) => {
       return fetch(url, {
