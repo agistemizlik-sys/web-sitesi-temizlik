@@ -2831,8 +2831,13 @@ function setupPortalGateway() {
       if (hudRegionVal) hudRegionVal.textContent = displayRegion;
       if (hudCoordsVal) hudCoordsVal.textContent = displayCoords;
       if (hudSignalVal) {
-        hudSignalVal.textContent = dict.hudSignalActive || (STATE.language === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF');
-        hudSignalVal.className = 'hud-val status-active';
+        if (element && element.dataset.status === 'coming_soon') {
+          hudSignalVal.textContent = dict.comingSoonBadge || 'YAKINDA GELECEK';
+          hudSignalVal.className = 'hud-val status-blink status-coming-soon';
+        } else {
+          hudSignalVal.textContent = dict.hudSignalActive || (STATE.language === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF');
+          hudSignalVal.className = 'hud-val status-active';
+        }
       }
     }
   };
@@ -3268,6 +3273,13 @@ function setupPortalGateway() {
         cy = rect.top + rect.height / 2;
       }
       
+      if (btn.dataset.status === 'coming_soon' || btn.classList.contains('is-coming-soon')) {
+        const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+        const transCity = dict.cities[city];
+        showComingSoonNotice(city, transCity ? transCity.name : city, transCity);
+        return;
+      }
+
       triggerSelection(targetCity, cx, cy);
     };
 
