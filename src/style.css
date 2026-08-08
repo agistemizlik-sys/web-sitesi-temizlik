@@ -2709,11 +2709,17 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   pointer-events: none;
 }
 
+.leaflet-custom-hotspot-icon {
+  background: none !important;
+  border: none !important;
+}
+
 .map-hotspot {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 36px;
   height: 36px;
-  transform: translate(-50%, -50%);
   cursor: pointer;
   pointer-events: auto;
   z-index: 10;

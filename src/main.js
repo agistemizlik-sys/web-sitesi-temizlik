@@ -2147,8 +2147,8 @@ function addLeafletMarkers(mapObj, locations) {
     const customIcon = L.divIcon({
       html: markerHtml,
       className: 'leaflet-custom-hotspot-icon',
-      iconSize: [0, 0],
-      iconAnchor: [0, 0]
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
 
     const marker = L.marker(loc.coords, { icon: customIcon }).addTo(mapObj);
