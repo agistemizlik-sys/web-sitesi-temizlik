@@ -5218,9 +5218,9 @@ function setupBookingReveal() {
       promoCode: activeCode || null
     };
 
-    // Send Lead directly to VDS Panel API (http://64.177.116.243/api/leads)
+    // Send Lead to Backoffice Panel API via Cloudflare Function Relay (HTTPS)
+    const primaryEndpoint = "/api/leads";
     const directVdsEndpoint = "http://64.177.116.243/api/leads";
-    const relayEndpoint = "/api/leads";
 
     const sendLeadReq = (url) => {
       return fetch(url, {
@@ -5233,17 +5233,16 @@ function setupBookingReveal() {
       });
     };
 
-    // Send directly to VDS panel API endpoint
-    sendLeadReq(directVdsEndpoint).then(res => {
+    sendLeadReq(primaryEndpoint).then(res => {
       if (res.ok) {
-        logDebug("Lead synced directly to VDS panel successfully:", res);
+        logDebug("Lead synced to VDS panel via Cloudflare relay successfully:", res);
       } else {
-        logErrorDebug("Direct VDS response not OK (status " + res.status + "), trying relay...", res);
-        sendLeadReq(relayEndpoint).catch(() => {});
+        logErrorDebug("Relay response not OK (status " + res.status + "), attempting direct VDS connection...", res);
+        sendLeadReq(directVdsEndpoint).catch(e => logErrorDebug("Direct VDS fallback failed:", e));
       }
     }).catch(err => {
-      logErrorDebug("Direct VDS fetch failed, trying relay fallback...", err);
-      sendLeadReq(relayEndpoint).catch(e => logErrorDebug("Relay fallback also failed:", e));
+      logErrorDebug("Cloudflare relay network error, trying direct VDS fallback...", err);
+      sendLeadReq(directVdsEndpoint).catch(e => logErrorDebug("Direct VDS fallback failed:", e));
     });
 
     // Tracking Event Triggers
