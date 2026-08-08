@@ -3019,13 +3019,17 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   box-shadow: 0 1px 4px rgba(27, 29, 34, 0.12) !important;
 }
 
-/* Hide labels on low zoom except on hover to avoid overlap */
-.map-zoom-low .hotspot-label {
+/* Hide coming-soon labels on low zoom except on hover to avoid map clutter; keep active city labels visible */
+.map-zoom-low .map-hotspot.is-coming-soon .hotspot-label {
   opacity: 0 !important;
   pointer-events: none !important;
   transition: opacity 0.18s ease, transform 0.18s ease !important;
 }
-.map-zoom-low .map-hotspot:hover .hotspot-label {
+.map-zoom-low .map-hotspot.is-coming-soon:hover .hotspot-label {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+.map-zoom-low .map-hotspot:not(.is-coming-soon) .hotspot-label {
   opacity: 1 !important;
   pointer-events: auto !important;
 }
