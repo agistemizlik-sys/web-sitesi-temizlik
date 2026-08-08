@@ -2342,17 +2342,22 @@ async function initLeafletMap(country) {
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
 
-    // Fit all city pins (plus label breathing room) into view on any viewport
+    // Fit Turkey's exact geographical bounding box into view with ideal zoom scaling
     const isMobile = window.innerWidth <= 768;
     const isTinyMobile = window.innerWidth <= 480;
-    const turkeyPaddingTL = isTinyMobile ? [10, 15] : (isMobile ? [25, 45] : [70, 80]);
-    const turkeyPaddingBR = isTinyMobile ? [10, 15] : (isMobile ? [25, 30] : [70, 60]);
-    const turkeyMaxZoom = isTinyMobile ? 5.75 : (isMobile ? 6.25 : 7);
 
-    turkeyMapInstance.fitBounds(L.latLngBounds(turkeyCities.map(c => c.coords)), {
+    // Exact geographic bounding box of Turkey (SW: [35.5, 25.4], NE: [42.4, 44.9])
+    const turkeyGeoBounds = L.latLngBounds([35.5, 25.4], [42.4, 44.9]);
+
+    const turkeyPaddingTL = isTinyMobile ? [10, 10] : (isMobile ? [20, 20] : [35, 40]);
+    const turkeyPaddingBR = isTinyMobile ? [10, 10] : (isMobile ? [20, 20] : [35, 40]);
+    const turkeyMaxZoom = isTinyMobile ? 5.2 : (isMobile ? 5.6 : 6.3);
+
+    turkeyMapInstance.fitBounds(turkeyGeoBounds, {
       paddingTopLeft: turkeyPaddingTL,
       paddingBottomRight: turkeyPaddingBR,
-      maxZoom: turkeyMaxZoom
+      maxZoom: turkeyMaxZoom,
+      animate: false
     });
 
     setTimeout(() => {

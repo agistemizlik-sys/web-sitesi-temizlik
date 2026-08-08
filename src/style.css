@@ -2761,36 +2761,44 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 
 /* ── IS-COMING-SOON HOTSPOT STYLING ── */
 .map-hotspot.is-coming-soon {
-  opacity: 0.82;
+  opacity: 0.75;
+  z-index: 5;
 }
 .map-hotspot.is-coming-soon .hotspot-core {
-  background: linear-gradient(135deg, #64748b, #94a3b8);
-  border-color: #ffffff;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+  width: 8px !important;
+  height: 8px !important;
+  left: 14px !important;
+  top: 14px !important;
+  background: #94a3b8 !important;
+  border: 1.5px solid #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease !important;
 }
 .map-hotspot.is-coming-soon .hotspot-pulse {
-  border-color: rgba(148, 163, 184, 0.35);
-  animation-duration: 4.5s;
+  display: none !important; /* Hide pulse rings to keep map 100% clean and zero clutter */
 }
 
-/* Inactive city labels are HIDDEN by default; only dots appear on the map */
+/* Inactive city labels are HIDDEN by default; only clean 8px dots appear on the map */
 .map-hotspot.is-coming-soon .hotspot-label {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
-  transform: translate3d(-50%, 4px, 0) scale(0.92) !important;
-  transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease !important;
-  z-index: 100 !important;
+  top: -38px !important;
+  left: 50% !important;
+  transform: translate3d(-50%, 6px, 0) scale(0.9) !important;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease !important;
+  z-index: 99999 !important;
 }
 
 /* On mouse hover, reveal the city name + YAKINDA tag with a smooth animation */
 .map-hotspot.is-coming-soon:hover {
   opacity: 1;
-  z-index: 999 !important;
+  z-index: 99999 !important;
 }
 .map-hotspot.is-coming-soon:hover .hotspot-core {
-  background: linear-gradient(135deg, #d97706, #f59e0b);
-  transform: scale(1.4);
+  background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+  transform: scale(1.6) !important;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.5) !important;
 }
 .map-hotspot.is-coming-soon:hover .hotspot-label {
   opacity: 1 !important;
