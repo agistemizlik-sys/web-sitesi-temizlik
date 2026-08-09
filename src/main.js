@@ -2092,6 +2092,7 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
 
   const badgeText = dict.comingSoonBadge || 'YAKINDA GELECEK';
   const noticeText = dict.comingSoonNotice || 'Bu şehrimizde hizmetlerimiz çok yakında aktif olacaktır!';
+  const waMsg = encodeURIComponent(`Merhaba, ${displayName} şehri için temizlik hizmeti hakkında bilgi ve ön kayıt talebinde bulunmak istiyorum.`);
 
   toast.innerHTML = `
     <div class="cs-toast-content">
@@ -2102,6 +2103,11 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
           <span class="cs-badge">${badgeText}</span>
         </div>
         <p class="cs-toast-text">${noticeText}</p>
+        <div class="cs-toast-actions">
+          <a href="https://wa.me/905466479004?text=${waMsg}" target="_blank" rel="noopener" class="cs-toast-wa-btn">
+            💬 ${displayName} İçin Ön Kayıt & WhatsApp İletişim
+          </a>
+        </div>
       </div>
       <button class="cs-toast-close" onclick="document.getElementById('comingSoonNoticeToast').classList.remove('active')">&times;</button>
     </div>
@@ -2112,7 +2118,7 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
   if (window.csToastTimer) clearTimeout(window.csToastTimer);
   window.csToastTimer = setTimeout(() => {
     if (toast) toast.classList.remove('active');
-  }, 6000);
+  }, 8000);
 }
 
 function addLeafletMarkers(mapObj, locations) {
@@ -2252,8 +2258,10 @@ async function initLeafletMap(country) {
     }).setView([39.0, 35.0], 6);
     window.turkeyMapInstance = turkeyMapInstance;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
     }).addTo(turkeyMapInstance);
 
         const turkeyCities = [
