@@ -2666,10 +2666,6 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
 .leaflet-custom-hotspot-icon {
   background: transparent !important;
   border: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  position: absolute !important;
 }
 
 /* Ensure Leaflet zoom controls and attribution are clean and styled */
