@@ -2092,7 +2092,6 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
 
   const badgeText = dict.comingSoonBadge || 'YAKINDA GELECEK';
   const noticeText = dict.comingSoonNotice || 'Bu şehrimizde hizmetlerimiz çok yakında aktif olacaktır!';
-  const waMsg = encodeURIComponent(`Merhaba, ${displayName} şehri için temizlik hizmeti hakkında bilgi ve ön kayıt talebinde bulunmak istiyorum.`);
 
   toast.innerHTML = `
     <div class="cs-toast-content">
@@ -2103,11 +2102,6 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
           <span class="cs-badge">${badgeText}</span>
         </div>
         <p class="cs-toast-text">${noticeText}</p>
-        <div class="cs-toast-actions">
-          <a href="https://wa.me/905466479004?text=${waMsg}" target="_blank" rel="noopener" class="cs-toast-wa-btn">
-            💬 ${displayName} İçin Ön Kayıt & WhatsApp İletişim
-          </a>
-        </div>
       </div>
       <button class="cs-toast-close" onclick="document.getElementById('comingSoonNoticeToast').classList.remove('active')">&times;</button>
     </div>
@@ -2118,7 +2112,7 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
   if (window.csToastTimer) clearTimeout(window.csToastTimer);
   window.csToastTimer = setTimeout(() => {
     if (toast) toast.classList.remove('active');
-  }, 8000);
+  }, 6000);
 }
 
 function addLeafletMarkers(mapObj, locations) {
@@ -2252,16 +2246,15 @@ async function initLeafletMap(country) {
       zoomControl: true,
       scrollWheelZoom: false,
       attributionControl: true,
-      minZoom: 5,
-      maxZoom: 9,
-      zoomSnap: 0.25
+      minZoom: 4.5,
+      maxZoom: 9.5,
+      zoomSnap: 0.1,
+      zoomDelta: 0.5
     }).setView([39.0, 35.0], 6);
     window.turkeyMapInstance = turkeyMapInstance;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 19
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(turkeyMapInstance);
 
         const turkeyCities = [
@@ -2350,21 +2343,16 @@ async function initLeafletMap(country) {
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
 
-    // Fit Turkey's exact geographical bounding box into view with ideal zoom scaling
+    // Perfect Turkey Bounding Box Fit: SW [35.8, 25.5], NE [42.3, 44.8]
+    const turkeyGeoBounds = L.latLngBounds([35.7, 25.5], [42.4, 44.8]);
+
     const isMobile = window.innerWidth <= 768;
     const isTinyMobile = window.innerWidth <= 480;
 
-    // Exact geographic bounding box of Turkey (SW: [35.5, 25.4], NE: [42.4, 44.9])
-    const turkeyGeoBounds = L.latLngBounds([35.5, 25.4], [42.4, 44.9]);
-
-    const turkeyPaddingTL = isTinyMobile ? [10, 10] : (isMobile ? [20, 20] : [35, 40]);
-    const turkeyPaddingBR = isTinyMobile ? [10, 10] : (isMobile ? [20, 20] : [35, 40]);
-    const turkeyMaxZoom = isTinyMobile ? 5.2 : (isMobile ? 5.6 : 6.3);
+    const turkeyPadding = isTinyMobile ? [12, 12] : (isMobile ? [24, 24] : [40, 50]);
 
     turkeyMapInstance.fitBounds(turkeyGeoBounds, {
-      paddingTopLeft: turkeyPaddingTL,
-      paddingBottomRight: turkeyPaddingBR,
-      maxZoom: turkeyMaxZoom,
+      padding: turkeyPadding,
       animate: false
     });
 
