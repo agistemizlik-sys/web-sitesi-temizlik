@@ -2357,9 +2357,9 @@ async function initLeafletMap(country) {
     });
 
     setTimeout(() => {
-      gsap.fromTo('#portalNeonMap .map-hotspot',
-        { opacity: 0, scale: 0 },
-        { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: 'back.out(1.7)', overwrite: 'auto' }
+      gsap.fromTo('#portalNeonMap .hotspot-core',
+        { scale: 0 },
+        { scale: 1, duration: 0.6, stagger: 0.02, ease: 'back.out(1.7)', overwrite: 'auto' }
       );
     }, 150);
 

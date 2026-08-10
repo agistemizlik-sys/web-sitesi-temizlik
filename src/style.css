@@ -2774,8 +2774,9 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   display: none !important; /* Hide pulse rings to keep map 100% clean and zero clutter */
 }
 
-/* Inactive city labels are HIDDEN by default; only clean 8px dots appear on the map */
+/* Inactive city labels are COMPLETELY HIDDEN (display: none) by default; only clean 8px dots appear on the map */
 .map-hotspot.is-coming-soon .hotspot-label {
+  display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
@@ -2797,6 +2798,9 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   box-shadow: 0 2px 8px rgba(217, 119, 6, 0.5) !important;
 }
 .map-hotspot.is-coming-soon:hover .hotspot-label {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
