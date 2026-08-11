@@ -1,10 +1,10 @@
 // 2.B. GENERAL TRANSLATIONS DICTIONARY
 export const TRANSLATIONS = {
   tr: {
-    title: "Aclean | Sinematik İnteraktif Temizlik Deneyimi",
-    h1Title: "Aclean - Sinematik ve İnteraktif Premium Temizlik Hizmetleri",
+    title: "RELAXAX | Sinematik İnteraktif Temizlik Deneyimi",
+    h1Title: "RELAXAX - Sinematik ve İnteraktif Premium Temizlik Hizmetleri",
     description: "İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir'de premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.",
-    sysStatus: "© 2026 Aclean",
+    sysStatus: "© 2026 RELAXAX",
     audioOn: "Ses açık",
     audioOff: "Ses kapalı",
     selectCity: "Şehrinizi Seçin",
@@ -23,7 +23,7 @@ export const TRANSLATIONS = {
     navContact: "İLETİŞİM",
     navChangeCity: "ŞEHİR DEĞİŞTİR",
     bookingTitle: "Efsanevi Temizlik Sona Erdi",
-    bookingSubtitle: "Kusursuz hijyen, sanat eseri gibi parlaklık. Aclean ile evinizde efsanevi bir çağı başlatın.",
+    bookingSubtitle: "Kusursuz hijyen, sanat eseri gibi parlaklık. RELAXAX ile evinizde efsanevi bir çağı başlatın.",
     bookingLabelName: "AD SOYAD",
     bookingLabelPhone: "TELEFON",
     bookingLabelCity: "HİZMET ALINACAK ŞEHİR",
@@ -53,7 +53,7 @@ export const TRANSLATIONS = {
     footerPhone: "Müşteri Hizmetleri",
     footerEmail: "E-posta",
     footerWorkingHours: "Çalışma Saatleri: Her Gün 09:00 - 19:00",
-    footerCopyright: "© 2026 Aclean. Tüm hakları saklıdır.",
+    footerCopyright: "© 2026 RELAXAX. Tüm hakları saklıdır.",
     summaryTitle: "SEÇİLEN DETAYLAR",
     summaryService: "Hizmet Türü:",
     summaryArea: "Hizmet Alanı:",
@@ -207,13 +207,13 @@ export const TRANSLATIONS = {
     csoPolandComingSoonToast: "Polonya hizmetleri yakında başlıyor!",
     contactPhone: "+90 (532) 000 00 00",
     contactPhoneValue: "+905320000000",
-    contactEmail: "info@aclean.com"
+    contactEmail: "info@relaxax.com"
   },
   pl: {
-    title: "Aclean | Kinowe Interaktywne Wrażenia Sprzątania",
-    h1Title: "Aclean - Kinowe i Interaktywne Usługi Sprzątania Premium",
+    title: "RELAXAX | Kinowe Interaktywne Wrażenia Sprzątania",
+    h1Title: "RELAXAX - Kinowe i Interaktywne Usługi Sprzątania Premium",
     description: "Kompleksowe usługi sprzątania premium w Warszawie i aglomeracji warszawskiej — Mokotów, Wola, Ursynów, Piaseczno, Pruszków. Poznaj legendarne kinowe sceny.",
-    sysStatus: "© 2026 Aclean",
+    sysStatus: "© 2026 RELAXAX",
     audioOn: "Dźwięk włączony",
     audioOff: "Dźwięk wyłączony",
     selectCity: "Wybierz Swoją Dzielnicę",
@@ -232,7 +232,7 @@ export const TRANSLATIONS = {
     navContact: "KONTAKT",
     navChangeCity: "ZMIEŃ MIASTO",
     bookingTitle: "Legendarne Sprzątanie Zakończone",
-    bookingSubtitle: "Nienaganna higiena, blask niczym dzieło sztuki. Rozpocznij legendarną erę w swoim domu z Aclean.",
+    bookingSubtitle: "Nienaganna higiena, blask niczym dzieło sztuki. Rozpocznij legendarną erę w swoim domu z RELAXAX.",
     bookingLabelName: "IMIĘ I NAZWISKO",
     bookingLabelPhone: "TELEFON",
     bookingLabelCity: "MIASTO USŁUGI",
@@ -262,7 +262,7 @@ export const TRANSLATIONS = {
     footerPhone: "Obsługa Klienta",
     footerEmail: "E-mail",
     footerWorkingHours: "Godziny pracy: Codziennie 09:00 - 19:00",
-    footerCopyright: "© 2026 Aclean. Wszelkie prawa zastrzeżone.",
+    footerCopyright: "© 2026 RELAXAX. Wszelkie prawa zastrzeżone.",
     summaryTitle: "WYBRANE SZCZEGÓŁY",
     summaryService: "Rodzaj Usługi:",
     summaryArea: "Powierzchnia:",
@@ -417,7 +417,7 @@ export const TRANSLATIONS = {
     csoPolandComingSoonToast: "Usługi w Polsce ruszają już wkrótce!",
     contactPhone: "+48 (22) 123 45 67",
     contactPhoneValue: "+48221234567",
-    contactEmail: "warszawa@acleanserwis.pl"
+    contactEmail: "warszawa@relaxaxserwis.pl"
   }
 };
 

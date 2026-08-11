@@ -7,8 +7,8 @@
 // AdBlocker'lar üçüncü parti pikselleri engeller; first-party uç engellenmez —
 // sunucu tarafı Meta CAPI / GA4 MP iletimini functions/api/conversion.js yapar.
 
-const ATTR_KEY = 'aclean_attribution';
-const CID_KEY = 'aclean_cid';
+const ATTR_KEY = 'relaxax_attribution';
+const CID_KEY = 'relaxax_cid';
 const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 const CLICK_KEYS = ['gclid', 'fbclid'];
 

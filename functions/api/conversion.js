@@ -1,5 +1,5 @@
 /**
- * Aclean — Server-Side Conversion Relay (Cloudflare Pages Function)
+ * RELAXAX — Server-Side Conversion Relay (Cloudflare Pages Function)
  * POST /api/conversion
  *
  * Tarayıcıdaki AdBlocker / ITP / Brave kalkanları Meta Pixel ve gtag.js'i
@@ -180,7 +180,7 @@ export function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': 'https://acleanserwis.com',
+      'Access-Control-Allow-Origin': 'https://relaxaxserwis.com',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',

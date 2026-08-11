@@ -289,10 +289,10 @@ function applyPageMetaTranslations(dict, lang) {
       "@graph": [
         {
           "@type": "ProfessionalService",
-          "@id": "https://acleanserwis.com/#service",
-          "name": "Aclean",
-          "image": "https://acleanserwis.com/images/og-image.png",
-          "url": "https://acleanserwis.com",
+          "@id": "https://relaxaxserwis.com/#service",
+          "name": "RELAXAX",
+          "image": "https://relaxaxserwis.com/images/og-image.png",
+          "url": "https://relaxaxserwis.com",
           "telephone": isPl ? "+48221234567" : "+905320000000",
           "priceRange": "$$",
           "address": {
@@ -340,10 +340,10 @@ function applyPageMetaTranslations(dict, lang) {
         },
         {
           "@type": "Service",
-          "@id": "https://acleanserwis.com/#service-insaat",
+          "@id": "https://relaxaxserwis.com/#service-insaat",
           "name": isPl ? "Sprzątanie po budowie / remoncie" : "İnşaat Sonrası Temizlik",
           "serviceType": "Post-Construction Cleaning",
-          "provider": { "@id": "https://acleanserwis.com/#service" },
+          "provider": { "@id": "https://relaxaxserwis.com/#service" },
           "description": isPl
             ? "Odkurzanie pyłu budowlanego filtrami HEPA, usuwanie plam z farby i gipsu, mycie okien poremontowych."
             : "Tadilat ve inşaat sonrası toz arındırma, boya, alçı ve çimento kalıntılarının temizliği.",
@@ -356,10 +356,10 @@ function applyPageMetaTranslations(dict, lang) {
         },
         {
           "@type": "Service",
-          "@id": "https://acleanserwis.com/#service-tasinma",
+          "@id": "https://relaxaxserwis.com/#service-tasinma",
           "name": isPl ? "Sprzątanie przed/po przeprowadzce" : "Taşınma Öncesi/Sonrası Temizlik",
           "serviceType": "Move-in / Move-out Cleaning",
-          "provider": { "@id": "https://acleanserwis.com/#service" },
+          "provider": { "@id": "https://relaxaxserwis.com/#service" },
           "description": isPl
             ? "Głęboka sterylizacja pustego domu, mycie wnętrza szafek i szuflad przed wprowadzeniem się."
             : "Yeni evinize yerleşmeden önce kapı, pencere ve mutfak dolapları dahil derin hijyen temizliği.",
@@ -408,10 +408,10 @@ function applyPageMetaTranslations(dict, lang) {
           ] : [
             {
               "@type": "Question",
-              "name": "Aclean hangi şehirlerde premium temizlik hizmeti sunmaktadır?",
+              "name": "RELAXAX hangi şehirlerde premium temizlik hizmeti sunmaktadır?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Aclean; İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir illerinde profesyonel temizlik ekipleriyle premium standartlarda hizmet vermektedir."
+                "text": "RELAXAX; İzmir, İstanbul, Sakarya, Kocaeli, Samsun ve Balıkesir illerinde profesyonel temizlik ekipleriyle premium standartlarda hizmet vermektedir."
               }
             },
             {
@@ -435,7 +435,7 @@ function applyPageMetaTranslations(dict, lang) {
               "name": "İlaçlama ve dezenfeksiyon hizmeti alırken nelere dikkat edilmelidir?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Aclean, Sağlık Bakanlığı onaylı ilaçlar ve profesyonel ekipmanlar kullanarak haşere kontrolü ve antiviral dezenfeksiyon hizmeti sunar. İşlem öncesi ve sonrası gerekli bilgilendirmeler tarafınıza yapılır."
+                "text": "RELAXAX, Sağlık Bakanlığı onaylı ilaçlar ve profesyonel ekipmanlar kullanarak haşere kontrolü ve antiviral dezenfeksiyon hizmeti sunar. İşlem öncesi ve sonrası gerekli bilgilendirmeler tarafınıza yapılır."
               }
             }
           ]
@@ -5357,7 +5357,7 @@ function setupBookingReveal() {
 
     // Send Lead to Backoffice Panel API via Cloudflare Function Relay (HTTPS)
     const primaryEndpoint = "/api/leads";
-    const directVdsEndpoint = "https://panel.acleanserwis.com/api/leads";
+    const directVdsEndpoint = "https://panel.relaxaxserwis.com/api/leads";
 
     const sendLeadReq = (url) => {
       return fetch(url, {

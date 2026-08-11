@@ -1,5 +1,5 @@
 /**
- * Aclean — Edge SEO Middleware (Cloudflare Pages Functions)
+ * RELAXAX — Edge SEO Middleware (Cloudflare Pages Functions)
  *
  * Görevler:
  *  1. HTTP header düzeyinde hreflang + canonical (Link header) — botlar sayfayı
@@ -12,7 +12,7 @@
  *     görsel deneyim, animasyonlar ve SPA davranışı aynen korunur.
  */
 
-const ORIGIN = 'https://acleanserwis.com';
+const ORIGIN = 'https://relaxaxserwis.com';
 
 // JavaScript çalıştırmayan veya rendering kuyruğu gecikmeli bilinen crawler'lar
 const BOT_RE = new RegExp(
@@ -33,14 +33,14 @@ const META = {
   tr: {
     htmlLang: 'tr',
     ogLocale: 'tr_TR',
-    title: 'Aclean | Sinematik İnteraktif Temizlik Deneyimi',
+    title: 'RELAXAX | Sinematik İnteraktif Temizlik Deneyimi',
     description:
       "İzmir, İstanbul, Sakarya, Kocaeli, Samsun, Balıkesir ve Antalya'da premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.",
   },
   pl: {
     htmlLang: 'pl',
     ogLocale: 'pl_PL',
-    title: 'Aclean | Kinowe Interaktywne Wrażenia Sprzątania',
+    title: 'RELAXAX | Kinowe Interaktywne Wrażenia Sprzątania',
     description:
       'Kompleksowe usługi sprzątania premium w Warszawie — mieszkania, biura i firmy. Poznaj legendarne kinowe sceny i zarezerwuj sprzątanie online.',
   },
@@ -48,19 +48,19 @@ const META = {
 
 // ?city= parametresi için şehir bazlı çözümlenmiş meta
 const CITY_META = {
-  istanbul:  { lang: 'tr', name: 'İstanbul',  title: "İstanbul Temizlik Hizmeti | Aclean",  description: "İstanbul'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  izmir:     { lang: 'tr', name: 'İzmir',     title: "İzmir Temizlik Hizmeti | Aclean",     description: "İzmir'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  kocaeli:   { lang: 'tr', name: 'Kocaeli',   title: "Kocaeli Temizlik Hizmeti | Aclean",   description: "Kocaeli'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  sakarya:   { lang: 'tr', name: 'Sakarya',   title: "Sakarya Temizlik Hizmeti | Aclean",   description: "Sakarya'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  samsun:    { lang: 'tr', name: 'Samsun',    title: "Samsun Temizlik Hizmeti | Aclean",    description: "Samsun'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  balikesir: { lang: 'tr', name: 'Balıkesir', title: "Balıkesir Temizlik Hizmeti | Aclean", description: "Balıkesir'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  antalya:   { lang: 'tr', name: 'Antalya',   title: "Antalya Temizlik Hizmeti | Aclean",   description: "Antalya'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
-  warszawa:  { lang: 'pl', name: 'Warszawa',  title: 'Sprzątanie Warszawa | Aclean',        description: 'Profesjonalne sprzątanie mieszkań, biur i firm w Warszawie. Sprzątanie standardowe, głębokie, B2B oraz dezynsekcja. Zamów wycenę online.' },
+  istanbul:  { lang: 'tr', name: 'İstanbul',  title: "İstanbul Temizlik Hizmeti | RELAXAX",  description: "İstanbul'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  izmir:     { lang: 'tr', name: 'İzmir',     title: "İzmir Temizlik Hizmeti | RELAXAX",     description: "İzmir'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  kocaeli:   { lang: 'tr', name: 'Kocaeli',   title: "Kocaeli Temizlik Hizmeti | RELAXAX",   description: "Kocaeli'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  sakarya:   { lang: 'tr', name: 'Sakarya',   title: "Sakarya Temizlik Hizmeti | RELAXAX",   description: "Sakarya'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  samsun:    { lang: 'tr', name: 'Samsun',    title: "Samsun Temizlik Hizmeti | RELAXAX",    description: "Samsun'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  balikesir: { lang: 'tr', name: 'Balıkesir', title: "Balıkesir Temizlik Hizmeti | RELAXAX", description: "Balıkesir'de profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  antalya:   { lang: 'tr', name: 'Antalya',   title: "Antalya Temizlik Hizmeti | RELAXAX",   description: "Antalya'da profesyonel ev, ofis ve kurumsal temizlik. Standart, detaylı, B2B temizlik ile ilaçlama & dezenfeksiyon. Hemen teklif alın." },
+  warszawa:  { lang: 'pl', name: 'Warszawa',  title: 'Sprzątanie Warszawa | RELAXAX',        description: 'Profesjonalne sprzątanie mieszkań, biur i firm w Warszawie. Sprzątanie standardowe, głębokie, B2B oraz dezynsekcja. Zamów wycenę online.' },
 };
 
 const FAQ = {
   tr: [
-    ["Aclean hangi şehirlerde temizlik hizmeti veriyor?", "Türkiye'de İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir ve Antalya'da; Polonya'da ise Warszawa'da profesyonel temizlik hizmeti veriyoruz."],
+    ["RELAXAX hangi şehirlerde temizlik hizmeti veriyor?", "Türkiye'de İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir ve Antalya'da; Polonya'da ise Warszawa'da profesyonel temizlik hizmeti veriyoruz."],
     ["Hangi temizlik hizmetlerini sunuyorsunuz?", "Standart temizlik, detaylı (derin) temizlik, kurumsal (B2B) temizlik ile ilaçlama & dezenfeksiyon hizmetleri sunuyoruz."],
     ["Temizlik fiyatları nasıl belirleniyor?", "Fiyat; alan (m²), hizmet türü, temizlik sıklığı ve ekstra taleplere (detaylı cam temizliği, fırın & beyaz eşya içi, balkon yıkama) göre belirlenir. Talebinizi ilettikten sonra size özel teklif hazırlıyoruz."],
     ["Rezervasyon nasıl yapılır?", "Sitemizdeki formu doldurmanız yeterli; talebiniz WhatsApp üzerinden ekibimize ulaşır ve en kısa sürede sizinle iletişime geçeriz."],
@@ -68,7 +68,7 @@ const FAQ = {
     ["Kurumsal (B2B) temizlik hizmeti veriyor musunuz?", "Evet; ofis, restoran, plaza ve iş yerleri için periyodik kurumsal temizlik çözümleri sunuyoruz."],
   ],
   pl: [
-    ["W jakich miastach Aclean świadczy usługi sprzątania?", "W Polsce działamy w Warszawie, a w Turcji w Stambule, Izmirze, Kocaeli, Sakarii, Samsunie, Balıkesirze i Antalyi."],
+    ["W jakich miastach RELAXAX świadczy usługi sprzątania?", "W Polsce działamy w Warszawie, a w Turcji w Stambule, Izmirze, Kocaeli, Sakarii, Samsunie, Balıkesirze i Antalyi."],
     ["Jakie usługi sprzątania oferujecie?", "Sprzątanie standardowe, głębokie sprzątanie, sprzątanie firmowe (B2B) oraz dezynsekcję i dezynfekcję."],
     ["Jak ustalane są ceny sprzątania?", "Cena zależy od powierzchni (m²), rodzaju usługi, częstotliwości oraz dodatków (mycie okien, czyszczenie piekarnika i AGD, mycie balkonu). Po przesłaniu zapytania przygotowujemy indywidualną ofertę."],
     ["Jak dokonać rezerwacji?", "Wystarczy wypełnić formularz na stronie — zapytanie trafia do naszego zespołu przez WhatsApp i szybko się z Tobą kontaktujemy."],
@@ -127,14 +127,14 @@ function buildSchemaGraph(lang, city) {
       {
         '@type': 'ProfessionalService',
         '@id': `${ORIGIN}/#business`,
-        name: 'Aclean',
+        name: 'RELAXAX',
         alternateName: 'A Cleaning',
         url: `${ORIGIN}/`,
         logo: `${ORIGIN}/favicon.svg`,
         image: `${ORIGIN}/images/soap_foam_bubbles.png`,
         description: META.tr.description,
         telephone: '+905320000000',
-        email: 'info@aclean.com',
+        email: 'info@relaxax.com',
         priceRange: '₺₺',
         knowsLanguage: ['tr', 'pl'],
         contactPoint: {
@@ -168,7 +168,7 @@ function buildSchemaGraph(lang, city) {
         '@type': 'WebSite',
         '@id': `${ORIGIN}/#website`,
         url: `${ORIGIN}/`,
-        name: 'Aclean',
+        name: 'RELAXAX',
         publisher: { '@id': `${ORIGIN}/#business` },
         inLanguage: ['tr', 'pl'],
       },
@@ -202,7 +202,7 @@ function buildSnapshotSection(lang, city) {
   const cityMeta = city ? CITY_META[city] : null;
   const h = lang === 'pl'
     ? {
-        brand: 'Aclean — Profesjonalne Usługi Sprzątania',
+        brand: 'RELAXAX — Profesjonalne Usługi Sprzątania',
         intro: 'Kompleksowe usługi sprzątania premium: mieszkania, biura i firmy. Zarezerwuj online — odpowiadamy przez WhatsApp.',
         services: 'Nasze Usługi',
         cities: 'Miasta, w których działamy',
@@ -213,7 +213,7 @@ function buildSnapshotSection(lang, city) {
         email: 'E-mail',
       }
     : {
-        brand: 'Aclean — Profesyonel Temizlik Hizmetleri',
+        brand: 'RELAXAX — Profesyonel Temizlik Hizmetleri',
         intro: 'Premium ev, ofis ve kurumsal temizlik. Online rezervasyon yapın — talebiniz WhatsApp üzerinden ekibimize ulaşır.',
         services: 'Hizmetlerimiz',
         cities: 'Hizmet Verdiğimiz Şehirler',
@@ -250,7 +250,7 @@ function buildSnapshotSection(lang, city) {
   <h3>${h.faq}</h3>
   ${FAQ[lang].map(([q, a]) => `<h4>${q}</h4>\n  <p>${a}</p>`).join('\n  ')}
   <h3>${h.contact}</h3>
-  <p>${h.phone}: <a href="tel:+905320000000">+90 (532) 000 00 00</a> · ${h.email}: <a href="mailto:info@aclean.com">info@aclean.com</a> · ${h.hours}</p>
+  <p>${h.phone}: <a href="tel:+905320000000">+90 (532) 000 00 00</a> · ${h.email}: <a href="mailto:info@relaxax.com">info@relaxax.com</a> · ${h.hours}</p>
 </section>`;
 }
 
@@ -264,8 +264,8 @@ export async function onRequest(context) {
   }
 
   // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)
-  if (url.hostname === 'www.acleanserwis.com') {
-    url.hostname = 'acleanserwis.com';
+  if (url.hostname === 'www.relaxaxserwis.com') {
+    url.hostname = 'relaxaxserwis.com';
     return Response.redirect(url.toString(), 301);
   }
 
