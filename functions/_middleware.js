@@ -12,7 +12,7 @@
  *     görsel deneyim, animasyonlar ve SPA davranışı aynen korunur.
  */
 
-const ORIGIN = 'https://relaxaxserwis.com';
+const ORIGIN = 'https://relaxax.com';
 
 // JavaScript çalıştırmayan veya rendering kuyruğu gecikmeli bilinen crawler'lar
 const BOT_RE = new RegExp(
@@ -264,8 +264,8 @@ export async function onRequest(context) {
   }
 
   // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)
-  if (url.hostname === 'www.relaxaxserwis.com') {
-    url.hostname = 'relaxaxserwis.com';
+  if (url.hostname === 'www.relaxax.com') {
+    url.hostname = 'relaxax.com';
     return Response.redirect(url.toString(), 301);
   }
 

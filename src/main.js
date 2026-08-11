@@ -289,10 +289,10 @@ function applyPageMetaTranslations(dict, lang) {
       "@graph": [
         {
           "@type": "ProfessionalService",
-          "@id": "https://relaxaxserwis.com/#service",
+          "@id": "https://relaxax.com/#service",
           "name": "RELAXAX",
-          "image": "https://relaxaxserwis.com/images/og-image.png",
-          "url": "https://relaxaxserwis.com",
+          "image": "https://relaxax.com/images/og-image.png",
+          "url": "https://relaxax.com",
           "telephone": isPl ? "+48221234567" : "+905320000000",
           "priceRange": "$$",
           "address": {
@@ -340,10 +340,10 @@ function applyPageMetaTranslations(dict, lang) {
         },
         {
           "@type": "Service",
-          "@id": "https://relaxaxserwis.com/#service-insaat",
+          "@id": "https://relaxax.com/#service-insaat",
           "name": isPl ? "Sprzątanie po budowie / remoncie" : "İnşaat Sonrası Temizlik",
           "serviceType": "Post-Construction Cleaning",
-          "provider": { "@id": "https://relaxaxserwis.com/#service" },
+          "provider": { "@id": "https://relaxax.com/#service" },
           "description": isPl
             ? "Odkurzanie pyłu budowlanego filtrami HEPA, usuwanie plam z farby i gipsu, mycie okien poremontowych."
             : "Tadilat ve inşaat sonrası toz arındırma, boya, alçı ve çimento kalıntılarının temizliği.",
@@ -356,10 +356,10 @@ function applyPageMetaTranslations(dict, lang) {
         },
         {
           "@type": "Service",
-          "@id": "https://relaxaxserwis.com/#service-tasinma",
+          "@id": "https://relaxax.com/#service-tasinma",
           "name": isPl ? "Sprzątanie przed/po przeprowadzce" : "Taşınma Öncesi/Sonrası Temizlik",
           "serviceType": "Move-in / Move-out Cleaning",
-          "provider": { "@id": "https://relaxaxserwis.com/#service" },
+          "provider": { "@id": "https://relaxax.com/#service" },
           "description": isPl
             ? "Głęboka sterylizacja pustego domu, mycie wnętrza szafek i szuflad przed wprowadzeniem się."
             : "Yeni evinize yerleşmeden önce kapı, pencere ve mutfak dolapları dahil derin hijyen temizliği.",
@@ -5357,7 +5357,7 @@ function setupBookingReveal() {
 
     // Send Lead to Backoffice Panel API via Cloudflare Function Relay (HTTPS)
     const primaryEndpoint = "/api/leads";
-    const directVdsEndpoint = "https://panel.relaxaxserwis.com/api/leads";
+    const directVdsEndpoint = "https://panel.relaxax.com/api/leads";
 
     const sendLeadReq = (url) => {
       return fetch(url, {

@@ -3,57 +3,57 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://relaxaxserwis.com/</loc>
+    <loc>https://relaxax.com/</loc>
     <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxaxserwis.com/?lang=tr" />
-    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxaxserwis.com/?lang=pl" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxaxserwis.com/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/?lang=tr" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/og-image.png</image:loc>
+      <image:loc>https://relaxax.com/images/og-image.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/istanbul_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/istanbul_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/izmir_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/izmir_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/kocaeli_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/kocaeli_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/sakarya_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/sakarya_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/samsun_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/samsun_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/balikesir_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/balikesir_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/antalya_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/antalya_landmark.png</image:loc>
     </image:image>
     <image:image>
-      <image:loc>https://relaxaxserwis.com/images/warszawa_landmark.png</image:loc>
+      <image:loc>https://relaxax.com/images/warszawa_landmark.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>https://relaxaxserwis.com/?lang=tr</loc>
+    <loc>https://relaxax.com/?lang=tr</loc>
     <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxaxserwis.com/?lang=tr" />
-    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxaxserwis.com/?lang=pl" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxaxserwis.com/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/?lang=tr" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
   </url>
   <url>
-    <loc>https://relaxaxserwis.com/?lang=pl</loc>
+    <loc>https://relaxax.com/?lang=pl</loc>
     <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxaxserwis.com/?lang=tr" />
-    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxaxserwis.com/?lang=pl" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxaxserwis.com/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/?lang=tr" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
   </url>
 </urlset>
