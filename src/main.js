@@ -7473,20 +7473,22 @@ function setupBookingReveal() {
       frames[i] = img;
     }
 
-    // 🌹 Harmonious Royal Botanical Climbing Rose Garden (Organic Vine-to-Rose Ratio) 🌹
+    // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses Covering Entire Page Height up to 10,000px) 🌹
     const roseGardenNodes = [];
-    const TOTAL_ROSES_PER_SIDE = 75; // Perfectly spaced along the full scroll height
-    const STEP_Y = 125; // Organic 125px vertical spacing allowing lush green vines and leaves to breathe
+    const TOTAL_ROSES_PER_SIDE = 150; // 300 total blooming roses covering every section from top to bottom
+    const STEP_Y = 64; // Spanning from y = 50px all the way down to 9650px+
 
-    // Generate Left Flank Climbing Rose Nodes
+    // Generate 150 Left Flank Roses across 3 cascading depth lanes
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
-      const yPx = 60 + i * STEP_Y + ((i * 19) % 24);
-      const lane = i % 2; // Alternating gracefully between outer and inner climbing vine
-      const size = 68 + ((i * 7) % 4) * 8; // Elegant refined sizes: 68px to 92px
-      const rot = ((i * 47) % 50) - 25;
+      const yPx = 50 + i * STEP_Y;
+      const lane = i % 3; // 0 = outer, 1 = mid, 2 = inner
+      const xPct = 0.025 + lane * 0.052 + ((i * 17) % 20) * 0.0012;
+      const size = 110 + (i % 5) * 28; // Original opulent sizes from 110px to 222px
+      const rot = ((i * 43) % 60) - 30;
       roseGardenNodes.push({
         side: 'left',
         lane,
+        xPct,
         yPx,
         size,
         rot,
@@ -7495,15 +7497,17 @@ function setupBookingReveal() {
       });
     }
 
-    // Generate Right Flank Climbing Rose Nodes
+    // Generate 150 Right Flank Roses across 3 cascading depth lanes
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
-      const yPx = 80 + i * STEP_Y + (((i + 2) * 19) % 24);
-      const lane = i % 2;
-      const size = 68 + (((i + 1) * 7) % 4) * 8;
-      const rot = (((i + 3) * 47) % 50) - 25;
+      const yPx = 70 + i * STEP_Y;
+      const lane = i % 3;
+      const xPct = 0.975 - lane * 0.052 - ((i * 17) % 20) * 0.0012;
+      const size = 110 + ((i + 2) % 5) * 28;
+      const rot = (((i + 3) * 43) % 60) - 30;
       roseGardenNodes.push({
         side: 'right',
         lane,
+        xPct,
         yPx,
         size,
         rot,
@@ -7767,18 +7771,28 @@ function setupBookingReveal() {
         let screenX;
         let trunkBaseX, trunkPhase;
         if (node.side === 'left') {
-          const laneRatio = node.lane === 0 ? 0.32 : 0.78;
-          screenX = Math.max(16, availLeft * laneRatio);
-          trunkBaseX = node.lane === 0 ? lTrunk1 : lTrunk2;
-          trunkPhase = node.lane === 0 ? 0 : 60;
+          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
+          screenX = Math.max(14, availLeft * laneRatio);
+          if (node.lane === 2) {
+            trunkBaseX = lTrunk2;
+            trunkPhase = 60;
+          } else {
+            trunkBaseX = lTrunk1;
+            trunkPhase = 0;
+          }
         } else {
-          const laneRatio = node.lane === 0 ? 0.68 : 0.22;
-          screenX = Math.min(w - 16, rightStart + availRight * laneRatio);
-          trunkBaseX = node.lane === 0 ? rTrunk2 : rTrunk1;
-          trunkPhase = node.lane === 0 ? 100 : 40;
+          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
+          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
+          if (node.lane === 2) {
+            trunkBaseX = rTrunk1;
+            trunkPhase = 40;
+          } else {
+            trunkBaseX = rTrunk2;
+            trunkPhase = 100;
+          }
         }
         
-        const trunkY = screenY + (node.side === 'left' ? 18 : -18) * scaleFactor;
+        const trunkY = screenY + (node.side === 'left' ? 22 : -22) * scaleFactor;
         const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, trunkY);
         const bloomProgress = node.currentIdx / (TOTAL_FRAMES - 1);
         const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
@@ -7801,11 +7815,11 @@ function setupBookingReveal() {
 
         let screenX;
         if (node.side === 'left') {
-          const laneRatio = node.lane === 0 ? 0.32 : 0.78;
-          screenX = Math.max(16, availLeft * laneRatio);
+          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
+          screenX = Math.max(14, availLeft * laneRatio);
         } else {
-          const laneRatio = node.lane === 0 ? 0.68 : 0.22;
-          screenX = Math.min(w - 16, rightStart + availRight * laneRatio);
+          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
+          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
         }
 
         const roundedIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(node.currentIdx)));
