@@ -7473,22 +7473,20 @@ function setupBookingReveal() {
       frames[i] = img;
     }
 
-    // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses Covering Entire Page Height up to 10,000px) 🌹
+    // 🌹 Harmonious Royal Botanical Climbing Rose Garden (Organic Vine-to-Rose Ratio) 🌹
     const roseGardenNodes = [];
-    const TOTAL_ROSES_PER_SIDE = 150; // 300 total blooming roses covering every section from top to bottom
-    const STEP_Y = 64; // Spanning from y = 50px all the way down to 9650px+
+    const TOTAL_ROSES_PER_SIDE = 75; // Perfectly spaced along the full scroll height
+    const STEP_Y = 125; // Organic 125px vertical spacing allowing lush green vines and leaves to breathe
 
-    // Generate 150 Left Flank Roses across 3 cascading depth lanes
+    // Generate Left Flank Climbing Rose Nodes
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
-      const yPx = 50 + i * STEP_Y;
-      const lane = i % 3; // 0 = outer, 1 = mid, 2 = inner
-      const xPct = 0.025 + lane * 0.052 + ((i * 17) % 20) * 0.0012;
-      const size = 110 + (i % 5) * 28; // Sizes from 110px to 222px
-      const rot = ((i * 43) % 60) - 30;
+      const yPx = 60 + i * STEP_Y + ((i * 19) % 24);
+      const lane = i % 2; // Alternating gracefully between outer and inner climbing vine
+      const size = 68 + ((i * 7) % 4) * 8; // Elegant refined sizes: 68px to 92px
+      const rot = ((i * 47) % 50) - 25;
       roseGardenNodes.push({
         side: 'left',
         lane,
-        xPct,
         yPx,
         size,
         rot,
@@ -7497,17 +7495,15 @@ function setupBookingReveal() {
       });
     }
 
-    // Generate 150 Right Flank Roses across 3 cascading depth lanes
+    // Generate Right Flank Climbing Rose Nodes
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
-      const yPx = 70 + i * STEP_Y;
-      const lane = i % 3;
-      const xPct = 0.975 - lane * 0.052 - ((i * 17) % 20) * 0.0012;
-      const size = 110 + ((i + 2) % 5) * 28;
-      const rot = (((i + 3) * 43) % 60) - 30;
+      const yPx = 80 + i * STEP_Y + (((i + 2) * 19) % 24);
+      const lane = i % 2;
+      const size = 68 + (((i + 1) * 7) % 4) * 8;
+      const rot = (((i + 3) * 47) % 50) - 25;
       roseGardenNodes.push({
         side: 'right',
         lane,
-        xPct,
         yPx,
         size,
         rot,
@@ -7534,63 +7530,111 @@ function setupBookingReveal() {
       ctx.translate(x, y);
       ctx.rotate((angleDeg * Math.PI) / 180);
 
+      // Subtle natural leaf shadow
+      ctx.shadowColor = 'rgba(15, 35, 20, 0.22)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
+
+      // Leaf body dual-tone curve
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.bezierCurveTo(size * 0.35, -size * 0.45, size * 0.75, -size * 0.28, size, 0);
-      ctx.bezierCurveTo(size * 0.75, size * 0.28, size * 0.35, size * 0.45, 0, 0);
-      ctx.fillStyle = '#2d6a4f';
+      ctx.bezierCurveTo(size * 0.32, -size * 0.42, size * 0.72, -size * 0.25, size, 0);
+      ctx.bezierCurveTo(size * 0.72, size * 0.25, size * 0.32, size * 0.42, 0, 0);
+      
+      const grad = ctx.createLinearGradient(0, -size * 0.3, size, size * 0.3);
+      grad.addColorStop(0, '#193826');
+      grad.addColorStop(0.5, '#2d6a4f');
+      grad.addColorStop(1, '#40916c');
+      ctx.fillStyle = grad;
       ctx.fill();
-      ctx.strokeStyle = '#1b4332';
-      ctx.lineWidth = 1.2;
+
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = '#163322';
+      ctx.lineWidth = 1.0;
       ctx.stroke();
 
-      // Leaf center rib
+      // Leaf center rib & delicate side veins
       ctx.beginPath();
       ctx.moveTo(0, 0);
-      ctx.lineTo(size * 0.85, 0);
+      ctx.lineTo(size * 0.88, 0);
       ctx.strokeStyle = '#74c69d';
-      ctx.lineWidth = 1.0;
+      ctx.lineWidth = 0.9;
+      ctx.stroke();
+
+      // Delicate lateral side veins
+      ctx.beginPath();
+      ctx.moveTo(size * 0.3, 0);
+      ctx.lineTo(size * 0.5, -size * 0.15);
+      ctx.moveTo(size * 0.3, 0);
+      ctx.lineTo(size * 0.5, size * 0.15);
+      ctx.moveTo(size * 0.55, 0);
+      ctx.lineTo(size * 0.72, -size * 0.12);
+      ctx.moveTo(size * 0.55, 0);
+      ctx.lineTo(size * 0.72, size * 0.12);
+      ctx.strokeStyle = 'rgba(116, 198, 157, 0.5)';
+      ctx.lineWidth = 0.7;
       ctx.stroke();
       
       ctx.restore();
     }
 
     function drawRoseCalyxSepals(ctx, x, y, angleDeg, scaleFactor, bloomProgress) {
-      // Botanical green sepal leaves wrapping gracefully under the rose head
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate((angleDeg * Math.PI) / 180);
       
-      const sepalSize = (22 + 8 * bloomProgress) * scaleFactor;
-      
-      // Left sepal
-      drawBotanicalLeaf(ctx, 0, 0, -120, sepalSize);
-      // Right sepal
-      drawBotanicalLeaf(ctx, 0, 0, -60, sepalSize);
-      // Bottom sepal
-      drawBotanicalLeaf(ctx, 0, 0, 90, sepalSize * 0.85);
-      
-      // Receptacle bulb
+      // 1. Soft radial ambient occlusion shadow behind rose head to fuse it with stem
+      const shadowGrad = ctx.createRadialGradient(0, 0, 4 * scaleFactor, 0, 0, 32 * scaleFactor);
+      shadowGrad.addColorStop(0, 'rgba(15, 30, 20, 0.45)');
+      shadowGrad.addColorStop(0.6, 'rgba(15, 30, 20, 0.15)');
+      shadowGrad.addColorStop(1, 'rgba(15, 30, 20, 0)');
+      ctx.fillStyle = shadowGrad;
       ctx.beginPath();
-      ctx.arc(0, 0, 8 * scaleFactor, 0, Math.PI * 2);
-      ctx.fillStyle = '#1b4332';
+      ctx.arc(0, 0, 32 * scaleFactor, 0, Math.PI * 2);
       ctx.fill();
+
+      const sepalSize = (24 + 10 * bloomProgress) * scaleFactor;
+      
+      // 5 Realistic Botanical Calyx Sepals embracing the rose base naturally
+      drawBotanicalLeaf(ctx, 0, 0, -140, sepalSize * 1.05);
+      drawBotanicalLeaf(ctx, 0, 0, -80, sepalSize * 0.95);
+      drawBotanicalLeaf(ctx, 0, 0, -20, sepalSize * 1.0);
+      drawBotanicalLeaf(ctx, 0, 0, 50, sepalSize * 0.9);
+      drawBotanicalLeaf(ctx, 0, 0, 110, sepalSize * 1.0);
+      
+      // Receptacle bulb (green stem node base)
+      ctx.beginPath();
+      ctx.arc(0, 0, 9 * scaleFactor, 0, Math.PI * 2);
+      const bulbGrad = ctx.createRadialGradient(-2 * scaleFactor, -2 * scaleFactor, 1, 0, 0, 9 * scaleFactor);
+      bulbGrad.addColorStop(0, '#52b788');
+      bulbGrad.addColorStop(0.7, '#2d6a4f');
+      bulbGrad.addColorStop(1, '#1b4332');
+      ctx.fillStyle = bulbGrad;
+      ctx.fill();
+      ctx.strokeStyle = '#143020';
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
       
       ctx.restore();
     }
 
     function drawStemBranch(ctx, startX, startY, endX, endY, scaleFactor, bloomProgress) {
       const isLeft = startX < endX;
-      // Natural botanical curved bezier path
-      const cp1X = startX + (isLeft ? 22 : -22) * scaleFactor;
-      const cp1Y = startY + 12 * scaleFactor;
-      const cp2X = endX + (isLeft ? -26 : 26) * scaleFactor;
-      const cp2Y = endY + 18 * scaleFactor;
+      // Natural organic bezier curve trajectory
+      const cp1X = startX + (isLeft ? 26 : -26) * scaleFactor;
+      const cp1Y = startY + 14 * scaleFactor;
+      const cp2X = endX + (isLeft ? -30 : 30) * scaleFactor;
+      const cp2Y = endY + 22 * scaleFactor;
 
       const growthProgress = 0.55 + 0.45 * bloomProgress;
-      const branchWidth = Math.max(2.2, 4.4 * scaleFactor * growthProgress);
+      const branchWidth = Math.max(2.4, 4.8 * scaleFactor * growthProgress);
 
       ctx.save();
+      // Branch Drop Shadow
+      ctx.shadowColor = 'rgba(15, 30, 20, 0.25)';
+      ctx.shadowBlur = 5;
+      ctx.shadowOffsetY = 2;
+
       // Outer bark
       ctx.beginPath();
       ctx.moveTo(startX, startY);
@@ -7600,22 +7644,24 @@ function setupBookingReveal() {
       ctx.lineCap = 'round';
       ctx.stroke();
 
+      ctx.shadowColor = 'transparent';
+
       // Inner chlorophyll highlight
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
       ctx.strokeStyle = '#40916c';
-      ctx.lineWidth = Math.max(0.9, 1.6 * scaleFactor * growthProgress);
+      ctx.lineWidth = Math.max(1.0, 1.8 * scaleFactor * growthProgress);
       ctx.stroke();
 
-      // Natural leaf pairs along the branch
-      const mid1X = (startX + cp1X) / 2;
-      const mid1Y = (startY + cp1Y) / 2;
-      const mid2X = (cp2X + endX) / 2;
-      const mid2Y = (cp2Y + endY) / 2;
+      // Natural leaf clusters along the branch
+      const mid1X = (startX * 0.6 + cp1X * 0.4);
+      const mid1Y = (startY * 0.6 + cp1Y * 0.4);
+      const mid2X = (cp2X * 0.4 + endX * 0.6);
+      const mid2Y = (cp2Y * 0.4 + endY * 0.6);
 
-      drawBotanicalLeaf(ctx, mid1X, mid1Y, (isLeft ? -40 : 40), 22 * scaleFactor * growthProgress);
-      drawBotanicalLeaf(ctx, mid2X, mid2Y, (isLeft ? 35 : -35), 26 * scaleFactor * growthProgress);
+      drawBotanicalLeaf(ctx, mid1X, mid1Y, (isLeft ? -45 : 45), 24 * scaleFactor * growthProgress);
+      drawBotanicalLeaf(ctx, mid2X, mid2Y, (isLeft ? 38 : -38), 28 * scaleFactor * growthProgress);
       ctx.restore();
     }
 
@@ -7721,28 +7767,18 @@ function setupBookingReveal() {
         let screenX;
         let trunkBaseX, trunkPhase;
         if (node.side === 'left') {
-          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
-          screenX = Math.max(14, availLeft * laneRatio);
-          if (node.lane === 2) {
-            trunkBaseX = lTrunk2;
-            trunkPhase = 60;
-          } else {
-            trunkBaseX = lTrunk1;
-            trunkPhase = 0;
-          }
+          const laneRatio = node.lane === 0 ? 0.32 : 0.78;
+          screenX = Math.max(16, availLeft * laneRatio);
+          trunkBaseX = node.lane === 0 ? lTrunk1 : lTrunk2;
+          trunkPhase = node.lane === 0 ? 0 : 60;
         } else {
-          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
-          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
-          if (node.lane === 2) {
-            trunkBaseX = rTrunk1;
-            trunkPhase = 40;
-          } else {
-            trunkBaseX = rTrunk2;
-            trunkPhase = 100;
-          }
+          const laneRatio = node.lane === 0 ? 0.68 : 0.22;
+          screenX = Math.min(w - 16, rightStart + availRight * laneRatio);
+          trunkBaseX = node.lane === 0 ? rTrunk2 : rTrunk1;
+          trunkPhase = node.lane === 0 ? 100 : 40;
         }
         
-        const trunkY = screenY + (node.side === 'left' ? 22 : -22) * scaleFactor;
+        const trunkY = screenY + (node.side === 'left' ? 18 : -18) * scaleFactor;
         const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, trunkY);
         const bloomProgress = node.currentIdx / (TOTAL_FRAMES - 1);
         const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
@@ -7765,11 +7801,11 @@ function setupBookingReveal() {
 
         let screenX;
         if (node.side === 'left') {
-          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
-          screenX = Math.max(14, availLeft * laneRatio);
+          const laneRatio = node.lane === 0 ? 0.32 : 0.78;
+          screenX = Math.max(16, availLeft * laneRatio);
         } else {
-          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
-          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
+          const laneRatio = node.lane === 0 ? 0.68 : 0.22;
+          screenX = Math.min(w - 16, rightStart + availRight * laneRatio);
         }
 
         const roundedIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(node.currentIdx)));
