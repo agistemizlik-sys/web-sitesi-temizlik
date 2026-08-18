@@ -7473,6 +7473,58 @@ function setupBookingReveal() {
       frames[i] = img;
     }
 
+    // 🌿 16 Diverse Botanical Vine Tendril & Leaf Assets 🌿
+    const TOTAL_VINE_ASSETS = 16;
+    const vineAssets = new Array(TOTAL_VINE_ASSETS);
+    for (let i = 0; i < TOTAL_VINE_ASSETS; i++) {
+      const vImg = new Image();
+      vImg.src = `/images/vines/vine_asset_${i + 1}.png`;
+      vineAssets[i] = vImg;
+    }
+
+    // 🌿 Botanical Vine Tendril Nodes (Spirals, climbing curls, and leafy shoots)
+    const botanicalTendrilNodes = [];
+    const TOTAL_TENDRILS_PER_SIDE = 90;
+    const TENDRIL_STEP_Y = 105;
+
+    // Left Flank Vine Tendrils
+    for (let i = 0; i < TOTAL_TENDRILS_PER_SIDE; i++) {
+      const yPx = 40 + i * TENDRIL_STEP_Y + ((i * 23) % 35);
+      const lane = i % 2;
+      const assetIdx = i % TOTAL_VINE_ASSETS;
+      const size = 75 + ((i * 13) % 5) * 14; // 75px to 131px
+      const rot = ((i * 53) % 90) - 45;
+      botanicalTendrilNodes.push({
+        side: 'left',
+        lane,
+        yPx,
+        assetIdx,
+        size,
+        rot,
+        swaySpeed: 0.0008 + (i % 4) * 0.00025,
+        swayPhase: i * 0.75
+      });
+    }
+
+    // Right Flank Vine Tendrils
+    for (let i = 0; i < TOTAL_TENDRILS_PER_SIDE; i++) {
+      const yPx = 65 + i * TENDRIL_STEP_Y + (((i + 2) * 23) % 35);
+      const lane = i % 2;
+      const assetIdx = (i + 5) % TOTAL_VINE_ASSETS;
+      const size = 75 + (((i + 2) * 13) % 5) * 14;
+      const rot = (((i + 3) * 53) % 90) - 45;
+      botanicalTendrilNodes.push({
+        side: 'right',
+        lane,
+        yPx,
+        assetIdx,
+        size,
+        rot,
+        swaySpeed: 0.0008 + ((i + 1) % 4) * 0.00025,
+        swayPhase: (i + 2) * 0.75
+      });
+    }
+
     // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses Covering Entire Page Height up to 10,000px) 🌹
     const roseGardenNodes = [];
     const TOTAL_ROSES_PER_SIDE = 150; // 300 total blooming roses covering every section from top to bottom
@@ -7753,6 +7805,41 @@ function setupBookingReveal() {
       drawTrunk(lTrunk2, 60, 4.5);
       drawTrunk(rTrunk1, 40, 4.5);
       drawTrunk(rTrunk2, 100, 6);
+
+      // 🌿 1.5 Draw 16 High-Fidelity Botanical Vine Tendril Sprites along Climbing Trellises 🌿
+      for (let i = 0; i < botanicalTendrilNodes.length; i++) {
+        const tNode = botanicalTendrilNodes[i];
+        const screenY = tNode.yPx - scrollTop;
+        const size = tNode.size * scaleFactor;
+        if (screenY + size < -80 || screenY - size > h + 80) continue;
+
+        const vImg = vineAssets[tNode.assetIdx];
+        if (!vImg || !vImg.complete || vImg.naturalWidth === 0) continue;
+
+        let trunkBaseX, trunkPhase;
+        if (tNode.side === 'left') {
+          trunkBaseX = tNode.lane === 0 ? lTrunk1 : lTrunk2;
+          trunkPhase = tNode.lane === 0 ? 0 : 60;
+        } else {
+          trunkBaseX = tNode.lane === 0 ? rTrunk2 : rTrunk1;
+          trunkPhase = tNode.lane === 0 ? 100 : 40;
+        }
+        const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, screenY);
+        const sway = Math.sin(timeNow * tNode.swaySpeed + tNode.swayPhase) * 4.5;
+        const currentRot = tNode.rot + sway;
+
+        ctx.save();
+        ctx.translate(trunkActualX, screenY);
+        if (tNode.side === 'right') {
+          ctx.scale(-1, 1); // Natural organic reflection for right flank
+        }
+        ctx.rotate((currentRot * Math.PI) / 180);
+        ctx.shadowColor = 'rgba(15, 35, 20, 0.2)';
+        ctx.shadowBlur = 5;
+        ctx.shadowOffsetY = 2;
+        ctx.drawImage(vImg, -size * 0.25, -size * 0.5, size, size);
+        ctx.restore();
+      }
 
       // 2. Draw Branching Stems & Calyx Sepals connecting directly to Trunk Wave (Spatial Culling)
       for (let i = 0; i < roseGardenNodes.length; i++) {
