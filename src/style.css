@@ -5321,14 +5321,23 @@ img, video, .card-bg-image {
   display: none !important;
 }
 
-/* Global Zero-Filter Rule for all video elements across the site */
+/* ── ULTRA-HIGH FIDELITY VIDEO RENDERING ENGINE ── */
 video,
 .cinema-video,
+.intro-video,
+.portal-intro-video,
 .services-ivy-bg-video,
 .cso-earth-video,
 .success-grandmother-video {
-  filter: none !important;
-  -webkit-filter: none !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: high-quality !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  /* Crisp micro-contrast & saturation calibration for studio-grade clarity */
+  filter: contrast(1.03) brightness(1.02) saturate(1.05) !important;
+  -webkit-filter: contrast(1.03) brightness(1.02) saturate(1.05) !important;
 }
 
 .services-select-card {
