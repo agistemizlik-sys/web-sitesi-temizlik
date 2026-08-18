@@ -7459,19 +7459,30 @@ function setupBookingReveal() {
 
     let hasLoadedFirst = false;
 
-    // Fast asynchronous preloading of the 60 transparent WebP rose bloom frames
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      const numStr = String(i).padStart(3, '0');
-      img.src = `/images/bloom_rose_frames/rose_${numStr}.webp`;
-      img.onload = () => {
-        if (i === 0 && !hasLoadedFirst) {
-          hasLoadedFirst = true;
-          renderGarden();
-        }
-      };
-      frames[i] = img;
-    }
+    // 🌹 4 Distinct High-Definition Botanical Rose Bloom Angles (0: Classic, 1: 4K Side 3/4, 2: Animation Tilt, 3: Over-head Green) 🌹
+    const roseAnglePacks = [
+      { prefix: '/images/bloom_rose_frames/rose_', count: 60 },
+      { prefix: '/images/bloom_rose_frames_angle1/rose_', count: 30 },
+      { prefix: '/images/bloom_rose_frames_angle2/rose_', count: 30 },
+      { prefix: '/images/bloom_rose_frames_angle3/rose_', count: 30 }
+    ];
+
+    const roseAngleFrames = roseAnglePacks.map(pack => {
+      const arr = new Array(pack.count);
+      for (let i = 0; i < pack.count; i++) {
+        const img = new Image();
+        const numStr = String(i).padStart(3, '0');
+        img.src = `${pack.prefix}${numStr}.webp`;
+        img.onload = () => {
+          if (!hasLoadedFirst) {
+            hasLoadedFirst = true;
+            renderGarden();
+          }
+        };
+        arr[i] = img;
+      }
+      return arr;
+    });
 
     // 🌿 16 Diverse Botanical Vine Tendril & Leaf Assets 🌿
     const TOTAL_VINE_ASSETS = 16;
@@ -7529,46 +7540,50 @@ function setupBookingReveal() {
       });
     }
 
-    // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses Covering Entire Page Height up to 10,000px) 🌹
+    // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses with 4 Distinct 3D Angles) 🌹
     const roseGardenNodes = [];
     const TOTAL_ROSES_PER_SIDE = 150; // 300 total blooming roses covering every section from top to bottom
     const STEP_Y = 64; // Spanning from y = 50px all the way down to 9650px+
 
-    // Generate 150 Left Flank Roses across 3 cascading depth lanes
+    // Generate 150 Left Flank Roses across 3 cascading depth lanes with diverse angles
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
       const yPx = 50 + i * STEP_Y;
       const lane = i % 3; // 0 = outer, 1 = mid, 2 = inner
+      const angleVariant = (i + lane) % 4; // Cycles harmoniously through 4 rose angles
       const xPct = 0.025 + lane * 0.052 + ((i * 17) % 20) * 0.0012;
       const size = 110 + (i % 5) * 28; // Original opulent sizes from 110px to 222px
       const rot = ((i * 43) % 60) - 30;
       roseGardenNodes.push({
         side: 'left',
         lane,
+        angleVariant,
         xPct,
         yPx,
         size,
         rot,
-        currentIdx: 0,
-        targetIdx: 0
+        currentProgress: 0,
+        targetProgress: 0
       });
     }
 
-    // Generate 150 Right Flank Roses across 3 cascading depth lanes
+    // Generate 150 Right Flank Roses across 3 cascading depth lanes with diverse angles
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
       const yPx = 70 + i * STEP_Y;
       const lane = i % 3;
+      const angleVariant = (i + lane + 2) % 4; // Diverse 3D perspective angles for right flank
       const xPct = 0.975 - lane * 0.052 - ((i * 17) % 20) * 0.0012;
       const size = 110 + ((i + 2) % 5) * 28;
       const rot = (((i + 3) * 43) % 60) - 30;
       roseGardenNodes.push({
         side: 'right',
         lane,
+        angleVariant,
         xPct,
         yPx,
         size,
         rot,
-        currentIdx: 0,
-        targetIdx: 0
+        currentProgress: 0,
+        targetProgress: 0
       });
     }
 
@@ -7852,7 +7867,7 @@ function setupBookingReveal() {
         ctx.restore();
       }
 
-      // 2. Draw Blooming Red Velvet Roses at each Node (100% Solid Opacity)
+      // 2. Draw Blooming Red Velvet Roses at each Node (100% Solid Opacity with 4 Diverse 3D Perspectives)
       for (let i = 0; i < roseGardenNodes.length; i++) {
         const node = roseGardenNodes[i];
         const screenY = node.yPx - scrollTop;
@@ -7861,9 +7876,9 @@ function setupBookingReveal() {
         // Culling: only draw roses visible on screen
         if (screenY + size < -60 || screenY - size > h + 60) continue;
 
-        // Smooth lerp index interpolation
-        if (Math.abs(node.currentIdx - node.targetIdx) > 0.02) {
-          node.currentIdx += (node.targetIdx - node.currentIdx) * 0.35;
+        // Smooth lerp bloom progress interpolation
+        if (Math.abs(node.currentProgress - node.targetProgress) > 0.005) {
+          node.currentProgress += (node.targetProgress - node.currentProgress) * 0.35;
         }
 
         let screenX;
@@ -7875,8 +7890,12 @@ function setupBookingReveal() {
           screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
         }
 
-        const roundedIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(node.currentIdx)));
-        const img = frames[roundedIdx];
+        const pack = roseAnglePacks[node.angleVariant] || roseAnglePacks[0];
+        const framesArr = roseAngleFrames[node.angleVariant] || roseAngleFrames[0];
+        const maxIdx = pack.count - 1;
+        const roundedIdx = Math.min(maxIdx, Math.max(0, Math.round(node.currentProgress * maxIdx)));
+        const img = framesArr ? framesArr[roundedIdx] : null;
+
         if (img && img.complete && img.naturalWidth > 0) {
           const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
           ctx.save();
@@ -7948,8 +7967,8 @@ function setupBookingReveal() {
 
         // When node is approaching viewport:
         // distFromCenter > 380: Below viewport -> Tight Bud (0)
-        // distFromCenter in [-450, 380]: In Viewport -> Smooth Blooming (0..59)
-        // distFromCenter < -450: Above viewport -> Full Bloom (59)
+        // distFromCenter in [-450, 380]: In Viewport -> Smooth Blooming
+        // distFromCenter < -450: Above viewport -> Full Bloom
         let bloomProgress;
         if (distFromCenter > 380) {
           bloomProgress = 0;
@@ -7958,7 +7977,7 @@ function setupBookingReveal() {
         } else {
           bloomProgress = 1 - ((distFromCenter - (-450)) / 830);
         }
-        node.targetIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, bloomProgress * (TOTAL_FRAMES - 1)));
+        node.targetProgress = Math.min(1, Math.max(0, bloomProgress));
       });
 
       // Linear overall page progress for step indicator pills
