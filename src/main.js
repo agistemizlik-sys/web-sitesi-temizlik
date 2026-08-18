@@ -7780,31 +7780,12 @@ function setupBookingReveal() {
         return baseX + Math.sin((y + scrollTop + phase) * 0.007 + timeNow * 0.0009) * (14 * scaleFactor) + breathingOffset;
       };
 
-      // Set gentle, non-intrusive botanical opacity for background garden
+      // 100% Solid Opacity - Zero transparency on roses and authentic botanical branches
       ctx.save();
-      ctx.globalAlpha = 0.86;
+      ctx.globalAlpha = 1.0;
 
-      const drawTrunk = (baseX, phase, widthPx, isRight) => {
-        ctx.beginPath();
-        ctx.moveTo(getTrunkX(baseX, phase, -60), -60);
-        for (let y = -60; y <= h + 60; y += 70) {
-          ctx.lineTo(getTrunkX(baseX, phase, y), y);
-        }
-        ctx.strokeStyle = '#1b4332';
-        ctx.lineWidth = widthPx * scaleFactor;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(getTrunkX(baseX, phase, -60) + 1, -60);
-        for (let y = -60; y <= h + 60; y += 70) {
-          ctx.lineTo(getTrunkX(baseX, phase, y) + 1, y);
-        }
-        ctx.strokeStyle = '#40916c';
-        ctx.lineWidth = Math.max(1.2, widthPx * 0.35 * scaleFactor);
-        ctx.stroke();
-
-        // 🌿 Realistic Main Rose Stem with Thorns & Rose Foliage 🌿
+      const drawTrunk = (baseX, phase, isRight) => {
+        // 🌿 100% Authentic User-Provided Rose Branch with Thorns & Foliage (No synthetic stroke lines) 🌿
         if (mainStemImg && mainStemImg.complete && mainStemImg.naturalWidth > 0) {
           const segmentH = 460 * scaleFactor;
           const segmentW = 236 * scaleFactor;
@@ -7822,19 +7803,19 @@ function setupBookingReveal() {
               ctx.scale(-1, 1);
             }
             ctx.rotate((stemSway * Math.PI) / 180);
-            ctx.shadowColor = 'rgba(15, 35, 20, 0.18)';
-            ctx.shadowBlur = 8;
-            ctx.shadowOffsetY = 3;
+            ctx.shadowColor = 'rgba(15, 35, 20, 0.25)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
             ctx.drawImage(mainStemImg, -segmentW * 0.5, -segmentH * 0.5, segmentW, segmentH);
             ctx.restore();
           }
         }
       };
 
-      drawTrunk(lTrunk1, 0, 6, false);
-      drawTrunk(lTrunk2, 60, 4.5, false);
-      drawTrunk(rTrunk1, 40, 4.5, true);
-      drawTrunk(rTrunk2, 100, 6, true);
+      drawTrunk(lTrunk1, 0, false);
+      drawTrunk(lTrunk2, 60, false);
+      drawTrunk(rTrunk1, 40, true);
+      drawTrunk(rTrunk2, 100, true);
 
       // 🌿 1.5 Draw 16 High-Fidelity Botanical Vine Tendril Sprites along Climbing Trellises 🌿
       for (let i = 0; i < botanicalTendrilNodes.length; i++) {
@@ -7864,64 +7845,14 @@ function setupBookingReveal() {
           ctx.scale(-1, 1); // Natural organic reflection for right flank
         }
         ctx.rotate((currentRot * Math.PI) / 180);
-        ctx.shadowColor = 'rgba(15, 35, 20, 0.2)';
-        ctx.shadowBlur = 5;
-        ctx.shadowOffsetY = 2;
+        ctx.shadowColor = 'rgba(15, 35, 20, 0.25)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
         ctx.drawImage(vImg, -size * 0.25, -size * 0.5, size, size);
         ctx.restore();
       }
 
-      // 2. Draw Branching Stems & Calyx Sepals connecting directly to Trunk Wave (Spatial Culling)
-      for (let i = 0; i < roseGardenNodes.length; i++) {
-        const node = roseGardenNodes[i];
-        const screenY = node.yPx - scrollTop;
-        const size = node.size * scaleFactor;
-
-        // Skip off-screen nodes
-        if (screenY + size < -60 || screenY - size > h + 60) continue;
-
-        // Smooth lerp index interpolation
-        if (Math.abs(node.currentIdx - node.targetIdx) > 0.02) {
-          node.currentIdx += (node.targetIdx - node.currentIdx) * 0.35;
-        }
-
-        let screenX;
-        let trunkBaseX, trunkPhase;
-        if (node.side === 'left') {
-          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
-          screenX = Math.max(14, availLeft * laneRatio);
-          if (node.lane === 2) {
-            trunkBaseX = lTrunk2;
-            trunkPhase = 60;
-          } else {
-            trunkBaseX = lTrunk1;
-            trunkPhase = 0;
-          }
-        } else {
-          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
-          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
-          if (node.lane === 2) {
-            trunkBaseX = rTrunk1;
-            trunkPhase = 40;
-          } else {
-            trunkBaseX = rTrunk2;
-            trunkPhase = 100;
-          }
-        }
-        
-        const trunkY = screenY + (node.side === 'left' ? 22 : -22) * scaleFactor;
-        const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, trunkY);
-        const bloomProgress = node.currentIdx / (TOTAL_FRAMES - 1);
-        const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
-
-        // Draw Stem connecting from trunk directly to flower base
-        drawStemBranch(ctx, trunkActualX, trunkY, screenX, screenY, scaleFactor, bloomProgress);
-
-        // Draw Calyx Sepals under the rose head with dynamic sway
-        drawRoseCalyxSepals(ctx, screenX, screenY, swayAngle, scaleFactor, bloomProgress);
-      }
-
-      // 3. Draw Blooming Red Velvet Roses at each Node (Hardware direct draw without Gaussian blur)
+      // 2. Draw Blooming Red Velvet Roses at each Node (100% Solid Opacity)
       for (let i = 0; i < roseGardenNodes.length; i++) {
         const node = roseGardenNodes[i];
         const screenY = node.yPx - scrollTop;
@@ -7929,6 +7860,11 @@ function setupBookingReveal() {
 
         // Culling: only draw roses visible on screen
         if (screenY + size < -60 || screenY - size > h + 60) continue;
+
+        // Smooth lerp index interpolation
+        if (Math.abs(node.currentIdx - node.targetIdx) > 0.02) {
+          node.currentIdx += (node.targetIdx - node.currentIdx) * 0.35;
+        }
 
         let screenX;
         if (node.side === 'left') {
@@ -7946,6 +7882,9 @@ function setupBookingReveal() {
           ctx.save();
           ctx.translate(screenX, screenY);
           ctx.rotate((swayAngle * Math.PI) / 180);
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+          ctx.shadowBlur = 12;
+          ctx.shadowOffsetY = 5;
           ctx.drawImage(img, -size / 2, -size / 2, size, size);
           ctx.restore();
         }
