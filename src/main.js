@@ -6127,7 +6127,7 @@ function setupCinemaEngine() {
       const servicesCard = document.querySelector('.services-select-card');
       if (servicesCard) {
         servicesCard.classList.add('active');
-        servicesCard.style.display = 'block';
+        servicesCard.style.display = 'flex';
         servicesCard.style.opacity = '1';
         servicesCard.style.visibility = 'visible';
         servicesCard.style.pointerEvents = 'all';
