@@ -7516,7 +7516,7 @@ function setupBookingReveal() {
         assetIdx,
         size,
         rot,
-        swaySpeed: 0.0008 + (i % 4) * 0.00025,
+        swaySpeed: 0.00016 + (i % 4) * 0.00005, // Ultra-slow gentle breeze
         swayPhase: i * 0.75
       });
     }
@@ -7535,7 +7535,7 @@ function setupBookingReveal() {
         assetIdx,
         size,
         rot,
-        swaySpeed: 0.0008 + ((i + 1) % 4) * 0.00025,
+        swaySpeed: 0.00016 + ((i + 1) % 4) * 0.00005, // Ultra-slow gentle breeze
         swayPhase: (i + 2) * 0.75
       });
     }
@@ -7791,8 +7791,9 @@ function setupBookingReveal() {
       const timeNow = performance.now();
 
       const getTrunkX = (baseX, phase, y) => {
-        const breathingOffset = Math.sin(timeNow * 0.0014 + phase * 0.04) * (2.5 * scaleFactor);
-        return baseX + Math.sin((y + scrollTop + phase) * 0.007 + timeNow * 0.0009) * (14 * scaleFactor) + breathingOffset;
+        // Ultra-slow, serene organic drift
+        const breathingOffset = Math.sin(timeNow * 0.00022 + phase * 0.03) * (1.2 * scaleFactor);
+        return baseX + Math.sin((y + scrollTop + phase) * 0.005 + timeNow * 0.00015) * (7 * scaleFactor) + breathingOffset;
       };
 
       // 100% Solid Opacity - Zero transparency on roses and authentic botanical branches
@@ -7810,7 +7811,8 @@ function setupBookingReveal() {
             const screenStemY = y - scrollTop;
             if (screenStemY + segmentH < -100 || screenStemY > h + 100) continue;
             const actualX = getTrunkX(baseX, phase, screenStemY + segmentH * 0.5);
-            const stemSway = Math.sin(timeNow * 0.001 + phase * 0.05) * 2.5;
+            // Ultra-slow, gentle majestic branch sway
+            const stemSway = Math.sin(timeNow * 0.00018 + phase * 0.04) * 1.1;
 
             ctx.save();
             ctx.translate(actualX, screenStemY + segmentH * 0.5);
@@ -7851,7 +7853,8 @@ function setupBookingReveal() {
           trunkPhase = tNode.lane === 0 ? 100 : 40;
         }
         const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, screenY);
-        const sway = Math.sin(timeNow * tNode.swaySpeed + tNode.swayPhase) * 4.5;
+        // Ultra-slow, delicate organic tendril sway
+        const sway = Math.sin(timeNow * tNode.swaySpeed + tNode.swayPhase) * 1.6;
         const currentRot = tNode.rot + sway;
 
         ctx.save();
@@ -7897,7 +7900,8 @@ function setupBookingReveal() {
         const img = framesArr ? framesArr[roundedIdx] : null;
 
         if (img && img.complete && img.naturalWidth > 0) {
-          const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
+          // Ultra-slow, serene rose petal breathing
+          const swayAngle = node.rot + Math.sin(timeNow * 0.00022 + i * 0.5) * 1.0;
           ctx.save();
           ctx.translate(screenX, screenY);
           ctx.rotate((swayAngle * Math.PI) / 180);
