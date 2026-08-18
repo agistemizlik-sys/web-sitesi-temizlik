@@ -7482,6 +7482,10 @@ function setupBookingReveal() {
       vineAssets[i] = vImg;
     }
 
+    // 🌿 Realistic Main Rose Stem with Thorns and Foliage 🌿
+    const mainStemImg = new Image();
+    mainStemImg.src = '/images/vines/main_rose_stem.png';
+
     // 🌿 Botanical Vine Tendril Nodes (Spirals, climbing curls, and leafy shoots)
     const botanicalTendrilNodes = [];
     const TOTAL_TENDRILS_PER_SIDE = 90;
@@ -7780,7 +7784,7 @@ function setupBookingReveal() {
       ctx.save();
       ctx.globalAlpha = 0.86;
 
-      const drawTrunk = (baseX, phase, widthPx) => {
+      const drawTrunk = (baseX, phase, widthPx, isRight) => {
         ctx.beginPath();
         ctx.moveTo(getTrunkX(baseX, phase, -60), -60);
         for (let y = -60; y <= h + 60; y += 70) {
@@ -7799,12 +7803,38 @@ function setupBookingReveal() {
         ctx.strokeStyle = '#40916c';
         ctx.lineWidth = Math.max(1.2, widthPx * 0.35 * scaleFactor);
         ctx.stroke();
+
+        // 🌿 Realistic Main Rose Stem with Thorns & Rose Foliage 🌿
+        if (mainStemImg && mainStemImg.complete && mainStemImg.naturalWidth > 0) {
+          const segmentH = 460 * scaleFactor;
+          const segmentW = 236 * scaleFactor;
+          const startY = Math.floor((-scrollTop - 100) / segmentH) * segmentH + (phase % segmentH);
+          
+          for (let y = startY; y <= scrollTop + h + segmentH; y += segmentH) {
+            const screenStemY = y - scrollTop;
+            if (screenStemY + segmentH < -100 || screenStemY > h + 100) continue;
+            const actualX = getTrunkX(baseX, phase, screenStemY + segmentH * 0.5);
+            const stemSway = Math.sin(timeNow * 0.001 + phase * 0.05) * 2.5;
+
+            ctx.save();
+            ctx.translate(actualX, screenStemY + segmentH * 0.5);
+            if (isRight) {
+              ctx.scale(-1, 1);
+            }
+            ctx.rotate((stemSway * Math.PI) / 180);
+            ctx.shadowColor = 'rgba(15, 35, 20, 0.18)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 3;
+            ctx.drawImage(mainStemImg, -segmentW * 0.5, -segmentH * 0.5, segmentW, segmentH);
+            ctx.restore();
+          }
+        }
       };
 
-      drawTrunk(lTrunk1, 0, 6);
-      drawTrunk(lTrunk2, 60, 4.5);
-      drawTrunk(rTrunk1, 40, 4.5);
-      drawTrunk(rTrunk2, 100, 6);
+      drawTrunk(lTrunk1, 0, 6, false);
+      drawTrunk(lTrunk2, 60, 4.5, false);
+      drawTrunk(rTrunk1, 40, 4.5, true);
+      drawTrunk(rTrunk2, 100, 6, true);
 
       // 🌿 1.5 Draw 16 High-Fidelity Botanical Vine Tendril Sprites along Climbing Trellises 🌿
       for (let i = 0; i < botanicalTendrilNodes.length; i++) {
