@@ -7820,16 +7820,16 @@ function setupBookingReveal() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      // Responsive scaling for small/medium viewports
-      const scaleFactor = w < 768 ? 0.65 : (w < 1200 ? 0.85 : 1.0);
+      // Responsive scaling for small/medium mobile and desktop viewports
+      const scaleFactor = w < 480 ? 0.44 : (w < 768 ? 0.60 : (w < 1200 ? 0.85 : 1.0));
 
       // Calculate active central booking card boundaries to position flank roses with 100% page harmony
-      const cardWidth = Math.min(1240, Math.max(320, w - 40));
-      const cardLeft = Math.max(10, (w - cardWidth) / 2);
-      const cardRight = Math.min(w - 10, cardLeft + cardWidth);
+      const cardWidth = w < 768 ? (w - 20) : Math.min(1240, Math.max(320, w - 40));
+      const cardLeft = Math.max(8, (w - cardWidth) / 2);
+      const cardRight = Math.min(w - 8, cardLeft + cardWidth);
 
       // Dedicated breathing margin between cards and flanking botanical rose garden
-      const CARD_MARGIN = Math.min(48 * scaleFactor, cardLeft * 0.25);
+      const CARD_MARGIN = w < 768 ? 4 : Math.min(48 * scaleFactor, cardLeft * 0.25);
       const availLeft = Math.max(10, cardLeft - CARD_MARGIN);
       const rightStart = cardRight + CARD_MARGIN;
       const availRight = Math.max(10, w - rightStart);
