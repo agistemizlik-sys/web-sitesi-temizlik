@@ -7208,14 +7208,56 @@ function updatePriceSliderDisplay() {
   const roomCount = roomElem ? (parseInt(roomElem.textContent) || 1) : 1;
   const bathCount = bathElem ? (parseInt(bathElem.textContent) || 1) : 1;
 
+  // Active Service Preset (Standart vs Detaylı vs Taşınma vs İnşaat)
+  const activePresetCard = document.querySelector('.wizard-service-preset-card.active');
+  const servicePreset = (activePresetCard?.dataset?.servicePreset || STATE.calculator?.serviceType || 'standart').toLowerCase();
+
   // Base rate calculation:
-  // Poland (PLN): Base 219.00 PLN (Home) / 289.00 PLN (Business) + (rooms-1)*49.00 + (baths-1)*55.00
-  // Turkey (TL): Base 1.850,00 TL (Home) / 2.450,00 TL (Business) + (rooms-1)*350.00 + (baths-1)*350.00
+  // - Standart: Base 1.850 TL / 219 PLN (Home) | 2.450 TL / 289 PLN (Business) | Room/Bath: 350 TL / 49-55 PLN
+  // - Detaylı:  Base 2.450 TL / 289 PLN (Home) | 3.150 TL / 369 PLN (Business) | Room/Bath: 450 TL / 65-70 PLN
+  // - Taşınma:  Base 2.750 TL / 319 PLN (Home) | 3.450 TL / 399 PLN (Business) | Room/Bath: 450 TL / 65-70 PLN
+  // - İnşaat:   Base 3.350 TL / 389 PLN (Home) | 4.250 TL / 499 PLN (Business) | Room/Bath: 550 TL / 75-80 PLN
   let baseCalc = 0;
   if (isPl) {
-    baseCalc = (isBusiness ? 289.00 : 219.00) + (roomCount - 1) * 49.00 + (bathCount - 1) * 55.00;
+    let baseRate = isBusiness ? 289.00 : 219.00;
+    let roomRate = 49.00;
+    let bathRate = 55.00;
+
+    if (servicePreset === 'detayli') {
+      baseRate = isBusiness ? 369.00 : 289.00;
+      roomRate = 65.00;
+      bathRate = 70.00;
+    } else if (servicePreset === 'tasinma' || servicePreset === 'tasinma_sonrasi') {
+      baseRate = isBusiness ? 399.00 : 319.00;
+      roomRate = 65.00;
+      bathRate = 70.00;
+    } else if (servicePreset === 'insaat' || servicePreset === 'insaat_sonrasi') {
+      baseRate = isBusiness ? 499.00 : 389.00;
+      roomRate = 75.00;
+      bathRate = 80.00;
+    }
+
+    baseCalc = baseRate + (roomCount - 1) * roomRate + (bathCount - 1) * bathRate;
   } else {
-    baseCalc = (isBusiness ? 2450.00 : 1850.00) + (roomCount - 1) * 350.00 + (bathCount - 1) * 350.00;
+    let baseRate = isBusiness ? 2450.00 : 1850.00;
+    let roomRate = 350.00;
+    let bathRate = 350.00;
+
+    if (servicePreset === 'detayli') {
+      baseRate = isBusiness ? 3150.00 : 2450.00;
+      roomRate = 450.00;
+      bathRate = 450.00;
+    } else if (servicePreset === 'tasinma' || servicePreset === 'tasinma_sonrasi') {
+      baseRate = isBusiness ? 3450.00 : 2750.00;
+      roomRate = 450.00;
+      bathRate = 450.00;
+    } else if (servicePreset === 'insaat' || servicePreset === 'insaat_sonrasi') {
+      baseRate = isBusiness ? 4250.00 : 3350.00;
+      roomRate = 550.00;
+      bathRate = 550.00;
+    }
+
+    baseCalc = baseRate + (roomCount - 1) * roomRate + (bathCount - 1) * bathRate;
   }
 
   // Kitchen Discount
@@ -7361,14 +7403,24 @@ function updatePriceSliderDisplay() {
   // Update Summary Text
   const summaryEl = document.getElementById('wizardSummaryText');
   if (summaryEl) {
+    const presetNames = {
+      standart: isPl ? 'Standardowe Sprzątanie' : 'Standart Temizlik',
+      detayli: isPl ? 'Głębokie / Wiosenne Sprzątanie' : 'Detaylı / Bahar Temizliği',
+      tasinma: isPl ? 'Sprzątanie po Przeprowadzce' : 'Taşınma / Boş Ev Temizliği',
+      tasinma_sonrasi: isPl ? 'Sprzątanie po Przeprowadzce' : 'Taşınma / Boş Ev Temizliği',
+      insaat: isPl ? 'Sprzątanie po Remoncie' : 'İnşaat / Tadilat Sonrası Temizlik',
+      insaat_sonrasi: isPl ? 'Sprzątanie po Remoncie' : 'İnşaat / Tadilat Sonrası Temizlik'
+    };
+    const currentPresetName = presetNames[servicePreset] || presetNames.standart;
+
     if (isBusiness) {
       summaryEl.textContent = isPl
-        ? `${roomCount} biuro / pomieszczenie, ${bathCount} łazienka`
-        : `${roomCount} çalışma odası/ofis alanı, ${bathCount} banyo/WC içeren işletme temizliği`;
+        ? `${currentPresetName}: ${roomCount} biuro / pomieszczenie, ${bathCount} łazienka`
+        : `${currentPresetName}: ${roomCount} çalışma odası/ofis alanı, ${bathCount} banyo/WC`;
     } else {
       summaryEl.textContent = isPl
-        ? `${roomCount} pokój, ${bathCount} łazienka, sprzątanie kuchni i przedpokoju`
-        : `${roomCount} oturma odası, ${bathCount} banyo, mutfak ve hol içeren daire temizliği`;
+        ? `${currentPresetName}: ${roomCount} pokój, ${bathCount} łazienka, kuchnia i przedpokój`
+        : `${currentPresetName}: ${roomCount} oda, ${bathCount} banyo, mutfak ve hol`;
     }
   }
 
