@@ -842,6 +842,9 @@ function applyGatewayCardTranslations(dict, lang) {
   }
 
   // Floating Capsule Top Nav translations
+  const cNavActiveSceneLabel = document.getElementById('cNavActiveSceneLabel');
+  if (cNavActiveSceneLabel) cNavActiveSceneLabel.textContent = lang === 'pl' ? 'Informacje o firmie' : 'Kurumsal Bilgi';
+
   const cNavMapText = document.getElementById('cNavMapText');
   if (cNavMapText) cNavMapText.textContent = lang === 'pl' ? 'Mapa Miast' : 'Şehir Haritası';
   
@@ -5276,11 +5279,7 @@ function setupCinemaEngine() {
   ];
 
   const updateFloatingNavActiveScene = (sceneNum) => {
-    const activeLabel = document.getElementById('cNavActiveSceneLabel');
-    if (activeLabel && sceneNum >= 1 && sceneNum <= 3) {
-      activeLabel.textContent = CINEMA_SCENE_TITLES[sceneNum - 1];
-    }
-    const items = document.querySelectorAll('.c-nav-dropdown-item');
+    const items = document.querySelectorAll('.c-nav-dropdown-item[data-scene]');
     items.forEach((item) => {
       const sc = parseInt(item.getAttribute('data-scene'), 10);
       if (sc === sceneNum) {
