@@ -8759,40 +8759,85 @@ function setupBookingReveal() {
       successWaBtn.href = waFullUrl;
     }
 
-    // Lead payload for backend synchronization
+    // Complete Lead payload for admin panel synchronization
+    const fullAddress = `${district ? district + ', ' : ''}${street} No:${houseNum} D:${aptNum} ${building} Kat:${floor}`;
+    const numericPriceVal = STATE.calculator && STATE.calculator.price ? STATE.calculator.price : (parseFloat(finalPriceText.replace(/[^0-9.,]/g, '').replace(',', '.')) || 0);
+
     const leadPayload = {
+      // Primary IDs
+      id: resCode,
       resCode: resCode,
+      
+      // Customer details (both standard and panel naming)
+      customerName: name,
       name: name,
+      customerPhone: phone,
       phone: phone,
+      customerEmail: email,
       email: email,
+      
+      // Location & Address
       city: city,
       district: district,
-      address: `${district ? district + ', ' : ''}${street} No:${houseNum} D:${aptNum} ${building} Kat:${floor}`,
-      date: date,
-      time: time,
+      customerAddress: fullAddress,
+      address: fullAddress,
+      
+      // Service Specs & Pricing
+      serviceType: serviceText,
+      service: serviceText,
       rooms: roomCount,
       baths: bathCount,
-      extras: selectedExtraNames,
-      payment: paymentMeta,
+      squareMeters: roomCount * 25 + 40,
+      price: numericPriceVal,
+      amount: numericPriceVal,
       finalPrice: finalPriceText,
+      
+      // Schedule
+      preferredDate: date,
+      date: date,
+      preferredTime: time,
+      time: time,
+      
+      // Extras, Scent, Notes & Promo
+      extras: selectedExtraNames,
       scent: scentPref,
       notes: notes,
+      referralCode: STATE.calculator.promoCode || null,
+      promoCode: STATE.calculator.promoCode || null,
+      discountRate: STATE.calculator.discountRate || 0,
+      
+      // Payment Details
+      payment: paymentMeta,
+      payMethod: paymentMeta.method || 'transfer',
+      
+      // Corporate Billing Info
       company: companyName ? { name: companyName, taxOffice, taxNumber, invoiceEmail } : null,
+      source: 'web_portal_form',
       createdAt: new Date().toISOString()
     };
 
-    // Send lead to Cloudflare / backend API
+    // Send lead to Cloudflare Relay / Admin Panel Endpoints (Multi-Tier Redundancy)
     const apiEndpoints = [
-      'https://backend-api.relaxaxserwis.workers.dev/api/leads',
-      'https://api.relaxax.com/api/leads'
+      '/api/leads',
+      'https://panel.relaxax.com/api/leads',
+      'http://64.177.116.243/api/leads',
+      'https://backend-api.relaxaxserwis.workers.dev/api/leads'
     ];
 
     apiEndpoints.forEach(endpoint => {
       fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'hc_live_7x9f2m4a1v8'
+        },
         body: JSON.stringify(leadPayload)
-      }).catch(() => {
+      }).then(res => {
+        if (res && res.ok) {
+          logDebug(`Lead successfully synchronized with panel endpoint: ${endpoint}`);
+        }
+      }).catch(err => {
+        logDebug(`Relay retry fallback for ${endpoint}:`, err);
         saveLeadOffline(leadPayload);
       });
     });
