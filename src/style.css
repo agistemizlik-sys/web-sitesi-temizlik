@@ -1009,20 +1009,27 @@ html.bypassing-gateway #portal-stage {
 
 @media (max-width: 520px) {
   .c-floating-navbar {
-    padding: 3px 6px;
-    gap: 3px;
-    max-width: 98vw;
+    padding: 4px 8px;
+    gap: 4px;
+    max-width: calc(100vw - 12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   }
   #cNavBeforeAfterBtn .c-nav-btn-text,
   #cNavCityMapBtn .c-nav-btn-text,
+  #cNavProductsBtn .c-nav-btn-text,
   #cNavPriceCalcBtn .c-nav-btn-text {
     display: none;
   }
   .c-nav-pill-btn {
-    padding: 4px 7px;
+    padding: 6px 8px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
   .c-nav-whatsapp-pill-btn {
-    padding: 4px 8px;
+    padding: 6px 10px;
+    min-height: 32px;
   }
 }
 
@@ -1031,13 +1038,13 @@ html.bypassing-gateway #portal-stage {
     display: none;
   }
   .c-nav-whatsapp-pill-btn {
-    padding: 4px 8px;
+    padding: 6px 8px;
   }
   .c-nav-brand-title {
     font-size: 11px;
   }
   .c-nav-btn-text {
-    max-width: 80px;
+    max-width: 70px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -12452,6 +12459,7 @@ iframe[title*="Message preview"] {
   }
 
   /* Sticky Mobile Bottom Bar */
+  .mobile-wizard-sticky-bar,
   .mobile-sticky-checkout-bar {
     display: flex !important;
     position: fixed !important;
