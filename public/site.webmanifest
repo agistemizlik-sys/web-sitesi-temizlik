@@ -4,24 +4,45 @@
   "description": "İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir, Antalya ve Warszawa'da sinematik interaktif premium temizlik deneyimi.",
   "lang": "tr",
   "start_url": "/",
-  "display": "browser",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f7f6f2",
   "theme_color": "#f7f6f2",
   "icons": [
     {
       "src": "/favicon-96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/images/logo-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hemen Rezervasyon Yap",
+      "short_name": "Rezervasyon",
+      "description": "Hızlı online temizlik randevusu oluştur",
+      "url": "/?action=booking",
+      "icons": [{ "src": "/favicon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "WhatsApp Sipariş Hattı",
+      "short_name": "WhatsApp",
+      "description": "Doğrudan müşteri temsilcisine bağlan",
+      "url": "https://wa.me/905466479004",
+      "icons": [{ "src": "/favicon-96.png", "sizes": "96x96" }]
     }
   ]
 }
