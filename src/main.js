@@ -6053,9 +6053,13 @@ function setupCinemaEngine() {
       cState.currentY = 50;
       
       cState.activeIdx = -1;
-      if (cState.sceneStates && cState.sceneStates[0]) {
-        cState.sceneStates[0].targetOpacity = 1;
-        cState.sceneStates[0].currentOpacity = 1;
+      if (cState.sceneStates) {
+        cState.sceneStates.forEach(sc => {
+          if (sc) {
+            sc.targetOpacity = 0;
+            sc.currentOpacity = 0;
+          }
+        });
       }
       scenes.forEach((sc) => {
         if (sc.video) {
