@@ -5298,6 +5298,7 @@ img, video, .card-bg-image {
   overflow: hidden !important;
   pointer-events: none !important;
   z-index: 1 !important;
+  opacity: 1 !important;
 }
 
 .services-ivy-bg-video {
@@ -5512,17 +5513,28 @@ video,
   position: relative !important;
   background: #ffffff !important;
   border: 1.5px solid #e2e8f0 !important;
-  border-radius: 14px !important;
-  padding: 28px 12px 8px 12px !important; /* 28px top padding cleanly clears badge */
+  border-radius: 16px !important;
+  padding: 12px 14px 10px 14px !important;
   text-align: left !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05), 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(0, 0, 0, 0.03) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  gap: 3px !important;
+  gap: 4px !important;
   overflow: hidden !important;
+}
+
+.service-card-top-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 3 !important;
+  margin-bottom: 2px !important;
+  min-height: 22px !important;
 }
 
 .service-card-bg-img {
@@ -5566,76 +5578,80 @@ video,
 
 /* Badges & Active Indicators */
 .service-badge {
-  position: absolute;
-  top: 7px;
-  left: 10px;
-  font-size: 0.62rem;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 99px;
-  letter-spacing: 0.3px;
-  z-index: 3;
-  line-height: 1.2;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 0.64rem !important;
+  font-weight: 700 !important;
+  padding: 3px 9px !important;
+  border-radius: 99px !important;
+  letter-spacing: 0.3px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
 }
 
 .service-badge.popular {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  color: #fff;
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35) !important;
 }
 
 .service-badge.recommended {
-  background: linear-gradient(135deg, #059669, #10b981);
-  color: #fff;
-  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35);
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35) !important;
+}
+
+.service-badge.general {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
 .service-check-indicator {
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #2563eb;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: scale(0.6);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
-  z-index: 3;
+  position: static !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 0 !important;
+  transform: scale(0.6) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.6) !important;
+  margin-left: auto !important;
 }
 
 .service-select-item.selected .service-check-indicator {
-  opacity: 1;
-  transform: scale(1);
+  opacity: 1 !important;
+  transform: scale(1) !important;
 }
 
 /* Card Header & Icon */
 .service-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 0;
-  position: relative;
-  z-index: 2;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 0 !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 .service-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #2563eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 9px !important;
+  background: #eff6ff !important;
+  border: 1px solid #bfdbfe !important;
+  color: #2563eb !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: all 0.3s ease !important;
 }
 
 .service-select-item.selected .service-icon-box {
@@ -6326,28 +6342,21 @@ video,
   }
   .services-select-card {
     margin: auto !important;
-    padding: 18px 12px 20px;
+    padding: 0 !important;
     max-width: 100%;
-    width: 95%;
-    border-radius: 20px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-  }
-  .services-select-card .services-select-hud-header {
-    margin-bottom: 12px;
-    padding-bottom: 6px;
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   .services-select-title {
     font-size: 1.25rem;
-    letter-spacing: 2px;
+    letter-spacing: -0.02em;
     margin-bottom: 4px;
-  }
-  .services-select-subtitle {
-    font-size: 0.68rem;
-    margin-bottom: 14px;
   }
   .services-select-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
   @media (max-width: 540px) {
     .services-select-grid {
