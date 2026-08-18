@@ -169,18 +169,28 @@ export async function onRequestPost(context) {
     console.error('conversion relay error', err);
   }
 
+  const origin = request.headers.get('Origin') || '';
+  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev'))) ? origin : 'https://relaxax.com';
+
   // sendBeacon yanıtı okumaz; hızlı 202 → INP/main-thread maliyeti sıfır
   return new Response(JSON.stringify({ ok: true }), {
     status: 202,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      'Access-Control-Allow-Origin': allowedOrigin
+    },
   });
 }
 
-export function onRequestOptions() {
+export function onRequestOptions(context) {
+  const origin = (context && context.request) ? context.request.headers.get('Origin') : '';
+  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev'))) ? origin : 'https://relaxax.com';
+
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': 'https://relaxax.com',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',

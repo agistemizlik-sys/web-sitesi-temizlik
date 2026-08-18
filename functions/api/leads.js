@@ -5,20 +5,39 @@
  * preventing Mixed Content / CORS issues on HTTPS.
  */
 
-const PANEL_ENDPOINT = "https://panel.relaxax.com/api/leads";
+const PANEL_ENDPOINTS = [
+  "https://panel.relaxax.com/api/leads",
+  "http://64.177.116.243/api/leads"
+];
 
 export async function onRequestPost(context) {
   const { request } = context;
   try {
     const rawBody = await request.text();
-    const response = await fetch(PANEL_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": "hc_live_7x9f2m4a1v8"
-      },
-      body: rawBody
-    });
+    let response = null;
+    let lastError = null;
+
+    for (const endpoint of PANEL_ENDPOINTS) {
+      try {
+        response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "hc_live_7x9f2m4a1v8"
+          },
+          body: rawBody
+        });
+        if (response && (response.ok || response.status < 500)) {
+          break;
+        }
+      } catch (e) {
+        lastError = e;
+      }
+    }
+
+    if (!response) {
+      throw lastError || new Error("Failed to connect to panel backend");
+    }
 
     const resText = await response.text();
     return new Response(resText, {

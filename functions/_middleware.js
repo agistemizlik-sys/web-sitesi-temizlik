@@ -83,12 +83,16 @@ const SERVICES = {
     ['Detaylı Temizlik', 'Dip köşe, ince temizlik ve detaylı yüzey arındırma.'],
     ['Kurumsal Temizlik (B2B)', 'İş yeri, restoran ve plazalar için periyodik çözümler.'],
     ['İlaçlama & Dezenfeksiyon', 'Böcek, haşere ve bakteri dezenfeksiyon işlemleri.'],
+    ['İnşaat Sonrası Temizlik', 'Tadilat tozu arındırma, boya/alçı kazıma ve şantiye temizliği.'],
+    ['Taşınma Öncesi/Sonrası Temizlik', 'Boş ev sterilizasyonu, dolap içi hijyen ve taşınmaya hazır temizlik.'],
   ],
   pl: [
     ['Standardowe Sprzątanie', 'Ogólne porządki i podstawowa czystość dla domu i biura.'],
     ['Głębokie Sprzątanie', 'Dokładne czyszczenie zakamarków i głębokie usuwanie brudu.'],
     ['Sprzątanie Firmowe (B2B)', 'Okresowe usługi dla biur, restauracji i centrów biznesowych.'],
     ['Dezynsekcja & Dezynfekcja', 'Czyszczenie przeciw owadom, szkodnikom i sterylizacja sanitarna.'],
+    ['Sprzątanie po budowie / remoncie', 'Usuwanie pyłu budowlanego, resztek farby, gipsu i czyszczenie spoin.'],
+    ['Sprzątanie przed/po przeprowadzce', 'Sterylizacja pustego mieszkania, mycie wnętrza szafek i odkażanie.'],
   ],
 };
 
@@ -128,19 +132,19 @@ function buildSchemaGraph(lang, city) {
         '@type': 'ProfessionalService',
         '@id': `${ORIGIN}/#business`,
         name: 'RELAXAX',
-        alternateName: 'A Cleaning',
+        alternateName: 'RELAXAX Premium Cleaning',
         url: `${ORIGIN}/`,
         logo: `${ORIGIN}/favicon.svg`,
-        image: `${ORIGIN}/images/soap_foam_bubbles.png`,
+        image: `${ORIGIN}/images/og-image.png`,
         description: META.tr.description,
-        telephone: '+905320000000',
+        telephone: '+905466479004',
         email: 'info@relaxax.com',
         priceRange: '₺₺',
         knowsLanguage: ['tr', 'pl'],
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'customer service',
-          telephone: '+905320000000',
+          telephone: '+905466479004',
           availableLanguage: ['Turkish', 'Polish'],
         },
         openingHoursSpecification: {
@@ -250,7 +254,7 @@ function buildSnapshotSection(lang, city) {
   <h3>${h.faq}</h3>
   ${FAQ[lang].map(([q, a]) => `<h4>${q}</h4>\n  <p>${a}</p>`).join('\n  ')}
   <h3>${h.contact}</h3>
-  <p>${h.phone}: <a href="tel:+905320000000">+90 (532) 000 00 00</a> · ${h.email}: <a href="mailto:info@relaxax.com">info@relaxax.com</a> · ${h.hours}</p>
+  <p>${h.phone}: <a href="tel:+905466479004">+90 (546) 647 90 04</a> · ${h.email}: <a href="mailto:info@relaxax.com">info@relaxax.com</a> · ${h.hours}</p>
 </section>`;
 }
 
@@ -289,6 +293,12 @@ export async function onRequest(context) {
   if (!contentType.includes('text/html')) return response;
 
   const langParam = url.searchParams.get('lang');
+  if (langParam === 'tr') {
+    url.searchParams.delete('lang');
+    const qs = url.searchParams.toString();
+    return Response.redirect(`${url.origin}/${qs ? `?${qs}` : ''}`, 301);
+  }
+
   const cityParam = (url.searchParams.get('city') || '').toLowerCase();
   const city = CITY_META[cityParam] ? cityParam : null;
   const lang = langParam === 'pl' || (city && CITY_META[city].lang === 'pl') ? 'pl' : 'tr';

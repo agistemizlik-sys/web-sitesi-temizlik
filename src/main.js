@@ -1,31 +1,50 @@
+import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
 import { STATE, REGION_THEMES, CITY_TO_REGION, CITY_NAMES_TR, CITY_NAMES_TR_TITLE } from './js/state.js';
 import { TRANSLATIONS, SERVICE_SCENE_TEXTS, SERVICE_SCENE_TEXTS_PL } from './js/translations.js';
 import { initAttribution, trackConversion } from './js/tracking.js';
 gsap.registerPlugin(ScrollTrigger);
 
 // Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
-let DEBUG = window.location.hash.includes('debug') || localStorage.getItem('tworose_debug') === 'true';
+let DEBUG = window.location.hash.includes('debug') || localStorage.getItem('relaxax_debug') === 'true' || localStorage.getItem('tworose_debug') === 'true';
 function logDebug(...args) {
   if (DEBUG) {
-    console.log('%c[TwoRose Debug]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 3px 6px; border-radius: 4px; border: 1px solid #00e5ff;', ...args);
+    console.log('%c[RELAXAX Debug]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 3px 6px; border-radius: 4px; border: 1px solid #00e5ff;', ...args);
   }
 }
 function logErrorDebug(...args) {
   if (DEBUG) {
-    console.error('%c[TwoRose Error]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 3px 6px; border-radius: 4px; border: 1px solid #ff3366;', ...args);
+    console.error('%c[RELAXAX Error]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 3px 6px; border-radius: 4px; border: 1px solid #ff3366;', ...args);
   } else {
     console.error(...args);
   }
 }
-// Global window exception tracker writing directly to our visual screen logger
+// Universal HTML Entity Sanitizer to eliminate DOM-based XSS vulnerabilities
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Global window exception tracker writing directly to our visual screen logger when in debug mode
 window.onerror = function(message, source, lineno, colno, error) {
-  const debugHUD = document.getElementById('cinemaDebugHUD');
-  if (debugHUD) {
-    debugHUD.innerHTML = `<span style="color:#ff3366;font-weight:bold;">ERR: ${message}</span><br>at ${source}:${lineno}`;
-    debugHUD.style.opacity = '1';
+  if (DEBUG) {
+    let debugHUD = document.getElementById('cinemaDebugHUD');
+    if (!debugHUD && document.body) {
+      debugHUD = document.createElement('div');
+      debugHUD.id = 'cinemaDebugHUD';
+      debugHUD.style.cssText = 'position:fixed;bottom:20px;left:20px;z-index:999999;background:rgba(15,23,42,0.92);color:#ff3366;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:12px;border:1px solid #ff3366;pointer-events:none;';
+      document.body.appendChild(debugHUD);
+    }
+    if (debugHUD) {
+      debugHUD.innerHTML = `<span style="color:#ff3366;font-weight:bold;">ERR: ${escapeHTML(message)}</span><br>at ${escapeHTML(source)}:${escapeHTML(lineno)}`;
+      debugHUD.style.opacity = '1';
+    }
   }
 };
 
@@ -34,11 +53,12 @@ window.addEventListener('hashchange', () => {
   const isDebug = window.location.hash.includes('debug');
   DEBUG = isDebug;
   if (isDebug) {
-    localStorage.setItem('tworose_debug', 'true');
-    console.log('%c[TwoRose Debug Enabled]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 4px; border-radius: 4px; border: 1px solid #00e5ff;');
+    localStorage.setItem('relaxax_debug', 'true');
+    console.log('%c[RELAXAX Debug Enabled]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 4px; border-radius: 4px; border: 1px solid #00e5ff;');
   } else {
+    localStorage.removeItem('relaxax_debug');
     localStorage.removeItem('tworose_debug');
-    console.log('%c[TwoRose Debug Disabled]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 4px; border-radius: 4px; border: 1px solid #ff3366;');
+    console.log('%c[RELAXAX Debug Disabled]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 4px; border-radius: 4px; border: 1px solid #ff3366;');
   }
 });
 
@@ -105,6 +125,20 @@ function stopParticleLoop() {
 }
 
 function destroyLeafletMap(country) {
+  if (portalHotspotListeners && portalHotspotListeners.length > 0) {
+    portalHotspotListeners.forEach((item) => {
+      if (item && item.hotspot) {
+        const { hotspot, onEnter, onLeave, clickHandler, keyHandler } = item;
+        if (onEnter) hotspot.removeEventListener('mouseenter', onEnter);
+        if (onLeave) hotspot.removeEventListener('mouseleave', onLeave);
+        if (clickHandler) hotspot.removeEventListener('click', clickHandler);
+        if (keyHandler) hotspot.removeEventListener('keydown', keyHandler);
+      } else if (typeof item === 'function') {
+        try { item(); } catch(e) {}
+      }
+    });
+    portalHotspotListeners = [];
+  }
   if (country === 'turkey' && turkeyMapInstance) {
     try { turkeyMapInstance.remove(); } catch (e) {}
     turkeyMapInstance = null;
@@ -147,10 +181,185 @@ let resizeCanvasHandler = null;
 let portalMouseMoveHandler = null;
 let particlesVisibilityHandler = null;
 let synth = null;
+let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
 let activeCity = null;
 let cachedStageRect = null;
 let cachedMapRect = null;
 let cachedWrapperRect = null;
+
+// ==========================================
+// FUTURISTIC WEB AUDIO SYNTH & UX TOGGLE
+// ==========================================
+class CyberSynth {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+    try {
+      this.muted = (localStorage.getItem('relaxax_audio_muted') || localStorage.getItem('tworose_audio_muted')) === 'true';
+    } catch (e) {
+      logDebug("localStorage read blocked", e);
+    }
+    this.spikeTimeout = null;
+    this.visualizerEl = null;
+  }
+
+  init() {
+    if (this.ctx) {
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      return;
+    }
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+    } catch (e) {
+      logDebug("Web Audio API not supported", e);
+    }
+  }
+
+  triggerSpike() {
+    if (!this.visualizerEl) {
+      this.visualizerEl = document.querySelector('.audio-visualizer-bars');
+    }
+    if (!this.visualizerEl) return;
+
+    if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(this.visualizerEl);
+        gsap.fromTo(this.visualizerEl, 
+          { scaleY: 1.5, opacity: 1 },
+          { scaleY: 1.0, opacity: 0.25, duration: 0.15, ease: 'power2.out' }
+        );
+    }
+  }
+
+  playTick() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+      return;
+    }
+    this.triggerSpike();
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(2800, this.ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.012, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + 0.04);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.04);
+  }
+
+  playClick() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+      return;
+    }
+    this.triggerSpike();
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(480, now);
+    osc.frequency.exponentialRampToValueAtTime(840, now + 0.09);
+
+    gain.gain.setValueAtTime(0.035, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+    osc.start();
+    osc.stop(now + 0.12);
+  }
+
+  playWarp() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx || this.ctx.state === 'suspended') return;
+    this.triggerSpike();
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(90, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.75);
+
+    filter.type = 'lowpass';
+    filter.Q.setValueAtTime(8, now);
+    filter.frequency.setValueAtTime(220, now);
+    filter.frequency.exponentialRampToValueAtTime(1500, now + 0.75);
+
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.linearRampToValueAtTime(0.05, now + 0.25);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+
+    osc.start();
+    osc.stop(now + 0.85);
+  }
+
+  toggleMute() {
+    this.muted = !this.muted;
+    try {
+      localStorage.setItem('relaxax_audio_muted', this.muted);
+    } catch (e) {
+      logDebug("localStorage write blocked", e);
+    }
+    
+    if (!this.muted && this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(err => logDebug("Audio Context resume failed", err));
+    }
+    
+    this.updateToggleUI();
+  }
+
+  updateToggleUI() {
+    const btn = document.getElementById('portalAudioToggle');
+    if (!btn) return;
+
+    const text = btn.querySelector('.audio-toggle-text');
+    const lang = STATE.language || STATE.currentLang || 'tr';
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
+
+    if (this.muted) {
+      btn.classList.add('muted');
+      if (text) text.textContent = dict.audioOff || 'AUDIO: OFF';
+    } else {
+      btn.classList.remove('muted');
+      if (text) text.textContent = dict.audioOn || 'AUDIO: ON';
+    }
+  }
+}
+
+synth = new CyberSynth();
+
+window.playTickSound = () => { if (synth) synth.playTick(); };
+window.playClickSound = () => { if (synth) synth.playClick(); };
+window.playWarpSound = () => { if (synth) synth.playWarp(); };
+
 
 
 function cleanupGatewayListeners() {
@@ -293,7 +502,7 @@ function applyPageMetaTranslations(dict, lang) {
           "name": "RELAXAX",
           "image": "https://relaxax.com/images/og-image.png",
           "url": "https://relaxax.com",
-          "telephone": isPl ? "+48221234567" : "+905320000000",
+          "telephone": isPl ? "+48221234567" : "+905466479004",
           "priceRange": "$$",
           "address": {
             "@type": "PostalAddress",
@@ -455,7 +664,7 @@ function applyPageMetaTranslations(dict, lang) {
   const telTL = document.querySelector('.telemetry-tick.telemetry-tl');
   if (telTL) telTL.textContent = dict.sysStatus;
 
-  if (typeof synth !== 'undefined') {
+  if (typeof synth !== 'undefined' && synth && typeof synth.updateToggleUI === 'function') {
     synth.updateToggleUI();
   }
 }
@@ -617,6 +826,33 @@ function applyGatewayCardTranslations(dict, lang) {
     const transCity = dict.cities[STATE.selectedCity];
     if (transCity) currentCityLabel.textContent = transCity.name;
   }
+
+  // Dynamic translations for the new CTA buttons and floating capsule navbar
+  const headerCtaBtn = document.getElementById('headerCtaBtn');
+  if (headerCtaBtn) {
+    headerCtaBtn.textContent = lang === 'pl' ? 'ZAMÓW' : 'SİPARİŞ VER';
+  }
+  const floatingCtaTxt = document.getElementById('floatingCtaTxt');
+  if (floatingCtaTxt) {
+    floatingCtaTxt.textContent = lang === 'pl' ? 'Zamów teraz ➔' : 'Hemen Sipariş Ver ➔';
+  }
+  const drawerCtaBtn = document.getElementById('drawerCtaBtn');
+  if (drawerCtaBtn) {
+    drawerCtaBtn.textContent = lang === 'pl' ? 'Zamów teraz ➔' : 'Hemen Sipariş Ver ➔';
+  }
+
+  // Floating Capsule Top Nav translations
+  const cNavMapText = document.getElementById('cNavMapText');
+  if (cNavMapText) cNavMapText.textContent = lang === 'pl' ? 'Mapa Miast' : 'Şehir Haritası';
+  
+  const cNavProductsText = document.getElementById('cNavProductsText') || document.getElementById('cNavBeforeAfterText');
+  if (cNavProductsText) cNavProductsText.textContent = lang === 'pl' ? 'Produkty' : 'Ürünlerimiz';
+  
+  const cNavCalcText = document.getElementById('cNavCalcText');
+  if (cNavCalcText) cNavCalcText.textContent = lang === 'pl' ? 'Oblicz Cenę' : 'Fiyat Hesapla';
+  
+  const cNavWhatsappText = document.getElementById('cNavWhatsappText');
+  if (cNavWhatsappText) cNavWhatsappText.textContent = lang === 'pl' ? 'WhatsApp Zamów' : 'WhatsApp Sipariş';
 }
 
 function applyBookingTranslations(dict, lang) {
@@ -647,11 +883,223 @@ function applyBookingTranslations(dict, lang) {
   if (fHoursLbl && dict.footerWorkingHours) fHoursLbl.textContent = dict.footerWorkingHours;
   if (fCopyLbl && dict.footerCopyright) fCopyLbl.textContent = dict.footerCopyright;
 
+  // Booking Header & Wizard Step Indicators
+  const bBadge = document.querySelector('.booking-section-header .b-badge');
+  const bTitle = document.querySelector('.booking-section-header .b-sec-main-title');
+  const bSub = document.querySelector('.booking-section-header .b-sec-main-sub');
+
+  if (bBadge) bBadge.textContent = lang === 'pl' ? 'SZYBKIE ZAMÓWIENIE' : 'HIZLI SİPARİŞİ OLUŞTURUN';
+  if (bTitle) bTitle.textContent = lang === 'pl' ? 'KALKULATOR SPRZĄTANIA DLA DOMU I FIRMY' : 'EVİNİZ / DAİRENİZ İÇİN TEMİZLİK HESAPLAYICI';
+  if (bSub) bSub.textContent = lang === 'pl' ? 'Nienaganna higiena, profesjonalny sprzęt. Oblicz cenę na żywo i zarezerwuj w kilka minut.' : 'Kusursuz hijyen, profesyonel ekipman. RELAXAX ile dakikalar içinde canlı fiyat hesaplayın ve rezervasyon yapın.';
+
+  const sInd1 = document.querySelector('#stepIndicator1 .w-step-text');
+  const sInd2 = document.querySelector('#stepIndicator2 .w-step-text');
+  const sInd3 = document.querySelector('#stepIndicator3 .w-step-text');
+
+  if (sInd1) sInd1.textContent = lang === 'pl' ? 'Mieszkanie i Częstotliwość' : 'Daire & Sıklık';
+  if (sInd2) sInd2.textContent = lang === 'pl' ? 'Usługi Dodatkowe' : 'Ek Hizmetler';
+  if (sInd3) sInd3.textContent = lang === 'pl' ? 'Adres i Termin' : 'Adres & Randevu';
+
+  // 1. Customer Type Buttons
+  const tabPersonBtn = document.getElementById('tabPersonBtn');
+  const tabBusinessBtn = document.getElementById('tabBusinessBtn');
+  if (tabPersonBtn) tabPersonBtn.textContent = lang === 'pl' ? 'Osoba prywatna' : 'Özel kişi';
+  if (tabBusinessBtn) tabBusinessBtn.textContent = lang === 'pl' ? 'Firma / Biuro' : 'İşletme';
+
+  // 2. Section Titles
+  const aptTitle = document.getElementById('wizardApartmentSecTitle');
+  if (aptTitle) {
+    const isBiz = tabBusinessBtn?.classList.contains('active');
+    aptTitle.textContent = lang === 'pl' 
+      ? (isBiz ? 'BIURO / FIRMA' : 'TWÓJ APARTAMENT') 
+      : (isBiz ? 'İŞLETME / OFİSİNİZ' : 'DAİRENİZ');
+  }
+
+  const helpBtn = document.getElementById('btnHelpModalOpen');
+  if (helpBtn) {
+    const isBiz = tabBusinessBtn?.classList.contains('active');
+    helpBtn.textContent = lang === 'pl' 
+      ? (isBiz ? '❓ Co obejmuje sprzątanie biura?' : '❓ Co obejmuje sprzątanie mieszkania?') 
+      : (isBiz ? '❓ Ofis temizliğine neler dahildir?' : '❓ Daire temizliğine neler dahildir?');
+  }
+
+  // Counter labels
+  const roomCounterLbl = document.querySelector('#btnMinusRoom + .counter-val-wrap .counter-lbl');
+  const bathCounterLbl = document.querySelector('#btnMinusBath + .counter-val-wrap .counter-lbl');
+  if (roomCounterLbl) roomCounterLbl.textContent = lang === 'pl' ? 'pokój' : 'oda';
+  if (bathCounterLbl) bathCounterLbl.textContent = lang === 'pl' ? 'łazienka' : 'banyo';
+
+  // Kitchen & Villa labels
+  const kitchenSpans = document.querySelectorAll('.wizard-kitchen-row .check-txt');
+  const orDivider = document.querySelector('.wizard-kitchen-row .or-divider');
+  if (kitchenSpans.length >= 2) {
+    kitchenSpans[0].textContent = lang === 'pl' ? 'Kuchnia' : 'Mutfak';
+    kitchenSpans[1].textContent = lang === 'pl' ? 'Mały aneks (-10 PLN / -100 TL)' : 'Küçük mutfak (-100 TL)';
+  }
+  if (orDivider) orDivider.textContent = lang === 'pl' ? 'Lub' : 'Veya';
+  const villaSpan = document.querySelector('.villa-check-item .check-txt');
+  if (villaSpan) villaSpan.textContent = lang === 'pl' ? '🏡 Dom jednorodzinny / Willa (+20%)' : '🏡 Müstakil ev (+%20)';
+
+  const helperNote = document.querySelector('.wizard-helper-note');
+  if (helperNote) {
+    helperNote.textContent = lang === 'pl'
+      ? '* Kompleksowe sprzątanie całego mieszkania, w tym kuchni, toalety i łazienki'
+      : '* Mutfak, tuvalet ve banyo dahil olmak üzere dairenin tamamının kapsamlı temizliği';
+  }
+
+  const trustItems = document.querySelectorAll('.wizard-trust-strip .w-trust-info');
+  if (trustItems.length >= 3) {
+    if (lang === 'pl') {
+      const s0 = trustItems[0].querySelector('strong'); if (s0) s0.textContent = '100% Gwarancja Satysfakcji';
+      const p0 = trustItems[0].querySelector('span'); if (p0) p0.textContent = 'Bezpłatne ponowne sprzątanie w razie uwag';
+      const s1 = trustItems[1].querySelector('strong'); if (s1) s1.textContent = 'Zweryfikowany i Ubezpieczony Zespół';
+      const p1 = trustItems[1].querySelector('span'); if (p1) p1.textContent = 'Certyfikowani specjaliści bez nałogów';
+      const s2 = trustItems[2].querySelector('strong'); if (s2) s2.textContent = 'Bezpłatne Anulowanie';
+      const p2 = trustItems[2].querySelector('span'); if (p2) p2.textContent = 'Bezkosztowa rezygnacja do 24h przed';
+    } else {
+      const s0 = trustItems[0].querySelector('strong'); if (s0) s0.textContent = '%100 Memnuniyet Garantisi';
+      const p0 = trustItems[0].querySelector('span'); if (p0) p0.textContent = 'Beğenmezseniz ücretsiz tekrar temizlik';
+      const s1 = trustItems[1].querySelector('strong'); if (s1) s1.textContent = 'Onaylı & Sigortalı Ekip';
+      const p1 = trustItems[1].querySelector('span'); if (p1) p1.textContent = 'Adli sicil teyitli uzman personel';
+      const s2 = trustItems[2].querySelector('strong'); if (s2) s2.textContent = 'Ücretsiz İptal';
+      const p2 = trustItems[2].querySelector('span'); if (p2) p2.textContent = '24 saat öncesine kadar koşulsuz iptal';
+    }
+  }
+
+  // 3. Frequency Section
+  const freqCenterTitle = document.querySelector('.wizard-sec-title-center');
+  const freqSubCenter = document.querySelector('.wizard-sec-sub-center');
+  if (freqCenterTitle) {
+    freqCenterTitle.innerHTML = lang === 'pl'
+      ? 'Częstsze sprzątanie - <span class="blue-txt">większy rabat</span>'
+      : 'Daha sık temizlik - <span class="blue-txt">daha büyük indirim</span>';
+  }
+  if (freqSubCenter) {
+    freqSubCenter.textContent = lang === 'pl'
+      ? 'Możesz anulować lub przenieść subskrypcję w dowolnym momencie.'
+      : 'Aboneliğinizi istediğiniz zaman iptal edebilir veya başka birine aktarabilirsiniz.';
+  }
+
+  // Freq Card names
+  const fWeekly = document.querySelector('.wizard-freq-card[data-freq="haftalik"] .freq-name');
+  const fBiweekly = document.querySelector('.wizard-freq-card[data-freq="ikahaftada"] .freq-name');
+  const fMonthly = document.querySelector('.wizard-freq-card[data-freq="aylik"] .freq-name');
+  const fOnce = document.querySelector('.wizard-freq-card[data-freq="tekseferlik"] .freq-name');
+  if (fWeekly) fWeekly.textContent = lang === 'pl' ? 'Raz w tygodniu' : 'Haftada bir';
+  if (fBiweekly) fBiweekly.textContent = lang === 'pl' ? 'Co dwa tygodnie' : 'İki haftada bir';
+  if (fMonthly) fMonthly.textContent = lang === 'pl' ? 'Raz w miesiącu' : 'Ayda bir kez';
+  if (fOnce) fOnce.textContent = lang === 'pl' ? 'Jednorazowe sprzątanie' : 'Tek seferlik temizlik';
+
+  // 4. Extras Section Header
+  const extrasHeader = document.querySelector('.wizard-extras-grid')?.previousElementSibling;
+  if (extrasHeader && extrasHeader.classList.contains('wizard-sec-title')) {
+    extrasHeader.textContent = lang === 'pl' ? 'USŁUGI DODATKOWE' : 'EK HİZMETLER';
+  }
+
+  // Extra service card titles & badges
+  const extraCardMapPL = {
+    firin: { name: 'Czyszczenie piekarnika', badge: '49,00 PLN' },
+    davlumbaz: { name: 'Czyszczenie okapu kuchennego', badge: '39,00 PLN' },
+    mutfak_dolabi: { name: 'Wnętrze szafek kuchennych', badge: '59,00 PLN' },
+    bulasik: { name: 'Zmywanie naczyń', badge: '30,00 PLN' },
+    buzdolabi: { name: 'Czyszczenie lodówki', badge: '45,00 PLN' },
+    mikrodalga: { name: 'Czyszczenie mikrofalówki', badge: '25,00 PLN' },
+    balkon: { name: 'Mycie balkonu / tarasu', badge: '45,00 PLN' },
+    pencere: { name: 'Mycie okien', badge: '39,00 PLN' },
+    utu: { name: 'Prasowanie', badge: '49,00 PLN/godz' },
+    koltuk_yikama: { name: 'Pranie kanapy / tapicerki', badge: '89,00 PLN' },
+    yatak_mite: { name: 'Antyalergiczne odkurzanie materaca', badge: '69,00 PLN' },
+    gardrop: { name: 'Porządkowanie szafy', badge: '45,00 PLN' },
+    bulasik_makinesi: { name: 'Czyszczenie zmywarki', badge: '39,00 PLN' },
+    cam_balkon: { name: 'Szklane balustrady i szyny', badge: '35,00 PLN' },
+    duvar_silimi: { name: 'Mycie ścian i fug', badge: '65,00 PLN' },
+    kedi_kabi: { name: 'Czyszczenie i dezynfekcja kuwety', badge: '25,00 PLN' },
+    kamerali_temizlik: { name: 'Sprzątanie z nagraniem kamerą (Bodycam)', badge: '59,00 PLN' },
+    guvenli_temizlik: { name: 'Bezpieczne i ubezpieczone sprzątanie', badge: '45,00 PLN' },
+    ek_saat: { name: 'Dodatkowe godziny', badge: '45,00 PLN/godz' },
+    supurge: { name: 'Profesjonalny odkurzacz HEPA', badge: '35,00 PLN' }
+  };
+
+  const extraCardMapTR = {
+    firin: { name: 'Fırın İçi Yağ Çözücü Temizlik', badge: '350 TL' },
+    davlumbaz: { name: 'Davlumbaz & Filtre Yağ Arındırma', badge: '350 TL' },
+    mutfak_dolabi: { name: 'Mutfak Dolapları İçi Temizlik', badge: '500 TL' },
+    bulasik: { name: 'Bulaşık Yıkama & Dizme', badge: '250 TL' },
+    buzdolabi: { name: 'Buzdolabı İçi Hijyen & Koku Giderme', badge: '350 TL' },
+    mikrodalga: { name: 'Mikrodalga Fırın Yıkama', badge: '200 TL' },
+    balkon: { name: 'Balkon / Teras Derin Yıkama', badge: '350 TL' },
+    pencere: { name: 'Pencere & Çerçeve Silimi', badge: '300 TL' },
+    utu: { name: 'Ütüleme Hizmeti', badge: '400 TL/saat' },
+    koltuk_yikama: { name: 'Koltuk & Kanepe Buharlı Yıkama', badge: '650 TL' },
+    yatak_mite: { name: 'Yatak / Baza Anti-Alerjen Vakumu', badge: '450 TL' },
+    gardrop: { name: 'Gardırop İçi Düzenleme & Katlama', badge: '350 TL' },
+    bulasik_makinesi: { name: 'Bulaşık Makinesi Filtre & Kireç Bakımı', badge: '300 TL' },
+    cam_balkon: { name: 'Cam Balkon Korkulukları & Raylar', badge: '300 TL' },
+    duvar_silimi: { name: 'Duvar Silimi & Derz Parlatma', badge: '550 TL' },
+    kedi_kabi: { name: 'Evcil Hayvan Alanı Dezenfeksiyonu', badge: '200 TL' },
+    kamerali_temizlik: { name: 'Kameralı Güvence (Bodycam Kaydı)', badge: '450 TL' },
+    guvenli_temizlik: { name: 'Güvenli & Sigortalı Ekip Temini', badge: '350 TL' },
+    ek_saat: { name: 'İlave Çalışma Süresi (Ek Saat)', badge: '350 TL/saat' },
+    supurge: { name: 'Profesyonel Elektrikli Süpürge & HEPA', badge: '300 TL' }
+  };
+
+  Object.keys(extraCardMapPL).forEach(key => {
+    const card = document.querySelector(`.wizard-extra-card[data-extra="${key}"]`);
+    if (card) {
+      const nameEl = card.querySelector('.w-extra-name');
+      const badgeEl = card.querySelector('.w-extra-badge');
+      const data = lang === 'pl' ? extraCardMapPL[key] : extraCardMapTR[key];
+      if (nameEl) nameEl.textContent = data.name;
+      if (badgeEl) {
+        const oldPriceVal = lang === 'pl' ? card.dataset.priceOldPl : card.dataset.priceOldTr;
+        const oldCurrency = lang === 'pl' ? ' PLN' : ' TL';
+        const oldSpan = oldPriceVal ? `<span class="w-old-price">${oldPriceVal}${oldCurrency}</span>` : '';
+        badgeEl.innerHTML = `${data.badge} ${oldSpan}`;
+      }
+    }
+  });
+
+  // Vacuum Banner text & badge
+  const vTextWrap = document.querySelector('.v-text-wrap');
+  const vBadge = document.querySelector('.v-badge');
+  if (vBadge) {
+    vBadge.textContent = lang === 'pl' ? '35,00 PLN' : '300 TL';
+  }
+  if (vTextWrap) {
+    if (lang === 'pl') {
+      vTextWrap.innerHTML = '<strong>Na miejscu wymagany jest odkurzacz.</strong><span>Przywieziemy ze sobą odkurzacz ręczny do sprzątania.</span>';
+    } else {
+      vTextWrap.innerHTML = '<strong>Siparişte elektrikli süpürge bulunması gerekmektedir.</strong><span>Temizlik için el tipi bir elektrikli süpürge getireceğiz.</span>';
+    }
+  }
+
+  // 5. Address Card Headers & Inputs
+  const dateShortcutToday = document.getElementById('btnDateToday');
+  const dateShortcutTomorrow = document.getElementById('btnDateTomorrow');
+  const dateShortcutWeekend = document.getElementById('btnDateWeekend');
+  if (dateShortcutToday) dateShortcutToday.textContent = lang === 'pl' ? '📅 Dzisiaj' : '📅 Bugün';
+  if (dateShortcutTomorrow) dateShortcutTomorrow.textContent = lang === 'pl' ? '📅 Jutro' : '📅 Yarın';
+  if (dateShortcutWeekend) dateShortcutWeekend.textContent = lang === 'pl' ? '📅 Weekend' : '📅 Hafta Sonu';
+
+  // Payment Banner text
+  const payBannerTextWrap = document.getElementById('payBannerTextWrap');
+  if (payBannerTextWrap) {
+    if (lang === 'pl') {
+      payBannerTextWrap.innerHTML = '<strong style="display: block; font-size: 0.92rem; color: #4ade80; margin-bottom: 2px;">Płatność gotówką na miejscu (Po wykonaniu)</strong><span style="display: block; font-size: 0.78rem; color: #94a3b8; line-height: 1.3;">Płacisz dopiero po zakończeniu sprzątania, gdy jesteś w 100% zadowolony.</span>';
+    } else {
+      payBannerTextWrap.innerHTML = '<strong style="display: block; font-size: 0.92rem; color: #4ade80; margin-bottom: 2px;">Kapıda Nakit Ödeme (Hizmet Sonrası)</strong><span style="display: block; font-size: 0.78rem; color: #94a3b8; line-height: 1.3;">Temizliğiniz eksiksiz tamamlanıp %100 memnun kaldıktan sonra ödemenizi adreste nakit olarak yapabilirsiniz.</span>';
+    }
+  }
+
+  // Submit Button text
+  const submitBtnSpan = document.querySelector('#btnSubmitBooking span');
+  if (submitBtnSpan) submitBtnSpan.textContent = lang === 'pl' ? 'Zamawiam sprzątanie ➔' : 'Sipariş veriyorum';
+
   // Translate ilaclama service selection card headers & tags dynamically
-  const cardIlaclama = document.querySelector('.service-select-item[data-service="ilaclama"]');
+  const cardIlaclama = document.querySelector('[data-service="ilaclama"]');
   if (cardIlaclama) {
     const h4 = cardIlaclama.querySelector('h4');
-    const p = cardIlaclama.querySelector('.service-select-info p');
+    const p = cardIlaclama.querySelector('.service-select-info p, .service-text p');
     const pills = cardIlaclama.querySelectorAll('.service-select-tag-pill');
     
     if (lang === 'pl') {
@@ -674,10 +1122,10 @@ function applyBookingTranslations(dict, lang) {
   }
 
   // Translate insaat_sonrasi service selection card headers & tags dynamically
-  const cardInsaat = document.querySelector('.service-select-item[data-service="insaat_sonrasi"]');
+  const cardInsaat = document.querySelector('[data-service="insaat_sonrasi"]');
   if (cardInsaat) {
     const h4 = cardInsaat.querySelector('h4');
-    const p = cardInsaat.querySelector('.service-select-info p');
+    const p = cardInsaat.querySelector('.service-select-info p, .service-text p');
     const pills = cardInsaat.querySelectorAll('.service-select-tag-pill');
     
     if (lang === 'pl') {
@@ -700,7 +1148,7 @@ function applyBookingTranslations(dict, lang) {
   }
 
   // Translate tasinma_sonrasi service selection card headers & tags dynamically
-  const cardTasinma = document.querySelector('.service-select-item[data-service="tasinma_sonrasi"]');
+  const cardTasinma = document.querySelector('[data-service="tasinma_sonrasi"]');
   if (cardTasinma) {
     const h4 = cardTasinma.querySelector('h4');
     const p = cardTasinma.querySelector('.service-select-info p');
@@ -761,7 +1209,7 @@ function applyBookingTranslations(dict, lang) {
     const lblFrequency = document.getElementById('lblBookingLabelFrequency');
     if (lblFrequency && dict.bookingLabelFrequency) lblFrequency.textContent = dict.bookingLabelFrequency;
     const cFrequencySelect = document.getElementById('cFrequency');
-    if (cFrequencySelect) {
+    if (cFrequencySelect && cFrequencySelect.options && cFrequencySelect.options.length >= 3) {
       cFrequencySelect.options[0].textContent = lang === 'pl' ? 'Jednorazowo' : 'Tek Seferlik Temizlik';
       cFrequencySelect.options[1].textContent = lang === 'pl' ? 'Co tydzień' : 'Haftalık Düzenli Temizlik';
       cFrequencySelect.options[2].textContent = lang === 'pl' ? 'Co miesiąc' : 'Aylık Düzenli Temizlik';
@@ -791,14 +1239,188 @@ function applyBookingTranslations(dict, lang) {
     const successText = document.getElementById('lblBookingSuccessText');
     if (successText && dict.bookingSuccessText) successText.textContent = dict.bookingSuccessText;
     const successOk = document.getElementById('successOkBtn');
-    if (successOk && dict.bookingSuccessOk) successOk.textContent = dict.bookingSuccessOk;
+    if (successOk) successOk.textContent = lang === 'pl' ? 'OK' : 'TAMAM';
+    const resCodePrefix = document.getElementById('lblResCodePrefix');
+    if (resCodePrefix) resCodePrefix.textContent = lang === 'pl' ? 'Kod rezerwacji:' : 'Rezervasyon Kodu:';
+    const successWaBtn = document.querySelector('#btnSuccessWhatsApp span');
+    if (successWaBtn) successWaBtn.textContent = lang === 'pl' ? '💬 Wyślij potwierdzenie WhatsApp' : '💬 WhatsApp Teyidi İlet';
+
+    // Premium Wizard Fields & Placeholders Translations
+    const translateLabel = (forAttr, plText, trText) => {
+      const label = bookingForm.querySelector(`label[for="${forAttr}"]`);
+      if (label) label.textContent = lang === 'pl' ? plText : trText;
+    };
+    const translatePlaceholder = (id, plText, trText) => {
+      const el = document.getElementById(id);
+      if (el) el.placeholder = lang === 'pl' ? plText : trText;
+    };
+
+    // City Dropdown label
+    const cityLabel = bookingForm.querySelector('.wizard-city-dropdown-row label');
+    if (cityLabel) cityLabel.textContent = lang === 'pl' ? 'Wybierz miasto:' : 'Şehir seçin:';
+
+    // Wizard fields labels
+    translateLabel('cStreet', 'Ulica / Aleja', 'Sokak / Cadde');
+    translateLabel('cZip', 'Kod pocztowy', 'Posta Kodu');
+    translateLabel('cHouseNum', 'Numer domu', 'Ev Numarası');
+    translateLabel('cAptNum', 'Numer mieszkania *', 'Daire Numarası *');
+    translateLabel('cBuilding', 'Budynek / Blok', 'Bina / Blok');
+    translateLabel('cFloor', 'Piętro', 'Zemin / Kat');
+    translateLabel('cIntercom', 'Kod do domofonu', 'İnterkom / Diyafon Kodu');
+    translateLabel('cName', 'Imię i nazwisko *', 'Ad Soyad *');
+    translateLabel('cPhone', 'Numer telefonu *', 'Telefon Numarası *');
+    translateLabel('cEmail', 'Adres e-mail *', 'E-posta Adresi *');
+    translateLabel('cDate', '🗓️ Wybierz datę sprzątania', '🗓️ Temizlik Tarihi Seçin');
+    translateLabel('cTime', '🕒 Godzina rozpoczęcia', '🕒 Başlangıç Saati');
+    translateLabel('cNotes', '📝 Uwagi dla wykonawcy / instrukcje specjalne', '📝 Yüklenici İçin Notlar / Özel Talimatlar');
+
+    // Placeholders
+    translatePlaceholder('cStreet', 'Np. Marszałkowska 12', 'Örn: Atatürk Cd. No:12');
+    translatePlaceholder('cZip', '00-001', '34000');
+    translatePlaceholder('cHouseNum', '12', '12');
+    translatePlaceholder('cAptNum', '4', '4');
+    translatePlaceholder('cBuilding', 'Blok A', 'A Blok');
+    translatePlaceholder('cFloor', 'Piętro 2', '2. Kat');
+    translatePlaceholder('cIntercom', '1234', '1234');
+    translatePlaceholder('cName', 'Jan Kowalski', 'Ahmet Yılmaz');
+    translatePlaceholder('cPhone', '+48 500 600 700', '0555 555 55 55');
+    translatePlaceholder('cEmail', 'jan.kowalski@email.com', 'ornek@email.com');
+    translatePlaceholder('cNotes', 'Np. klucze u dozorcy, jest kot, proszę nie dzwonić dzwonkiem...', 'Örn: Anahtar kapıcıda, evcil kedi var, lütfen zili çalmayın...');
+
+    // Apt Num Hint
+    const aptHint = bookingForm.querySelector('.w-field-hint');
+    if (aptHint) {
+      aptHint.textContent = lang === 'pl' 
+        ? '* Bez numeru mieszkania zamówienie nie może zostać złożone' 
+        : '* Daire numarası olmadan sipariş verilemez';
+    }
+
+    // Corporate Invoice Fields Block
+    const corpTitle = document.querySelector('#businessFieldsBlock h4');
+    if (corpTitle) corpTitle.textContent = lang === 'pl' ? '🏢 Dane do faktury firmowej' : '🏢 Kurumsal Fatura Bilgileri';
+    translateLabel('cCompanyName', 'Nazwa firmy *', 'Firma / Şirket Unvanı *');
+    translatePlaceholder('cCompanyName', 'Np. ABC Sp. z o.o.', 'Örn: ABC Teknoloji Ltd. Şti.');
+    translateLabel('cTaxOffice', 'Urząd skarbowy *', 'Vergi Dairesi *');
+    translatePlaceholder('cTaxOffice', 'Np. US Warszawa', 'Örn: Kadıköy V.D.');
+    translateLabel('cTaxNumber', 'NIP / Numer podatkowy *', 'Vergi Numarası (VKN / T.C.) *');
+    translatePlaceholder('cTaxNumber', '1234567890', '1234567890');
+    translateLabel('cInvoiceEmail', 'E-mail do faktury', 'E-Fatura E-postası');
+    translatePlaceholder('cInvoiceEmail', 'faktura@firma.pl', 'fatura@sirket.com');
+
+    // Staff Preferences section
+    const lblStaffTitle = document.getElementById('lblStaffPrefTitle');
+    const lblStaffSub = document.getElementById('lblStaffPrefSub');
+    if (lblStaffTitle) lblStaffTitle.textContent = lang === 'pl' ? '👥 PREFERENCJE PERSONELU' : '👥 EKİP VE EKİPMAN TERCİHİNİZ';
+    if (lblStaffSub) {
+      lblStaffSub.textContent = lang === 'pl'
+        ? 'Możesz wybrać preferencje dotyczące płci lub składu zespołu.'
+        : 'Hizmet verecek uzmanın cinsiyet veya ekip kadrosu tercihini seçebilirsiniz.';
+    }
+
+    // Staff preferences cards details
+    const updatePrefCard = (id, plTitle, plDesc, trTitle, trDesc) => {
+      const card = document.getElementById(id);
+      if (card) {
+        const titleEl = card.querySelector('.pref-title');
+        const descEl = card.querySelector('.pref-desc');
+        if (titleEl) titleEl.textContent = lang === 'pl' ? plTitle : trTitle;
+        if (descEl) descEl.textContent = lang === 'pl' ? plDesc : trDesc;
+      }
+    };
+    updatePrefCard('lblStaffPrefAny', 'Dowolny / Najlepszy zespół', 'Najwyżej oceniany dostępny specjalista', 'Fark Etmez / En Uygun Ekip', 'Müsait olan en yüksek puanlı uzman');
+    updatePrefCard('lblStaffPrefFemale', 'Kobieta', 'Gwarancja kobiecego personelu', 'Bayan Temizlik Uzmanı', 'Kadın temizlik personeli garantisi');
+    updatePrefCard('lblStaffPrefTeam', '2-osobowy zespół', 'Szybki i dokładny zespół dwuosobowy (+50 PLN / +350 TL)', '2 Kişilik Uzman Ekip', 'Hızlı ve detaylı ikili ekip (+350 TL)');
+
+    // Payment header
+    const lblPayTitle = document.getElementById('lblPaymentTitle');
+    if (lblPayTitle) lblPayTitle.textContent = lang === 'pl' ? '💵 GWARANCJA PŁATNOŚCI' : '💵 ÖDEME GÜVENCESİ';
+
+    // Checkout labels
+    const checkoutLabel = bookingForm.querySelector('.wizard-price-checkout-box .p-label');
+    if (checkoutLabel) checkoutLabel.textContent = lang === 'pl' ? 'Do zapłaty:' : 'Ödenecek tutar:';
+
+    // Sidebar elements
+    const promoPlaceholder = document.getElementById('cPromoCode');
+    if (promoPlaceholder) promoPlaceholder.placeholder = lang === 'pl' ? 'Kod rabatowy / referencyjny' : 'İndirim / Referans Kodu';
+    const promoBtn = document.getElementById('btnApplyPromo');
+    if (promoBtn) promoBtn.textContent = lang === 'pl' ? 'Zastosuj' : 'Uygula';
+
+    const guaranteeText = document.querySelector('.wizard-guarantee-box span:not(.g-icon)');
+    if (guaranteeText) {
+      guaranteeText.textContent = lang === 'pl'
+        ? 'Nasi wykonawcy posiadają wszystkie niezbędne środki i sprzęt do sprzątania.'
+        : 'Yüklenicilerimiz gerekli tüm temizlik ürünlerine ve ekipmanına sahiptir.';
+    }
+
+    const securityNote = document.querySelector('.wizard-security-note');
+    if (securityNote) {
+      securityNote.textContent = lang === 'pl'
+        ? '🔒 Bezpieczna rezerwacja 24/7 & Potwierdzenie WhatsApp'
+        : '🔒 7/24 Güvenli Rezervasyon & WhatsApp Teyitli';
+    }
+
+    const whatsappHelpBtn = document.querySelector('.wizard-whatsapp-help-btn');
+    if (whatsappHelpBtn) {
+      const span = whatsappHelpBtn.querySelector('span');
+      if (span) {
+        span.textContent = lang === 'pl'
+          ? '💬 Wsparcie na żywo WhatsApp'
+          : '💬 WhatsApp Canlı Destek Alın';
+      }
+      const helpMsg = lang === 'pl'
+        ? 'Cześć RELAXAX, chciałbym uzyskać informacje na temat kalkulacji zamówienia na stronie.'
+        : 'Merhaba RELAXAX, siteden sipariş hesaplama hakkında bilgi almak istiyorum.';
+      whatsappHelpBtn.href = `https://wa.me/905466479004?text=${encodeURIComponent(helpMsg)}`;
+    }
   }
 
   const cCitySelect = document.getElementById('cCity');
   const cCityLabel = document.querySelector('label[for="cCity"]');
-  if (cCityLabel && dict.bookingLabelCity) {
-    cCityLabel.textContent = dict.bookingLabelCity;
+  const cDistrictLabel = document.querySelector('label[for="cDistrict"]');
+  if (cCityLabel) cCityLabel.textContent = lang === 'pl' ? 'Miasto usługi:' : 'Hizmet Şehri:';
+  if (cDistrictLabel) cDistrictLabel.textContent = lang === 'pl' ? 'Dzielnica / Rejon:' : 'İlçe / Semt:';
+
+  // Key Handoff options translations
+  const keyLabel = document.querySelector('.key-opt-label');
+  if (keyLabel) keyLabel.textContent = lang === 'pl' ? '🔑 Odbiór kluczy / Wejście:' : '🔑 Giriş / Karşılama Tercihiniz:';
+  const keyCards = document.querySelectorAll('.key-opt-card');
+  if (keyCards.length >= 4) {
+    const s0 = keyCards[0].querySelector('span'); if (s0) s0.textContent = lang === 'pl' ? '🏠 Będę w domu' : '🏠 Evde Olacağım';
+    const s1 = keyCards[1].querySelector('span'); if (s1) s1.textContent = lang === 'pl' ? '🏢 U ochrony / recepcji' : '🏢 Güvenlik / Kapıcıda';
+    const s2 = keyCards[2].querySelector('span'); if (s2) s2.textContent = lang === 'pl' ? '🤝 U sąsiada' : '🤝 Komşuma Bıraktım';
+    const s3 = keyCards[3].querySelector('span'); if (s3) s3.textContent = lang === 'pl' ? '🔢 Skrzynka z kodem / sejf' : '🔢 Şifreli Kutu / Kilit';
   }
+
+  // Payment tabs translations
+  const tabTransfer = document.getElementById('tabPayTransfer');
+  const tabCash = document.getElementById('tabPayCash');
+  if (tabTransfer) {
+    const strong = tabTransfer.querySelector('strong');
+    const span = tabTransfer.querySelector('.p-tab-info span');
+    const badge = tabTransfer.querySelector('.p-tab-badge');
+    if (strong) strong.textContent = lang === 'pl' ? 'Przelew Bankowy / BLIK' : 'Banka Havalesi / FAST';
+    if (span) span.textContent = lang === 'pl' ? 'Rabat 5% & Błyskawiczny przelew' : '%5 Ek İndirim Avantajı & 7/24 FAST';
+    if (badge) badge.textContent = lang === 'pl' ? '-5% RABAT' : '-%5 İNDİRİM';
+  }
+  if (tabCash) {
+    const strong = tabCash.querySelector('strong');
+    const span = tabCash.querySelector('.p-tab-info span');
+    const badge = tabCash.querySelector('.p-tab-badge');
+    if (strong) strong.textContent = lang === 'pl' ? 'Płatność na miejscu' : 'Kapıda Güvenli Ödeme';
+    if (span) span.textContent = lang === 'pl' ? 'Gotówka lub Mobilny POS' : 'Hizmet Sonrası Nakit veya Mobil POS';
+    if (badge) badge.textContent = lang === 'pl' ? '0% PROWIZJI' : '%0 KOMİSYON';
+  }
+
+  // Price Breakdown itemized labels
+  const baseLbl = document.querySelector('#rowBasePrice .b-lbl');
+  const freqLbl = document.querySelector('#rowFreqDiscount .b-lbl');
+  const transLbl = document.querySelector('#rowTransferDiscount .b-lbl');
+  const promoLbl = document.querySelector('#rowPromoDiscount .b-lbl');
+  if (baseLbl) baseLbl.textContent = lang === 'pl' ? 'Sprzątanie podstawowe:' : 'Temel Temizlik:';
+  if (freqLbl) freqLbl.textContent = lang === 'pl' ? 'Rabat za regularność:' : 'Sıklık İndirimi:';
+  if (transLbl) transLbl.textContent = lang === 'pl' ? 'Przelew Bankowy / BLIK:' : 'Banka Havalesi / FAST:';
+  if (promoLbl) promoLbl.textContent = lang === 'pl' ? 'Kupon Promocyjny:' : 'Promosyon İndirimi:';
+
   if (cCitySelect) {
     const previousVal = cCitySelect.value;
     cCitySelect.innerHTML = '';
@@ -816,17 +1438,34 @@ function applyBookingTranslations(dict, lang) {
         cCitySelect.appendChild(opt);
       });
     } else {
-      const trCities = ['Izmir', 'Sakarya', 'Istanbul', 'Kocaeli', 'Samsun', 'Balikesir'];
-      trCities.forEach(cityKey => {
+      const activeTrCities = ['Istanbul', 'Izmir', 'Ankara', 'Antalya', 'Bursa', 'Kocaeli', 'Sakarya', 'Balikesir', 'Samsun', 'Mugla'];
+      const unservicedTrCities = Object.keys(CITY_NAMES_TR_TITLE).filter(c => !activeTrCities.includes(c) && CITY_TO_REGION[c] !== 'mazowsze' && c !== 'Warszawa');
+
+      const activeGroup = document.createElement('optgroup');
+      activeGroup.label = '📍 Hizmet Verilen Şehirlerimiz';
+      activeTrCities.forEach(cityKey => {
         const opt = document.createElement('option');
         opt.value = cityKey;
-        opt.textContent = dict.cities[cityKey] ? dict.cities[cityKey].name : cityKey;
-        cCitySelect.appendChild(opt);
+        opt.textContent = CITY_NAMES_TR_TITLE[cityKey] || cityKey;
+        activeGroup.appendChild(opt);
       });
+      cCitySelect.appendChild(activeGroup);
+
+      const soonGroup = document.createElement('optgroup');
+      soonGroup.label = '🚀 Temsilcilik / Yakında Gelecek Şehirler';
+      unservicedTrCities.forEach(cityKey => {
+        const opt = document.createElement('option');
+        opt.value = cityKey;
+        opt.dataset.status = 'coming_soon';
+        opt.textContent = (CITY_NAMES_TR_TITLE[cityKey] || cityKey) + ' (Temsilcilik / Yakında)';
+        soonGroup.appendChild(opt);
+      });
+      cCitySelect.appendChild(soonGroup);
     }
     if (Array.from(cCitySelect.options).some(opt => opt.value === previousVal)) {
       cCitySelect.value = previousVal;
     }
+    cCitySelect.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   const cServiceSelect = document.getElementById('cService');
@@ -850,6 +1489,60 @@ function applyBookingTranslations(dict, lang) {
     if (h3) h3.textContent = dict.bookingSuccessTitle;
     if (p) p.textContent = dict.bookingSuccessText;
     if (btn) btn.textContent = dict.bookingSuccessOk;
+  }
+
+  // Help Modal ("Daire temizliğine neler dahildir?")
+  const hmTitle = document.getElementById('helpModalTitle');
+  const hmSecs = document.querySelectorAll('.wizard-help-modal-card .hm-sec');
+  if (hmTitle && hmSecs.length >= 4) {
+    if (lang === 'pl') {
+      hmTitle.textContent = '🧹 Co obejmuje standardowe sprzątanie mieszkania?';
+      const s0 = hmSecs[0].querySelector('strong'); if (s0) s0.textContent = '🛏️ Pokoje i Przestrzenie Dzienne:';
+      const p0 = hmSecs[0].querySelector('p'); if (p0) p0.textContent = 'Ścieranie kurzu, odkurzanie i mycie podłóg, przecieranie powierzchni mebli, opróżnianie koszy na śmieci.';
+      const s1 = hmSecs[1].querySelector('strong'); if (s1) s1.textContent = '🍳 Kuchnia:';
+      const p1 = hmSecs[1].querySelector('p'); if (p1) p1.textContent = 'Mycie blatów i zlewu, przecieranie płyty kuchennej oraz zewnętrznych frontów szafek i AGD.';
+      const s2 = hmSecs[2].querySelector('strong'); if (s2) s2.textContent = '🚿 Łazienka i Toaleta:';
+      const p2 = hmSecs[2].querySelector('p'); if (p2) p2.textContent = 'Dezynfekcja toalety, kabiny prysznicowej, wanny i umywalki, polerowanie luster oraz płytek.';
+      const s3 = hmSecs[3].querySelector('strong'); if (s3) s3.textContent = '🚪 Przedpokój i Korytarz:';
+      const p3 = hmSecs[3].querySelector('p'); if (p3) p3.textContent = 'Przecieranie drzwi wejściowych, klamek, listew przypodłogowych oraz dokładne mycie podłogi.';
+    } else {
+      hmTitle.textContent = '🧹 Standart Daire Temizliğine Neler Dahildir?';
+      const s0 = hmSecs[0].querySelector('strong'); if (s0) s0.textContent = '🛏️ Odalar ve Yaşam Alanları:';
+      const p0 = hmSecs[0].querySelector('p'); if (p0) p0.textContent = 'Tüm tozların alınması, yerlerin vakumlanması ve silinmesi, mobilya yüzeylerinin temizlenmesi, çöp kovalarının boşaltılması.';
+      const s1 = hmSecs[1].querySelector('strong'); if (s1) s1.textContent = '🍳 Mutfak:';
+      const p1 = hmSecs[1].querySelector('p'); if (p1) p1.textContent = 'Tezgah ve eviye temizliği, ocak üstü ve dış yüzeylerin hijyenik silinmesi, mikroplardan arındırılması.';
+      const s2 = hmSecs[2].querySelector('strong'); if (s2) s2.textContent = '🚿 Banyo ve Tuvalet:';
+      const p2 = hmSecs[2].querySelector('p'); if (p2) p2.textContent = 'Klozet, duşakabin, küvet ve lavabonun dezenfekte edilmesi, aynaların parlatılması, seramiklerin silinmesi.';
+      const s3 = hmSecs[3].querySelector('strong'); if (s3) s3.textContent = '🚪 Hol ve Koridor:';
+      const p3 = hmSecs[3].querySelector('p'); if (p3) p3.textContent = 'Dış kapı kolu, süpürgelikler ve zeminlerin derinlemesine yıkanması.';
+    }
+  }
+
+  // Services Trust Badges (Step 2)
+  const sTrustBadges = document.querySelectorAll('.services-trust-badges-bar .trust-badge-item');
+  if (sTrustBadges.length >= 3) {
+    sTrustBadges[0].textContent = lang === 'pl' ? '🛡️ 100% Gwarancja Satysfakcji' : '🛡️ %100 Memnuniyet Garantisi';
+    sTrustBadges[1].textContent = lang === 'pl' ? '⚡ Ubezpieczony Zespół' : '⚡ Sigortalı Ekip';
+    sTrustBadges[2].textContent = lang === 'pl' ? '💳 Przejrzyste Ceny' : '💳 Şeffaf & Sabit Fiyat';
+  }
+
+  // Mobile Sticky Bar & Portal Hints
+  const hintText = document.querySelector('.intro-hint .hint-text');
+  if (hintText) hintText.textContent = lang === 'pl' ? 'Dotknij, aby wejść' : 'Girmek için dokunun';
+  const brandSub = document.querySelector('.portal-brand-sub');
+  if (brandSub) brandSub.textContent = lang === 'pl' ? 'Profesjonalne Usługi Sprzątania' : 'Profesyonel Temizlik Hizmetleri';
+  const mobCityTitle = document.querySelector('.mobile-selector-title');
+  if (mobCityTitle) mobCityTitle.textContent = lang === 'pl' ? 'SZYBKI WYBÓR OBSZARU' : 'HIZLI ŞEHİR SEÇİMİ';
+  // Help Center Button text
+  const helpTextEl = document.querySelector('.tms-help-text');
+  if (helpTextEl) {
+    if (lang === 'pl') {
+      helpTextEl.textContent = 'Centrum Pomocy';
+    } else if (lang === 'uk') {
+      helpTextEl.textContent = 'Центр Допомоги';
+    } else {
+      helpTextEl.textContent = 'Yardım Merkezi';
+    }
   }
 }
 
@@ -944,77 +1637,177 @@ function applyServicesModalTranslations(dict, lang) {
 }
 
 function applyCountrySelectorTranslations(dict, lang) {
-  const csoTitle = document.querySelector('#country-selector-overlay .cso-title');
-  const csoSubtitle = document.querySelector('#country-selector-overlay .cso-subtitle');
-  if (csoTitle && dict.csoTitle) csoTitle.textContent = dict.csoTitle;
-  if (csoSubtitle && dict.csoSubtitle) csoSubtitle.textContent = dict.csoSubtitle;
+  const csoEyebrow = document.getElementById('csoEyebrow');
+  const csoMainHeadline = document.getElementById('csoMainHeadline');
+  const csoMainSub = document.getElementById('csoMainSub');
+  const csoCurrentLangText = document.getElementById('csoCurrentLangText');
 
-  const csoTurkeyLabel = document.querySelector('#csoBtnTurkey .cso-country-name');
-  const csoTurkeySub = document.querySelector('#csoBtnTurkey .cso-country-sub');
-  if (csoTurkeyLabel) csoTurkeyLabel.textContent = lang === 'pl' ? 'Turcja' : 'Türkiye';
-  if (csoTurkeySub && dict.csoCardTurkeySub) csoTurkeySub.textContent = dict.csoCardTurkeySub;
+  if (csoEyebrow) {
+    csoEyebrow.textContent = lang === 'uk' ? 'Ласкаво просимо!' : (lang === 'pl' ? 'Witamy!' : 'Hoş geldiniz!');
+  }
+  if (csoMainHeadline) {
+    csoMainHeadline.textContent = lang === 'uk' ? 'Де ви перебуваєте?' : (lang === 'pl' ? 'Gdzie na świecie jesteś?' : 'Dünyanın neresindesiniz?');
+  }
+  if (csoMainSub) {
+    csoMainSub.textContent = lang === 'uk' 
+      ? 'Оберіть вашу країну, щоб ми запропонували вам найкращий сервіс.'
+      : (lang === 'pl' 
+        ? 'Wybierz swój kraj, abyśmy mogli zaoferować Ci najlepsze doświadczenie.'
+        : 'Size en uygun deneyimi sunabilmemiz için bulunduğunuz ülkeyi seçin.');
+  }
 
-  const csoPolandLabel = document.querySelector('#csoBtnPoland .cso-country-name');
-  const csoPolandSub = document.querySelector('#csoBtnPoland .cso-country-sub');
-  if (csoPolandLabel) csoPolandLabel.textContent = lang === 'pl' ? 'Polska' : 'Polonya';
-  if (csoPolandSub && dict.csoCardPolandSub) csoPolandSub.textContent = dict.csoCardPolandSub;
+  if (csoCurrentLangText) {
+    csoCurrentLangText.textContent = lang === 'uk' ? 'Українська' : (lang === 'pl' ? 'Polski' : 'Türkçe');
+  }
+
+  // Update active state in dropdown
+  const csoLangOptions = document.querySelectorAll('.cso-lang-option');
+  csoLangOptions.forEach(opt => {
+    if (opt.dataset.lang === lang) {
+      opt.classList.add('active');
+    } else {
+      opt.classList.remove('active');
+    }
+  });
+
+  const csoTurkeyTitle = document.querySelector('#csoBtnTurkey .cso-capsule-title');
+  const csoTurkeyDesc = document.querySelector('#csoBtnTurkey .cso-capsule-desc');
+  if (csoTurkeyTitle) {
+    csoTurkeyTitle.textContent = lang === 'uk' ? 'Туреччина' : (lang === 'pl' ? 'Turcja' : 'Türkiye');
+  }
+  if (csoTurkeyDesc) {
+    csoTurkeyDesc.textContent = lang === 'uk'
+      ? 'Відкрийте для себе персоналізовані послуги в Туреччині.'
+      : (lang === 'pl' ? 'Odkryj spersonalizowane usługi i treści dla Turcji.' : 'Size özel hizmet ve içerikleri keşfedin.');
+  }
+
+  const csoPolandTitle = document.querySelector('#csoBtnPoland .cso-capsule-title');
+  const csoPolandDesc = document.querySelector('#csoBtnPoland .cso-capsule-desc');
+  if (csoPolandTitle) {
+    csoPolandTitle.textContent = lang === 'uk' ? 'Польща' : 'Polska';
+  }
+  if (csoPolandDesc) {
+    csoPolandDesc.textContent = lang === 'uk'
+      ? 'Відкрийте для себе послуги та пропозиції у Варшаві.'
+      : 'Odkryj usługi i treści dostosowane do Ciebie.';
+  }
+
+  // Bottom trust bar
+  const trustCells = document.querySelectorAll('.cso-bottom-trust-bar .cso-trust-cell');
+  if (trustCells.length >= 4) {
+    const h0 = trustCells[0].querySelector('.cso-trust-heading');
+    const p0 = trustCells[0].querySelector('.cso-trust-caption');
+    if (h0) h0.textContent = lang === 'uk' ? 'Безпечно та Конфіденційно' : (lang === 'pl' ? 'Bezpiecznie i Prywatnie' : 'Güvenli ve Kişisel');
+    if (p0) p0.textContent = lang === 'uk' ? 'Ваші дані надійно захищені' : (lang === 'pl' ? 'Twoje dane są bezpieczne' : 'Verileriniz güvende');
+
+    const h1 = trustCells[1].querySelector('.cso-trust-heading');
+    const p1 = trustCells[1].querySelector('.cso-trust-caption');
+    if (h1) h1.textContent = lang === 'uk' ? 'Локалізований Досвід' : (lang === 'pl' ? 'Lokalne Doświadczenie' : 'Yerelleştirilmiş Deneyim');
+    if (p1) p1.textContent = lang === 'uk' ? 'Вміст для вашої країни' : (lang === 'pl' ? 'Treści dla Twojego kraju' : 'Ülkenize özel içerik');
+
+    const h2 = trustCells[2].querySelector('.cso-trust-heading');
+    const p2 = trustCells[2].querySelector('.cso-trust-caption');
+    if (h2) h2.textContent = lang === 'uk' ? 'Підтримка 24/7' : (lang === 'pl' ? 'Wsparcie 24/7' : '7/24 Destek');
+    if (p2) p2.textContent = lang === 'uk' ? 'Завжди на зв\'язку' : (lang === 'pl' ? 'Zawsze do Twojej dyspozycji' : 'Her zaman yanınızdayız');
+
+    const h3 = trustCells[3].querySelector('.cso-trust-heading');
+    const p3 = trustCells[3].querySelector('.cso-trust-caption');
+    if (h3) h3.textContent = lang === 'uk' ? 'Висока Якість' : (lang === 'pl' ? 'Jakość Usług' : 'Kaliteli Hizmet');
+    if (p3) p3.textContent = lang === 'uk' ? 'Працюємо для вашого комфорту' : (lang === 'pl' ? 'Dbamy o najwyższe standardy' : 'En iyi deneyim için çalışıyoruz');
+  }
 }
 
 function applyServiceSelectTranslations(lang) {
-  const selectItems = document.querySelectorAll('.service-select-item');
+  const selectItems = document.querySelectorAll('.service-select-item, .service-item-detail');
   if (selectItems.length < 4) return;
 
   const data = {
     tr: [
       {
-        badge: 'En Popüler',
-        title: 'Standart',
-        desc: 'Genel düzen ve temel hijyen çözümleri',
+        badge: '⭐ En Popüler',
+        title: 'Standart Temizlik',
+        sub: 'Ev temizliği için ideal',
+        desc: 'Genel düzen ve temel hijyen çözümleri.',
         tags: ['Toz Alma', 'Süpürme', 'Yüzey Hijyeni']
       },
       {
         badge: 'Tavsiye Edilen',
-        title: 'Detaylı',
-        desc: 'Derin temizlik ve hassas leke arındırma',
+        title: 'Detaylı Temizlik',
+        sub: 'Derin temizlik hizmeti',
+        desc: 'Dip köşe, buharlı hijyen ve leke çıkarma.',
         tags: ['Buharlı Hijyen', 'Dip Köşe', 'Leke Arındırma']
       },
       {
         badge: 'İşletmeler İçin',
-        title: 'Kurumsal B2B',
-        desc: 'İş yeri, restoran ve plaza temizliği',
+        title: 'Kurumsal Temizlik',
+        sub: 'Ofis, iş yeri ve kurumsal alanlar için',
+        desc: 'Profesyonel ve düzenli temizlik çözümleri.',
         tags: ['Ofis & Plaza', 'Esnek Saatler', 'Özel Raporlama']
       },
       {
         badge: 'Sertifikalı',
-        title: 'İlaçlama',
-        desc: 'Bakteri ve haşere kontrol çözümleri',
-        tags: ['Haşere Kontrol', 'Dezenfeksiyon', 'Ortam Hijyeni']
+        title: 'Dezenfeksiyon',
+        sub: 'Hijyen ve bakterilere karşı koruma',
+        desc: 'Bakteri ve haşere kontrol çözümleri.',
+        tags: ['Haşere Kontrolü', 'Dezenfeksiyon', 'Ortam Hijyeni']
+      },
+      {
+        badge: 'Ağır Kir',
+        title: 'İnşaat Sonrası Temizlik',
+        sub: 'Tadilat sonrası temiz yaşam alanı',
+        desc: 'Tadilat ve inşaat sonrası derin temizlik.',
+        tags: ['Moloz & Toz', 'Boya Kazıma', 'Cam & Derz']
+      },
+      {
+        badge: 'Kolay Taşınma',
+        title: 'Taşınma Temizliği',
+        sub: 'Boş ev ve detaylı temizlik',
+        desc: 'Taşınma öncesi veya sonrası detaylı temizlik.',
+        tags: ['Boş Ev Hijyeni', 'Dolap İçi', 'Taşınmaya Hazır']
       }
     ],
     pl: [
       {
-        badge: 'Najpopularniejsza',
-        title: 'Standardowe',
-        desc: 'Ogólne porządki i podstawowa czystość',
+        badge: '⭐ Najpopularniejsza',
+        title: 'Sprzątanie Standardowe',
+        sub: 'Idealne do domu',
+        desc: 'Ogólne porządki i podstawowa czystość.',
         tags: ['Ścieranie Kurzu', 'Odkurzanie', 'Higiena Powierzchni']
       },
       {
         badge: 'Polecana',
-        title: 'Głębokie',
-        desc: 'Dokładne czyszczenie i usuwanie plam',
+        title: 'Sprzątanie Głębokie',
+        sub: 'Głębokie sprzątanie',
+        desc: 'Dokładne czyszczenie i usuwanie plam.',
         tags: ['Czyszczenie Parowe', 'Kąty i Zakamarki', 'Usuwanie Plam']
       },
       {
         badge: 'Dla Firm',
-        title: 'Firmowe B2B',
-        desc: 'Sprzątanie biur, restauracji i lokali',
+        title: 'Sprzątanie Biur & Firm',
+        sub: 'Dla biur, lokali i powierzchni B2B',
+        desc: 'Profesjonalne i regularne sprzątanie.',
         tags: ['Biura & Plazy', 'Elastyczne Godziny', 'Specjalny Raport']
       },
       {
         badge: 'Certyfikowana',
-        title: 'Dezynsekcja',
-        desc: 'Rozwiązania kontroli bakterii i szkodników',
+        title: 'Dezynfekcja',
+        sub: 'Ochrona przed bakteriami',
+        desc: 'Rozwiązania kontroli bakterii i szkodników.',
         tags: ['Kontrola Szkodników', 'Dezynfekcja', 'Higiena Otoczenia']
+      },
+      {
+        badge: 'Ciężki Brud',
+        title: 'Sprzątanie Po Remoncie',
+        sub: 'Czysta przestrzeń po budowie',
+        desc: 'Głębokie sprzątanie po remoncie i budowie.',
+        tags: ['Pył & Kurz', 'Skrobanie Farb', 'Okna & Fugi']
+      },
+      {
+        badge: 'Łatwa Przeprowadzka',
+        title: 'Sprzątanie Przeprowadzkowe',
+        sub: 'Puste mieszkanie na błysk',
+        desc: 'Dokładne sprzątanie przed lub po przeprowadzce.',
+        tags: ['Puste Mieszkanie', 'Wnętrza Szaf', 'Gotowe do Zamieszkania']
       }
     ]
   };
@@ -1024,38 +1817,40 @@ function applyServiceSelectTranslations(lang) {
     const itemData = list[idx];
     if (!itemData) return;
 
-    const badge = item.querySelector('.service-select-badge');
-    const title = item.querySelector('.service-select-info h4');
-    const desc = item.querySelector('.service-select-info p');
-    const tags = item.querySelectorAll('.service-select-tag-pill');
+    const badge = item.querySelector('.service-badge, .service-select-badge');
+    const title = item.querySelector('.service-title-group h4, .service-select-info h4');
+    const sub = item.querySelector('.service-title-group .service-sub');
+    const desc = item.querySelector('.service-desc, .service-select-info p');
+    const featureList = item.querySelectorAll('.service-feature-list li, .service-select-tag-pill');
 
-    if (badge) badge.textContent = itemData.badge;
-    if (title) title.textContent = itemData.title;
-    if (desc) desc.textContent = itemData.desc;
-    tags.forEach((tag, tIdx) => {
-      if (itemData.tags[tIdx]) tag.textContent = itemData.tags[tIdx];
+    if (badge && itemData.badge) badge.textContent = itemData.badge;
+    if (title && itemData.title) title.textContent = itemData.title;
+    if (sub && itemData.sub) sub.textContent = itemData.sub;
+    if (desc && itemData.desc) desc.textContent = itemData.desc;
+    featureList.forEach((fEl, fIdx) => {
+      if (itemData.tags[fIdx]) {
+        // preserve svg icon inside li if exists
+        const svg = fEl.querySelector('svg');
+        if (svg) {
+          fEl.innerHTML = svg.outerHTML + ' ' + itemData.tags[fIdx];
+        } else {
+          fEl.textContent = itemData.tags[fIdx];
+        }
+      }
     });
   });
 
   const headerTitle = document.querySelector('.services-select-title');
-  const headerSubtitle = document.querySelector('.services-select-subtitle');
-  const headerHud = document.querySelector('.hud-system-status');
-  const stepCounter = document.querySelector('.hud-step-counter');
+  const headerSubtitleSpan = document.querySelector('.services-select-subtitle span:nth-child(2)');
 
   if (headerTitle) {
-    headerTitle.textContent = lang === 'pl' ? 'Wybór Usługi' : 'Hizmet Seçimi';
+    headerTitle.textContent = lang === 'pl' ? 'Jakiej usługi potrzebujesz?' : 'Hangi hizmete ihtiyacınız var?';
   }
-  if (headerSubtitle) {
-    headerSubtitle.textContent = lang === 'pl' ? 'Wybierz rodzaj usługi sprzątania' : 'Almak istediğiniz temizlik hizmetini seçin';
-  }
-  if (headerHud) {
-    headerHud.textContent = lang === 'pl' ? 'Nasze usługi' : 'Hizmetlerimiz';
-  }
-  if (stepCounter) {
-    stepCounter.textContent = lang === 'pl' ? 'Krok 2' : 'Adım 2';
+  if (headerSubtitleSpan) {
+    headerSubtitleSpan.textContent = lang === 'pl' ? 'Wybierz pakiet sprzątania dopasowany do Twoich potrzeb.' : 'İhtiyacınıza uygun temizlik paketini seçin.';
   }
 
-  const continueLabel = document.querySelector('#servicesContinueBtn .btn-label');
+  const continueLabel = document.querySelector('#servicesContinueBtn span');
   if (continueLabel) {
     continueLabel.textContent = lang === 'pl' ? 'Kontynuuj' : 'Devam Et';
   }
@@ -1070,6 +1865,20 @@ function applyLanguage(lang) {
 
   logDebug(`Applying language: ${lang}`);
 
+  if (lang === 'pl' || lang === 'uk') {
+    if (!STATE.selectedCity || CITY_TO_REGION[STATE.selectedCity] !== 'mazowsze') {
+      setCityState('Warszawa', false);
+    }
+  } else {
+    if (!STATE.selectedCity || CITY_TO_REGION[STATE.selectedCity] === 'mazowsze') {
+      setCityState('Istanbul', false);
+    }
+  }
+
+  try {
+    localStorage.setItem('relaxax_language', lang);
+  } catch(e) {}
+
   applyPageMetaTranslations(dict, lang);
   applyPortalHudTranslations(dict, lang);
   applyNavAndDrawerTranslations(dict, lang);
@@ -1079,6 +1888,10 @@ function applyLanguage(lang) {
   applyServicesModalTranslations(dict, lang);
   applyCountrySelectorTranslations(dict, lang);
   applyServiceSelectTranslations(lang);
+
+  if (typeof updatePriceSliderDisplay === 'function') {
+    updatePriceSliderDisplay();
+  }
 
   if (typeof calculatePriceFn === 'function') {
     calculatePriceFn();
@@ -1350,43 +2163,13 @@ function warmupVideo(video) {
   } catch (e) {
     logErrorDebug(`Warmup exception on ${video.id}:`, e);
   }
-
-  // Force the decoder to buffer an actual renderable frame. load()+preload only
-  // reliably reaches HAVE_METADATA (readyState 1) for a hidden, never-played video
-  // — browsers throttle frame buffering for such videos, so an upcoming scene would
-  // still render blank/white the instant it cross-fades in. A muted play→immediate
-  // pause forces the first frames to decode (readyState climbs to >=2), so the
-  // scene is paint-ready well before it scrolls into view.
-  const forceDecode = () => {
-    if (video.dataset.warmedUp !== 'true') return; // was unloaded again meanwhile
-    try {
-      const p = video.play();
-      if (p && typeof p.then === 'function') {
-        p.then(() => { try { video.pause(); } catch (e) {} })
-         .catch(() => {});
-      } else {
-        try { video.pause(); } catch (e) {}
-      }
-    } catch (e) {}
-  };
-  if (video.readyState >= 1) {
-    forceDecode();
-  } else {
-    video.addEventListener('loadedmetadata', forceDecode, { once: true });
-  }
 }
-
-// Regional styling and themes configuration loaded from state.js module
-
-// ==========================================
-// 1. DUST CANVAS & AMBIENT PARTICLE SYSTEM
-// ==========================================
 
 function setupPortalParticles() {
   const canvas = document.getElementById('dust-canvas');
   const portalStage = document.getElementById('portal-stage');
   if (!canvas || !portalStage) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: true });
 
   if (canvasAnimationId) {
     cancelAnimationFrame(canvasAnimationId);
@@ -1395,189 +2178,53 @@ function setupPortalParticles() {
 
   let lastDrawTime = performance.now();
   let explosionParticles = [];
-  portalTargetHue = 220; // Default blue-cyan
- 
+  let shockwaves = [];
+  let mouseTrail = [];
+  portalTargetHue = 215;
+
   if (resizeCanvasHandler) {
     window.removeEventListener('resize', resizeCanvasHandler);
   }
 
   const resizeCanvas = () => {
-    const oldWidth = canvas.width;
-    const oldHeight = canvas.height;
- 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
- 
-    if (oldWidth > 0 && oldHeight > 0) {
-      const scaleX = canvas.width / oldWidth;
-      const scaleY = canvas.height / oldHeight;
-      STATE.ambientParticles.forEach(p => {
-        p.x *= scaleX;
-        p.y *= scaleY;
-      });
-      explosionParticles.forEach(p => {
-        p.x *= scaleX;
-        p.y *= scaleY;
-      });
-    }
   };
   resizeCanvas();
-  const debouncedResize = debounce(resizeCanvas, 150);
+  const debouncedResize = debounce(resizeCanvas, 120);
   window.addEventListener('resize', debouncedResize);
   resizeCanvasHandler = debouncedResize;
 
-  // Track mouse position specifically for particle attraction gravity physics
-  if (portalMouseMoveHandler) {
-    window.removeEventListener('mousemove', portalMouseMoveHandler);
-  }
-
   let pmx = window.innerWidth / 2;
   let pmy = window.innerHeight / 2;
+  let lastMouseX = pmx;
+  let lastMouseY = pmy;
+  let mouseVelX = 0;
+  let mouseVelY = 0;
 
-  const trackPortalMouse = (e) => {
-    pmx = e.clientX;
-    pmy = e.clientY;
-  };
-  window.addEventListener('mousemove', trackPortalMouse);
-  portalMouseMoveHandler = trackPortalMouse;
-
-  // Initialize gentle ambient floating particles
-  const ambientCount = 35;
-  STATE.ambientParticles = Array.from({ length: ambientCount }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 0.4,
-    vy: (Math.random() - 0.5) * 0.4,
-    size: Math.random() * 1.5 + 0.5,
-    opacity: Math.random() * 0.4 + 0.1,
-    hue: 220 // Initial blue
-  }));
-
-  // Setup click handler anywhere on stage for dust bursts
-  if (portalStageClickHandler) {
-    portalStage.removeEventListener('click', portalStageClickHandler);
-  }
-  portalStageClickHandler = (e) => {
-    if (!e.target.closest('.cc-gateway-card') && !e.target.closest('.map-hotspot')) {
-      window.triggerDust(e.clientX, e.clientY);
-    }
-  };
-  portalStage.addEventListener('click', portalStageClickHandler);
- 
-  // Expose explosion trigger globally
-  window.triggerDust = function(cx, cy) {
-    const rect = canvas.getBoundingClientRect();
-    const px = cx - rect.left;
-    const py = cy - rect.top;
-
-    const burst = Array.from({ length: 60 }, () => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 5 + 2;
-      return {
-        x: px,
-        y: py,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1.2, // upward drift
-        size: Math.random() * 2.2 + 0.8,
-        life: 1.0,
-        decay: Math.random() * 0.02 + 0.015,
-        hue: portalTargetHue + (Math.random() - 0.5) * 15 // Match current selection theme color
-      };
-    });
-    explosionParticles = [...explosionParticles, ...burst];
+  const trackPortalMouse = () => {
+    // Mouse trail accumulation disabled to preserve 0% idle CPU and zero memory allocation
   };
 
-  // Main canvas rendering loop
+  // Canvas rendering loop (particles & bubbles disabled)
   function drawLoop() {
-    const now = performance.now();
-    let dt = (now - lastDrawTime) / 16.666;
-    lastDrawTime = now;
-
-    if (dt > 10) dt = 1.0;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 1. Render & update ambient particles (uses dt-scaled attraction physics)
-    STATE.ambientParticles.forEach(p => {
-      // Calculate distance to mouse for particle attraction
-      const dx = pmx - p.x;
-      const dy = pmy - p.y;
-      const distSq = dx * dx + dy * dy;
-
-      if (window.warpTarget && window.warpTarget.active) {
-        const wdx = window.warpTarget.x - p.x;
-        const wdy = window.warpTarget.y - p.y;
-        const wdist = Math.sqrt(wdx * wdx + wdy * wdy);
-        if (wdist > 5) {
-          // Gravitational pull toward coordinates
-          const gravity = 0.45 * dt;
-          p.vx += (wdx / wdist) * gravity;
-          p.vy += (wdy / wdist) * gravity;
-
-          // Cross swirl tangential orbit force
-          const swirl = 0.22 * dt;
-          p.vx += (-wdy / wdist) * swirl;
-          p.vy += (wdx / wdist) * swirl;
-        }
-      } else if (distSq < 48400 && distSq > 100) { // 220^2 = 48400, 10^2 = 100
-        const dist = Math.sqrt(distSq);
-        const force = ((220 - dist) / 220) * 0.015;
-        p.vx += (dx / dist) * force * dt;
-        p.vy += (dy / dist) * force * dt;
-      }
-
-      // Physics friction to prevent velocity build-up
-      p.vx *= Math.pow(0.97, dt);
-      p.vy *= Math.pow(0.97, dt);
-
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-
-      // Smoothly shift particle hue towards target selection hue
-      p.hue += (portalTargetHue - p.hue) * 0.05 * dt;
-
-      // Wrap borders
-      if (p.x < 0) p.x = canvas.width;
-      if (p.x > canvas.width) p.x = 0;
-      if (p.y < 0) p.y = canvas.height;
-      if (p.y > canvas.height) p.y = 0;
-
-      ctx.globalAlpha = p.opacity * 0.45;
-      ctx.fillStyle = `hsl(${p.hue}, 30%, 55%)`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // 2. Render & update active explosion bursts
-    explosionParticles = explosionParticles.filter(p => {
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.vy += 0.05 * dt; // gravity scaled
-      p.life -= p.decay * dt; // decay scaled
-
-      if (p.life <= 0) return false;
-
-      ctx.globalAlpha = p.life * 0.55;
-      ctx.fillStyle = `hsl(${p.hue}, 65%, 50%)`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
-      return true;
-    });
-
-    if (shouldRunParticleLoop()) {
-      canvasAnimationId = requestAnimationFrame(drawLoop);
-    } else {
-      canvasAnimationId = null;
+    if (ctx && canvas) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   }
+
+  window.startParticleLoop = () => {
+    if (shouldRunParticleLoop() && !canvasAnimationId) {
+      lastDrawTime = performance.now();
+      drawLoop();
+    }
+  };
 
   if (particlesVisibilityHandler) {
     document.removeEventListener('visibilitychange', particlesVisibilityHandler);
   }
   particlesVisibilityHandler = () => {
-    if (shouldRunParticleLoop() && !canvasAnimationId) drawLoop();
+    if (typeof window.startParticleLoop === 'function') window.startParticleLoop();
   };
   document.addEventListener('visibilitychange', particlesVisibilityHandler);
 
@@ -1632,13 +2279,24 @@ function updateIntroVideoState(city) {
       video.classList.add('active');
       activeIntroVideoEl = video; // Track active reference
       video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
       
-      video.play().catch(e => {
-        logErrorDebug(`Autoplay blocked or failed for intro video: ${video.id}`, e);
-      });
+      const p = video.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(e => {
+          if (e && e.name !== 'AbortError') {
+            logErrorDebug(`Autoplay blocked or failed for intro video: ${video.id}`, e);
+          }
+        });
+      }
     } else {
       video.classList.remove('active');
-      video.pause();
+      video.style.opacity = '0';
+      video.style.visibility = 'hidden';
+      if (!video.paused) {
+        video.pause();
+      }
       try {
         video.currentTime = 0;
       } catch (err) {}
@@ -1701,93 +2359,7 @@ function setCityState(city, shouldReset = true) {
   updateIntroVideoState(city);
 
   // Save to localStorage
-  localStorage.setItem('tworose_city', city);
-}
-
-function setupPortalIntroClick() {
-  const introStage = document.getElementById('portal-intro-stage');
-  if (!introStage) return;
-
-  let triggered = false;
-
-  // Parallax hover movement on mousemove
-  const onMouseMove = (e) => {
-    if (triggered) return;
-    const { clientX, clientY } = e;
-    const nx = (clientX / window.innerWidth) - 0.5;
-    const ny = (clientY / window.innerHeight) - 0.5;
-
-    // Subtle 3D tilting motion on background images (synchronized to prevent segmentation)
-    gsap.to('.intro-panel-left .intro-panel-bg', { x: nx * 15, y: ny * 15, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('.intro-panel-center .intro-panel-bg', { x: nx * 15, y: ny * 15, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('.intro-panel-right .intro-panel-bg', { x: nx * 15, y: ny * 15, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
-
-    // Move borders slightly for shifting depth
-    gsap.to('.panel-border', { x: nx * 8, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
-  };
-  introStage.addEventListener('mousemove', onMouseMove);
-
-  const onTriggerIntro = () => {
-    if (triggered) return;
-    triggered = true;
-
-    introStage.removeEventListener('click', onTriggerIntro);
-    introStage.removeEventListener('touchstart', onTriggerIntro);
-    introStage.removeEventListener('mousemove', onMouseMove);
-
-    if (window.playTickSound) {
-      window.playTickSound();
-    }
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        // Pause very briefly on the snapped-shut merged state, then scale out
-        gsap.delayedCall(0.3, () => {
-          gsap.to(introStage, {
-            opacity: 0,
-            scale: 1.15,
-            duration: 0.85,
-            ease: 'power3.inOut',
-            onComplete: () => {
-              introStage.style.display = 'none';
-              introStage.remove();
-
-              document.body.classList.remove('portal-intro-mode');
-              document.body.classList.add('flag-selection-mode');
-
-              if (STATE.lenisInstance) {
-                STATE.lenisInstance.stop();
-              }
-
-              const csoOverlay = document.getElementById('country-selector-overlay');
-              if (csoOverlay) {
-                csoOverlay.classList.remove('cso-hidden');
-                gsap.fromTo(csoOverlay, 
-                  { opacity: 0, scale: 0.95 },
-                  { opacity: 1, scale: 1, duration: 0.75, ease: 'power3.out' }
-                );
-              }
-            }
-          });
-        });
-      }
-    });
-
-    // 1. Initial split (expand panels outward, fade out logo and hint)
-    tl.fromTo('.intro-panel-left', { x: '0vw' }, { x: '-12vw', duration: 0.45, ease: 'power2.out' }, 0)
-      .fromTo('.intro-panel-right', { x: '0vw' }, { x: '12vw', duration: 0.45, ease: 'power2.out' }, 0)
-      .fromTo('.intro-panel .panel-border', { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'none' }, 0)
-      .to('.intro-logo-wrap', { opacity: 0, scale: 0.75, duration: 0.35, ease: 'power2.in' }, 0)
-      .to('.intro-hint', { opacity: 0, y: 15, duration: 0.25, ease: 'power2.in' }, 0)
-      
-      // 2. Snap back together (re-merge panels, fade borders back to 0)
-      .to('.intro-panel-left', { x: '0vw', duration: 0.65, ease: 'power3.inOut' }, 0.45)
-      .to('.intro-panel-right', { x: '0vw', duration: 0.65, ease: 'power3.inOut' }, 0.45)
-      .to('.intro-panel .panel-border', { opacity: 0, duration: 0.45, ease: 'power3.inOut' }, 0.45);
-  };
-
-  introStage.addEventListener('click', onTriggerIntro);
-  introStage.addEventListener('touchstart', onTriggerIntro, { passive: true });
+  localStorage.setItem('relaxax_city', city);
 }
 
 // ── AD CAMPAIGN & GEOTARGETING ROUTING ENGINE ────────────────────────────
@@ -1864,16 +2436,620 @@ function skipPortalDirectToCity(city) {
   }
 }
 
+window.THREE = THREE;
+
+/**
+ * Three.js WebGL Liquify Screen Wipe Transition
+ * Performs a liquid distortion shader wipe over the entrance video.
+ */
+function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const aspect = width / height;
+
+  const canvas = document.createElement('canvas');
+  canvas.id = 'liquify-wipe-canvas';
+  canvas.className = 'liquify-wipe-canvas';
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.width = '100vw';
+  canvas.style.height = '100vh';
+  canvas.style.height = '100dvh';
+  canvas.style.zIndex = '10000002';
+  canvas.style.pointerEvents = 'none';
+  introStage.appendChild(canvas);
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  } catch (err) {
+    logErrorDebug('WebGL init for liquify wipe failed:', err);
+    if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
+    gsap.to(introStage, {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        if (onComplete) onComplete();
+      }
+    });
+    return;
+  }
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
+  camera.position.z = 1;
+
+  // Snapshot canvas texture for rock-solid frame capturing
+  const snapCanvas = document.createElement('canvas');
+  snapCanvas.width = Math.min(width, 1920);
+  snapCanvas.height = Math.min(height, 1080);
+  const sCtx = snapCanvas.getContext('2d');
+  if (introVideo && introVideo.readyState >= 2) {
+    try {
+      sCtx.drawImage(introVideo, 0, 0, snapCanvas.width, snapCanvas.height);
+    } catch(e) {}
+  } else {
+    sCtx.fillStyle = '#0f172a';
+    sCtx.fillRect(0, 0, snapCanvas.width, snapCanvas.height);
+  }
+  const texture = new THREE.CanvasTexture(snapCanvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  const clickX = clickCoords && typeof clickCoords.x === 'number' ? clickCoords.x / width : 0.5;
+  const clickY = clickCoords && typeof clickCoords.y === 'number' ? 1.0 - (clickCoords.y / height) : 0.75;
+
+  const vertexShader = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position, 1.0);
+    }
+  `;
+
+  const fragmentShader = `
+    uniform sampler2D u_texture;
+    uniform float u_progress;
+    uniform float u_time;
+    uniform vec2 u_clickPoint;
+    uniform float u_aspect;
+    varying vec2 vUv;
+
+    // Simplex Noise 2D
+    vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+    float snoise(vec2 v){
+      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+      vec2 i  = floor(v + dot(v, C.yy) );
+      vec2 x0 = v - i + dot(i, C.xx);
+      vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+      vec4 x12 = x0.xyxy + C.xxzz;
+      x12.xy -= i1;
+      i = mod(i, 289.0);
+      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+      m = m*m; m = m*m;
+      vec3 x = 2.0 * fract(p * 0.0243902439) - 1.0;
+      vec3 h = abs(x) - 0.5;
+      vec3 ox = floor(x + 0.5);
+      vec3 a0 = x - ox;
+      m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+      vec3 g;
+      g.x  = a0.x  * x0.x  + h.x  * x0.y;
+      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+      return 130.0 * dot(m, g);
+    }
+
+    float fbm(vec2 p) {
+      float v = 0.0;
+      float a = 0.5;
+      for (int i = 0; i < 4; i++) {
+        v += a * snoise(p);
+        p *= 2.06;
+        a *= 0.48;
+      }
+      return v;
+    }
+
+    void main() {
+      vec2 uv = vUv;
+      vec2 aspectVec = vec2(u_aspect, 1.0);
+      vec2 diff = (uv - u_clickPoint) * aspectVec;
+      float dist = length(diff);
+
+      // Liquid turbulence vectors
+      vec2 flow = vec2(
+        snoise(uv * 3.8 + vec2(u_time * 0.45, u_progress * 2.4)),
+        snoise(uv * 3.8 + vec2(u_progress * 2.4, u_time * 0.45))
+      );
+
+      float liquidNoise = fbm(uv * 4.2 + flow * 0.45 + vec2(0.0, -u_time * 0.3));
+      float waveRipple = sin(dist * 18.0 - u_progress * 15.0) * exp(-dist * 1.8);
+
+      // Refractive liquid displacement
+      float displaceMag = sin(u_progress * 3.14159) * 0.24;
+      vec2 displacedUv = uv + flow * displaceMag + (diff / (dist + 0.001)) * waveRipple * displaceMag * 0.55;
+
+      // Chromatic liquid dispersion (RGB shift)
+      float rDisp = displaceMag * 0.024;
+      float gDisp = displaceMag * 0.012;
+      vec4 texR = texture2D(u_texture, clamp(displacedUv + flow * rDisp, 0.0, 1.0));
+      vec4 texG = texture2D(u_texture, clamp(displacedUv + flow * gDisp, 0.0, 1.0));
+      vec4 texB = texture2D(u_texture, clamp(displacedUv, 0.0, 1.0));
+      vec4 tex = vec4(texR.r, texG.g, texB.b, 1.0);
+
+      // Organic Liquid Wipe Coordinate
+      float wipeCoord = (1.0 - uv.y) * 0.4 + (dist * 0.5) + liquidNoise * 0.3 + waveRipple * 0.1;
+      float threshold = u_progress * 1.4 - 0.2;
+      float edgeWidth = 0.15;
+      float alpha = smoothstep(threshold - edgeWidth, threshold + edgeWidth, wipeCoord);
+      alpha = clamp(alpha, 0.0, 1.0) * (1.0 - pow(u_progress, 4.0));
+
+      // Specular liquid crest highlight along melting wave front
+      float crest = 1.0 - abs(alpha - 0.5) * 2.0;
+      crest = pow(clamp(crest, 0.0, 1.0), 3.0);
+      vec3 waterSheen = vec3(0.45, 0.9, 1.0) * 1.4;
+
+      vec3 finalColor = tex.rgb + waterSheen * crest * (1.0 - u_progress) * 0.9;
+      gl_FragColor = vec4(finalColor, alpha);
+    }
+  `;
+
+  const uniforms = {
+    u_texture: { value: texture },
+    u_progress: { value: 0.0 },
+    u_time: { value: 0.0 },
+    u_clickPoint: { value: new THREE.Vector2(clickX, clickY) },
+    u_aspect: { value: aspect }
+  };
+
+  const material = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    uniforms: uniforms,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+  });
+
+  const geometry = new THREE.PlaneGeometry(2, 2);
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  let animFrameId;
+  const startTime = performance.now();
+
+  const renderLoop = () => {
+    uniforms.u_time.value = (performance.now() - startTime) * 0.001;
+    if (introVideo && !introVideo.paused && introVideo.readyState >= 2) {
+      try {
+        sCtx.drawImage(introVideo, 0, 0, snapCanvas.width, snapCanvas.height);
+        texture.needsUpdate = true;
+      } catch(e) {}
+    }
+    renderer.render(scene, camera);
+    animFrameId = requestAnimationFrame(renderLoop);
+  };
+  renderLoop();
+
+  // Hide the HTML video after first WebGL render frame
+  requestAnimationFrame(() => {
+    if (introVideo) {
+      introVideo.style.opacity = '0';
+    }
+  });
+
+  gsap.to(uniforms.u_progress, {
+    value: 1.0,
+    duration: 1.25,
+    ease: 'power2.inOut',
+    onComplete: () => {
+      cancelAnimationFrame(animFrameId);
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+      renderer.dispose();
+      if (canvas && canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+      }
+      if (onComplete) onComplete();
+    }
+  });
+}
+
+function setupPortalIntroClick() {
+  const introStage = document.getElementById('portal-intro-stage');
+  const introVideo = document.getElementById('portalIntroVideo');
+  if (!introStage) return;
+
+  let triggered = false;
+
+  // Smooth 3D liquid parallax reaction on mouse movement over video
+  const onMouseMove = (e) => {
+    if (triggered || !introVideo) return;
+    const nx = (e.clientX / window.innerWidth - 0.5) * 14;
+    const ny = (e.clientY / window.innerHeight - 0.5) * 14;
+    introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
+  };
+  introStage.addEventListener('mousemove', onMouseMove, { passive: true });
+
+  const onTriggerIntro = (e) => {
+    if (triggered) return;
+    triggered = true;
+
+    introStage.removeEventListener('click', onTriggerIntro);
+    introStage.removeEventListener('pointerdown', onTriggerIntro);
+    introStage.removeEventListener('touchstart', onTouchStart);
+    introStage.removeEventListener('touchmove', onTouchMove);
+    introStage.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('wheel', onWheel);
+    document.removeEventListener('keydown', onKeyDown);
+
+    if (window.playTickSound) {
+      window.playTickSound();
+    }
+
+    // Reveal country selector underneath the liquify wipe canvas
+    const csoOverlay = document.getElementById('country-selector-overlay');
+    if (csoOverlay) {
+      csoOverlay.classList.remove('cso-hidden');
+      csoOverlay.style.display = 'flex';
+      csoOverlay.style.visibility = 'visible';
+      csoOverlay.style.opacity = '1';
+      const earthVideo = document.getElementById('csoEarthVideo');
+      if (earthVideo) {
+        try { earthVideo.play().catch(() => {}); } catch(err) {}
+      }
+    }
+
+    const clickCoords = e && typeof e.clientX === 'number' ? { x: e.clientX, y: e.clientY } : { x: window.innerWidth / 2, y: window.innerHeight * 0.35 };
+
+    // Execute Three.js WebGL Liquify Screen Wipe Shader Transition
+    runLiquifyScreenWipe(introStage, introVideo, clickCoords, () => {
+      if (introVideo && !introVideo.paused) {
+        try { introVideo.pause(); } catch(err) {}
+      }
+      document.body.classList.remove('portal-intro-mode');
+      document.body.classList.add('flag-selection-mode');
+      introStage.style.display = 'none';
+      introStage.remove();
+      if (STATE.lenisInstance) {
+        STATE.lenisInstance.stop();
+      }
+    });
+  };
+
+  // Scroll wheel detection for animated entrance scroll
+  let wheelDeltaAccum = 0;
+  const onWheel = (e) => {
+    if (triggered) return;
+    wheelDeltaAccum += Math.abs(e.deltaY) + Math.abs(e.deltaX);
+    if (wheelDeltaAccum > 10 || Math.abs(e.deltaY) > 8) {
+      onTriggerIntro(e);
+    }
+  };
+  window.addEventListener('wheel', onWheel, { passive: true });
+
+  // Touch swipe gesture detection
+  let touchStartY = 0;
+  let touchStartX = 0;
+  const onTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    }
+  };
+  const onTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+      if (deltaY > 15) {
+        onTriggerIntro({ clientX: touchStartX, clientY: touchStartY });
+      }
+    }
+  };
+  introStage.addEventListener('touchstart', onTouchStart, { passive: true });
+  introStage.addEventListener('touchmove', onTouchMove, { passive: true });
+
+  const onKeyDown = (e) => {
+    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowDown' || e.code === 'PageDown') {
+      onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
+    }
+  };
+
+  introStage.addEventListener('click', onTriggerIntro);
+  introStage.addEventListener('pointerdown', onTriggerIntro);
+  document.addEventListener('keydown', onKeyDown, { once: true });
+  window.dismissIntroScreen = onTriggerIntro;
+}
+
+/**
+ * 🌸 Scent & Pet Care Preference Handlers
+ */
+function setupScentAndPetLogic() {
+  const scentCards = document.querySelectorAll('.wizard-scent-card');
+  scentCards.forEach(card => {
+    card.addEventListener('click', () => {
+      scentCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+      if (window.playTickSound) window.playTickSound();
+    });
+  });
+
+  const careItems = document.querySelectorAll('.wizard-care-item');
+  careItems.forEach(item => {
+    const chk = item.querySelector('input[type="checkbox"]');
+    if (!chk) return;
+    chk.addEventListener('change', () => {
+      if (chk.checked) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+      if (window.playTickSound) window.playTickSound();
+    });
+  });
+}
+
+/**
+ * 📋 48-Point Digital Quality Report Modal
+ */
+function setupQualityReportModal() {
+  const modal = document.getElementById('qualityReportModal');
+  const openBtn = document.getElementById('btnOpenQualityReportModal');
+  const closeBtn = document.getElementById('btnCloseQualityReport');
+  const okBtn = document.getElementById('btnQualityReportOk');
+
+  if (!modal) return;
+
+  function openModal() {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    if (window.playTickSound) window.playTickSound();
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  if (openBtn) openBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (okBtn) okBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+}
+
+/**
+ * 🏢 Corporate & Utility Modals (FAQ, Franchise, Countries, Mobile App)
+ */
+function setupCorporateModals() {
+  const modalConfigs = [
+    {
+      id: 'faqModal',
+      triggers: ['#btnOpenFaqModal', '#btnNavFaqModal'],
+      closeBtns: ['#btnCloseFaqModal', '#btnFaqModalOk']
+    },
+    {
+      id: 'franchiseModal',
+      triggers: ['#btnOpenFranchiseModal', '#btnNavFranchiseModal', '#btnCountriesToFranchise'],
+      closeBtns: ['#btnCloseFranchiseModal']
+    },
+    {
+      id: 'countriesModal',
+      triggers: ['#btnOpenCountriesModal', '#btnNavCountriesModal'],
+      closeBtns: ['#btnCloseCountriesModal']
+    },
+    {
+      id: 'mobileAppModal',
+      triggers: ['#btnOpenMobileAppModal', '#btnNavMobileAppModal', '#cNavMobileAppBtn'],
+      closeBtns: ['#btnCloseMobileAppModal']
+    }
+  ];
+
+  function openCorporateModal(modalEl) {
+    if (!modalEl) return;
+    // Close any other open corporate modals first
+    modalConfigs.forEach(cfg => {
+      const otherModal = document.getElementById(cfg.id);
+      if (otherModal && otherModal !== modalEl) otherModal.style.display = 'none';
+    });
+    // Close floating dropdown if open
+    const dropdownWrap = document.getElementById('cNavSceneDropdownWrap');
+    if (dropdownWrap) dropdownWrap.classList.remove('is-open');
+
+    modalEl.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    if (window.playTickSound) window.playTickSound();
+  }
+
+  function closeCorporateModal(modalEl) {
+    if (!modalEl) return;
+    modalEl.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  modalConfigs.forEach(cfg => {
+    const modalEl = document.getElementById(cfg.id);
+    if (!modalEl) return;
+
+    cfg.triggers.forEach(selector => {
+      const btns = document.querySelectorAll(selector);
+      btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openCorporateModal(modalEl);
+        });
+      });
+    });
+
+    cfg.closeBtns.forEach(selector => {
+      const closeBtn = modalEl.querySelector(selector);
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeCorporateModal(modalEl);
+        });
+      }
+    });
+
+    modalEl.addEventListener('click', (e) => {
+      if (e.target === modalEl) {
+        closeCorporateModal(modalEl);
+      }
+    });
+  });
+
+  // Global escape key to close active corporate modal
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      modalConfigs.forEach(cfg => {
+        const modalEl = document.getElementById(cfg.id);
+        if (modalEl && modalEl.style.display === 'flex') {
+          closeCorporateModal(modalEl);
+        }
+      });
+    }
+  });
+
+  // FAQ Accordion & Search Logic
+  const faqItems = document.querySelectorAll('.rx-faq-item');
+  faqItems.forEach(item => {
+    const qBtn = item.querySelector('.rx-faq-question');
+    if (qBtn) {
+      qBtn.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        faqItems.forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+        if (window.playTickSound) window.playTickSound();
+      });
+    }
+  });
+
+  const faqSearchInput = document.getElementById('faqSearchInput');
+  if (faqSearchInput) {
+    faqSearchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase().trim();
+      faqItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (!term || text.includes(term)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  // Franchise Form Submit Handler -> Direct WhatsApp
+  const franchiseForm = document.getElementById('franchiseForm');
+  if (franchiseForm) {
+    franchiseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('frName')?.value || '';
+      const phone = document.getElementById('frPhone')?.value || '';
+      const email = document.getElementById('frEmail')?.value || 'Belirtilmedi';
+      const city = document.getElementById('frCity')?.value || '';
+      const budget = document.getElementById('frBudget')?.value || '';
+      const experience = document.getElementById('frExperience')?.value || 'Belirtilmedi';
+
+      const msg = `🤝 *RELAXAX BÖLGE TEMSİLCİLİĞİ / FRANCHISE BAŞVURUSU*\n\n` +
+        `👤 *Ad Soyad:* ${name}\n` +
+        `📞 *Telefon:* ${phone}\n` +
+        `✉️ *E-Posta:* ${email}\n` +
+        `📍 *Talep Edilen Şehir:* ${city}\n` +
+        `💰 *Yatırım Bütçesi:* ${budget}\n` +
+        `📝 *Notlar / Deneyim:* ${experience}\n\n` +
+        `Lütfen franchise şartları ve bölge uygunluğu için benimle iletişime geçiniz.`;
+
+      const encodedMsg = encodeURIComponent(msg);
+      window.open(`https://wa.me/905466479004?text=${encodedMsg}`, '_blank');
+
+      // Close modal and reset
+      const frModal = document.getElementById('franchiseModal');
+      closeCorporateModal(frModal);
+      franchiseForm.reset();
+      alert('Temsilcilik başvurunuz alındı ve WhatsApp üzerinden yetkili birimimize yönlendirildi!');
+    });
+  }
+
+  // Countries Modal Actions
+  const countryActionBtns = document.querySelectorAll('[data-action-country]');
+  countryActionBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const countriesModal = document.getElementById('countriesModal');
+      closeCorporateModal(countriesModal);
+      const c = btn.getAttribute('data-action-country');
+      if (c === 'pl') {
+        if (typeof window.applyLanguage === 'function') window.applyLanguage('pl');
+      } else {
+        if (typeof window.applyLanguage === 'function') window.applyLanguage('tr');
+      }
+      if (typeof openPortalGateway === 'function') openPortalGateway();
+    });
+  });
+
+  const cityTagBtns = document.querySelectorAll('[data-action-city]');
+  cityTagBtns.forEach(tag => {
+    tag.addEventListener('click', (e) => {
+      e.preventDefault();
+      const city = tag.getAttribute('data-action-city');
+      const countriesModal = document.getElementById('countriesModal');
+      closeCorporateModal(countriesModal);
+      if (typeof openPortalGateway === 'function') openPortalGateway();
+    });
+  });
+}
+
+/**
+ * 💬 Help Center -> Tawk.to Live Chat Launcher
+ */
+function setupHelpCenterButtons() {
+  const helpBtns = document.querySelectorAll('.tms-help-btn, #tmsHelpCenterBtn, [data-action="open-help"]');
+  helpBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.openCustomLiveChat === 'function') {
+        window.openCustomLiveChat();
+      } else if (window.Tawk_API) {
+        if (typeof window.Tawk_API.showWidget === 'function') window.Tawk_API.showWidget();
+        if (typeof window.Tawk_API.maximize === 'function') window.Tawk_API.maximize();
+      }
+      if (window.playTickSound) window.playTickSound();
+    });
+  });
+}
+
 // ==========================================
 // 3. INITIALIZATION
 // ==========================================
-window.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
   window.scrollTo(0, 0);
 
   window.STATE = STATE;
+  window.TRANSLATIONS = TRANSLATIONS;
+  window.applyLanguage = applyLanguage;
+  window.openPortalGateway = openPortalGateway;
+  window.selectServiceGlobal = selectServiceGlobal;
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
   setupPortalIntroClick();
@@ -1887,23 +3063,44 @@ window.addEventListener('DOMContentLoaded', () => {
   setupServicesModal();
   setupResizeObserver();
   setupGlobalEscapeKey();
+  setupScentAndPetLogic();
+  setupQualityReportModal();
+  setupCorporateModals();
+  setupHelpCenterButtons();
 
   // Initialize interactive visual effects (Custom cursor on desktop, ambient glow globally)
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if (!isTouchDevice) {
-    setupCustomCursor();
-  }
+  setupCustomCursor();
   setupCinemaAmbientLight();
   setupHolographicClickRipples();
   setupAudioToggle();
+  setupVideoLoopEngineering();
 
-  // Auto-detect browser language and location (using timezone and language preferences)
+  // Auto-detect browser/device language and location (prioritizing saved preference)
+  const savedLang = localStorage.getItem('relaxax_language');
   const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-  const languages = navigator.languages || [browserLang];
-  const hasPolishLang = languages.some(l => l.toLowerCase().startsWith('pl'));
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-  const isPolandLocation = timezone.includes('Warsaw') || hasPolishLang;
-  const defaultLang = isPolandLocation ? 'pl' : 'tr';
+  const languages = (navigator.languages && navigator.languages.length ? Array.from(navigator.languages) : [browserLang]).map(l => (l || '').toLowerCase());
+  const timezone = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase();
+
+  const hasUkrainianLang = languages.some(l => l.startsWith('uk') || l.startsWith('ua'));
+  const hasPolishLang = languages.some(l => l.startsWith('pl'));
+  const hasTurkishLang = languages.some(l => l.startsWith('tr'));
+
+  const isUkraineLocation = timezone.includes('kyiv') || timezone.includes('kiev') || timezone.includes('ukraine');
+  const isPolandLocation = timezone.includes('warsaw') || timezone.includes('poland');
+  const isTurkeyLocation = timezone.includes('istanbul') || timezone.includes('turkey');
+
+  let detectedLang = 'tr';
+  if (hasUkrainianLang || isUkraineLocation) {
+    detectedLang = 'uk';
+  } else if (hasPolishLang || isPolandLocation) {
+    detectedLang = 'pl';
+  } else if (hasTurkishLang || isTurkeyLocation) {
+    detectedLang = 'tr';
+  } else {
+    detectedLang = 'tr';
+  }
+
+  const defaultLang = savedLang && TRANSLATIONS[savedLang] ? savedLang : detectedLang;
   applyLanguage(defaultLang);
 
   // Initialize selected service states & texts
@@ -1917,7 +3114,8 @@ window.addEventListener('DOMContentLoaded', () => {
   if (cityParam) {
     skipPortalDirectToCity(cityParam);
   } else if (langParam) {
-    const targetLang = langParam.toLowerCase() === 'pl' ? 'pl' : 'tr';
+    const rawLang = langParam.toLowerCase();
+    const targetLang = (rawLang === 'pl' || rawLang === 'uk' || rawLang === 'tr') ? rawLang : 'tr';
     STATE.language = targetLang;
     applyLanguage(targetLang);
     
@@ -1970,6 +3168,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Clear saved city to satisfy "yenilediginde kaldıgı yerden devam etmesin" requirement
+  localStorage.removeItem('relaxax_city');
   localStorage.removeItem('tworose_city');
 
   // Initialize History state
@@ -1980,9 +3179,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // popstate routing event listener for back/forward navigation in Chrome
   window.addEventListener('popstate', (e) => {
     if (e.state && e.state.stage) {
-      navigateToStage(e.state.stage, false);
-    } else {
-      navigateToStage('country', false);
+      if (e.state.stage === 'country' || e.state.stage === 'portal') {
+        openPortalGateway();
+      }
     }
   });
 
@@ -2014,7 +3213,13 @@ window.addEventListener('DOMContentLoaded', () => {
   } else {
     setTimeout(idleInit, 1500);
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ==========================================
 // 4. LENIS SMOOTH SCROLL SETUP
@@ -2090,12 +3295,22 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
     document.body.appendChild(toast);
   }
 
-  const badgeText = dict.comingSoonBadge || 'YAKINDA GELECEK';
-  const noticeText = dict.comingSoonNotice || 'Bu şehrimizde hizmetlerimiz çok yakında aktif olacaktır!';
+  const isPl = STATE.language === 'pl';
+  const badgeText = dict.comingSoonBadge || (isPl ? 'WKRÓTCE' : 'HENÜZ YOKUZ');
+  const noticeText = dict.comingSoonNotice || (isPl 
+    ? 'Przepraszamy, nie świadczymy jeszcze usług w tym regionie. Zostań partnerem RELAXAX!' 
+    : 'Üzgünüz, henüz bu bölgede aktif temizlik hizmetimiz yok. Ancak bizimle anlaşıp kendi şehrinizdeki temizlik operasyonunu sizler yönetebilirsiniz!');
+  const partnerBtnText = dict.comingSoonPartnerBtn || (isPl ? '💬 Zostań Partnerem' : '💬 Temsilcilik / Anlaşma Yap');
+  
+  const partnerWaUrl = `https://wa.me/905466479004?text=${encodeURIComponent(
+    isPl
+      ? `Cześć RELAXAX, chciałbym uzyskać informacje na temat partnerstwa/reprezentacji w mieście ${displayName}.`
+      : `Merhaba RELAXAX, ${displayName} şehrinde temizlik temsilciliği / anlaşması yapmak ve bilgi almak istiyorum.`
+  )}`;
 
   toast.innerHTML = `
     <div class="cs-toast-content">
-      <div class="cs-toast-icon">✨</div>
+      <div class="cs-toast-icon">🚀</div>
       <div class="cs-toast-body">
         <div class="cs-toast-header">
           <span class="cs-city-name">${displayName}</span>
@@ -2125,9 +3340,9 @@ function addLeafletMarkers(mapObj, locations) {
     const displayName = loc.districtName ? loc.districtName : transCity.name;
     const isComingSoon = loc.status === 'coming_soon' || transCity.status === 'coming_soon';
 
-    // Clean map pin: colored dot + soft pulse + city label
+    const isSelected = (STATE.language === 'pl' ? (cityKey === 'Srodmiescie' || cityKey === 'Warszawa') : (cityKey === 'Istanbul'));
     const markerHtml = `
-      <div class="map-hotspot ${isComingSoon ? 'is-coming-soon' : ''}" 
+      <div class="map-hotspot ${isComingSoon ? 'is-coming-soon' : 'is-active-city'} ${isSelected ? 'is-selected-active' : ''}" 
            data-city="${cityKey}" 
            data-market="${loc.market}" 
            data-status="${isComingSoon ? 'coming_soon' : 'active'}"
@@ -2135,11 +3350,10 @@ function addLeafletMarkers(mapObj, locations) {
            data-coords="${loc.coords[0].toFixed(2)}° N, ${loc.coords[1].toFixed(2)}° E" 
            role="button" 
            tabindex="0">
-        <div class="hotspot-pulse"></div>
-        <div class="hotspot-core"></div>
-        <span class="hotspot-label">
+        <span class="hotspot-dot ${isComingSoon ? 'is-yellow' : (isSelected ? 'is-selected' : 'is-green')}"></span>
+        <span class="hotspot-label ${isSelected ? 'is-selected' : ''}">
           ${displayName}
-          ${isComingSoon ? `<span class="cs-tag">${dict.comingSoonTag || 'YAKINDA'}</span>` : ''}
+          ${isComingSoon ? `<span class="cs-tag">YAKINDA</span>` : ''}
         </span>
       </div>
     `;
@@ -2147,11 +3361,31 @@ function addLeafletMarkers(mapObj, locations) {
     const customIcon = L.divIcon({
       html: markerHtml,
       className: 'leaflet-custom-hotspot-icon',
-      iconSize: [36, 36],
-      iconAnchor: [18, 18]
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
     });
 
     const marker = L.marker(loc.coords, { icon: customIcon }).addTo(mapObj);
+
+    marker.on('click', (e) => {
+      if (isComingSoon) {
+        showComingSoonNotice(cityKey, displayName, transCity);
+        return;
+      }
+      const cx = (e.originalEvent && e.originalEvent.clientX) || window.innerWidth / 2;
+      const cy = (e.originalEvent && e.originalEvent.clientY) || window.innerHeight / 2;
+      const el = marker.getElement() ? marker.getElement().querySelector('.map-hotspot') : null;
+      if (triggerSelectionFn) triggerSelectionFn(cityKey, cx, cy, el);
+    });
+
+    marker.on('mouseover', () => {
+      const el = marker.getElement() ? marker.getElement().querySelector('.map-hotspot') : null;
+      if (showCityPreviewFn) showCityPreviewFn(cityKey, el);
+    });
+
+    marker.on('mouseout', (e) => {
+      if (revertToDefaultFn) revertToDefaultFn(e.originalEvent || e);
+    });
 
     const bindMarkerEvents = (el) => {
       if (!el) return;
@@ -2251,97 +3485,35 @@ async function initLeafletMap(country) {
       zoomSnap: 0.1,
       zoomDelta: 0.5
     }).setView([39.0, 35.0], 6);
-    window.turkeyMapInstance = turkeyMapInstance;
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(turkeyMapInstance);
 
-        const turkeyCities = [
+    const turkeyCities = [
       { key: 'Istanbul', coords: [41.0082, 28.9784], market: 'marmara', status: 'active' },
-      { key: 'Kocaeli', coords: [40.7654, 29.9408], market: 'marmara', status: 'active' },
-      { key: 'Sakarya', coords: [40.756, 30.3784], market: 'marmara', status: 'active' },
       { key: 'Izmir', coords: [38.4237, 27.1428], market: 'ege', status: 'active' },
-      { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege', status: 'active' },
-      { key: 'Samsun', coords: [41.2867, 36.33], market: 'karadeniz', status: 'active' },
+      { key: 'Ankara', coords: [39.9334, 32.8597], market: 'icanadolu', status: 'active' },
       { key: 'Antalya', coords: [36.8969, 30.7133], market: 'akdeniz', status: 'active' },
-      { key: 'Adana', coords: [37.0, 35.3213], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Adiyaman', coords: [37.7644, 38.2786], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Afyon', coords: [38.7507, 30.5567], market: 'ege', status: 'coming_soon' },
-      { key: 'Agri', coords: [39.7191, 43.0503], market: 'dogu', status: 'coming_soon' },
-      { key: 'Amasya', coords: [40.6499, 35.8353], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Ankara', coords: [39.9334, 32.8597], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Artvin', coords: [41.1828, 41.8183], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Aydin', coords: [37.856, 27.8416], market: 'ege', status: 'coming_soon' },
-      { key: 'Bilecik', coords: [40.1506, 29.9792], market: 'marmara', status: 'coming_soon' },
-      { key: 'Bingol', coords: [38.8854, 40.498], market: 'dogu', status: 'coming_soon' },
-      { key: 'Bitlis', coords: [38.4006, 42.1095], market: 'dogu', status: 'coming_soon' },
-      { key: 'Bolu', coords: [40.7358, 31.6061], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Burdur', coords: [37.7203, 30.2903], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Bursa', coords: [40.1885, 29.061], market: 'marmara', status: 'coming_soon' },
-      { key: 'Canakkale', coords: [40.1553, 26.4142], market: 'marmara', status: 'coming_soon' },
-      { key: 'Cankiri', coords: [40.6013, 33.6134], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Corum', coords: [40.5506, 34.9556], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Denizli', coords: [37.7765, 29.0864], market: 'ege', status: 'coming_soon' },
-      { key: 'Diyarbakir', coords: [37.9144, 40.2306], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Edirne', coords: [41.6772, 26.5557], market: 'marmara', status: 'coming_soon' },
-      { key: 'Elazig', coords: [38.681, 39.2264], market: 'dogu', status: 'coming_soon' },
-      { key: 'Erzincan', coords: [39.75, 39.5], market: 'dogu', status: 'coming_soon' },
-      { key: 'Erzurum', coords: [39.9043, 41.2679], market: 'dogu', status: 'coming_soon' },
-      { key: 'Eskisehir', coords: [39.7667, 30.5256], market: 'icanadolu', status: 'coming_soon' },
+      { key: 'Bursa', coords: [40.1885, 29.0610], market: 'marmara', status: 'active' },
+      { key: 'Kocaeli', coords: [40.7654, 29.9408], market: 'marmara', status: 'active' },
+      { key: 'Sakarya', coords: [40.7560, 30.3784], market: 'marmara', status: 'active' },
+      { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege', status: 'active' },
+      { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz', status: 'active' },
+      { key: 'Adana', coords: [37.0000, 35.3213], market: 'akdeniz', status: 'coming_soon' },
       { key: 'Gaziantep', coords: [37.0662, 37.3833], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Giresun', coords: [40.9128, 38.3895], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Gumushane', coords: [40.46, 39.4814], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Hakkari', coords: [37.5833, 43.7333], market: 'dogu', status: 'coming_soon' },
-      { key: 'Hatay', coords: [36.2, 36.1667], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Isparta', coords: [37.7648, 30.5566], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Mersin', coords: [36.8121, 34.6415], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Kars', coords: [40.6013, 43.0975], market: 'dogu', status: 'coming_soon' },
-      { key: 'Kastamonu', coords: [41.3887, 33.7827], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Kayseri', coords: [38.7312, 35.4787], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Kirklareli', coords: [41.7333, 27.2167], market: 'marmara', status: 'coming_soon' },
-      { key: 'Kirsehir', coords: [39.1425, 34.1709], market: 'icanadolu', status: 'coming_soon' },
       { key: 'Konya', coords: [37.8746, 32.4932], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Kutahya', coords: [39.4167, 29.9833], market: 'ege', status: 'coming_soon' },
-      { key: 'Malatya', coords: [38.3552, 38.3095], market: 'dogu', status: 'coming_soon' },
-      { key: 'Manisa', coords: [38.6191, 27.4289], market: 'ege', status: 'coming_soon' },
-      { key: 'Kahramanmaras', coords: [37.5858, 36.9371], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Mardin', coords: [37.3212, 40.7245], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Bodrum', coords: [37.0344, 27.4305], market: 'ege', status: 'coming_soon' },
-      { key: 'Mus', coords: [38.7438, 41.5064], market: 'dogu', status: 'coming_soon' },
-      { key: 'Nevsehir', coords: [38.6244, 34.7144], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Nigde', coords: [37.9667, 34.6833], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Ordu', coords: [40.9833, 37.8781], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Rize', coords: [41.0201, 40.5234], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Siirt', coords: [37.9333, 41.95], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Sinop', coords: [42.0231, 35.1531], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Sivas', coords: [39.7477, 37.0179], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Tekirdag', coords: [40.9833, 27.5167], market: 'marmara', status: 'coming_soon' },
-      { key: 'Tokat', coords: [40.3167, 36.55], market: 'karadeniz', status: 'coming_soon' },
+      { key: 'Eskisehir', coords: [39.7667, 30.5256], market: 'icanadolu', status: 'coming_soon' },
       { key: 'Trabzon', coords: [41.0027, 39.7168], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Tunceli', coords: [39.1079, 39.5401], market: 'dogu', status: 'coming_soon' },
-      { key: 'Sanliurfa', coords: [37.1591, 38.7969], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Usak', coords: [38.6823, 29.4082], market: 'ege', status: 'coming_soon' },
-      { key: 'Van', coords: [38.5012, 43.373], market: 'dogu', status: 'coming_soon' },
-      { key: 'Yozgat', coords: [39.8181, 34.8147], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Zonguldak', coords: [41.4564, 31.7987], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Aksaray', coords: [38.3687, 34.037], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Bayburt', coords: [40.2552, 40.2249], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Karaman', coords: [37.1759, 33.2287], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Kirikkale', coords: [39.8453, 33.5153], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Batman', coords: [37.8812, 41.1351], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Sirnak', coords: [37.5164, 42.4611], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Bartin', coords: [41.6358, 32.3375], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Ardahan', coords: [41.1105, 42.7022], market: 'dogu', status: 'coming_soon' },
-      { key: 'Igdir', coords: [39.9167, 44.0333], market: 'dogu', status: 'coming_soon' },
-      { key: 'Yalova', coords: [40.65, 29.2667], market: 'marmara', status: 'coming_soon' },
-      { key: 'Karabuk', coords: [41.2061, 32.6204], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Kilis', coords: [36.7161, 37.115], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Osmaniye', coords: [37.0742, 36.2478], market: 'akdeniz', status: 'coming_soon' },
-      { key: 'Duzce', coords: [40.8438, 31.1565], market: 'karadeniz', status: 'coming_soon' }
+      { key: 'Mersin', coords: [36.8121, 34.6415], market: 'akdeniz', status: 'coming_soon' },
+      { key: 'Kayseri', coords: [38.7312, 35.4787], market: 'icanadolu', status: 'coming_soon' },
+      { key: 'Diyarbakir', coords: [37.9144, 40.2306], market: 'guneydogu', status: 'coming_soon' },
+      { key: 'Bodrum', coords: [37.0344, 27.4305], market: 'ege', status: 'coming_soon' }
     ];
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
+    if (typeof showCityPreviewFn === 'function') {
+      showCityPreviewFn('Istanbul');
+    }
 
     // Perfect Turkey Bounding Box Fit: SW [35.8, 25.5], NE [42.3, 44.8]
     const turkeyGeoBounds = L.latLngBounds([35.7, 25.5], [42.4, 44.8]);
@@ -2356,6 +3528,23 @@ async function initLeafletMap(country) {
       animate: false
     });
 
+    turkeyMapInstance.on('zoomend moveend viewreset', () => {
+      updateCachedHotspotCoords();
+    });
+
+    setTimeout(() => {
+      if (turkeyMapInstance) {
+        turkeyMapInstance.invalidateSize();
+        updateCachedHotspotCoords();
+      }
+    }, 100);
+    setTimeout(() => {
+      if (turkeyMapInstance) {
+        turkeyMapInstance.invalidateSize();
+        updateCachedHotspotCoords();
+      }
+    }, 300);
+
     setTimeout(() => {
       gsap.fromTo('#portalNeonMap .hotspot-core',
         { scale: 0 },
@@ -2366,6 +3555,7 @@ async function initLeafletMap(country) {
   } else if (country === 'poland') {
     if (polandMapInstance) {
       polandMapInstance.invalidateSize();
+      updateCachedHotspotCoords();
       return;
     }
     polandMapInstance = L.map('portalNeonMapPoland', {
@@ -2384,34 +3574,38 @@ async function initLeafletMap(country) {
 
     const polandDistricts = [
       { key: 'Srodmiescie', coords: [52.2300, 21.0100], districtName: 'Śródmieście', market: 'mazowsze' },
-      { key: 'Mokotow', coords: [52.1900, 21.0200], districtName: 'Mokotów', market: 'mazowsze' },
-      { key: 'Wola', coords: [52.2350, 20.9600], districtName: 'Wola', market: 'mazowsze' },
-      { key: 'Ursynow', coords: [52.1400, 21.0400], districtName: 'Ursynów', market: 'mazowsze' },
-      { key: 'Bemowo', coords: [52.2500, 20.9100], districtName: 'Bemowo', market: 'mazowsze' },
-      { key: 'Bialoleka', coords: [52.3200, 21.0100], districtName: 'Białołęka', market: 'mazowsze' },
-      { key: 'Praga-Polnoc', coords: [52.2530, 21.0370], districtName: 'Praga-Północ', market: 'mazowsze' },
-      { key: 'Praga-Poludnie', coords: [52.2350, 21.0800], districtName: 'Praga-Południe', market: 'mazowsze' },
-      { key: 'Targowek', coords: [52.2750, 21.0600], districtName: 'Targówek', market: 'mazowsze' },
-      { key: 'Ochota', coords: [52.2130, 20.9800], districtName: 'Ochota', market: 'mazowsze' },
+      { key: 'Mokotow', coords: [52.1950, 21.0350], districtName: 'Mokotów', market: 'mazowsze' },
+      { key: 'Wola', coords: [52.2380, 20.9650], districtName: 'Wola', market: 'mazowsze' },
+      { key: 'Ursynow', coords: [52.1400, 21.0450], districtName: 'Ursynów', market: 'mazowsze' },
+      { key: 'Bemowo', coords: [52.2520, 20.9100], districtName: 'Bemowo', market: 'mazowsze' },
+      { key: 'Bialoleka', coords: [52.3300, 21.0250], districtName: 'Białołęka', market: 'mazowsze' },
+      { key: 'Praga-Polnoc', coords: [52.2560, 21.0380], districtName: 'Praga-Północ', market: 'mazowsze' },
+      { key: 'Praga-Poludnie', coords: [52.2360, 21.0850], districtName: 'Praga-Południe', market: 'mazowsze' },
+      { key: 'Targowek', coords: [52.2850, 21.0650], districtName: 'Targówek', market: 'mazowsze' },
+      { key: 'Ochota', coords: [52.2150, 20.9750], districtName: 'Ochota', market: 'mazowsze' },
       { key: 'Zoliborz', coords: [52.2680, 20.9850], districtName: 'Żoliborz', market: 'mazowsze' },
-      { key: 'Bielany', coords: [52.2850, 20.9300], districtName: 'Bielany', market: 'mazowsze' },
-      { key: 'Ursus', coords: [52.1950, 20.8900], districtName: 'Ursus', market: 'mazowsze' },
+      { key: 'Bielany', coords: [52.2950, 20.9350], districtName: 'Bielany', market: 'mazowsze' },
+      { key: 'Ursus', coords: [52.1950, 20.8850], districtName: 'Ursus', market: 'mazowsze' },
       { key: 'Wlochy', coords: [52.1850, 20.9250], districtName: 'Włochy', market: 'mazowsze' },
-      { key: 'Wilanow', coords: [52.1650, 21.0900], districtName: 'Wilanów', market: 'mazowsze' },
-      { key: 'Wawer', coords: [52.1800, 21.1500], districtName: 'Wawer', market: 'mazowsze' },
-      { key: 'Rembertow', coords: [52.2580, 21.1600], districtName: 'Rembertów', market: 'mazowsze' },
-      { key: 'Wesola', coords: [52.2450, 21.2200], districtName: 'Wesoła', market: 'mazowsze' },
-      { key: 'Zabki', coords: [52.2900, 21.1100], districtName: 'Ząbki', market: 'mazowsze' },
-      { key: 'Marki', coords: [52.3300, 21.1000], districtName: 'Marki', market: 'mazowsze' },
-      { key: 'Sulejowek', coords: [52.2350, 21.2800], districtName: 'Sulejówek', market: 'mazowsze' },
-      { key: 'Jozefow', coords: [52.1300, 21.2300], districtName: 'Józefów', market: 'mazowsze' },
+      { key: 'Wilanow', coords: [52.1650, 21.0950], districtName: 'Wilanów', market: 'mazowsze' },
+      { key: 'Wawer', coords: [52.1800, 21.1650], districtName: 'Wawer', market: 'mazowsze' },
+      { key: 'Rembertow', coords: [52.2600, 21.1650], districtName: 'Rembertów', market: 'mazowsze' },
+      { key: 'Wesola', coords: [52.2450, 21.2300], districtName: 'Wesoła', market: 'mazowsze' },
+      { key: 'Zabki', coords: [52.2950, 21.1150], districtName: 'Ząbki', market: 'mazowsze' },
+      { key: 'Marki', coords: [52.3350, 21.1100], districtName: 'Marki', market: 'mazowsze' },
+      { key: 'Sulejowek', coords: [52.2350, 21.2850], districtName: 'Sulejówek', market: 'mazowsze' },
+      { key: 'Jozefow', coords: [52.1300, 21.2350], districtName: 'Józefów', market: 'mazowsze' },
       { key: 'Pruszkow', coords: [52.1700, 20.8100], districtName: 'Pruszków', market: 'mazowsze' },
-      { key: 'Piastow', coords: [52.1900, 20.8400], districtName: 'Piastów', market: 'mazowsze' },
-      { key: 'Piaseczno', coords: [52.0700, 21.0200], districtName: 'Piaseczno', market: 'mazowsze' },
+      { key: 'Piastow', coords: [52.1880, 20.8450], districtName: 'Piastów', market: 'mazowsze' },
+      { key: 'Piaseczno', coords: [52.0750, 21.0250], districtName: 'Piaseczno', market: 'mazowsze' },
       { key: 'Konstancin-Jeziorna', coords: [52.0900, 21.1200], districtName: 'Konstancin-Jeziorna', market: 'mazowsze' }
     ];
 
     addLeafletMarkers(polandMapInstance, polandDistricts);
+
+    polandMapInstance.on('zoomend moveend viewreset', () => {
+      updateCachedHotspotCoords();
+    });
 
     // Fit all district pins into view on any viewport size
     const isMobilePL = window.innerWidth <= 768;
@@ -2432,6 +3626,7 @@ async function initLeafletMap(country) {
           mapEl.classList.remove('map-zoom-low');
         }
       }
+      updateCachedHotspotCoords();
     };
     polandMapInstance.on('zoomend', updateZoomClass);
     polandMapInstance.on('viewreset', updateZoomClass);
@@ -2457,8 +3652,15 @@ function setupPortalGateway() {
 
   cleanupGatewayListeners();
 
-  const cityCards = document.querySelectorAll('.cc-gateway-card');
   const parallaxLayers = document.querySelectorAll('.parallax-layer');
+  const cityCards = document.querySelectorAll('.cc-gateway-card');
+  const quickToX = [];
+  const quickToY = [];
+  parallaxLayers.forEach((layer) => {
+    if (!layer) return;
+    quickToX.push(gsap.quickTo(layer, "x", { duration: 0.8, ease: "power2.out" }));
+    quickToY.push(gsap.quickTo(layer, "y", { duration: 0.8, ease: "power2.out" }));
+  });
 
   const portalMapWrapper = document.querySelector('.portal-map-wrapper');
 
@@ -2467,212 +3669,453 @@ function setupPortalGateway() {
 
   // ── COUNTRY SELECTOR SETUP ───────────────────────────────────────────────
   const csoOverlay    = document.getElementById('country-selector-overlay');
-  let csoBtnTurkey  = document.getElementById('csoBtnTurkey');
-  let csoBtnPoland  = document.getElementById('csoBtnPoland');
+  const csoBtnTurkey  = document.getElementById('csoBtnTurkey');
+  const csoBtnPoland  = document.getElementById('csoBtnPoland');
   const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
   const portalCenterHint = document.querySelector('.portal-center-hint');
 
-  if (csoBtnTurkey) {
-    const clone = csoBtnTurkey.cloneNode(true);
-    csoBtnTurkey.parentNode.replaceChild(clone, csoBtnTurkey);
-    csoBtnTurkey = clone;
-  }
-  if (csoBtnPoland) {
-    const clone = csoBtnPoland.cloneNode(true);
-    csoBtnPoland.parentNode.replaceChild(clone, csoBtnPoland);
-    csoBtnPoland = clone;
-  }
+  // ── CITY PREVIEW CONTROLLER ─────────────────────────────────────────────
+  let activeCity = 'Istanbul';
+  let portalRevertTimeout = null;
 
-  // Keep map stage hidden until a country is selected
-  if (mapSelectorStage) {
-    mapSelectorStage.style.opacity = '0';
-    mapSelectorStage.style.pointerEvents = 'none';
-  }
-  if (portalCenterHint) {
-    portalCenterHint.style.opacity = '0';
-  }
+  const showCityPreview = (city, element = null) => {
+    showCityPreviewFn = showCityPreview;
+    if (portalRevertTimeout) {
+      clearTimeout(portalRevertTimeout);
+      portalRevertTimeout = null;
+    }
 
-  // ── Turkey button: hide overlay, reveal Turkey map (TR mode) ──────────────
-  if (csoBtnTurkey) {
-    csoBtnTurkey.addEventListener('click', () => {
-      if (!csoOverlay) return;
+    activeCity = city;
 
-      if (window.history && window.history.pushState) {
-        window.history.pushState({ stage: 'map' }, '');
+    // Set region hue colors dynamically
+    const region = (element && element.dataset.market) || CITY_TO_REGION[city] || 'marmara';
+    updateThemeForMarket(region);
+
+    // Show corresponding city card in preview panel
+    const allCards = document.querySelectorAll('.cc-gateway-card');
+    const targetCityNorm = (city || '').toLowerCase().replace(/i̇/g, 'i').replace(/ı/g, 'i');
+    
+    let targetCard = Array.from(allCards).find(c => {
+      const cCity = (c.dataset.city || '').toLowerCase().replace(/i̇/g, 'i').replace(/ı/g, 'i');
+      return cCity === targetCityNorm;
+    });
+
+    if (!targetCard && allCards.length > 0) {
+      if (STATE.language === 'pl') {
+        targetCard = Array.from(allCards).find(c => (c.dataset.city || '').toLowerCase() === 'warszawa') || allCards[0];
+      } else {
+        targetCard = allCards[0];
       }
+    }
 
-      STATE.language = 'tr';
-      applyLanguage('tr');
+    allCards.forEach(card => {
+      if (card === targetCard) {
+        card.setAttribute('style', 'display: flex !important; flex-direction: column !important; opacity: 1 !important; visibility: visible !important;');
+      } else {
+        card.setAttribute('style', 'display: none !important; opacity: 0 !important;');
+      }
+    });
 
-      const mapTr = document.getElementById('portalNeonMap');
-      const mapPl = document.getElementById('portalNeonMapPoland');
-      if (mapTr) mapTr.style.display = 'block';
-      if (mapPl) mapPl.style.display = 'none';
-      destroyLeafletMap('poland');
+    // Highlight mini popular city card
+    const popularMiniCards = document.querySelectorAll('.tms-city-mini-card');
+    popularMiniCards.forEach(m => {
+      const mCity = (m.dataset.city || '').toLowerCase().replace(/i̇/g, 'i').replace(/ı/g, 'i');
+      if (mCity === targetCityNorm) {
+        m.classList.add('is-active');
+      } else {
+        m.classList.remove('is-active');
+      }
+    });
 
-      // Animate card out with a quick scale-up
-      gsap.to(csoBtnTurkey, {
-        scale: 0.96,
-        opacity: 0,
-        duration: 0.2,
-        ease: 'power2.in',
-        onComplete: () => {
-          // Fade + scale overlay away
-          gsap.to(csoOverlay, {
-            opacity: 0,
-            scale: 1.04,
-            duration: 0.55,
-            ease: 'power3.in',
-            onComplete: () => {
-              csoOverlay.classList.add('cso-hidden');
-              csoOverlay.style.transform = '';
+    // Highlight active map marker
+    const hotspots = document.querySelectorAll('.map-hotspot');
+    hotspots.forEach(h => {
+      const hCity = (h.dataset.city || '').toLowerCase().replace(/i̇/g, 'i').replace(/ı/g, 'i');
+      if (hCity === targetCityNorm) {
+        h.classList.add('is-selected-active');
+      } else {
+        h.classList.remove('is-selected-active');
+      }
+    });
 
-              updatePortalCachedRects();
+    const defaultPanel = document.getElementById('portalDefaultPanel');
+    if (defaultPanel) {
+      defaultPanel.style.display = 'none';
+      defaultPanel.style.opacity = '0';
+    }
+  };
+  showCityPreviewFn = showCityPreview;
+  window.showCityPreviewGlobal = showCityPreview;
 
-              // Reveal map stage
-              if (mapSelectorStage) {
-                mapSelectorStage.style.pointerEvents = '';
-                gsap.to(mapSelectorStage, {
-                  opacity: 1,
-                  duration: 0.8,
-                  ease: 'power3.out',
-                  onComplete: () => {
-                    initLeafletMap('turkey');
-                  }
-                });
-              }
-              if (portalCenterHint) {
-                gsap.to(portalCenterHint, {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: 'power2.out',
-                  delay: 0.3,
-                });
+  const revertToDefault = (e) => {
+    if (e && e.relatedTarget) {
+      const closestHotspot = e.relatedTarget.closest ? e.relatedTarget.closest('.map-hotspot, .cc-gateway-card') : null;
+      const targetCity = closestHotspot ? closestHotspot.dataset.city : '';
+
+      if (targetCity && activeCity && targetCity.toLowerCase() === activeCity.toLowerCase()) {
+        return;
+      }
+    }
+
+    if (portalRevertTimeout) {
+      clearTimeout(portalRevertTimeout);
+      portalRevertTimeout = null;
+    }
+
+    portalRevertTimeout = setTimeout(() => {
+      showCityPreview(STATE.language === 'pl' ? 'Warszawa' : 'Istanbul');
+    }, 250);
+  };
+  revertToDefaultFn = revertToDefault;
+  window.revertToDefaultGlobal = revertToDefault;
+
+  // ── POPULAR CITIES & DISTRICTS CAROUSEL GENERATOR ─────────────────────
+  function renderPopularCitiesGrid(countryCode) {
+    const popularGrid = document.querySelector('.tms-popular-grid');
+    const popularTitle = document.querySelector('.tms-popular-title');
+    const seeAllLink = document.querySelector('.tms-see-all-link');
+    if (!popularGrid) return;
+
+    if (countryCode === 'pl') {
+      if (popularTitle) popularTitle.textContent = '🏠 Popularne Dzielnice & Miasta';
+      if (seeAllLink) seeAllLink.textContent = 'Wszystkie lokalizacje ➔';
+
+      const plList = [
+        { key: 'Srodmiescie', name: 'Śródmieście', sub: 'Centrum Warszawy', status: '🟢 Dostępne', coords: [52.2300, 21.0100], img: '/images/warszawa_day_landmark.jpg' },
+        { key: 'Mokotow', name: 'Mokotów', sub: 'Warszawa Południe', status: '🟢 Dostępne', coords: [52.1950, 21.0350], img: '/images/warszawa_landmark.webp' },
+        { key: 'Wola', name: 'Wola', sub: 'Biznesowe Centrum', status: '🟢 Dostępne', coords: [52.2380, 20.9650], img: '/images/warszawa_landmark.webp' },
+        { key: 'Ursynow', name: 'Ursynów', sub: 'Dzielnica Południowa', status: '🟢 Dostępne', coords: [52.1400, 21.0450], img: '/images/warszawa_landmark.webp' },
+        { key: 'Wilanow', name: 'Wilanów', sub: 'Miasteczko & Pałac', status: '🟢 Dostępne', coords: [52.1650, 21.0950], img: '/images/warszawa_landmark.webp' },
+        { key: 'Praga-Polnoc', name: 'Praga-Północ', sub: 'Klimatyczna Praga', status: '🟢 Dostępne', coords: [52.2560, 21.0380], img: '/images/warszawa_landmark.webp' },
+        { key: 'Bielany', name: 'Bielany', sub: 'Zielona Dzielnica', status: '🟢 Dostępne', coords: [52.2950, 20.9350], img: '/images/warszawa_landmark.webp' },
+        { key: 'Bemowo', name: 'Bemowo', sub: 'Warszawa Zachód', status: '🟢 Dostępne', coords: [52.2520, 20.9100], img: '/images/warszawa_landmark.webp' },
+        { key: 'Ochota', name: 'Ochota', sub: 'Bliska Warszawa', status: '🟢 Dostępne', coords: [52.2150, 20.9750], img: '/images/warszawa_landmark.webp' },
+        { key: 'Krakow', name: 'Kraków', sub: 'Małopolska', status: '🟡 Wkrótce', coords: [50.0647, 19.9450], isComingSoon: true, img: '/images/warszawa_landmark.webp' },
+        { key: 'Wroclaw', name: 'Wrocław', sub: 'Dolny Śląsk', status: '🟡 Wkrótce', coords: [51.1079, 17.0385], isComingSoon: true, img: '/images/warszawa_landmark.webp' },
+        { key: 'Gdansk', name: 'Gdańsk', sub: 'Trójmiasto', status: '🟡 Wkrótce', coords: [54.3520, 18.6466], isComingSoon: true, img: '/images/warszawa_landmark.webp' }
+      ];
+
+      popularGrid.innerHTML = plList.map((item, idx) => `
+        <div class="tms-city-mini-card ${idx === 0 ? 'is-active' : ''}" data-city="${item.key}" role="button" tabindex="0">
+          <img src="${item.img}" alt="${item.name}" class="tms-mini-thumb" />
+          <div>
+            <div class="tms-mini-name">${item.name}</div>
+            <div class="tms-mini-region">${item.sub}</div>
+            <div style="font-size: 0.68rem; color: ${item.isComingSoon ? '#eab308' : '#10b981'}; font-weight: 600;">${item.status}</div>
+          </div>
+        </div>
+      `).join('');
+
+      bindPopularMiniCardsEvents('pl');
+
+    } else {
+      if (popularTitle) popularTitle.textContent = '🏠 Popüler Şehirler';
+      if (seeAllLink) seeAllLink.textContent = 'Tüm şehirleri gör ➔';
+
+      const trList = [
+        { key: 'Istanbul', name: 'İstanbul', sub: 'Marmara Bölgesi', status: '🟢 Hizmet veriliyor', coords: [41.0082, 28.9784], img: '/images/istanbul_day_landmark.jpg' },
+        { key: 'Samsun', name: 'Samsun', sub: 'Karadeniz Bölgesi', status: '🟢 Hizmet veriliyor', coords: [41.2928, 36.3313], img: '/images/samsun_landmark.webp' },
+        { key: 'Izmir', name: 'İzmir', sub: 'Ege Bölgesi', status: '🟢 Hizmet veriliyor', coords: [38.4237, 27.1428], img: '/images/izmir_landmark.webp' },
+        { key: 'Antalya', name: 'Antalya', sub: 'Akdeniz Bölgesi', status: '🟢 Hizmet veriliyor', coords: [36.8969, 30.7133], img: '/images/antalya_landmark.webp' },
+        { key: 'Bursa', name: 'Bursa', sub: 'Marmara Bölgesi', status: '🟢 Hizmet veriliyor', coords: [40.1885, 29.0610], img: '/images/bursa_landmark.jpg' },
+        { key: 'Kocaeli', name: 'Kocaeli', sub: 'Marmara Bölgesi', status: '🟢 Hizmet veriliyor', coords: [40.7654, 29.9408], img: '/images/kocaeli_landmark.webp' },
+        { key: 'Sakarya', name: 'Sakarya', sub: 'Marmara Bölgesi', status: '🟢 Hizmet veriliyor', coords: [40.7731, 30.4043], img: '/images/sakarya_landmark.webp' },
+        { key: 'Balikesir', name: 'Balıkesir', sub: 'Marmara Bölgesi', status: '🟢 Hizmet veriliyor', coords: [39.6484, 27.8826], img: '/images/balikesir_landmark.webp' },
+        { key: 'Ankara', name: 'Ankara', sub: 'İç Anadolu Bölgesi', status: '🟡 Yakında', coords: [39.9334, 32.8597], isComingSoon: true, img: '/images/istanbul_day_landmark.jpg' }
+      ];
+
+      popularGrid.innerHTML = trList.map((item, idx) => `
+        <div class="tms-city-mini-card ${idx === 0 ? 'is-active' : ''}" data-city="${item.key}" role="button" tabindex="0">
+          <img src="${item.img}" alt="${item.name}" class="tms-mini-thumb" />
+          <div>
+            <div class="tms-mini-name">${item.name}</div>
+            <div class="tms-mini-region">${item.sub}</div>
+            <div style="font-size: 0.68rem; color: ${item.isComingSoon ? '#eab308' : '#10b981'}; font-weight: 600;">${item.status}</div>
+          </div>
+        </div>
+      `).join('');
+
+      bindPopularMiniCardsEvents('tr');
+    }
+  }
+  window.renderPopularCitiesGridGlobal = renderPopularCitiesGrid;
+
+  function bindPopularMiniCardsEvents(country) {
+    const cards = document.querySelectorAll('.tms-city-mini-card');
+    cards.forEach(mini => {
+      const city = mini.dataset.city;
+      mini.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cards.forEach(c => c.classList.remove('is-active'));
+        mini.classList.add('is-active');
+
+        if (country === 'pl') {
+          if (typeof showCityPreviewFn === 'function') {
+            showCityPreviewFn('Warszawa', mini);
+          }
+          if (window.polandMapInstance) {
+            const PL_COORDS = {
+              Srodmiescie: [52.2300, 21.0100],
+              Mokotow: [52.1950, 21.0350],
+              Wola: [52.2380, 20.9650],
+              Ursynow: [52.1400, 21.0450],
+              Wilanow: [52.1650, 21.0950],
+              'Praga-Polnoc': [52.2560, 21.0380],
+              Bielany: [52.2950, 20.9350],
+              Bemowo: [52.2520, 20.9100],
+              Ochota: [52.2150, 20.9750]
+            };
+            const coords = PL_COORDS[city];
+            if (coords) {
+              window.polandMapInstance.flyTo(coords, 12.5, { duration: 1.0 });
+              // Highlight the corresponding hotspot
+              const targetHotspot = document.querySelector(`.map-hotspot[data-city="${city}"]`);
+              if (targetHotspot) {
+                document.querySelectorAll('.map-hotspot').forEach(h => h.classList.remove('is-selected-active', 'is-hovered'));
+                targetHotspot.classList.add('is-selected-active');
               }
             }
-          });
+          }
+        } else {
+          if (typeof showCityPreviewFn === 'function') {
+            showCityPreviewFn(city, mini);
+          }
+          if (window.turkeyMapInstance) {
+            const CITY_COORDS = {
+              Istanbul: [41.0082, 28.9784],
+              Ankara: [39.9334, 32.8597],
+              Izmir: [38.4237, 27.1428],
+              Antalya: [36.8969, 30.7133],
+              Bursa: [40.1885, 29.0610],
+              Kocaeli: [40.7654, 29.9408],
+              Samsun: [41.2928, 36.3313],
+              Sakarya: [40.7731, 30.4043],
+              Balikesir: [39.6484, 27.8826]
+            };
+            const coords = CITY_COORDS[city];
+            if (coords) {
+              window.turkeyMapInstance.flyTo(coords, 9, { duration: 1.2 });
+            }
+          }
         }
       });
     });
   }
 
-  // ── Poland button: hide overlay, reveal Turkey map in PL mode ───────────
-  if (csoBtnPoland) {
-    csoBtnPoland.addEventListener('click', () => {
-      if (!csoOverlay) return;
+  // ── COUNTRY SELECTOR HANDLERS ──────────────────────────────────────────
+  function selectCountryGlobal(countryCode) {
+    if (typeof closeBookingScreen === 'function') {
+      closeBookingScreen();
+    }
+    if (typeof closeServicesModal === 'function') {
+      closeServicesModal();
+    }
 
-      if (window.history && window.history.pushState) {
-        window.history.pushState({ stage: 'map' }, '');
-      }
+    if (window.history && window.history.pushState) {
+      window.history.pushState({ stage: 'map' }, '');
+    }
 
-      STATE.language = 'pl';
-      applyLanguage('pl');
+    STATE.language = countryCode;
+    applyLanguage(countryCode);
 
-      const mapTr = document.getElementById('portalNeonMap');
-      const mapPl = document.getElementById('portalNeonMapPoland');
+    const mapTr = document.getElementById('portalNeonMap');
+    const mapPl = document.getElementById('portalNeonMapPoland');
+
+    if (countryCode === 'pl') {
       if (mapTr) mapTr.style.display = 'none';
       if (mapPl) mapPl.style.display = 'block';
       destroyLeafletMap('turkey');
+      initLeafletMap('poland');
+    } else {
+      if (mapTr) mapTr.style.display = 'block';
+      if (mapPl) mapPl.style.display = 'none';
+      destroyLeafletMap('poland');
+      initLeafletMap('turkey');
+    }
 
-      // Animate card out with a quick scale-up
-      gsap.to(csoBtnPoland, {
-        scale: 0.96,
-        opacity: 0,
-        duration: 0.2,
-        ease: 'power2.in',
-        onComplete: () => {
-          // Fade + scale overlay away
-          gsap.to(csoOverlay, {
-            opacity: 0,
-            scale: 1.04,
-            duration: 0.55,
-            ease: 'power3.in',
-            onComplete: () => {
-              csoOverlay.classList.add('cso-hidden');
-              csoOverlay.style.transform = '';
+    const portalStageEl = document.getElementById('portal-stage');
+    if (portalStageEl) {
+      portalStageEl.style.display = 'flex';
+      portalStageEl.style.opacity = '1';
+      portalStageEl.style.pointerEvents = 'all';
+      portalStageEl.style.padding = '16px 12px';
+      portalStageEl.style.background = '#f8fafc';
+    }
 
-              updatePortalCachedRects();
+    if (csoOverlay) {
+      csoOverlay.classList.add('cso-hidden');
+      csoOverlay.style.display = 'none';
+      csoOverlay.style.visibility = 'hidden';
+      csoOverlay.style.pointerEvents = 'none';
+      csoOverlay.style.opacity = '0';
+      const earthVideo = document.getElementById('csoEarthVideo');
+      if (earthVideo && !earthVideo.paused) {
+        try { earthVideo.pause(); } catch(err) {}
+      }
+    }
 
-              // Reveal map stage
-              if (mapSelectorStage) {
-                mapSelectorStage.style.pointerEvents = '';
-                gsap.to(mapSelectorStage, {
-                  opacity: 1,
-                  duration: 0.8,
-                  ease: 'power3.out',
-                  onComplete: () => {
-                    initLeafletMap('poland');
-                  }
-                });
-              }
-              if (portalCenterHint) {
-                gsap.to(portalCenterHint, {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.8,
-                  ease: 'power2.out',
-                  delay: 0.3,
-                });
-              }
-            }
-          });
-        }
+    if (mapSelectorStage) {
+      mapSelectorStage.style.display = 'block';
+      mapSelectorStage.style.pointerEvents = 'all';
+      mapSelectorStage.style.opacity = '1';
+    }
+    const logoContainer = document.querySelector('.portal-logo-container');
+    if (logoContainer) logoContainer.style.display = 'none';
+    if (portalCenterHint) portalCenterHint.style.display = 'none';
+
+    // Update Bottom Carousel & Right Preview Card according to Country
+    renderPopularCitiesGrid(countryCode);
+
+    if (countryCode === 'pl') {
+      if (typeof showCityPreviewFn === 'function') {
+        showCityPreviewFn('Warszawa');
+      }
+      
+      const mainHeading = document.querySelector('.tms-main-heading');
+      if (mainHeading) mainHeading.textContent = 'Wybierz swoje miasto';
+      const mainSub = document.querySelector('.tms-main-sub');
+      if (mainSub) mainSub.textContent = 'Wybierz miasto lub dzielnicę, aby zobaczyć najbliższe punkty usług i zarezerwować termin.';
+
+      const nearTitle = document.querySelector('.tms-near-title');
+      if (nearTitle) nearTitle.textContent = 'NAJBLIŻSZY PUNKT USŁUG:';
+      const nearCity = document.querySelector('.tms-near-city');
+      if (nearCity) nearCity.innerHTML = 'Śródmieście, Warszawa <span class="tms-near-dist">(1.8 km)</span>';
+
+      const searchInput = document.getElementById('tmsCitySearchInput');
+      if (searchInput) searchInput.setAttribute('placeholder', 'Szukaj dzielnicy lub miasta...');
+      const gpsBtn = document.getElementById('tmsUseGpsBtn');
+      if (gpsBtn) gpsBtn.innerHTML = '<span>🎯</span> Użyj mojej lokalizacji';
+      const resetBtn = document.getElementById('tmsResetMapBtn');
+      if (resetBtn) resetBtn.textContent = 'Zobacz całą Warszawę';
+
+      const filterAll = document.querySelector('.tms-filter-btn[data-filter="all"]');
+      if (filterAll) filterAll.textContent = '🎛️ Wszystkie';
+      const filterActive = document.querySelector('.tms-filter-btn[data-filter="active"]');
+      if (filterActive) filterActive.textContent = '🟢 Dostępne';
+      const filterComing = document.querySelector('.tms-filter-btn[data-filter="coming_soon"]');
+      if (filterComing) filterComing.textContent = '🟡 Wkrótce';
+      const filterNone = document.querySelector('.tms-filter-btn[data-filter="none"]');
+      if (filterNone) filterNone.textContent = '⚪ Niedostępne';
+
+    } else {
+      if (typeof showCityPreviewFn === 'function') {
+        showCityPreviewFn('Istanbul');
+      }
+
+      const mainHeading = document.querySelector('.tms-main-heading');
+      if (mainHeading) mainHeading.textContent = 'Şehrinizi seçin';
+      const mainSub = document.querySelector('.tms-main-sub');
+      if (mainSub) mainSub.textContent = 'Size en yakın hizmet noktalarımızı görmek ve randevu oluşturmak için şehrinizi seçin.';
+
+      const nearTitle = document.querySelector('.tms-near-title');
+      if (nearTitle) nearTitle.textContent = 'Size en yakın hizmet noktası:';
+      const nearCity = document.querySelector('.tms-near-city');
+      if (nearCity) nearCity.innerHTML = 'Kadıköy, İstanbul <span class="tms-near-dist">(2.4 km uzaklıkta)</span>';
+
+      const searchInput = document.getElementById('tmsCitySearchInput');
+      if (searchInput) searchInput.setAttribute('placeholder', 'Şehir ara veya seç...');
+      const gpsBtn = document.getElementById('tmsUseGpsBtn');
+      if (gpsBtn) gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
+      const resetBtn = document.getElementById('tmsResetMapBtn');
+      if (resetBtn) resetBtn.textContent = 'Türkiye genelini görün';
+
+      const filterAll = document.querySelector('.tms-filter-btn[data-filter="all"]');
+      if (filterAll) filterAll.textContent = '🎛️ Tüm';
+      const filterActive = document.querySelector('.tms-filter-btn[data-filter="active"]');
+      if (filterActive) filterActive.textContent = '🟢 Hizmet Veriliyor';
+      const filterComing = document.querySelector('.tms-filter-btn[data-filter="coming_soon"]');
+      if (filterComing) filterComing.textContent = '🟡 Yakında';
+      const filterNone = document.querySelector('.tms-filter-btn[data-filter="none"]');
+      if (filterNone) filterNone.textContent = '⚪ Hizmet Verilmiyor';
+    }
+
+    setTimeout(() => {
+      if (countryCode === 'tr' && turkeyMapInstance) {
+        turkeyMapInstance.invalidateSize();
+      } else if (countryCode === 'pl' && polandMapInstance) {
+        polandMapInstance.invalidateSize();
+      }
+    }, 150);
+
+    updatePortalCachedRects();
+  }
+  window.selectCountryGlobal = selectCountryGlobal;
+
+  if (csoBtnTurkey) {
+    csoBtnTurkey.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectCountryGlobal('tr');
+    });
+  }
+
+  if (csoBtnPoland) {
+    csoBtnPoland.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectCountryGlobal('pl');
+    });
+  }
+
+  // Country Selector Top-right Language Dropdown Toggle
+  const csoLangWrap = document.getElementById('csoLangDropdown');
+  const csoLangPillBtn = document.getElementById('csoLangPillBtn');
+  const csoLangPopover = document.getElementById('csoLangPopover');
+  const csoLangOptions = document.querySelectorAll('.cso-lang-option');
+
+  if (csoLangPillBtn && csoLangPopover) {
+    csoLangPillBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = csoLangPopover.classList.contains('active');
+      if (isActive) {
+        csoLangPopover.classList.remove('active');
+        csoLangWrap?.classList.remove('active');
+        csoLangPillBtn.setAttribute('aria-expanded', 'false');
+      } else {
+        csoLangPopover.classList.add('active');
+        csoLangWrap?.classList.add('active');
+        csoLangPillBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#csoLangDropdown')) {
+        csoLangPopover.classList.remove('active');
+        csoLangWrap?.classList.remove('active');
+        csoLangPillBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    csoLangOptions.forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetLang = opt.dataset.lang;
+        csoLangOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        csoLangPopover.classList.remove('active');
+        csoLangWrap?.classList.remove('active');
+        csoLangPillBtn.setAttribute('aria-expanded', 'false');
+        applyLanguage(targetLang);
       });
+    });
+  }
+
+  // Helper link "Tüm ülkeleri gör" - focuses on cards
+  const otherCountriesBtn = document.getElementById('csoOtherCountriesBtn');
+  if (otherCountriesBtn) {
+    otherCountriesBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cardsRow = document.querySelector('.cso-arch-cards-row');
+      if (cardsRow) {
+        cardsRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     });
   }
   // ── END COUNTRY SELECTOR ─────────────────────────────────────────────────
 
-  // Staggered premium entry animation on portal load
-  if (document.body.classList.contains('flag-selection-mode')) {
-    // 1. Grid Lines initialization
-    gsap.fromTo('.grid-line.horizontal', 
-      { scaleX: 0, transformOrigin: 'center' },
-      { scaleX: 1, duration: 1.4, ease: 'power3.inOut' }
-    );
-    gsap.fromTo('.grid-line.vertical', 
-      { scaleY: 0, transformOrigin: 'center' },
-      { scaleY: 1, duration: 1.4, ease: 'power3.inOut' }
-    );
-
-    // 2. HUD Brackets slide in from corners
-    gsap.fromTo('.hud-tl', { x: -20, y: -20, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.3 });
-    gsap.fromTo('.hud-tr', { x: 20, y: -20, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.3 });
-    gsap.fromTo('.hud-bl', { x: -20, y: 20, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.3 });
-    gsap.fromTo('.hud-br', { x: 20, y: 20, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.3 });
-
-    // 3. Telemetry ticks fade in with a digital sweep
-    gsap.fromTo('.telemetry-tick', 
-      { opacity: 0 },
-      { opacity: 0.45, duration: 0.8, stagger: 0.08, ease: 'power1.inOut', delay: 0.5 }
-    );
-
-    // 4. Logo and brand container gliding down
-    gsap.fromTo('.portal-logo-container', 
-      { y: -30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out', delay: 0.4 }
-    );
-
-    // 5. Center selection hint reveal
-    gsap.fromTo('.portal-center-hint',
-      { y: 12, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.0, ease: 'power2.out', delay: 0.8 }
-    );
-
-    // 6. Map and Default Panel premium presentation entry
-    gsap.fromTo('.portal-map-wrapper',
-      { opacity: 0, y: 30, scale: 0.98 },
-      { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: 'power3.out', delay: 0.5 }
-    );
-
-    gsap.fromTo('.map-hotspot',
-      { opacity: 0, scale: 0 },
-      { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: 'back.out(1.7)', delay: 0.9 }
-    );
-
-    gsap.fromTo('#portalDefaultPanel',
-      { display: 'none', opacity: 0, x: 20 },
-      { display: 'flex', opacity: 1, x: 0, duration: 1.0, ease: 'power3.out', delay: 0.8 }
+  // Smooth entry animation for country selector on load
+  if (csoOverlay && !csoOverlay.classList.contains('cso-hidden')) {
+    gsap.fromTo(csoOverlay, 
+      { opacity: 0 }, 
+      { opacity: 1, duration: 0.6, ease: 'power2.out' }
     );
   }
 
@@ -2681,16 +4124,11 @@ function setupPortalGateway() {
   let pmy = 0;
 
   const updateParallax = () => {
-    parallaxLayers.forEach((layer) => {
+    parallaxLayers.forEach((layer, idx) => {
       if (!layer) return;
-      const depth = layer.dataset.depth || 0.04;
-      gsap.to(layer, {
-        x: pmx * depth * 30,
-        y: pmy * depth * 20,
-        duration: 0.8,
-        ease: "power2.out",
-        overwrite: "auto"
-      });
+      const depth = parseFloat(layer.dataset.depth || "0.04");
+      if (quickToX[idx]) quickToX[idx](pmx * depth * 30);
+      if (quickToY[idx]) quickToY[idx](pmy * depth * 20);
     });
     portalParallaxRafId = null;
   };
@@ -2739,6 +4177,7 @@ function setupPortalGateway() {
       hudMY = e.clientY;
 
       if (!hudTicking) {
+        hudTicking = true;
         window.requestAnimationFrame(() => {
           // Only track if gateway selection is active and it's not a mobile device
           if (!document.body.classList.contains('flag-selection-mode') || cachedWindowWidth <= 900 || window.portalWarping) {
@@ -2793,7 +4232,6 @@ function setupPortalGateway() {
           }
           hudTicking = false;
         });
-        hudTicking = true;
       }
     };
 
@@ -2848,111 +4286,6 @@ function setupPortalGateway() {
     }
   };
 
-  // Switch preview panel display dynamically
-  const showCityPreview = (city, element = null) => {
-    if (portalRevertTimeout) {
-      clearTimeout(portalRevertTimeout);
-      portalRevertTimeout = null;
-    }
-
-    if (activeCity === city && !element) return;
-    activeCity = city;
-
-    // Set region hue colors dynamically
-    const region = (element && element.dataset.market) || CITY_TO_REGION[city] || 'marmara';
-    updateThemeForMarket(region);
-
-    // Update HUD values dynamically on hover
-    const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
-    const cityData = dict.cities[city];
-    if (cityData) {
-      const hudCityVal = document.getElementById('hudCityName');
-      const hudRegionVal = document.getElementById('hudRegionName');
-      const hudCoordsVal = document.getElementById('hudCoordinates');
-      const hudSignalVal = document.getElementById('hudSignalStrength');
-
-      let displayName = cityData.name;
-      let displayRegion = cityData.market || region.toUpperCase();
-      let displayCoords = cityData.coords;
-
-      // Extract specific details from elements (e.g. Warsaw districts)
-      if (element) {
-        const iladi = element.dataset.iladi;
-        if (iladi) {
-          displayName = iladi.toUpperCase();
-        }
-        const coordsAttr = element.dataset.coords;
-        if (coordsAttr) {
-          displayCoords = coordsAttr;
-        }
-      }
-
-      if (hudCityVal) hudCityVal.textContent = displayName;
-      if (hudRegionVal) hudRegionVal.textContent = displayRegion;
-      if (hudCoordsVal) hudCoordsVal.textContent = displayCoords;
-      if (hudSignalVal) {
-        if (element && element.dataset.status === 'coming_soon') {
-          hudSignalVal.textContent = dict.comingSoonBadge || 'YAKINDA GELECEK';
-          hudSignalVal.className = 'hud-val status-blink status-coming-soon';
-        } else {
-          hudSignalVal.textContent = dict.hudSignalActive || (STATE.language === 'pl' ? 'ONLINE / AKTYWNY' : 'ONLINE / AKTİF');
-          hudSignalVal.className = 'hud-val status-active';
-        }
-      }
-    }
-  };
-
-  // Debounce returning preview panel to default guide screen
-  const revertToDefault = (e) => {
-    if (e && e.relatedTarget) {
-      const closestHotspot = e.relatedTarget.closest ? e.relatedTarget.closest('.map-hotspot') : null;
-      const targetCity = closestHotspot ? closestHotspot.dataset.city : '';
-
-      if (targetCity && activeCity && targetCity.toLowerCase() === activeCity.toLowerCase()) {
-        return;
-      }
-    }
-
-    if (portalRevertTimeout) {
-      clearTimeout(portalRevertTimeout);
-      portalRevertTimeout = null;
-    }
-
-    portalRevertTimeout = setTimeout(() => {
-      activeCity = null;
-
-      portalTargetHue = 220;
-      if (portalStage) {
-        portalStage.classList.remove('hover-marmara', 'hover-ege', 'hover-karadeniz', 'hover-mazowsze');
-      }
-
-      const portalAmbientBg = document.getElementById('portalAmbientBg');
-      if (portalAmbientBg) {
-        gsap.to(portalAmbientBg, {
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          overwrite: 'auto'
-        });
-      }
-
-      // Reset HUD values to scanning/default
-      const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
-      const hudCityVal = document.getElementById('hudCityName');
-      const hudRegionVal = document.getElementById('hudRegionName');
-      const hudCoordsVal = document.getElementById('hudCoordinates');
-      const hudSignalVal = document.getElementById('hudSignalStrength');
-
-      if (hudCityVal) hudCityVal.textContent = dict.hudScanning;
-      if (hudRegionVal) hudRegionVal.textContent = dict.hudSearching;
-      if (hudCoordsVal) hudCoordsVal.textContent = '--° N, --° E';
-      if (hudSignalVal) {
-        hudSignalVal.textContent = dict.hudSignalWeak;
-        hudSignalVal.className = 'hud-val status-blink status-weak';
-      }
-    }, 200);
-  };
-
   // Helper to spawn expanding concentric sonar target locking rings on map click
   const spawnRadarLockRings = (clientX, clientY, accentColor) => {
     const wrapper = document.querySelector('.portal-map-wrapper');
@@ -2985,10 +4318,6 @@ function setupPortalGateway() {
 
   // Triggers selection state machine transition with cinematic warp zoom teleportation
   const triggerSelection = (city, clientX, clientY, clickedElement = null) => {
-    if (window.portalWarping) return;
-    if (STATE.language === 'pl' && city === 'Istanbul') {
-      city = 'Warszawa';
-    }
     window.portalWarping = true; // Lock mouse hover and tilt calculations immediately
 
     // Lock initial inline opacities to 0 to prevent any visual flash of hero content on selection zoom
@@ -3015,7 +4344,7 @@ function setupPortalGateway() {
     let hotspot = clickedElement;
     if (!hotspot || !hotspot.classList.contains('map-hotspot')) {
       hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
-        h => h.dataset.city.toLowerCase() === city.toLowerCase()
+        h => h.dataset && h.dataset.city && h.dataset.city.toLowerCase() === (city || '').toLowerCase()
       );
     }
     const wrapper = document.querySelector('.portal-map-wrapper');
@@ -3113,8 +4442,15 @@ function setupPortalGateway() {
         }
         window.scrollTo(0, 0);
 
-        document.body.classList.remove('flag-selection-mode');
+        document.body.classList.remove('flag-selection-mode', 'portal-intro-mode');
         portalStage.style.display = 'none';
+
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+          mainContent.style.display = 'block';
+          mainContent.style.opacity = '1';
+          mainContent.style.pointerEvents = 'all';
+        }
 
         if (targetLock) {
           targetLock.style.display = 'none';
@@ -3145,7 +4481,7 @@ function setupPortalGateway() {
 
         ScrollTrigger.refresh();
 
-        // Initialize cinema engine in touch-driven step mode after portal closes
+        // Initialize cinema engine directly at Step 0 (City Intro Card) after city portal closes
         if (typeof window.goToCinemaStep === 'function') {
           window.goToCinemaStep(0);
         }
@@ -3174,7 +4510,8 @@ function setupPortalGateway() {
       ease: 'power4.in'
     }, 0)
       .to(portalStage, { opacity: 0, duration: 0.95, ease: 'power2.out' }, '-=0.75')
-      .to('#main-content', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '-=0.45');
+      .to('#main-content', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '-=0.45')
+      .to('#main-nav', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '<');
   };
 
   showCityPreviewFn = showCityPreview;
@@ -3321,7 +4658,7 @@ function setupPortalGateway() {
       
       // Look up corresponding geographical hotspot coordinates to center zoom-in warp animation
       const hotspot = Array.from(document.querySelectorAll('.map-hotspot')).find(
-        h => h.dataset.city.toLowerCase() === targetCity.toLowerCase()
+        h => h.dataset && h.dataset.city && h.dataset.city.toLowerCase() === (targetCity || '').toLowerCase()
       );
       
       let cx = window.innerWidth / 2;
@@ -3358,6 +4695,184 @@ function setupPortalGateway() {
   });
 
   updateCachedHotspotCoords();
+
+  // Bind Popular Cities Mini Cards
+  const popularMiniCards = document.querySelectorAll('.tms-city-mini-card');
+  popularMiniCards.forEach(mini => {
+    const city = mini.dataset.city;
+    mini.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof showCityPreviewFn === 'function') {
+        showCityPreviewFn(city, mini);
+      }
+      if (window.turkeyMapInstance) {
+        const CITY_COORDS = {
+          Istanbul: [41.0082, 28.9784],
+          Ankara: [39.9334, 32.8597],
+          Izmir: [38.4237, 27.1428],
+          Antalya: [36.8969, 30.7133],
+          Bursa: [40.1885, 29.0610],
+          Kocaeli: [40.7654, 29.9408],
+          Samsun: [41.2928, 36.3313]
+        };
+        const coords = CITY_COORDS[city];
+        if (coords) {
+          window.turkeyMapInstance.flyTo(coords, 9, { duration: 1.2 });
+        }
+      }
+    });
+  });
+
+  // Bind Carousel Next Button
+  const nextCarouselBtn = document.querySelector('.tms-carousel-next-btn');
+  const popularGrid = document.querySelector('.tms-popular-grid');
+  if (nextCarouselBtn && popularGrid) {
+    nextCarouselBtn.addEventListener('click', () => {
+      popularGrid.scrollBy({ left: 240, behavior: 'smooth' });
+    });
+  }
+
+  // Bind GPS Location Button
+  const gpsBtn = document.getElementById('tmsUseGpsBtn');
+  if (gpsBtn) {
+    gpsBtn.addEventListener('click', () => {
+      gpsBtn.innerHTML = '<span>⏳</span> Konum alınıyor...';
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const { latitude, longitude } = pos.coords;
+            gpsBtn.innerHTML = '<span>🎯</span> Konum bulundu!';
+            if (window.turkeyMapInstance) {
+              window.turkeyMapInstance.flyTo([latitude, longitude], 11, { duration: 1.2 });
+            }
+            if (typeof showCityPreviewFn === 'function') {
+              showCityPreviewFn('Istanbul');
+            }
+            setTimeout(() => {
+              gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
+            }, 3000);
+          },
+          err => {
+            gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
+            if (typeof showCityPreviewFn === 'function') {
+              showCityPreviewFn('Istanbul');
+            }
+          }
+        );
+      } else {
+        gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
+      }
+    });
+  }
+
+  // Bind Favorite Heart and Close Card Buttons
+  document.querySelectorAll('.tms-icon-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (btn.classList.contains('tms-close-card-btn')) {
+        if (typeof showCityPreviewFn === 'function') {
+          showCityPreviewFn('Istanbul');
+        }
+      } else {
+        if (btn.textContent.includes('🤍')) {
+          btn.textContent = '❤️';
+          btn.style.transform = 'scale(1.25)';
+          setTimeout(() => btn.style.transform = 'scale(1)', 200);
+        } else {
+          btn.textContent = '🤍';
+        }
+      }
+    });
+  });
+
+  // Bind Service Chip "+3 daha" Toggle
+  document.querySelectorAll('.tms-service-chip').forEach(chip => {
+    if (chip.textContent.includes('+3 daha')) {
+      chip.style.cursor = 'pointer';
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const chipsContainer = chip.parentElement;
+        if (chipsContainer) {
+          chip.remove();
+          const extra1 = document.createElement('span');
+          extra1.className = 'tms-service-chip';
+          extra1.textContent = '🪟 Panjur Temizliği';
+          const extra2 = document.createElement('span');
+          extra2.className = 'tms-service-chip';
+          extra2.textContent = '🛋️ Koltuk Yıkama';
+          const extra3 = document.createElement('span');
+          extra3.className = 'tms-service-chip';
+          extra3.textContent = '🧺 Halı Yıkama';
+          chipsContainer.appendChild(extra1);
+          chipsContainer.appendChild(extra2);
+          chipsContainer.appendChild(extra3);
+        }
+      });
+    }
+  });
+
+  // Bind Reset Map Button
+  const resetMapBtn = document.getElementById('tmsResetMapBtn');
+  if (resetMapBtn) {
+    resetMapBtn.addEventListener('click', () => {
+      if (window.turkeyMapInstance) {
+        const bounds = L.latLngBounds([35.7, 25.5], [42.4, 44.8]);
+        window.turkeyMapInstance.fitBounds(bounds, { padding: [30, 30], animate: true });
+      }
+    });
+  }
+
+  // Bind Real-Time City Search Input
+  const searchInput = document.getElementById('tmsCitySearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const q = (e.target.value || '').toLowerCase().trim();
+      const hotspots = document.querySelectorAll('.map-hotspot');
+      hotspots.forEach(h => {
+        const name = (h.textContent || '').toLowerCase();
+        const city = (h.dataset.city || '').toLowerCase();
+        if (!q || name.includes(q) || city.includes(q)) {
+          h.style.display = 'inline-flex';
+        } else {
+          h.style.display = 'none';
+        }
+      });
+      popularMiniCards.forEach(m => {
+        const name = (m.textContent || '').toLowerCase();
+        const city = (m.dataset.city || '').toLowerCase();
+        if (!q || name.includes(q) || city.includes(q)) {
+          m.style.display = 'flex';
+        } else {
+          m.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  // Bind Filter Pills
+  const filterBtns = document.querySelectorAll('.tms-filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      const hotspots = document.querySelectorAll('.map-hotspot');
+      hotspots.forEach(h => {
+        const status = h.dataset.status || 'active';
+        if (filter === 'all') {
+          h.style.display = 'inline-flex';
+        } else if (filter === 'active' && status === 'active') {
+          h.style.display = 'inline-flex';
+        } else if (filter === 'coming_soon' && status === 'coming_soon') {
+          h.style.display = 'inline-flex';
+        } else if (filter === 'none' && status === 'none') {
+          h.style.display = 'inline-flex';
+        } else {
+          h.style.display = 'none';
+        }
+      });
+    });
+  });
 }
 
 function setupNavScroll() {
@@ -3370,6 +4885,97 @@ function setupNavScroll() {
     });
   }
 
+  // ── FLOATING CAPSULE NAVBAR SETUP (EXACT AS SCREENSHOT) ──
+  const cNavBrandBtn = document.getElementById('cNavBrandBtn');
+  if (cNavBrandBtn) {
+    cNavBrandBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(0);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  const sceneDropdownWrap = document.getElementById('cNavSceneDropdownWrap');
+  const sceneDropdownBtn = document.getElementById('cNavSceneDropdownBtn');
+  const sceneDropdownMenu = document.getElementById('cNavSceneDropdownMenu');
+
+  if (sceneDropdownWrap && sceneDropdownBtn) {
+    sceneDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = sceneDropdownWrap.classList.toggle('is-open');
+      sceneDropdownBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (sceneDropdownWrap.classList.contains('is-open') && !sceneDropdownWrap.contains(e.target)) {
+        sceneDropdownWrap.classList.remove('is-open');
+        sceneDropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    const dropdownItems = sceneDropdownWrap.querySelectorAll('.c-nav-dropdown-item');
+    dropdownItems.forEach((item) => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const modalTarget = item.getAttribute('data-modal-target');
+        const sceneNum = parseInt(item.getAttribute('data-scene'), 10);
+
+        if (modalTarget) {
+          const targetModal = document.getElementById(modalTarget);
+          if (targetModal) {
+            targetModal.style.display = 'flex';
+            targetModal.classList.add('active');
+            document.body.classList.add('corporate-modal-open');
+          }
+        } else if (!isNaN(sceneNum) && typeof window.goToCinemaStep === 'function') {
+          // In cinema navigation, step 2 = Scene 1 (Mona Lisa), step 3 = Scene 2, etc.
+          window.goToCinemaStep(sceneNum + 1);
+          if (typeof window.updateFloatingNavActiveScene === 'function') {
+            window.updateFloatingNavActiveScene(sceneNum);
+          }
+        }
+        sceneDropdownWrap.classList.remove('is-open');
+        sceneDropdownBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  const cNavCityMapBtn = document.getElementById('cNavCityMapBtn');
+  if (cNavCityMapBtn) {
+    cNavCityMapBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof openPortalGateway === 'function') {
+        openPortalGateway();
+      }
+    });
+  }
+
+  const cNavProductsBtn = document.getElementById('cNavProductsBtn') || document.getElementById('cNavBeforeAfterBtn');
+  if (cNavProductsBtn) {
+    cNavProductsBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Go to products / detergent supplies / eco cleaning cinema scene
+      if (typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(3);
+      } else {
+        const suppliesSection = document.querySelector('.services-section') || document.getElementById('cinema-section');
+        if (suppliesSection) suppliesSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const cNavPriceCalcBtn = document.getElementById('cNavPriceCalcBtn');
+  if (cNavPriceCalcBtn) {
+    cNavPriceCalcBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof openBookingScreen === 'function') {
+        openBookingScreen();
+      }
+    });
+  }
+
   const citySwitcherBtn = document.getElementById('citySwitcherBtn');
   if (citySwitcherBtn) {
     citySwitcherBtn.addEventListener('click', () => {
@@ -3377,56 +4983,14 @@ function setupNavScroll() {
     });
   }
 
-  // Bind navigation links & logo to cinema step index transitions since page scrolling is disabled
-  const handleNavClick = (targetType, e) => {
-    if (e) e.preventDefault();
-    if (document.body.classList.contains('portal-intro-mode') || document.body.classList.contains('flag-selection-mode')) {
-      return;
-    }
-    if (typeof window.goToCinemaStep === 'function') {
-      if (targetType === 'home') {
-        window.goToCinemaStep(0);
-      } else if (targetType === 'services') {
-        window.goToCinemaStep(1);
-      } else if (targetType === 'scroller') {
-        window.goToCinemaStep(2);
-      } else if (targetType === 'contact') {
-        window.goToCinemaStep(14);
-      }
-    }
-  };
-
-  const navLogo = document.getElementById('navLogo');
-  if (navLogo) {
-    navLogo.addEventListener('click', (e) => handleNavClick('home', e));
-  }
-
-  const homeLink = document.querySelector('.nav-links a:first-child');
-  if (homeLink) {
-    homeLink.addEventListener('click', (e) => handleNavClick('home', e));
-  }
-
-  const servicesLink = document.getElementById('navServicesLink');
-  if (servicesLink) {
-    servicesLink.addEventListener('click', (e) => handleNavClick('services', e));
-  }
-
-  const scrollerLink = document.getElementById('navScrollerLink');
-  if (scrollerLink) {
-    scrollerLink.addEventListener('click', (e) => handleNavClick('scroller', e));
-  }
-
-  const contactLink = document.getElementById('navContactLink');
-  if (contactLink) {
-    contactLink.addEventListener('click', (e) => handleNavClick('contact', e));
-  }
-
-  // Bind the Hero Landing CTA button
+  // Bind the Hero Landing CTA button to directly open Services (Step 1)
   const heroStartBtn = document.getElementById('heroStartScrubBtn');
   if (heroStartBtn) {
     heroStartBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      scrollToTarget('#cinema-section', cachedWindowHeight * 1.5, 1.5);
+      if (typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(1);
+      }
     });
   }
 }
@@ -3514,16 +5078,14 @@ function setupMobileDrawer() {
       link.classList.add('active');
 
       setTimeout(() => {
-        if (typeof window.goToCinemaStep === 'function') {
-          if (target === 'home') {
-            window.goToCinemaStep(0);
-          } else if (target === 'services') {
-            window.goToCinemaStep(1);
-          } else if (target === 'cinema') {
-            window.goToCinemaStep(2);
-          } else if (target === 'contact') {
-            window.goToCinemaStep(14);
-          }
+        if (target === 'home') {
+          if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(0);
+        } else if (target === 'services') {
+          if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(1);
+        } else if (target === 'contact') {
+          openBookingScreen();
+        } else if (target === 'cinema') {
+          if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(2);
         }
       }, 300);
     });
@@ -3591,7 +5153,24 @@ function setupCinemaEngine() {
   const heroOverlay = document.getElementById('heroOverlay');
   const textBlocks = document.querySelectorAll('#sceneTextOverlay .scene-text-block');
   const servicesSelectCard = document.querySelector('.services-select-card');
-  const serviceSelectItems = document.querySelectorAll('.service-select-item');
+  const serviceSelectItems = document.querySelectorAll('.service-select-item, .service-item-detail');
+
+  // Ensure Ivy background video is ready and playing
+  const ivyVideoEl = document.getElementById('servicesIvyVideo');
+  if (ivyVideoEl) {
+    ivyVideoEl.muted = true;
+    ivyVideoEl.playsInline = true;
+    ivyVideoEl.loop = true;
+    const playIvy = () => {
+      try {
+        const p = ivyVideoEl.play();
+        if (p && typeof p.then === 'function') p.catch(() => {});
+      } catch (e) {}
+    };
+    playIvy();
+    document.addEventListener('click', playIvy, { once: true });
+    document.addEventListener('touchstart', playIvy, { once: true });
+  }
 
   // Cache selectable item bounding client rects to prevent layout thrashing on mousemove
   const serviceItemsRects = [];
@@ -3609,9 +5188,17 @@ function setupCinemaEngine() {
     item.setAttribute('role', 'radio');
     item.setAttribute('aria-checked', item.classList.contains('selected') ? 'true' : 'false');
 
-    const selectItem = () => {
+    const selectItem = (e) => {
       const service = item.dataset.service;
-      selectServiceGlobal(service);
+      const isActionBtn = e.target.closest('.service-action-btn');
+      const isAlreadySelected = item.classList.contains('selected');
+      
+      selectServiceGlobal(service, e);
+
+      // If user directly clicked the action button or re-clicked the selected card, proceed with ivy transition
+      if (isActionBtn || isAlreadySelected) {
+        proceedWithIvyTransition(service, e);
+      }
     };
 
     item.addEventListener('click', selectItem);
@@ -3619,7 +5206,7 @@ function setupCinemaEngine() {
     item.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        selectItem();
+        selectItem(e);
       }
     });
 
@@ -3682,6 +5269,29 @@ function setupCinemaEngine() {
   const navContactLink = document.getElementById('navContactLink');
 
   let lastActiveLink = null;
+  const CINEMA_SCENE_TITLES = [
+    "1. Mona Lisa",
+    "2. Toz Alan Şövalye",
+    "3. Keşiş"
+  ];
+
+  const updateFloatingNavActiveScene = (sceneNum) => {
+    const activeLabel = document.getElementById('cNavActiveSceneLabel');
+    if (activeLabel && sceneNum >= 1 && sceneNum <= 3) {
+      activeLabel.textContent = CINEMA_SCENE_TITLES[sceneNum - 1];
+    }
+    const items = document.querySelectorAll('.c-nav-dropdown-item');
+    items.forEach((item) => {
+      const sc = parseInt(item.getAttribute('data-scene'), 10);
+      if (sc === sceneNum) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  };
+  window.updateFloatingNavActiveScene = updateFloatingNavActiveScene;
+
   const updateActiveNavLink = (progress) => {
     if (navLinks.length === 0) return;
     
@@ -3701,20 +5311,11 @@ function setupCinemaEngine() {
     }
   };
   
-  if (!cinemaSection || !irisOverlay) return;
+  if (!cinemaSection) return;
 
   const v1 = document.getElementById('video-scene-1');
   const v2 = document.getElementById('video-scene-2');
   const v3 = document.getElementById('video-scene-3');
-  const v4 = document.getElementById('video-scene-4');
-  const v5 = document.getElementById('video-scene-5');
-  const v6 = document.getElementById('video-scene-6');
-  const v7 = document.getElementById('video-scene-7');
-  const v8 = document.getElementById('video-scene-8');
-  const v9 = document.getElementById('video-scene-9');
-  const v10 = document.getElementById('video-scene-10');
-  const v11 = document.getElementById('video-scene-11');
-  const v12 = document.getElementById('video-scene-12');
 
   function getSafeDuration(video, fallback = 5.0) {
     if (video && !isNaN(video.duration) && video.duration > 0) {
@@ -3723,20 +5324,11 @@ function setupCinemaEngine() {
     return fallback;
   }
 
-  // Populate module-level scenes array
+  // Populate module-level scenes array (3 Character Scenes)
   scenes = [
-    { video: v1, irisX: 50, irisY: 60, yStart: 18, yEnd: 72, xStart: 50, xEnd: 50, duration: 12 }, // Mona Lisa (Portrait)
-    { video: v2, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 15, xEnd: 50, duration: 14 },  // Samurai (Landscape)
-    { video: v3, irisX: 50, irisY: 45, yStart: 15, yEnd: 85, xStart: 50, xEnd: 50, duration: 12 }, // Grandmother (Portrait)
-    { video: v4, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 35, xEnd: 65, duration: 15 },  // Astronaut (Landscape)
-    { video: v5, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 25, xEnd: 68, duration: 13 },  // Cowboy (Landscape)
-    { video: v6, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 40, xEnd: 75, duration: 16 },  // Gandalf (Landscape)
-    { video: v7, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55, duration: 12 }, // Knight (Square)
-    { video: v8, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70, duration: 14 }, // Monk (Landscape)
-    { video: v9, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 35, xEnd: 72, duration: 15 }, // Roman (Landscape)
-    { video: v10, irisX: 50, irisY: 50, yStart: 12, yEnd: 82, xStart: 50, xEnd: 50, duration: 12 },// Sumo (Portrait)
-    { video: v11, irisX: 50, irisY: 50, yStart: 0, yEnd: 95, xStart: 25, xEnd: 60, duration: 14 }, // Victorian (Landscape)
-    { video: v12, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 35, xEnd: 75, duration: 13 } // Viking (Landscape)
+    { video: v1, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 25, xEnd: 70, duration: 12 }, // Mona Lisa (Dusting)
+    { video: v2, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55, duration: 12 }, // Knight (Square)
+    { video: v3, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70, duration: 14 }  // Monk (Landscape)
   ];
 
   let trigger = null;
@@ -3765,19 +5357,16 @@ function setupCinemaEngine() {
       if (sc.video.readyState >= 1) {
         checkAspectRatio();
       } else {
-        sc.video.addEventListener('loadedmetadata', checkAspectRatio);
+        sc.video.addEventListener('loadedmetadata', checkAspectRatio, { once: true });
       }
 
       // Track file loading errors once
       sc.video.addEventListener('error', () => {
         logErrorDebug(`Decoder resource loading error on ${sc.video.id}:`, sc.video.error);
-      });
+      }, { once: true });
 
       const onReady = () => {
         logDebug(`Video ${sc.video.id} readyState changed to: ${sc.video.readyState}. Recalculating target times and waking up loop.`);
-        if (trigger) {
-          trigger.vars.onUpdate(trigger);
-        }
         triggerCinemaLoop();
 
         // Unlock iOS WebKit decoder when video metadata is loaded and ready
@@ -3816,19 +5405,23 @@ function setupCinemaEngine() {
   let cinemaRafId = null;
 
   function triggerCinemaLoop() {
-    if (!cinemaRafId) {
+    if (!cinemaRafId && !document.body.classList.contains('wizard-modal-open')) {
       lastFrameTime = performance.now();
       cinemaRafId = requestAnimationFrame(renderCinemaLoop);
-      logDebug("Cinema RAF loop awakened.");
     }
   }
+  window.triggerCinemaLoop = triggerCinemaLoop;
+  window.pauseCinemaLoop = () => {
+    if (cinemaRafId) {
+      cancelAnimationFrame(cinemaRafId);
+      cinemaRafId = null;
+    }
+  };
 
   // ── WORLD-CLASS FILM RENDERING LOOP (smooth lerp requestAnimationFrame) ──
-  // Interpolates video seek positions, circle mask scales, and coordinates 
-  // at 60fps to eliminate frame jumps on fast scrolls.
   function renderCinemaLoop() {
-    // Suspend loop completely if selection gateway is active
-    if (document.body.classList.contains('flag-selection-mode')) {
+    // Suspend loop completely if selection gateway or booking wizard is active
+    if (document.body.classList.contains('flag-selection-mode') || document.body.classList.contains('wizard-modal-open')) {
       cinemaRafId = null;
       return;
     }
@@ -3900,7 +5493,7 @@ function setupCinemaEngine() {
           cState.introTextState.lastAppliedCardOpacity = cardOpacity;
         }
         
-        if (cardOpacity > 0.001) {
+        if (cardOpacity > 0.001 && currentStep === 0) {
           if (cState.introTextState.lastAppliedPointerEvents !== 'all') {
             introCard.style.pointerEvents = 'all';
             cState.introTextState.lastAppliedPointerEvents = 'all';
@@ -3954,36 +5547,21 @@ function setupCinemaEngine() {
             cState.introTextState.lastAppliedTextOpacity = textOpacity;
           }
         } else {
-          if (cState.introTextState.lastAppliedPointerEvents !== 'none') {
-            introCard.style.pointerEvents = 'none';
-            cState.introTextState.lastAppliedPointerEvents = 'none';
-          }
-          if (cState.introTextState.lastAppliedVisibility !== 'hidden') {
-            introCard.style.visibility = 'hidden';
-            cState.introTextState.lastAppliedVisibility = 'hidden';
-          }
+          introCard.style.opacity = '0';
+          introCard.style.pointerEvents = 'none';
+          introCard.style.visibility = 'hidden';
+          introCard.classList.remove('active');
+          cState.introTextState.lastAppliedPointerEvents = 'none';
+          cState.introTextState.lastAppliedVisibility = 'hidden';
         }
       }
     }
 
     // ── LERP Intro Video State ──
     if (cState.introVideoState) {
-      // Initialize caches if not done yet
-      if (cachedIntroVideos.length === 0) {
-        cachedIntroVideos = Array.from(document.querySelectorAll('.cinema-intro-card .intro-video'));
-      }
       if (!activeIntroVideoEl) {
         activeIntroVideoEl = document.querySelector('.cinema-intro-card .intro-video.active');
       }
-      
-      // Pause and hide all other intro videos
-      cachedIntroVideos.forEach(v => {
-        if (v !== activeIntroVideoEl) {
-          v.style.opacity = 0;
-          v.style.visibility = 'hidden';
-          if (!v.paused) v.pause();
-        }
-      });
 
       cState.introVideoState.currentScale += (cState.introVideoState.targetScale - cState.introVideoState.currentScale) * timeLerp;
       cState.introVideoState.currentTranslateY += (cState.introVideoState.targetTranslateY - cState.introVideoState.currentTranslateY) * timeLerp;
@@ -4029,8 +5607,13 @@ function setupCinemaEngine() {
             cState.introVideoState.lastAppliedTranslateY = vidTranslateY;
           }
 
-          if (activeIntroVideoEl.paused) {
-            activeIntroVideoEl.play().catch(e => {});
+          if (activeIntroVideoEl.paused && document.visibilityState === 'visible') {
+            const lastResume = parseFloat(activeIntroVideoEl.dataset.lastResumeAttempt || '0');
+            if (nowMs - lastResume > 1000) {
+              activeIntroVideoEl.dataset.lastResumeAttempt = nowMs.toString();
+              const p = activeIntroVideoEl.play();
+              if (p && typeof p.then === 'function') p.catch(() => {});
+            }
           }
 
           if (activeIntroVideoEl.readyState < 2) {
@@ -4121,15 +5704,23 @@ function setupCinemaEngine() {
       const roundedVideoY = Math.round(sState.currentVideoY * 10) / 10;
       const roundedVideoX = Math.round(sState.currentVideoX * 10) / 10;
 
-      // Keep visibility visible for active and adjacent videos so they are processed/loaded by the browser
-      if (sState.lastAppliedVisibility !== 'visible') {
+      if (idx === cState.activeIdx) {
+        video.style.opacity = '1';
         video.style.visibility = 'visible';
+        sState.currentOpacity = 1;
+        sState.targetOpacity = 1;
+        sState.lastAppliedOpacity = 1;
         sState.lastAppliedVisibility = 'visible';
-      }
+      } else {
+        if (sState.lastAppliedVisibility !== 'visible') {
+          video.style.visibility = 'visible';
+          sState.lastAppliedVisibility = 'visible';
+        }
 
-      if (sState.lastAppliedOpacity !== roundedOpacity) {
-        video.style.opacity = roundedOpacity;
-        sState.lastAppliedOpacity = roundedOpacity;
+        if (sState.lastAppliedOpacity !== roundedOpacity) {
+          video.style.opacity = roundedOpacity;
+          sState.lastAppliedOpacity = roundedOpacity;
+        }
       }
 
       if (sState.lastAppliedVideoY !== roundedVideoY) {
@@ -4247,9 +5838,39 @@ function setupCinemaEngine() {
   // Launch the rendering loop immediately for initial setup
   triggerCinemaLoop();
 
+  // ── LOOP ENGINEERING: Lifecycle-aware tab suspension and instant self-healing ──
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      lastFrameTime = performance.now();
+      triggerCinemaLoop();
+      // Resume active scene video if in cinema stage
+      if (!document.body.classList.contains('flag-selection-mode') && !document.body.classList.contains('portal-intro-mode')) {
+        if (currentStep === 0 && activeIntroVideoEl && activeIntroVideoEl.paused) {
+          activeIntroVideoEl.play().catch(() => {});
+        } else if (currentStep >= 2 && currentStep <= 4) {
+          const activeSc = scenes[currentStep - 2];
+          if (activeSc && activeSc.video && activeSc.video.paused) {
+            activeSc.video.play().catch(() => {});
+          }
+        }
+      }
+    } else {
+      // Tab hidden: pause background videos and release RAF loop to conserve 100% CPU/GPU
+      document.querySelectorAll('video').forEach(v => {
+        if (!v.paused) {
+          try { v.pause(); } catch(e) {}
+        }
+      });
+      if (cinemaRafId) {
+        cancelAnimationFrame(cinemaRafId);
+        cinemaRafId = null;
+      }
+    }
+  });
+
   // Custom Step-Based Touchless Navigation State
-  let currentStep = 0; // Steps: 0 (Intro), 1 (Services), 2-13 (12 Scenes), 14 (Booking)
-  const totalSteps = 15;
+  let currentStep = 0; // Steps: 0 (Intro), 1 (Services), 2-4 (3 Scenes), 5 (Booking)
+  const totalSteps = 6;
   let isTransitioning = false;
 
 
@@ -4261,17 +5882,28 @@ function setupCinemaEngine() {
     currentStep = targetStep;
     window.currentCinemaStep = targetStep;
 
-    // Keep the browser chrome dark, but only once the cinema is actually on
-    // screen (the engine also runs goToStep(0) during initial setup while the
-    // light portal is still showing)
-    if (
-      !document.body.classList.contains('portal-intro-mode') &&
-      !document.body.classList.contains('flag-selection-mode')
-    ) {
+    const isPortalMode = document.body.classList.contains('portal-intro-mode') || document.body.classList.contains('flag-selection-mode');
+
+    // Only hide portalStage and switch body modes if we are actually entering the cinema experience
+    if (!isPortalMode || targetStep > 0) {
+      document.body.classList.remove('flag-selection-mode', 'portal-intro-mode');
+      const portalStage = document.getElementById('portal-stage');
+      if (portalStage) portalStage.style.display = 'none';
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) {
+        mainContent.style.display = 'block';
+        mainContent.style.opacity = '1';
+        mainContent.style.pointerEvents = 'all';
+      }
+      const navEl = document.getElementById('main-nav');
+      if (navEl) {
+        navEl.style.display = 'flex';
+        navEl.style.opacity = '1';
+        navEl.style.visibility = 'visible';
+        navEl.style.pointerEvents = 'all';
+      }
       setThemeColor('#000000');
     }
-
-
 
     // Wake up LERP loop
     triggerCinemaLoop();
@@ -4280,9 +5912,8 @@ function setupCinemaEngine() {
     let p = 0;
     if (targetStep === 0) p = 0.0;
     else if (targetStep === 1) p = 0.30;
-    else if (targetStep >= 2 && targetStep <= 13) {
-      // Scale 12 character scenes between 0.50 and 0.92
-      p = 0.50 + ((targetStep - 2) * (0.42 / 11));
+    else if (targetStep >= 2 && targetStep <= 4) {
+      p = 0.50 + ((targetStep - 2) * (0.42 / 2));
     } else p = 0.98; // Booking reveal
 
     // Update progress bar
@@ -4290,7 +5921,25 @@ function setupCinemaEngine() {
       gsap.to(navProgressBar, { scaleX: p, duration: 0.5, ease: 'power2.out' });
     }
 
+    // Sync Lenis & ScrollTrigger scroll position to prevent ScrollTrigger resetting step on wheel
+    const cinemaSection = document.getElementById('cinema-section');
+    if (cinemaSection && typeof ScrollTrigger !== 'undefined') {
+      const triggers = ScrollTrigger.getAll();
+      const cTrigger = triggers.find(t => t.trigger === cinemaSection || (t.vars && t.vars.trigger === cinemaSection));
+      if (cTrigger) {
+        const targetY = cTrigger.start + p * (cTrigger.end - cTrigger.start);
+        if (STATE.lenisInstance) {
+          STATE.lenisInstance.scrollTo(targetY, { duration: 0.6, immediate: false });
+        } else {
+          window.scrollTo({ top: targetY, behavior: 'smooth' });
+        }
+      }
+    }
+
     updateActiveNavLink(p);
+    if (targetStep >= 2 && targetStep <= 4) {
+      updateFloatingNavActiveScene(targetStep - 1);
+    }
 
     const cState = STATE.cinema;
 
@@ -4304,6 +5953,7 @@ function setupCinemaEngine() {
     if (targetStep === 0) {
       cState.introTextState.targetOffset = 0;
       cState.introTextState.targetOpacity = 1;
+      cState.introTextState.currentOpacity = 1;
 
       if (!activeIntroVideoEl) {
         activeIntroVideoEl = document.querySelector('.cinema-intro-card .intro-video.active');
@@ -4319,9 +5969,25 @@ function setupCinemaEngine() {
         heroOverlay.style.pointerEvents = 'all';
         heroOverlay.style.visibility = 'visible';
       }
-      if (mainNav) mainNav.style.opacity = 0;
 
-      cState.targetRadius = 0;
+      const introCardElement = document.getElementById('introCard');
+      if (introCardElement) {
+        introCardElement.classList.add('active');
+        introCardElement.style.opacity = '1';
+        introCardElement.style.pointerEvents = 'all';
+        introCardElement.style.visibility = 'visible';
+        introCardElement.style.display = 'flex';
+      }
+
+      if (mainNav) {
+        mainNav.style.display = 'flex';
+        mainNav.style.opacity = 1;
+        mainNav.style.visibility = 'visible';
+        mainNav.style.pointerEvents = 'all';
+      }
+
+      cState.targetRadius = 120;
+      cState.currentRadius = 120;
       cState.targetX = 50;
       cState.targetY = 50;
       cState.sceneStates.forEach((s) => {
@@ -4333,36 +5999,140 @@ function setupCinemaEngine() {
       scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
       cState.activeTextBlockIdx = -1;
       textBlocks.forEach(block => block.classList.remove('active'));
+      const cinemaSection = document.getElementById('cinema-section');
+      if (cinemaSection) {
+        cinemaSection.style.display = 'block';
+        cinemaSection.style.opacity = '1';
+        cinemaSection.style.pointerEvents = 'all';
+      }
+
+      const bgServicesOverlay = document.getElementById('servicesTextOverlay');
+      if (bgServicesOverlay) {
+        bgServicesOverlay.classList.remove('active');
+        bgServicesOverlay.style.display = 'none';
+        bgServicesOverlay.style.opacity = '0';
+        bgServicesOverlay.style.pointerEvents = 'none';
+      }
+
+      const sceneTextOverlay = document.getElementById('sceneTextOverlay');
+      if (sceneTextOverlay) {
+        sceneTextOverlay.style.display = 'none';
+        sceneTextOverlay.style.opacity = '0';
+        sceneTextOverlay.style.pointerEvents = 'none';
+      }
+
       closeBookingScreen();
       isTransitioning = false;
       return;
     }
 
-    // Hide heroOverlay
+    // Hide heroOverlay & introCard for Step > 0
+    cState.introTextState.targetOpacity = 0;
+    cState.introTextState.currentOpacity = 0;
+    cState.introTextState.targetOffset = 100;
     if (heroOverlay) {
       heroOverlay.style.opacity = 0;
       heroOverlay.style.pointerEvents = 'none';
       heroOverlay.style.visibility = 'hidden';
     }
+    const introCardElement = document.getElementById('introCard');
+    if (introCardElement) {
+      introCardElement.classList.remove('active');
+      introCardElement.style.opacity = 0;
+      introCardElement.style.pointerEvents = 'none';
+      introCardElement.style.visibility = 'hidden';
+    }
     if (mainNav) mainNav.style.opacity = 1;
 
     // ── PHASE 3: 4 SERVICE CARDS SHOWCASE (targetStep === 1) ──
     if (targetStep === 1) {
-      cState.targetRadius = 0;
+      cState.targetRadius = 120;
+      cState.currentRadius = 120;
       cState.targetX = 50;
+      cState.currentX = 50;
       cState.targetY = 50;
-      cState.sceneStates.forEach((s) => {
-        s.targetOpacity = 0;
-        s.targetTime = 0;
+      cState.currentY = 50;
+      
+      cState.activeIdx = -1;
+      if (cState.sceneStates && cState.sceneStates[0]) {
+        cState.sceneStates[0].targetOpacity = 1;
+        cState.sceneStates[0].currentOpacity = 1;
+      }
+      scenes.forEach((sc) => {
+        if (sc.video) {
+          sc.video.classList.remove('active');
+          sc.video.style.opacity = '0';
+          sc.video.style.visibility = 'hidden';
+          try { sc.video.pause(); } catch(e) {}
+        }
       });
 
-      cState.activeIdx = -1;
-      scenes.forEach(sc => { if (sc.video) sc.video.classList.remove('active'); });
       cState.activeTextBlockIdx = -1;
       textBlocks.forEach(block => block.classList.remove('active'));
 
-      if (servicesSelectCard && !servicesSelectCard.classList.contains('active')) {
-        servicesSelectCard.classList.add('active');
+      const mainNav = document.getElementById('main-nav');
+      if (mainNav) {
+        mainNav.style.display = 'flex';
+        mainNav.style.opacity = '1';
+        mainNav.style.pointerEvents = 'all';
+      }
+
+      const cinemaSection = document.getElementById('cinema-section');
+      if (cinemaSection) {
+        cinemaSection.style.display = 'block';
+        cinemaSection.style.opacity = '1';
+        cinemaSection.style.pointerEvents = 'all';
+      }
+
+      // Completely hide portal and country selection stage so no background cards bleed through
+      const portalStage = document.getElementById('portal-stage');
+      if (portalStage) {
+        portalStage.style.display = 'none';
+        portalStage.style.opacity = '0';
+        portalStage.style.visibility = 'hidden';
+        portalStage.style.pointerEvents = 'none';
+        portalStage.classList.add('cso-hidden');
+      }
+      const csoOverlay = document.getElementById('country-selector-overlay');
+      if (csoOverlay) {
+        csoOverlay.style.display = 'none';
+        csoOverlay.style.opacity = '0';
+        csoOverlay.style.visibility = 'hidden';
+        csoOverlay.style.pointerEvents = 'none';
+        csoOverlay.classList.add('cso-hidden');
+      }
+
+      const bgServicesOverlay = document.getElementById('servicesTextOverlay');
+      if (bgServicesOverlay) {
+        bgServicesOverlay.classList.add('active');
+        bgServicesOverlay.style.display = 'flex';
+        bgServicesOverlay.style.opacity = '1';
+        bgServicesOverlay.style.pointerEvents = 'all';
+        const ivyVid = document.getElementById('servicesIvyVideo');
+        if (ivyVid) {
+          try {
+            const p = ivyVid.play();
+            if (p && typeof p.then === 'function') p.catch(() => {});
+          } catch(e) {}
+        }
+      }
+
+      const sceneTextOverlay = document.getElementById('sceneTextOverlay');
+      if (sceneTextOverlay) {
+        sceneTextOverlay.style.display = 'none';
+        sceneTextOverlay.style.opacity = '0';
+        sceneTextOverlay.style.pointerEvents = 'none';
+      }
+
+      const servicesCard = document.querySelector('.services-select-card');
+      if (servicesCard) {
+        servicesCard.classList.add('active');
+        servicesCard.style.display = 'block';
+        servicesCard.style.opacity = '1';
+        servicesCard.style.visibility = 'visible';
+        servicesCard.style.pointerEvents = 'all';
+        servicesCard.style.transform = 'translate3d(0, 0, 0) scale(1)';
+        servicesCard.style.filter = 'blur(0px)';
       }
       closeBookingScreen();
       isTransitioning = false;
@@ -4370,12 +6140,30 @@ function setupCinemaEngine() {
     }
 
     // Hide services select card past Step 1
-    if (servicesSelectCard && servicesSelectCard.classList.contains('active')) {
+    if (servicesSelectCard) {
       servicesSelectCard.classList.remove('active');
+      servicesSelectCard.style.display = 'none';
+      servicesSelectCard.style.opacity = '0';
+      servicesSelectCard.style.visibility = 'hidden';
+      servicesSelectCard.style.pointerEvents = 'none';
+    }
+    const bgServicesOverlay = document.getElementById('servicesTextOverlay');
+    if (bgServicesOverlay) {
+      bgServicesOverlay.classList.remove('active');
+      bgServicesOverlay.style.display = 'none';
+      bgServicesOverlay.style.opacity = '0';
+      bgServicesOverlay.style.pointerEvents = 'none';
     }
 
-    // ── PHASE 5: 12 CHARACTER VIEWS (targetStep: 2 -> 13) ──
-    if (targetStep >= 2 && targetStep <= 13) {
+    const sceneTextOverlay = document.getElementById('sceneTextOverlay');
+    if (sceneTextOverlay) {
+      sceneTextOverlay.style.display = 'flex';
+      sceneTextOverlay.style.opacity = '1';
+      sceneTextOverlay.style.pointerEvents = 'all';
+    }
+
+    // ── PHASE 5: 3 CHARACTER VIEWS (targetStep: 2 -> 4) ──
+    if (targetStep >= 2 && targetStep <= 4) {
       const activeIdx = targetStep - 2;
 
 
@@ -4395,6 +6183,7 @@ function setupCinemaEngine() {
 
       if (cState.activeIdx !== activeIdx) {
         cState.activeIdx = activeIdx;
+        updateFloatingNavActiveScene(activeIdx + 1);
         prewarmAround(activeIdx);
 
         scenes.forEach((sc, idx) => {
@@ -4432,6 +6221,7 @@ function setupCinemaEngine() {
           // Kill any active manual tweens to prevent fighting playhead synchronization
           gsap.killTweensOf(sState, 'targetVideoY');
           gsap.killTweensOf(sState, 'targetVideoX');
+          gsap.killTweensOf(sState, 'targetOpacity');
 
           gsap.to(sState, {
             targetOpacity: 1.0,
@@ -4443,6 +6233,7 @@ function setupCinemaEngine() {
           // Reset position and fade out inactive scenes
           gsap.killTweensOf(sState, 'targetVideoY');
           gsap.killTweensOf(sState, 'targetVideoX');
+          gsap.killTweensOf(sState, 'targetOpacity');
           gsap.to(sState, {
             targetOpacity: 0.0,
             targetVideoY: scenes[idx]?.yStart || 0,
@@ -4456,6 +6247,10 @@ function setupCinemaEngine() {
         // Let the video elements run naturally; update target time to match auto-play
         if (idx === activeIdx) {
           gsap.killTweensOf(sState, 'targetTime');
+          if (cState.progressRaf) {
+            cancelAnimationFrame(cState.progressRaf);
+            cState.progressRaf = null;
+          }
           const checkProgress = () => {
             if (cState.activeIdx === activeIdx && scenes[idx]?.video) {
               const vid = scenes[idx].video;
@@ -4479,7 +6274,7 @@ function setupCinemaEngine() {
                 triggerCinemaLoop();
               }
 
-              requestAnimationFrame(checkProgress);
+              cState.progressRaf = requestAnimationFrame(checkProgress);
             }
           };
           checkProgress();
@@ -4503,8 +6298,8 @@ function setupCinemaEngine() {
       return;
     }
 
-    // ── PHASE 7: BOOKING REVEAL SCREEN (targetStep === 14) ──
-    if (targetStep === 14) {
+    // ── PHASE 7: BOOKING REVEAL SCREEN (targetStep === 5) ──
+    if (targetStep === 5) {
       // Close Iris overlay smoothly
       gsap.to(cState, {
         targetRadius: 0,
@@ -4548,35 +6343,44 @@ function setupCinemaEngine() {
   };
   const stepPrev = () => {
     if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
-      goToStep(13);
+      goToStep(4);
       return;
     }
     if (currentStep > 0) goToStep(currentStep - 1);
   };
 
   const handleCinemaTap = (e) => {
-    // If the portal gateway/map stage is still active, ignore clicks
     if (portalActive()) return;
 
-    // Ignore clicks on form inputs, interactive select items, menus, and modals
-    if (
-      e.target.closest('#main-nav') ||
-      e.target.closest('.mobile-menu-drawer') ||
-      e.target.closest('#mobileMenuToggle') ||
-      e.target.closest('.services-select-card') ||
-      e.target.closest('.booking-reveal-screen') ||
-      e.target.closest('#services-modal') ||
-      e.target.closest('button') ||
-      e.target.closest('a') ||
-      e.target.closest('input') ||
-      e.target.closest('select') ||
-      e.target.closest('label')
-    ) {
+    // Fast tag check for native interactive controls (prevents DOM tree traversal overhead)
+    const tag = e.target.tagName;
+    if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'LABEL' || e.target.isContentEditable) {
+      return;
+    }
+
+    // Combined query selectors to reduce multiple closest() calls to a single traversal
+    if (e.target.closest('#main-nav, .mobile-menu-drawer, #mobileMenuToggle, .services-select-card, .booking-reveal-screen, #services-modal, #servicesTextOverlay')) {
+      return;
+    }
+
+    const activeStep = (typeof window.currentCinemaStep === 'number') ? window.currentCinemaStep : currentStep;
+
+    // Tapping on Step 0 (Hero Intro / City screen) MUST open Step 1 (Services section)
+    if (activeStep === 0) {
+      if (gestureDebounced(400)) return;
+      if (typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(1);
+      }
+      return;
+    }
+
+    // Tapping on Step 1 (Services section) must remain in Services
+    if (activeStep === 1) {
       return;
     }
 
     if (gestureDebounced(600)) return;
-    stepNext(); // Advance to next scene on click
+    stepNext(); // Advance to next scene on click only for cinema steps >= 2
   };
 
   // Bind tap events globally to capture all screen clicks (using bubbling to allow inner button clicks to fire first)
@@ -4585,7 +6389,20 @@ function setupCinemaEngine() {
   // Wheel: step navigation in the cinema, native scrolling inside overlays/portal
   window.addEventListener('wheel', (e) => {
     if (portalActive()) return; // portal & country selector keep native scroll
-    if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer')) return;
+    
+    // Check if Services section overlay is active
+    const servicesOverlay = document.getElementById('servicesTextOverlay');
+    const isServicesActive = currentStep === 1 || (servicesOverlay && servicesOverlay.classList.contains('active'));
+    if (isServicesActive || e.target.closest('#servicesTextOverlay')) {
+      return; // DO NOT auto-advance or jump back to city video on scroll! Fully allow native scroll inside services section.
+    }
+
+    // Performance guard: only perform DOM traversal if any overlay is active
+    const isOverlayOpen = (servicesModalEl && !servicesModalEl.hasAttribute('hidden')) ||
+                          (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) ||
+                          document.body.classList.contains('mobile-drawer-open');
+    if (isOverlayOpen && e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer')) return;
+    
     e.preventDefault();
     if (Math.abs(e.deltaY) < 10) return;
     if (gestureDebounced(800)) return;
@@ -4598,6 +6415,13 @@ function setupCinemaEngine() {
     if (portalActive()) return;
     const t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    
+    const servicesOverlay = document.getElementById('servicesTextOverlay');
+    const isServicesActive = currentStep === 1 || (servicesOverlay && servicesOverlay.classList.contains('active'));
+    if (isServicesActive || e.target.closest('#servicesTextOverlay')) {
+      return; // Allow native scrolling in services section without jumping back to city video
+    }
+
     if (servicesModalEl && !servicesModalEl.hasAttribute('hidden')) return;
     const bookingOpen = bookingRevealEl && !bookingRevealEl.hasAttribute('hidden');
 
@@ -4624,6 +6448,13 @@ function setupCinemaEngine() {
     const dy = endY - touchStartY;
     touchStartY = null;
     if (portalActive()) return;
+    
+    const servicesOverlay = document.getElementById('servicesTextOverlay');
+    const isServicesActive = currentStep === 1 || (servicesOverlay && servicesOverlay.classList.contains('active'));
+    if (isServicesActive || e.target.closest('#servicesTextOverlay')) {
+      return; // Allow native touch scroll inside services section without jumping back to city video
+    }
+
     if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer, #main-nav, input, select, textarea, button, a')) return;
     if (Math.abs(dy) < 50) return; // short movement counts as a tap (click handler)
     if (gestureDebounced(600)) return;
@@ -4631,20 +6462,123 @@ function setupCinemaEngine() {
     else stepPrev();
   }, { passive: true });
 
-  // Expose global callback to map nav logo and nav links to steps
-  if (navHomeLink) navHomeLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(0); });
-  if (navScrollerLink) navScrollerLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(2); });
-  if (navContactLink) navContactLink.addEventListener('click', (e) => { e.preventDefault(); goToStep(14); });
-  const navLogo = document.getElementById('navLogo');
-  if (navLogo) navLogo.addEventListener('click', (e) => { e.preventDefault(); goToStep(0); });
-
   // "Continue" button on the services selection card
+  let isIvyTransitioning = false;
+  function proceedWithIvyTransition(selectedService, e) {
+    if (isIvyTransitioning) return;
+    isIvyTransitioning = true;
+
+    const currentService = selectedService || (window.STATE && window.STATE.calculator ? window.STATE.calculator.serviceType : 'standart');
+    const servicesOverlay = document.getElementById('servicesTextOverlay');
+    const servicesCard = document.querySelector('.services-select-card');
+    const continueBtn = document.getElementById('servicesContinueBtn');
+    const ivyVideo = document.getElementById('servicesIvyVideo');
+    const selectedCard = document.querySelector(`.service-select-item[data-service="${currentService}"]`);
+
+    // 1. Enter Confirming / Active 2-second pause state
+    if (continueBtn) {
+      continueBtn.classList.add('loading');
+      continueBtn.innerHTML = `<span style="font-size:1.1rem; display:inline-block;">🌿</span> <span>Seçiminiz Onaylanıyor...</span>`;
+    }
+
+    // Update Stepper to completed state (Step 1 complete, line glow, Step 2 active)
+    const step1 = document.getElementById('stepperStep1');
+    const line1 = document.getElementById('stepperLine1');
+    const step2 = document.getElementById('stepperStep2');
+    if (step1) {
+      step1.classList.add('completed');
+      const icon = step1.querySelector('.stepper-icon');
+      if (icon) icon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>`;
+    }
+    if (line1) line1.classList.add('filled');
+    if (step2) step2.classList.add('active');
+
+    // React Ivy video background (smooth zoom cadence)
+    if (ivyVideo) {
+      gsap.to(ivyVideo, {
+        scale: 1.05,
+        duration: 1.8,
+        ease: 'power2.out'
+      });
+    }
+
+    // Selected Card glow & pulse
+    if (selectedCard) {
+      gsap.to(selectedCard, {
+        scale: 1.025,
+        borderColor: '#38bdf8',
+        boxShadow: '0 0 45px rgba(56, 189, 248, 0.7), inset 0 0 25px rgba(37, 99, 235, 0.3)',
+        duration: 0.6,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power1.inOut'
+      });
+    }
+
+    // Acoustic feedback sound
+    if (typeof playAcousticSandSnapSound === 'function') {
+      playAcousticSandSnapSound();
+    }
+
+    // 2. Exactly 2-Second intentional cadence before animated transition to next stage
+    setTimeout(() => {
+      if (servicesCard) {
+        gsap.to(servicesCard, {
+          opacity: 0,
+          y: -35,
+          scale: 0.96,
+          duration: 0.45,
+          ease: 'power2.in',
+          onComplete: () => {
+            // Open Booking Screen Calculator pre-populated with chosen service package
+            if (typeof openBookingScreen === 'function') {
+              openBookingScreen();
+            } else if (typeof goToStep === 'function') {
+              goToStep(2);
+            }
+
+            // Restore servicesCard & continueBtn properties for when user returns
+            setTimeout(() => {
+              gsap.set(servicesCard, { opacity: 1, y: 0, scale: 1 });
+              if (ivyVideo) {
+                gsap.set(ivyVideo, { scale: 1.0 });
+              }
+              if (continueBtn) {
+                continueBtn.classList.remove('loading');
+                continueBtn.innerHTML = `<span>Devam Et</span> <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+              }
+              isIvyTransitioning = false;
+            }, 600);
+          }
+        });
+      } else {
+        if (typeof openBookingScreen === 'function') openBookingScreen();
+        isIvyTransitioning = false;
+      }
+    }, 2000);
+  }
+  window.proceedWithIvyTransition = proceedWithIvyTransition;
+
   const servicesContinueBtn = document.getElementById('servicesContinueBtn');
   if (servicesContinueBtn) {
     servicesContinueBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      goToStep(2);
+      proceedWithIvyTransition(STATE.calculator.serviceType || 'standart', e);
+    });
+  }
+
+  // Intro card click listener to advance to Step 1 (Hizmet Seçimi) on tap anywhere
+  const introCardContainer = document.getElementById('introCard');
+  if (introCardContainer && !introCardContainer._boundClick) {
+    introCardContainer._boundClick = true;
+    introCardContainer.addEventListener('click', (e) => {
+      if (e.target.closest('#floatingCtaDock, .floating-cta-dock, a')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(1);
+      }
     });
   }
 
@@ -4658,40 +6592,106 @@ function setupCinemaEngine() {
 // 7. BOOKING REVEAL SCREEN CONTROL
 // ==========================================
 function openBookingScreen() {
-  if (!bookingRevealEl) return;
-  
-  if (bookingRevealEl.hasAttribute('hidden')) {
-    logDebug('Triggering final booking screen fade-in.');
-    bookingRevealEl.removeAttribute('hidden');
+  const mainContent = document.getElementById('main-content');
+  const portalStage = document.getElementById('portal-stage');
+  const bookingEl = document.getElementById('bookingReveal');
+
+  // Pause all running scene videos in background to save CPU and GPU resources
+  if (scenes && Array.isArray(scenes)) {
+    scenes.forEach(sc => {
+      if (sc.video && !sc.video.paused) {
+        try { sc.video.pause(); } catch(e) {}
+      }
+    });
+  }
+
+  // Pause Lenis smooth scroll so user can freely scroll inside overlay
+  if (STATE.lenisInstance) {
+    STATE.lenisInstance.stop();
+  }
+
+  // Show the booking overlay
+  if (bookingEl) {
+    bookingEl.removeAttribute('hidden');
+    bookingEl.style.display = 'block';
+    bookingEl.classList.add('active');
+    bookingEl.scrollTop = 0;
     
-    if (window.history && window.history.pushState) {
-      window.history.pushState({ stage: 'booking' }, '');
-    }
-    
-    // Hide main navigation header to prevent visual collision on mobile
-    const mainNav = document.getElementById('main-nav');
-    if (mainNav) {
-      gsap.to(mainNav, { opacity: 0, duration: 0.3, ease: 'power2.out', onComplete: () => { mainNav.style.visibility = 'hidden'; } });
+    // Prevent event bubbling to background canvas / Lenis engine
+    if (!bookingEl._scrollEventsAttached) {
+      bookingEl._scrollEventsAttached = true;
+      bookingEl.addEventListener('touchmove', (e) => { e.stopPropagation(); }, { passive: true });
+      bookingEl.addEventListener('wheel', (e) => { e.stopPropagation(); }, { passive: true });
     }
 
-    gsap.fromTo('.reveal-content-box',
-      { scale: 0.95, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+    gsap.fromTo(bookingEl, 
+      { opacity: 0 }, 
+      { opacity: 1, duration: 0.35, ease: 'power2.out' }
     );
+
+    if (typeof window.updateRoseVineProgress === 'function') {
+      setTimeout(window.updateRoseVineProgress, 150);
+    }
   }
+
+  // Hide portal if visible
+  if (portalStage && getComputedStyle(portalStage).display !== 'none' && getComputedStyle(portalStage).opacity !== '0') {
+    gsap.to(portalStage, { opacity: 0, pointerEvents: 'none', duration: 0.4, ease: 'power2.out', onComplete: () => {
+      portalStage.style.display = 'none';
+    }});
+  }
+
+  // Ensure main content is visible behind the overlay
+  if (mainContent && getComputedStyle(mainContent).opacity === '0') {
+    mainContent.style.display = 'block';
+    mainContent.style.opacity = '1';
+    mainContent.style.pointerEvents = 'all';
+  }
+
+  // Hide background cinema cards overlay to prevent duplicate overlapping views
+  const bgServicesOverlay = document.getElementById('servicesTextOverlay');
+  if (bgServicesOverlay) {
+    bgServicesOverlay.style.opacity = '0';
+    bgServicesOverlay.style.pointerEvents = 'none';
+  }
+
+  // Update prices
+  updatePriceSliderDisplay();
+  document.body.classList.add('wizard-modal-open');
+  if (typeof window.pauseCinemaLoop === 'function') window.pauseCinemaLoop();
+  if (typeof window.startGardenLoop === 'function') window.startGardenLoop();
 }
+window.openBookingScreen = openBookingScreen;
 
 // ==========================================
 // 8. UTILITIES & SELECTION SUMMARY HELPERS
 // ==========================================
 function closeBookingScreen() {
-  if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
-    if (window.history && window.history.state && window.history.state.stage === 'booking') {
-      window.history.back();
-      return;
-    }
+  const bookingEl = document.getElementById('bookingReveal') || bookingRevealEl;
+  if (bookingEl && (!bookingEl.hasAttribute('hidden') || bookingEl.classList.contains('active'))) {
+    document.body.classList.remove('wizard-modal-open');
+    if (typeof window.stopGardenLoop === 'function') window.stopGardenLoop();
+    if (typeof window.triggerCinemaLoop === 'function') window.triggerCinemaLoop();
     logDebug('Hiding booking screen.');
-    bookingRevealEl.setAttribute('hidden', '');
+    bookingEl.setAttribute('hidden', '');
+    bookingEl.classList.remove('active');
+    bookingEl.style.display = 'none';
+
+    if (window.history && window.history.state && window.history.state.stage === 'booking') {
+      try { window.history.back(); } catch(e) {}
+    }
+
+    // Resume Lenis smooth scroll
+    if (STATE.lenisInstance) {
+      STATE.lenisInstance.start();
+    }
+
+    // Restore background cinema cards overlay if hidden
+    const bgServicesOverlay = document.getElementById('servicesTextOverlay');
+    if (bgServicesOverlay) {
+      bgServicesOverlay.style.opacity = '1';
+      bgServicesOverlay.style.pointerEvents = 'all';
+    }
 
     // Restore main navigation header visibility
     const mainNav = document.getElementById('main-nav');
@@ -4701,22 +6701,66 @@ function closeBookingScreen() {
     }
   }
 }
+window.closeBookingScreen = closeBookingScreen;
 
-function selectServiceGlobal(service) {
+function triggerDustCleaningEffect(targetEl) {
+  return;
+}
+window.triggerDustCleaningEffect = triggerDustCleaningEffect;
+
+let _sharedAudioCtx = null;
+function playAcousticSandSnapSound() {
+  return;
+}
+window.playAcousticSandSnapSound = playAcousticSandSnapSound;
+
+function triggerShockwaveRing(clickEvent) {
+  return;
+}
+window.triggerShockwaveRing = triggerShockwaveRing;
+
+function selectServiceGlobal(service, clickEvent) {
   if (!service) return;
   STATE.calculator.serviceType = service;
+  if (window.STATE && window.STATE.calculator) {
+    window.STATE.calculator.serviceType = service;
+  }
   
-  // Update selection highlights in the cinematic select card grid
-  const selectItems = document.querySelectorAll('.service-select-item');
+  // Update selection highlights & button states in all service select cards
+  const selectItems = document.querySelectorAll('.service-select-item, .service-item-detail');
   selectItems.forEach(item => {
+    const btnSpan = item.querySelector('.service-action-btn span');
     if (item.dataset.service === service) {
-      item.classList.add('selected');
+      item.classList.add('selected', 'active');
       item.setAttribute('aria-checked', 'true');
+      if (btnSpan) btnSpan.textContent = 'Seçildi ✓';
+
+      if (clickEvent) {
+        triggerDustCleaningEffect(item);
+        triggerShockwaveRing(clickEvent);
+        playAcousticSandSnapSound();
+      }
     } else {
-      item.classList.remove('selected');
+      item.classList.remove('selected', 'active');
       item.setAttribute('aria-checked', 'false');
+      if (btnSpan) btnSpan.textContent = 'Hizmeti Seç';
     }
   });
+
+  // Update selected service summary text below Devam Et button
+  const selectedServiceTextEl = document.getElementById('selectedServiceText');
+  if (selectedServiceTextEl) {
+    const serviceNames = {
+      standart: 'Standart Temizlik',
+      detayli: 'Detaylı Temizlik',
+      kurumsal: 'Kurumsal Temizlik',
+      ilaclama: 'Dezenfeksiyon',
+      insaat_sonrasi: 'İnşaat Sonrası Temizlik',
+      tasinma_sonrasi: 'Taşınma Temizliği'
+    };
+    const sName = serviceNames[service] || 'Standart Temizlik';
+    selectedServiceTextEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> <span>${sName} seçildi</span>`;
+  }
 
   // Update the 12 scene text overlays dynamically based on category
   const lang = STATE.language || 'tr';
@@ -4756,9 +6800,9 @@ function selectServiceGlobal(service) {
   const modalItems = document.querySelectorAll('.services-list-panel .service-item-detail');
   modalItems.forEach(item => {
     if (item.dataset.service === service) {
-      if (!item.classList.contains('active')) {
-        item.click();
-      }
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
     }
   });
 
@@ -4769,19 +6813,10 @@ function selectServiceGlobal(service) {
   }
 
   if (typeof calculatePriceFn === 'function') {
-    calculatePriceFn();
-  }
-
-  // Programmatic advance on service selection in the touchless engine (Phase 3)
-  // Auto-advance to step 2 (Mona Lisa) after 700ms to let the user see the selection feedback
-  if (window.currentCinemaStep === 1) {
-    setTimeout(() => {
-      if (window.currentCinemaStep === 1 && typeof window.goToCinemaStep === 'function') {
-        window.goToCinemaStep(2);
-      }
-    }, 700);
+    calculatePriceFn(service);
   }
 }
+window.selectServiceGlobal = selectServiceGlobal;
 
 function getServiceLabelTranslated(service, dict) {
   const labels = {
@@ -4872,32 +6907,32 @@ function updateBookingSummaryBox() {
   const isPl = lang === 'pl';
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
 
-  const serviceLabel = getServiceLabelTranslated(serviceType, dict);
-  const freqLabel = getFrequencyLabelTranslated(frequency, dict);
+  const serviceLabel = escapeHTML(getServiceLabelTranslated(serviceType, dict));
+  const freqLabel = escapeHTML(getFrequencyLabelTranslated(frequency, dict));
   const extrasHtml = extras.length > 0 
-    ? extras.map(ext => `<li>${ext}</li>`).join('')
-    : `<li>${dict.summaryNone || 'Yok'}</li>`;
+    ? extras.map(ext => `<li>${escapeHTML(ext)}</li>`).join('')
+    : `<li>${escapeHTML(dict.summaryNone || 'Yok')}</li>`;
     
   const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
-  const layoutText = layouts[parseInt(area)] || area;
+  const layoutText = escapeHTML(layouts[parseInt(area)] || area);
 
   const promoHtml = STATE.calculator.promoCode ? `
-    <div class="summary-row"><span>${isPl ? 'Kod partnerski/rabatowy:' : 'Referans / Kupon Kodu:'}</span> <span class="summary-val" style="color: var(--clr-accent); font-weight: 700;">${STATE.calculator.promoCode}${STATE.calculator.discountRate > 0 ? ` (%${Math.round(STATE.calculator.discountRate * 100)} İndirim)` : ''}</span></div>
+    <div class="summary-row"><span>${escapeHTML(isPl ? 'Kod partnerski/rabatowy:' : 'Referans / Kupon Kodu:')}</span> <span class="summary-val" style="color: var(--clr-accent); font-weight: 700;">${escapeHTML(STATE.calculator.promoCode)}${STATE.calculator.discountRate > 0 ? ` (%${Math.round(STATE.calculator.discountRate * 100)} İndirim)` : ''}</span></div>
   ` : '';
 
   summaryBox.innerHTML = `
-    <h4>${dict.summaryTitle || 'SEÇİLEN DETAYLAR'}</h4>
-    <div class="summary-row"><span>${dict.summaryService || 'Hizmet Türü:'}</span> <span class="summary-val">${serviceLabel}</span></div>
-    <div class="summary-row"><span>${dict.summaryArea || (isPl ? 'Liczba pokoi / typ:' : 'Oda Sayısı / Ev Tipi:')}</span> <span class="summary-val">${layoutText}</span></div>
-    <div class="summary-row"><span>${dict.summaryFrequency || 'Sıklık:'}</span> <span class="summary-val">${freqLabel}</span></div>
+    <h4>${escapeHTML(dict.summaryTitle || 'SEÇİLEN DETAYLAR')}</h4>
+    <div class="summary-row"><span>${escapeHTML(dict.summaryService || 'Hizmet Türü:')}</span> <span class="summary-val">${serviceLabel}</span></div>
+    <div class="summary-row"><span>${escapeHTML(dict.summaryArea || (isPl ? 'Liczba pokoi / typ:' : 'Oda Sayısı / Ev Tipi:'))}</span> <span class="summary-val">${layoutText}</span></div>
+    <div class="summary-row"><span>${escapeHTML(dict.summaryFrequency || 'Sıklık:')}</span> <span class="summary-val">${freqLabel}</span></div>
     ${promoHtml}
     <div class="summary-row" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 8px; margin-bottom: 8px;">
-      <span>${dict.summaryExtras || 'Ekstralar:'}</span>
+      <span>${escapeHTML(dict.summaryExtras || 'Ekstralar:')}</span>
       <ul style="padding-left: 16px; margin: 0; list-style-type: square; color: var(--clr-muted); width: 100%;">
         ${extrasHtml}
       </ul>
     </div>
-    <div class="summary-row"><span>${dict.summaryEstimated || 'Durum:'}</span> <span class="summary-price" style="font-size: 0.95rem; color: var(--clr-accent);">${isPl ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK'}</span></div>
+    <div class="summary-row"><span>${escapeHTML(dict.summaryEstimated || 'Durum:')}</span> <span class="summary-price" style="font-size: 0.95rem; color: var(--clr-accent);">${isPl ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK'}</span></div>
   `;
   
   gsap.killTweensOf(summaryBox);
@@ -4906,81 +6941,6 @@ function updateBookingSummaryBox() {
     { height: 0, opacity: 0, scale: 0.95, marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 },
     { height: 'auto', opacity: 1, scale: 1, marginTop: 8, marginBottom: 16, paddingTop: 16, paddingBottom: 16, duration: 0.5, ease: 'power2.out' }
   );
-}
-
-function updatePriceSliderDisplay() {
-  const slider = document.getElementById('cPriceRange');
-  const label = document.getElementById('priceRangeVal');
-  const serviceSelect = document.getElementById('cService');
-  if (!slider || !label) return;
-
-  const roomVal = parseInt(slider.value) || 3;
-  const lang = STATE.language || 'tr';
-  const isPl = lang === 'pl';
-  const serviceType = serviceSelect ? serviceSelect.value : 'standart';
-  
-  // Calculate percentage for gradient track fill
-  const min = 1;
-  const max = 7;
-  const percent = ((roomVal - min) / (max - min)) * 100;
-  slider.style.setProperty('--value-percent', `${percent}%`);
-
-  const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
-  const layoutText = layouts[roomVal] || roomVal.toString();
-
-  // Calculate base price from matrix
-  const matrix = isPl ? PRICING_MATRIX_PL : PRICING_MATRIX_TR;
-  const servicePricing = matrix[roomVal] || matrix[3];
-  let basePrice = servicePricing[serviceType] || servicePricing['standart'] || 0;
-  
-  // Calculate selected extras price
-  let extraSum = 0;
-  const activeExtras = document.querySelectorAll('.extra-btn.active');
-  activeExtras.forEach(btn => {
-    const priceVal = isPl ? parseFloat(btn.dataset.pricePl) : parseFloat(btn.dataset.priceTr);
-    extraSum += priceVal || 0;
-  });
-
-  const estimatedPrice = basePrice + extraSum;
-  const currency = isPl ? ' PLN' : ' TL';
-
-  // Toggle visibility of price slider and extras container
-  const extrasContainer = document.querySelector('.extras-container');
-  const sliderContainer = document.querySelector('.price-slider-container');
-  if (serviceType === 'ilaclama') {
-    if (extrasContainer) extrasContainer.style.display = 'none';
-    if (sliderContainer) sliderContainer.style.display = 'none';
-  } else {
-    if (extrasContainer) extrasContainer.style.display = 'block';
-    if (sliderContainer) sliderContainer.style.display = 'block';
-  }
-
-  // Update label text to show area and price
-  if (serviceType === 'ilaclama') {
-    label.textContent = isPl ? `${layoutText} (Zapytaj o cenę)` : `${layoutText} (Özel Fiyat Teklifi)`;
-  } else {
-    label.textContent = `${layoutText} (${estimatedPrice.toLocaleString()}${currency})`;
-  }
-
-  // Sync back to state
-  STATE.calculator.area = roomVal;
-  STATE.calculator.price = estimatedPrice;
-}
-
-function updatePriceSliderConfig() {
-  const slider = document.getElementById('cPriceRange');
-  if (!slider) return;
-  
-  slider.min = '1';
-  slider.max = '7';
-  slider.step = '1';
-  
-  const val = parseInt(slider.value) || 3;
-  if (val < 1 || val > 7) {
-    slider.value = '3';
-  }
-  
-  updatePriceSliderDisplay();
 }
 
 function navigateToStage(stage, shouldPush = true) {
@@ -5011,6 +6971,10 @@ function navigateToStage(stage, shouldPush = true) {
       csoOverlay.style.transform = '';
       gsap.set('#csoBtnPoland', { scale: 1, opacity: 1 });
       gsap.set('#csoBtnTurkey', { scale: 1, opacity: 1 });
+      const earthVideo = document.getElementById('csoEarthVideo');
+      if (earthVideo) {
+        try { earthVideo.play().catch(() => {}); } catch(err) {}
+      }
     }
     if (mapSelectorStage) {
       mapSelectorStage.style.opacity = '0';
@@ -5124,9 +7088,11 @@ function navigateToStage(stage, shouldPush = true) {
     }
     if (bookingReveal) {
       bookingReveal.removeAttribute('hidden');
-      gsap.fromTo('.reveal-content-box',
-        { scale: 0.95, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+      bookingReveal.style.display = 'block';
+      bookingReveal.scrollTop = 0;
+      gsap.fromTo(bookingReveal,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.35, ease: 'power2.out' }
       );
     }
     
@@ -5143,12 +7109,17 @@ function navigateToStage(stage, shouldPush = true) {
 // AFFILIATE & PROMO CODE SYSTEM
 // ==========================================
 const KNOWN_DISCOUNT_CODES = {
+  'RELAXAX10': 0.10,
+  'RELAXAX20': 0.20,
+  'RELAX10': 0.10,
+  'RELAX20': 0.20,
+  'HOSGELDIN15': 0.15,
   'INDIRIM10': 0.10,
-  'ACLAN10': 0.10,
   'EMLAK10': 0.10,
-  'ACLAN20': 0.20,
   'RABAT10': 0.10,
-  'RABAT20': 0.20
+  'RABAT20': 0.20,
+  'WARSZAWA10': 0.10,
+  'WARSZAWA20': 0.20
 };
 
 function setupPromoCodeLogic() {
@@ -5158,7 +7129,7 @@ function setupPromoCodeLogic() {
   if (!promoInput || !applyBtn || !feedbackEl) return;
 
   function applyCode(rawCode, isAuto = false) {
-    const code = (rawCode || '').trim().toUpperCase();
+    const code = (rawCode || '').replace(/[^a-zA-Z0-9_-]/g, '').trim().toUpperCase().substring(0, 20);
     const isPl = STATE.language === 'pl';
     const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
 
@@ -5168,6 +7139,7 @@ function setupPromoCodeLogic() {
       feedbackEl.style.display = 'none';
       feedbackEl.textContent = '';
       if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
+      if (typeof updatePriceSliderDisplay === 'function') updatePriceSliderDisplay();
       return;
     }
 
@@ -5192,8 +7164,11 @@ function setupPromoCodeLogic() {
     }
 
     if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
+    if (typeof updatePriceSliderDisplay === 'function') updatePriceSliderDisplay();
     logDebug('Promo / Affiliate code applied:', code, 'Discount:', STATE.calculator.discountRate);
   }
+
+  window.applyGlobalPromoCode = applyCode;
 
   applyBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -5219,199 +7194,1671 @@ function setupPromoCodeLogic() {
   }
 }
 
+function updatePriceSliderDisplay() {
+  const isPl = (STATE.language || 'tr') === 'pl';
+  const currency = isPl ? ' PLN' : ' TL';
+  const isBusiness = document.getElementById('tabBusinessBtn')?.classList.contains('active');
+
+  // Room & Bath Counts
+  const roomElem = document.getElementById('roomVal');
+  const bathElem = document.getElementById('bathVal');
+  const roomCount = roomElem ? (parseInt(roomElem.textContent) || 1) : 1;
+  const bathCount = bathElem ? (parseInt(bathElem.textContent) || 1) : 1;
+
+  // Base rate calculation:
+  // Poland (PLN): Base 179.00 PLN (Home) / 239.00 PLN (Business) + (rooms-1)*40.00 + (baths-1)*45.00
+  // Turkey (TL): Base 1.450,00 TL (Home) / 1.950,00 TL (Business) + (rooms-1)*250.00 + (baths-1)*250.00
+  let baseCalc = 0;
+  if (isPl) {
+    baseCalc = (isBusiness ? 239.00 : 179.00) + (roomCount - 1) * 40.00 + (bathCount - 1) * 45.00;
+  } else {
+    baseCalc = (isBusiness ? 1950.00 : 1450.00) + (roomCount - 1) * 250.00 + (bathCount - 1) * 250.00;
+  }
+
+  // Kitchen Discount
+  const isSmallKitchen = document.getElementById('chkKitchenSmall')?.checked;
+  if (isSmallKitchen) {
+    baseCalc -= isPl ? 15.00 : 100.00;
+  }
+
+  // Villa Multiplier (x1.25)
+  const isVilla = document.getElementById('chkVilla')?.checked;
+  if (isVilla) {
+    baseCalc *= 1.25;
+  }
+
+  // Extras sum
+  let extraSum = 0;
+  const selectedExtraNames = [];
+
+  // Duplex Option (+200 TL / +35 PLN)
+  const isDuplex = document.getElementById('chkDuplex')?.checked;
+  if (isDuplex) {
+    extraSum += isPl ? 35.00 : 200.00;
+    selectedExtraNames.push(isPl ? 'Mieszkanie dwupoziomowe' : 'Dubleks / Çatı Katı');
+  }
+
+  const activeExtraCards = document.querySelectorAll('.wizard-extra-card.active, .extra-btn.active');
+  activeExtraCards.forEach(card => {
+    const priceVal = isPl ? parseFloat(card.dataset.pricePl) : parseFloat(card.dataset.priceTr);
+    let count = 1;
+    const countEl = card.querySelector('.ec-val');
+    if (countEl) {
+      count = parseInt(countEl.textContent) || 1;
+    }
+    extraSum += (priceVal || 0) * count;
+    const name = card.querySelector('.w-extra-name, .extra-label-text')?.textContent;
+    if (name) selectedExtraNames.push(count > 1 ? `${name} (${count})` : name);
+  });
+
+  // Vacuum cleaner option (+300 TL / +35 PLN)
+  const vacuumChk = document.getElementById('chkVacuum');
+  if (vacuumChk && vacuumChk.checked) {
+    extraSum += isPl ? 35.00 : 300.00;
+    selectedExtraNames.push(isPl ? 'Profesjonalny odkurzacz HEPA' : 'Profesyonel Elektrikli Süpürge Temini');
+  }
+
+  // 2-Person Team Preference (+400 TL / +60 PLN)
+  const isTeamPref = document.querySelector('input[name="staffPref"][value="team"]')?.checked;
+  if (isTeamPref) {
+    extraSum += isPl ? 60.00 : 400.00;
+    selectedExtraNames.push(isPl ? 'Zespół 2-osobowy' : '2 Kişilik Uzman Ekip');
+  }
+
+  // Frequency Discount Card calculation
+  const activeFreqCard = document.querySelector('.wizard-freq-card.active');
+  const freqType = activeFreqCard ? activeFreqCard.dataset.freq : 'tekseferlik';
+  
+  let freqDiscountRate = 1.00;
+  if (freqType === 'haftalik') freqDiscountRate = 0.80; // -20%
+  else if (freqType === 'ikahaftada') freqDiscountRate = 0.85; // -15%
+  else if (freqType === 'aylik') freqDiscountRate = 0.90; // -10%
+
+  const grossTotal = baseCalc + extraSum;
+  let finalNetTotal = (baseCalc * freqDiscountRate) + extraSum;
+
+  // Payment Method Discount (%5 discount for bank transfer / Havale / EFT)
+  const currentPayMethod = document.getElementById('payMethodInput')?.value || 'transfer';
+  if (currentPayMethod === 'transfer') {
+    finalNetTotal *= 0.95;
+  }
+
+  // Check for promo code discount
+  if (STATE.calculator.discountRate > 0) {
+    finalNetTotal *= (1 - STATE.calculator.discountRate);
+  }
+
+  // Update Frequency Cards Prices Live (including active promo discount if present)
+  const elW = document.getElementById('freqValWeekly');
+  const elB = document.getElementById('freqValBiweekly');
+  const elM = document.getElementById('freqValMonthly');
+  const elO = document.getElementById('freqValOnce');
+
+  const formatMoney = (val) => {
+    if (isPl) {
+      return val.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' PLN';
+    } else {
+      return val.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
+    }
+  };
+  const promoMultiplier = STATE.calculator.discountRate > 0 ? (1 - STATE.calculator.discountRate) : 1;
+
+  if (elW) elW.textContent = formatMoney((baseCalc * 0.80 + extraSum) * promoMultiplier);
+  if (elB) elB.textContent = formatMoney((baseCalc * 0.85 + extraSum) * promoMultiplier);
+  if (elM) elM.textContent = formatMoney((baseCalc * 0.90 + extraSum) * promoMultiplier);
+  if (elO) elO.textContent = formatMoney((baseCalc * 1.00 + extraSum) * promoMultiplier);
+
+  // Update Live Itemized Breakdown Details
+  const valBaseDetailEl = document.getElementById('valBaseDetail');
+  if (valBaseDetailEl) {
+    valBaseDetailEl.textContent = formatMoney(grossTotal);
+  }
+
+  const rowFreqDiscountEl = document.getElementById('rowFreqDiscount');
+  const valFreqDiscountEl = document.getElementById('valFreqDiscount');
+  const lblFreqDiscountTextEl = document.getElementById('lblFreqDiscountText');
+  if (rowFreqDiscountEl && valFreqDiscountEl) {
+    if (freqDiscountRate < 1.0) {
+      const discountAmt = baseCalc * (1 - freqDiscountRate);
+      const discountPct = Math.round((1 - freqDiscountRate) * 100);
+      if (lblFreqDiscountTextEl) {
+        lblFreqDiscountTextEl.textContent = isPl ? `Zniżka częstotliwości (-${discountPct}%):` : `Sıklık İndirimi (-%${discountPct}):`;
+      }
+      valFreqDiscountEl.textContent = `-${formatMoney(discountAmt)}`;
+      rowFreqDiscountEl.style.display = 'flex';
+    } else {
+      rowFreqDiscountEl.style.display = 'none';
+    }
+  }
+
+  const rowTransferDiscountEl = document.getElementById('rowTransferDiscount');
+  const valTransferDiscountEl = document.getElementById('valTransferDiscount');
+  if (rowTransferDiscountEl && valTransferDiscountEl) {
+    if (currentPayMethod === 'transfer') {
+      const transferDiscountAmt = ((baseCalc * freqDiscountRate) + extraSum) * 0.05;
+      valTransferDiscountEl.textContent = `-%5 Anında (-${formatMoney(transferDiscountAmt)})`;
+      rowTransferDiscountEl.style.display = 'flex';
+    } else {
+      rowTransferDiscountEl.style.display = 'none';
+    }
+  }
+
+  const rowPromoDiscountEl = document.getElementById('rowPromoDiscount');
+  const valPromoDiscountEl = document.getElementById('valPromoDiscount');
+  if (rowPromoDiscountEl && valPromoDiscountEl) {
+    if (STATE.calculator.discountRate > 0) {
+      const promoPct = Math.round(STATE.calculator.discountRate * 100);
+      valPromoDiscountEl.textContent = `-%${promoPct} Kupon İndirimi`;
+      rowPromoDiscountEl.style.display = 'flex';
+    } else {
+      rowPromoDiscountEl.style.display = 'none';
+    }
+  }
+
+  // Update Summary Text
+  const summaryEl = document.getElementById('wizardSummaryText');
+  if (summaryEl) {
+    if (isBusiness) {
+      summaryEl.textContent = isPl
+        ? `${roomCount} biuro / pomieszczenie, ${bathCount} łazienka`
+        : `${roomCount} çalışma odası/ofis alanı, ${bathCount} banyo/WC içeren işletme temizliği`;
+    } else {
+      summaryEl.textContent = isPl
+        ? `${roomCount} pokój, ${bathCount} łazienka, sprzątanie kuchni i przedpokoju`
+        : `${roomCount} oturma odası, ${bathCount} banyo, mutfak ve hol içeren daire temizliği`;
+    }
+  }
+
+  const baseDisplayEl = document.getElementById('wizardBasePriceDisplay');
+  if (baseDisplayEl) {
+    baseDisplayEl.textContent = formatMoney(grossTotal);
+  }
+
+  const grossDisplayEl = document.getElementById('wizardGrossPrice');
+  if (grossDisplayEl) {
+    grossDisplayEl.textContent = formatMoney(grossTotal);
+  }
+
+  const finalDisplayEl = document.getElementById('wizardFinalPrice');
+  const mobStickyPriceEl = document.getElementById('mobileStickyPrice');
+  if (finalDisplayEl) {
+    finalDisplayEl.textContent = formatMoney(finalNetTotal);
+  }
+  if (mobStickyPriceEl) {
+    mobStickyPriceEl.textContent = formatMoney(finalNetTotal);
+  }
+
+  // Update 3D Secure modal amount display if present
+  const modal3dAmountEl = document.getElementById('modal3dAmount');
+  if (modal3dAmountEl) {
+    modal3dAmountEl.textContent = formatMoney(finalNetTotal);
+  }
+
+  // Calculate Duration & Staffing
+  const staffPrefTeam = document.querySelector('input[name="staffPref"][value="team"]')?.checked;
+  const staffCount = (staffPrefTeam || roomCount >= 4) ? 2 : (roomCount >= 6 ? 3 : 1);
+  const staffCountEl = document.getElementById('estStaffCount');
+  if (staffCountEl) {
+    staffCountEl.textContent = isPl
+      ? `${staffCount} certyfikowany specjalista`
+      : `${staffCount} Sertifikalı Uzman`;
+  }
+
+  const durationHours = Math.max(2.5, 2.5 + (roomCount - 1) * 0.4 + (bathCount - 1) * 0.3 + selectedExtraNames.length * 0.25);
+  const durationEl = document.getElementById('wizardDurationText');
+  if (durationEl) {
+    durationEl.textContent = `~${durationHours.toFixed(1).replace('.0', '')} ${isPl ? 'godz.' : 'saat'}`;
+  }
+
+  // Update selected extras list in sidebar
+  const selectedExtrasWrap = document.getElementById('wizardSelectedExtrasList');
+  if (selectedExtrasWrap) {
+    if (selectedExtraNames.length > 0) {
+      selectedExtrasWrap.innerHTML = `<div style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">✨ ${isPl ? 'Wybrane usługi dodatkowe:' : 'Seçilen Ek Hizmetler:'}</div>` +
+        `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+        selectedExtraNames.map(n => `<span style="font-size:0.75rem; color:#f1f5f9; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:3px 8px; font-weight:600;">✓ ${escapeHTML(n)}</span>`).join('') +
+        `</div>`;
+      selectedExtrasWrap.style.display = 'block';
+    } else {
+      selectedExtrasWrap.style.display = 'none';
+    }
+  }
+
+  // Sync to STATE
+  STATE.calculator.applied = true;
+  STATE.calculator.area = roomCount;
+  STATE.calculator.price = isPl ? parseFloat(finalNetTotal.toFixed(2)) : Math.round(finalNetTotal);
+}
+
+function updatePriceSliderConfig() {
+  updatePriceSliderDisplay();
+}
+
 function setupBookingReveal() {
   const form = document.getElementById('bookingForm');
   const successState = document.getElementById('bookingSuccessState');
   const okBtn = document.getElementById('successOkBtn');
+  const btnSubmit = document.getElementById('btnSubmitBooking');
 
-  const slider = document.getElementById('cPriceRange');
-  if (slider) {
-    slider.addEventListener('input', () => {
-      updatePriceSliderDisplay();
+  // 🌹 Ultra-Luxury Rose & Botanical Root Vine Scroll Progression System 🌹
+  // 🌹 Ultra-Luxury Multi-Node Botanical Rose Garden Scattered Bloom Engine 🌹
+  function initRoseScrollVineSystem() {
+    const bookingScreen = document.getElementById('bookingReveal');
+    if (!bookingScreen) return;
+
+    const canvas = document.getElementById('roseGardenCanvas');
+    const petalsOverlay = document.getElementById('rosePetalsOverlay');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d', { alpha: true });
+    const TOTAL_FRAMES = 60;
+    const frames = new Array(TOTAL_FRAMES);
+
+    let hasLoadedFirst = false;
+
+    // Fast asynchronous preloading of the 60 transparent WebP rose bloom frames
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      const img = new Image();
+      const numStr = String(i).padStart(3, '0');
+      img.src = `/images/bloom_rose_frames/rose_${numStr}.webp`;
+      img.onload = () => {
+        if (i === 0 && !hasLoadedFirst) {
+          hasLoadedFirst = true;
+          renderGarden();
+        }
+      };
+      frames[i] = img;
+    }
+
+    // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses Covering Entire Page Height up to 10,000px) 🌹
+    const roseGardenNodes = [];
+    const TOTAL_ROSES_PER_SIDE = 150; // 300 total blooming roses covering every section from top to bottom
+    const STEP_Y = 64; // Spanning from y = 50px all the way down to 9650px+
+
+    // Generate 150 Left Flank Roses across 3 cascading depth lanes
+    for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
+      const yPx = 50 + i * STEP_Y;
+      const lane = i % 3; // 0 = outer, 1 = mid, 2 = inner
+      const xPct = 0.025 + lane * 0.052 + ((i * 17) % 20) * 0.0012;
+      const size = 110 + (i % 5) * 28; // Sizes from 110px to 222px
+      const rot = ((i * 43) % 60) - 30;
+      roseGardenNodes.push({
+        side: 'left',
+        lane,
+        xPct,
+        yPx,
+        size,
+        rot,
+        currentIdx: 0,
+        targetIdx: 0
+      });
+    }
+
+    // Generate 150 Right Flank Roses across 3 cascading depth lanes
+    for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
+      const yPx = 70 + i * STEP_Y;
+      const lane = i % 3;
+      const xPct = 0.975 - lane * 0.052 - ((i * 17) % 20) * 0.0012;
+      const size = 110 + ((i + 2) % 5) * 28;
+      const rot = (((i + 3) * 43) % 60) - 30;
+      roseGardenNodes.push({
+        side: 'right',
+        lane,
+        xPct,
+        yPx,
+        size,
+        rot,
+        currentIdx: 0,
+        targetIdx: 0
+      });
+    }
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = (bookingScreen && bookingScreen.clientWidth) || window.innerWidth || 1200;
+      const h = (bookingScreen && bookingScreen.clientHeight) || window.innerHeight || 800;
+      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+      }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawBotanicalLeaf(ctx, x, y, angleDeg, size) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate((angleDeg * Math.PI) / 180);
+
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(size * 0.35, -size * 0.45, size * 0.75, -size * 0.28, size, 0);
+      ctx.bezierCurveTo(size * 0.75, size * 0.28, size * 0.35, size * 0.45, 0, 0);
+      ctx.fillStyle = '#2d6a4f';
+      ctx.fill();
+      ctx.strokeStyle = '#1b4332';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Leaf center rib
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(size * 0.85, 0);
+      ctx.strokeStyle = '#74c69d';
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+      
+      ctx.restore();
+    }
+
+    function drawRoseCalyxSepals(ctx, x, y, angleDeg, scaleFactor, bloomProgress) {
+      // Botanical green sepal leaves wrapping gracefully under the rose head
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate((angleDeg * Math.PI) / 180);
+      
+      const sepalSize = (22 + 8 * bloomProgress) * scaleFactor;
+      
+      // Left sepal
+      drawBotanicalLeaf(ctx, 0, 0, -120, sepalSize);
+      // Right sepal
+      drawBotanicalLeaf(ctx, 0, 0, -60, sepalSize);
+      // Bottom sepal
+      drawBotanicalLeaf(ctx, 0, 0, 90, sepalSize * 0.85);
+      
+      // Receptacle bulb
+      ctx.beginPath();
+      ctx.arc(0, 0, 8 * scaleFactor, 0, Math.PI * 2);
+      ctx.fillStyle = '#1b4332';
+      ctx.fill();
+      
+      ctx.restore();
+    }
+
+    function drawStemBranch(ctx, startX, startY, endX, endY, scaleFactor, bloomProgress) {
+      const isLeft = startX < endX;
+      // Natural botanical curved bezier path
+      const cp1X = startX + (isLeft ? 22 : -22) * scaleFactor;
+      const cp1Y = startY + 12 * scaleFactor;
+      const cp2X = endX + (isLeft ? -26 : 26) * scaleFactor;
+      const cp2Y = endY + 18 * scaleFactor;
+
+      const growthProgress = 0.55 + 0.45 * bloomProgress;
+      const branchWidth = Math.max(2.2, 4.4 * scaleFactor * growthProgress);
+
+      ctx.save();
+      // Outer bark
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
+      ctx.strokeStyle = '#1b4332';
+      ctx.lineWidth = branchWidth;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Inner chlorophyll highlight
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
+      ctx.strokeStyle = '#40916c';
+      ctx.lineWidth = Math.max(0.9, 1.6 * scaleFactor * growthProgress);
+      ctx.stroke();
+
+      // Natural leaf pairs along the branch
+      const mid1X = (startX + cp1X) / 2;
+      const mid1Y = (startY + cp1Y) / 2;
+      const mid2X = (cp2X + endX) / 2;
+      const mid2Y = (cp2Y + endY) / 2;
+
+      drawBotanicalLeaf(ctx, mid1X, mid1Y, (isLeft ? -40 : 40), 22 * scaleFactor * growthProgress);
+      drawBotanicalLeaf(ctx, mid2X, mid2Y, (isLeft ? 35 : -35), 26 * scaleFactor * growthProgress);
+      ctx.restore();
+    }
+
+    let gardenRafId = null;
+    let cachedW = 0;
+    let cachedH = 0;
+    let cachedDpr = 1;
+
+    const updateGardenDimensions = () => {
+      cachedDpr = Math.min(window.devicePixelRatio || 1, 2);
+      cachedW = (bookingScreen && bookingScreen.clientWidth) || window.innerWidth || 1200;
+      cachedH = (bookingScreen && bookingScreen.clientHeight) || window.innerHeight || 800;
+      if (canvas.width !== cachedW * cachedDpr || canvas.height !== cachedH * cachedDpr) {
+        canvas.width = cachedW * cachedDpr;
+        canvas.height = cachedH * cachedDpr;
+      }
+    };
+    updateGardenDimensions();
+    window.addEventListener('resize', updateGardenDimensions, { passive: true });
+
+    function renderGarden() {
+      if (!ctx || !bookingScreen || bookingScreen.style.display === 'none') return;
+      
+      const w = cachedW || bookingScreen.clientWidth || 1200;
+      const h = cachedH || bookingScreen.clientHeight || 800;
+      const dpr = cachedDpr || 1;
+      const scrollTop = bookingScreen.scrollTop || 0;
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+
+      // Responsive scaling for small/medium viewports
+      const scaleFactor = w < 768 ? 0.65 : (w < 1200 ? 0.85 : 1.0);
+
+      // Calculate active central booking card boundaries to position flank roses with 100% page harmony
+      const cardWidth = Math.min(1240, Math.max(320, w - 40));
+      const cardLeft = Math.max(10, (w - cardWidth) / 2);
+      const cardRight = Math.min(w - 10, cardLeft + cardWidth);
+
+      // Dedicated breathing margin between cards and flanking botanical rose garden
+      const CARD_MARGIN = Math.min(48 * scaleFactor, cardLeft * 0.25);
+      const availLeft = Math.max(10, cardLeft - CARD_MARGIN);
+      const rightStart = cardRight + CARD_MARGIN;
+      const availRight = Math.max(10, w - rightStart);
+
+      // Dynamic Left & Right Margins for Living Root Trellises
+      const lTrunk1 = Math.max(14, availLeft * 0.28);
+      const lTrunk2 = Math.max(26, availLeft * 0.75);
+      const rTrunk1 = rightStart + availRight * 0.25;
+      const rTrunk2 = rightStart + availRight * 0.72;
+
+      const getTrunkX = (baseX, phase, y) => {
+        return baseX + Math.sin((y + scrollTop + phase) * 0.007) * (14 * scaleFactor);
+      };
+
+      // Set gentle, non-intrusive botanical opacity for background garden
+      ctx.save();
+      ctx.globalAlpha = 0.86;
+
+      const drawTrunk = (baseX, phase, widthPx) => {
+        ctx.beginPath();
+        ctx.moveTo(getTrunkX(baseX, phase, -60), -60);
+        for (let y = -60; y <= h + 60; y += 70) {
+          ctx.lineTo(getTrunkX(baseX, phase, y), y);
+        }
+        ctx.strokeStyle = '#1b4332';
+        ctx.lineWidth = widthPx * scaleFactor;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(getTrunkX(baseX, phase, -60) + 1, -60);
+        for (let y = -60; y <= h + 60; y += 70) {
+          ctx.lineTo(getTrunkX(baseX, phase, y) + 1, y);
+        }
+        ctx.strokeStyle = '#40916c';
+        ctx.lineWidth = Math.max(1.2, widthPx * 0.35 * scaleFactor);
+        ctx.stroke();
+      };
+
+      drawTrunk(lTrunk1, 0, 6);
+      drawTrunk(lTrunk2, 60, 4.5);
+      drawTrunk(rTrunk1, 40, 4.5);
+      drawTrunk(rTrunk2, 100, 6);
+
+      // 2. Draw Branching Stems & Calyx Sepals connecting directly to Trunk Wave (Spatial Culling)
+      for (let i = 0; i < roseGardenNodes.length; i++) {
+        const node = roseGardenNodes[i];
+        const screenY = node.yPx - scrollTop;
+        const size = node.size * scaleFactor;
+
+        // Skip off-screen nodes
+        if (screenY + size < -60 || screenY - size > h + 60) continue;
+
+        // Smooth lerp index interpolation
+        if (Math.abs(node.currentIdx - node.targetIdx) > 0.02) {
+          node.currentIdx += (node.targetIdx - node.currentIdx) * 0.35;
+        }
+
+        let screenX;
+        let trunkBaseX, trunkPhase;
+        if (node.side === 'left') {
+          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
+          screenX = Math.max(14, availLeft * laneRatio);
+          if (node.lane === 2) {
+            trunkBaseX = lTrunk2;
+            trunkPhase = 60;
+          } else {
+            trunkBaseX = lTrunk1;
+            trunkPhase = 0;
+          }
+        } else {
+          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
+          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
+          if (node.lane === 2) {
+            trunkBaseX = rTrunk1;
+            trunkPhase = 40;
+          } else {
+            trunkBaseX = rTrunk2;
+            trunkPhase = 100;
+          }
+        }
+        
+        const trunkY = screenY + (node.side === 'left' ? 22 : -22) * scaleFactor;
+        const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, trunkY);
+        const bloomProgress = node.currentIdx / (TOTAL_FRAMES - 1);
+
+        // Draw Stem connecting from trunk directly to flower base
+        drawStemBranch(ctx, trunkActualX, trunkY, screenX, screenY, scaleFactor, bloomProgress);
+
+        // Draw Calyx Sepals under the rose head
+        drawRoseCalyxSepals(ctx, screenX, screenY, node.rot, scaleFactor, bloomProgress);
+      }
+
+      // 3. Draw Blooming Red Velvet Roses at each Node (Hardware direct draw without Gaussian blur)
+      for (let i = 0; i < roseGardenNodes.length; i++) {
+        const node = roseGardenNodes[i];
+        const screenY = node.yPx - scrollTop;
+        const size = node.size * scaleFactor;
+
+        // Culling: only draw roses visible on screen
+        if (screenY + size < -60 || screenY - size > h + 60) continue;
+
+        let screenX;
+        if (node.side === 'left') {
+          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
+          screenX = Math.max(14, availLeft * laneRatio);
+        } else {
+          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
+          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
+        }
+
+        const roundedIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(node.currentIdx)));
+        const img = frames[roundedIdx];
+        if (img && img.complete && img.naturalWidth > 0) {
+          ctx.save();
+          ctx.translate(screenX, screenY);
+          ctx.rotate((node.rot * Math.PI) / 180);
+          ctx.drawImage(img, -size / 2, -size / 2, size, size);
+          ctx.restore();
+        }
+      }
+      ctx.restore();
+    }
+
+    // Controlled High-FPS Animation Loop
+    function gardenAnimLoop() {
+      if (!bookingScreen || bookingScreen.style.display === 'none') {
+        gardenRafId = null;
+        return;
+      }
+      renderGarden();
+      gardenRafId = requestAnimationFrame(gardenAnimLoop);
+    }
+
+    window.startGardenLoop = () => {
+      if (!gardenRafId) {
+        updateGardenDimensions();
+        gardenRafId = requestAnimationFrame(gardenAnimLoop);
+      }
+    };
+
+    window.stopGardenLoop = () => {
+      if (gardenRafId) {
+        cancelAnimationFrame(gardenRafId);
+        gardenRafId = null;
+      }
+    };
+
+    // Auto start if already visible
+    if (bookingScreen && bookingScreen.style.display !== 'none') {
+      window.startGardenLoop();
+    }
+
+    let lastSpawnTime = 0;
+    const spawnRealPetal = (xPercent) => {
+      if (!petalsOverlay) return;
+      const petal = document.createElement('div');
+      petal.className = 'real-falling-petal';
+      petal.style.left = (xPercent !== undefined ? xPercent : (Math.random() * 90 + 5)) + '%';
+      const size = Math.floor(Math.random() * 18 + 26);
+      petal.style.setProperty('--petal-size', size + 'px');
+      petal.style.setProperty('--fall-duration', (Math.random() * 3 + 4.5) + 's');
+      petal.style.setProperty('--start-rot', (Math.random() * 180 - 90) + 'deg');
+      petal.style.setProperty('--end-rot', (Math.random() * 540 - 270) + 'deg');
+      petal.style.setProperty('--drift-x', (Math.random() * 120 - 60) + 'px');
+      petalsOverlay.appendChild(petal);
+      setTimeout(() => petal.remove(), 8000);
+    };
+
+    const updateRoseProgress = () => {
+      const scrollTop = bookingScreen.scrollTop || 0;
+      const viewportHeight = bookingScreen.clientHeight || 800;
+
+      // 🌹 Viewport-Centered Harmonious Bloom Synchronization 🌹
+      roseGardenNodes.forEach(node => {
+        const viewportCenter = scrollTop + viewportHeight * 0.55;
+        const distFromCenter = node.yPx - viewportCenter;
+
+        // When node is approaching viewport:
+        // distFromCenter > 380: Below viewport -> Tight Bud (0)
+        // distFromCenter in [-450, 380]: In Viewport -> Smooth Blooming (0..59)
+        // distFromCenter < -450: Above viewport -> Full Bloom (59)
+        let bloomProgress;
+        if (distFromCenter > 380) {
+          bloomProgress = 0;
+        } else if (distFromCenter < -450) {
+          bloomProgress = 1;
+        } else {
+          bloomProgress = 1 - ((distFromCenter - (-450)) / 830);
+        }
+        node.targetIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, bloomProgress * (TOTAL_FRAMES - 1)));
+      });
+
+      // Linear overall page progress for step indicator pills
+      const totalScrollHeight = bookingScreen.scrollHeight - bookingScreen.clientHeight;
+      const overallProgress = totalScrollHeight > 0 ? (scrollTop / totalScrollHeight) : 0;
+
+      // Sync with Step Progress Bar Indicators
+      const step1 = document.getElementById('stepIndicator1');
+      const step2 = document.getElementById('stepIndicator2');
+      const step3 = document.getElementById('stepIndicator3');
+      if (overallProgress > 0.65) {
+        if (step3) step3.classList.add('active');
+        if (step2) step2.classList.add('active');
+      } else if (overallProgress > 0.32) {
+        if (step2) step2.classList.add('active');
+        if (step3) step3.classList.remove('active');
+      } else {
+        if (step2) step2.classList.remove('active');
+        if (step3) step3.classList.remove('active');
+      }
+    };
+
+    bookingScreen.addEventListener('scroll', updateRoseProgress, { passive: true });
+
+    // Subtle Romantic Rose Petal Breeze when scrolled into view
+    setInterval(() => {
+      if (bookingScreen && !bookingScreen.hidden && bookingScreen.style.display !== 'none' && (bookingScreen.scrollTop > 50)) {
+        spawnRealPetal();
+      }
+    }, 3500);
+
+    setTimeout(() => {
+      resizeCanvas();
+      updateRoseProgress();
+    }, 50);
+    window.updateRoseVineProgress = updateRoseProgress;
+  }
+
+  window.triggerRoseGrandBlossom = function() {
+    const tracker = document.getElementById('roseScrollTracker');
+    if (tracker) {
+      tracker.classList.add('grand-blossom');
+    }
+
+    const petalsOverlay = document.getElementById('rosePetalsOverlay');
+    if (petalsOverlay) {
+      for (let i = 0; i < 36; i++) {
+        setTimeout(() => {
+          const petal = document.createElement('div');
+          petal.className = 'real-falling-petal';
+          petal.style.left = (Math.random() * 94 + 3) + '%';
+          const size = Math.floor(Math.random() * 24 + 32);
+          petal.style.setProperty('--petal-size', size + 'px');
+          petal.style.setProperty('--fall-duration', (Math.random() * 3 + 4) + 's');
+          petal.style.setProperty('--start-rot', (Math.random() * 360) + 'deg');
+          petal.style.setProperty('--end-rot', (Math.random() * 720) + 'deg');
+          petal.style.setProperty('--drift-x', (Math.random() * 180 - 90) + 'px');
+          petalsOverlay.appendChild(petal);
+          setTimeout(() => petal.remove(), 8000);
+        }, i * 75);
+      }
+    }
+  };
+
+  initRoseScrollVineSystem();
+
+  // 0. Interactive Step Progress Indicator & Navigation Buttons
+  const stepIndicators = document.querySelectorAll('.w-step-item');
+  stepIndicators.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.dataset.stepTarget;
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        stepIndicators.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+      }
+    });
+  });
+
+  // Step Forward / Backward Navigation Buttons
+  const stepNavBtns = document.querySelectorAll('.btn-wizard-next-step, .btn-wizard-prev-step');
+  stepNavBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.dataset.stepTarget;
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+        if (typeof window.updateRoseVineProgress === 'function') {
+          setTimeout(window.updateRoseVineProgress, 350);
+        }
+      }
+    });
+  });
+
+  // Sound Experience Toggle
+  const soundToggleBtn = document.getElementById('wizardSoundToggleBtn');
+  if (soundToggleBtn) {
+    soundToggleBtn.addEventListener('click', () => {
+      window._roseAudioMuted = !window._roseAudioMuted;
+      const icon = soundToggleBtn.querySelector('.sound-icon');
+      const text = soundToggleBtn.querySelector('.sound-text');
+      if (window._roseAudioMuted) {
+        soundToggleBtn.classList.add('muted');
+        if (icon) icon.textContent = '🔇';
+        if (text) text.textContent = 'Ses: Kapalı';
+      } else {
+        soundToggleBtn.classList.remove('muted');
+        if (icon) icon.textContent = '🔊';
+        if (text) text.textContent = 'Ses: Açık';
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+      }
     });
   }
 
-  // Bind extra services toggle buttons
-  const extraBtns = document.querySelectorAll('.extra-btn');
-  extraBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
+  // Turkish Phone Number Auto-Formatter & Carrier Detection
+  const phoneInput = document.getElementById('cPhone');
+  const carrierBadge = document.getElementById('carrierBadge');
+  if (phoneInput && carrierBadge) {
+    phoneInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.startsWith('90')) val = val.substring(2);
+      if (val.length > 11) val = val.substring(0, 11);
       
-      // Trigger subtle tick/click sound feedback if available
-      if (typeof window.playTickSound === 'function') {
-        window.playTickSound();
+      let formatted = '';
+      if (val.length > 0) {
+        if (!val.startsWith('0')) val = '0' + val;
+        formatted = val.substring(0, 4);
+        if (val.length > 4) formatted += ' ' + val.substring(4, 7);
+        if (val.length > 7) formatted += ' ' + val.substring(7, 9);
+        if (val.length > 9) formatted += ' ' + val.substring(9, 11);
       }
-      
+      phoneInput.value = formatted;
+
+      // Carrier Detection
+      if (val.length >= 4) {
+        carrierBadge.style.display = 'inline-block';
+        const prefix = val.substring(0, 4);
+        const num = parseInt(prefix, 10);
+        if (num >= 530 && num <= 539) {
+          carrierBadge.className = 'carrier-badge turkcell';
+          carrierBadge.textContent = '🟡 Turkcell';
+        } else if (num >= 540 && num <= 549) {
+          carrierBadge.className = 'carrier-badge vodafone';
+          carrierBadge.textContent = '🔴 Vodafone';
+        } else if ((num >= 501 && num <= 509) || (num >= 550 && num <= 559)) {
+          carrierBadge.className = 'carrier-badge turktelekom';
+          carrierBadge.textContent = '🔵 Türk Telekom';
+        } else {
+          carrierBadge.className = 'carrier-badge';
+          carrierBadge.textContent = '📱 TR GSM';
+        }
+      } else {
+        carrierBadge.style.display = 'none';
+      }
+    });
+  }
+
+  // Paired City & District Selector
+  const CITY_DISTRICTS = {
+    Istanbul: ['Kadıköy', 'Beşiktaş', 'Üsküdar', 'Şişli', 'Bakırköy', 'Sarıyer', 'Ataşehir', 'Maltepe', 'Beylikdüzü', 'Pendik', 'Kartal', 'Ümraniye', 'Başakşehir', 'Beykoz', 'Fatih', 'Eyüpsultan', 'Kağıthane', 'Beyoğlu'],
+    Izmir: ['Karşıyaka', 'Konak', 'Bornova', 'Alsancak', 'Çeşme', 'Urla', 'Bayraklı', 'Buca', 'Balçova', 'Güzelbahçe', 'Narlıdere', 'Gaziemir', 'Çiğli'],
+    Ankara: ['Çankaya', 'Yenimahalle', 'Keçiören', 'Etimesgut', 'Mamak', 'Gölbaşı', 'Altındağ', 'Sincan'],
+    Antalya: ['Muratpaşa', 'Konyaaltı', 'Kepez', 'Alanya', 'Manavgat', 'Kemer', 'Döşemealtı'],
+    Bursa: ['Nilüfer', 'Osmangazi', 'Yıldırım', 'Mudanya', 'Gemlik'],
+    Kocaeli: ['İzmit', 'Gebze', 'Başiskele', 'Kartepe', 'Gölcük', 'Darıca'],
+    Sakarya: ['Adapazarı', 'Serdivan', 'Erenler', 'Sapanca'],
+    Balikesir: ['Altıeylül', 'Karesi', 'Edremit', 'Bandırma', 'Ayvalık'],
+    Samsun: ['Atakum', 'İlkadım', 'Canik', 'Bafra'],
+    Mugla: ['Bodrum', 'Fethiye', 'Marmaris', 'Menteşe', 'Datça'],
+    Warszawa: ['Mokotów', 'Śródmieście', 'Wola', 'Ursynów', 'Wilanów', 'Ochota', 'Praga-Południe', 'Bemowo', 'Bielany', 'Żoliborz', 'Targówek', 'Wawer']
+  };
+
+  const citySelectEl = document.getElementById('cCity');
+  const districtSelectEl = document.getElementById('cDistrict');
+
+  const populateDistricts = (cityKey) => {
+    if (!districtSelectEl) return;
+    const districts = CITY_DISTRICTS[cityKey] || CITY_DISTRICTS.Istanbul;
+    districtSelectEl.innerHTML = districts.map(d => `<option value="${d}">${d}</option>`).join('');
+  };
+
+  if (citySelectEl) {
+    citySelectEl.addEventListener('change', () => {
+      populateDistricts(citySelectEl.value);
+    });
+    populateDistricts(citySelectEl.value || 'Istanbul');
+  }
+
+  // 1. Service Preset Cards
+  const servicePresetCards = document.querySelectorAll('.wizard-service-preset-card');
+  servicePresetCards.forEach(card => {
+    card.addEventListener('click', () => {
+      servicePresetCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const preset = card.dataset.servicePreset || 'standart';
+      selectServiceGlobal(preset);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     });
   });
 
-  // Bi-directional state/color synchronization on city changes in dropdown
-  const citySelect = document.getElementById('cCity');
-  if (citySelect) {
-    citySelect.addEventListener('change', (e) => {
-      const city = e.target.value;
-      if (city && CITY_TO_REGION[city]) {
-        setCityState(city, false);
-      }
-    });
-  }
+  // 2. Quick Area Size Chips
+  const areaChips = document.querySelectorAll('.area-chip');
+  const roomValEl = document.getElementById('roomVal');
+  const bathValEl = document.getElementById('bathVal');
 
-  // Recalculate price when frequency changes
-  const frequencySelect = document.getElementById('cFrequency');
-  if (frequencySelect) {
-    frequencySelect.addEventListener('change', () => {
+  areaChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      areaChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const rooms = parseInt(chip.dataset.rooms || '1', 10);
+      const baths = parseInt(chip.dataset.baths || '1', 10);
+      if (roomValEl) roomValEl.textContent = rooms;
+      if (bathValEl) bathValEl.textContent = baths;
+      if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     });
-  }
+  });
 
-  // Break applied calculator state if the user manually changes the cleaning type dropdown to another service type
-  const serviceSelect = document.getElementById('cService');
-  if (serviceSelect) {
-    serviceSelect.addEventListener('change', () => {
-      const newService = serviceSelect.value;
-      const oldService = STATE.calculator.serviceType;
-      selectServiceGlobal(newService);
-      if (STATE.calculator.applied && newService !== oldService) {
-        STATE.calculator.applied = false;
-        updateBookingSummaryBox();
+  // 3. Counter Controls (Plus / Minus Rooms & Baths)
+  document.getElementById('btnMinusRoom')?.addEventListener('click', () => {
+    let current = parseInt(roomValEl?.textContent || '1') || 1;
+    if (current > 1) {
+      roomValEl.textContent = current - 1;
+      areaChips.forEach(c => c.classList.remove('active'));
+      updatePriceSliderDisplay();
+    }
+  });
+
+  document.getElementById('btnPlusRoom')?.addEventListener('click', () => {
+    let current = parseInt(roomValEl?.textContent || '1') || 1;
+    if (current < 10) {
+      roomValEl.textContent = current + 1;
+      areaChips.forEach(c => c.classList.remove('active'));
+      updatePriceSliderDisplay();
+    }
+  });
+
+  document.getElementById('btnMinusBath')?.addEventListener('click', () => {
+    let current = parseInt(bathValEl?.textContent || '1') || 1;
+    if (current > 1) {
+      bathValEl.textContent = current - 1;
+      areaChips.forEach(c => c.classList.remove('active'));
+      updatePriceSliderDisplay();
+    }
+  });
+
+  document.getElementById('btnPlusBath')?.addEventListener('click', () => {
+    let current = parseInt(bathValEl?.textContent || '1') || 1;
+    if (current < 5) {
+      bathValEl.textContent = current + 1;
+      areaChips.forEach(c => c.classList.remove('active'));
+      updatePriceSliderDisplay();
+    }
+  });
+
+  // 4. Kitchen radio controls, Villa & Duplex checkboxes
+  document.getElementById('chkKitchenStd')?.addEventListener('change', () => updatePriceSliderDisplay());
+  document.getElementById('chkKitchenSmall')?.addEventListener('change', () => updatePriceSliderDisplay());
+  document.getElementById('chkVilla')?.addEventListener('change', () => updatePriceSliderDisplay());
+  document.getElementById('chkDuplex')?.addEventListener('change', () => updatePriceSliderDisplay());
+  document.getElementById('chkVacuum')?.addEventListener('change', () => updatePriceSliderDisplay());
+
+  // 5. Frequency Subscription Cards
+  const freqCards = document.querySelectorAll('.wizard-freq-card');
+  freqCards.forEach(card => {
+    card.addEventListener('click', () => {
+      freqCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      updatePriceSliderDisplay();
+    });
+  });
+
+  // 6. Customer Type Tabs (Özel Kişi vs İşletme)
+  const tabBtns = document.querySelectorAll('.wizard-tab-btn');
+  const bizBlock = document.getElementById('businessFieldsBlock');
+  const apartmentTitleEl = document.getElementById('wizardApartmentSecTitle');
+  const helpBtnEl = document.getElementById('btnHelpModalOpen');
+  const isPl = (STATE.language || 'tr') === 'pl';
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const type = btn.dataset.customerType;
+      if (type === 'business') {
+        if (bizBlock) bizBlock.style.display = 'block';
+        if (apartmentTitleEl) apartmentTitleEl.textContent = isPl ? 'BIURO / FIRMA' : 'İŞLETME / OFİSİNİZ';
+        if (helpBtnEl) helpBtnEl.textContent = isPl ? '❓ Co obejmuje sprzątanie biura?' : '❓ Ofis temizliğine neler dahildir?';
+        selectServiceGlobal('kurumsal');
+      } else {
+        if (bizBlock) bizBlock.style.display = 'none';
+        if (apartmentTitleEl) apartmentTitleEl.textContent = isPl ? 'TWÓJ APARTAMENT' : 'DAİRENİZ';
+        if (helpBtnEl) helpBtnEl.textContent = isPl ? '❓ Co obejmuje sprzątanie mieszkania?' : '❓ Daire temizliğine neler dahildir?';
+        selectServiceGlobal('standart');
       }
       updatePriceSliderDisplay();
     });
-  }
+  });
 
-  // Handle Form Submission via both button click and form submit event
-  const btnSubmit = document.getElementById('btnSubmitBooking') || form?.querySelector('.cinema-submit-btn');
+  // 7. Key Handoff Selector Cards
+  const keyOptCards = document.querySelectorAll('.key-opt-card');
+  keyOptCards.forEach(card => {
+    card.addEventListener('click', () => {
+      keyOptCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  });
 
-  const doSubmit = (e) => {
-    if (e) {
+  // 8. Staff Preference Radios Card Click Handler
+  const prefCards = document.querySelectorAll('.wizard-pref-card');
+  prefCards.forEach(card => {
+    card.addEventListener('click', () => {
+      prefCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+      updatePriceSliderDisplay();
+    });
+  });
+
+  // ==========================================
+  // TURKISH BANKS DATA & BANK TRANSFER SUITE
+  // ==========================================
+  const TURKISH_BANKS = {
+    garanti: {
+      name: 'Garanti BBVA',
+      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+      iban: 'TR12 0006 2000 0001 2345 6789 01',
+      rawIban: 'TR120006200000012345678901',
+      fastEmail: 'fatura@relaxax.com',
+      branch: 'Kadıköy Şubesi (Kod: 620) / 1234567'
+    },
+    isbank: {
+      name: 'Türkiye İş Bankası',
+      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+      iban: 'TR34 0006 4000 0002 3456 7890 12',
+      rawIban: 'TR340006400000023456789012',
+      fastEmail: 'fatura@relaxax.com',
+      branch: 'Moda Şubesi (Kod: 1042) / 7654321'
+    },
+    yapikredi: {
+      name: 'Yapı Kredi',
+      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+      iban: 'TR56 0006 7000 0003 4567 8901 23',
+      rawIban: 'TR560006700000034567890123',
+      fastEmail: 'fatura@relaxax.com',
+      branch: 'Kadıköy Rıhtım Şubesi (Kod: 815) / 9876543'
+    },
+    akbank: {
+      name: 'Akbank',
+      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+      iban: 'TR78 0004 6000 0004 5678 9012 34',
+      rawIban: 'TR780004600000045678901234',
+      fastEmail: 'fatura@relaxax.com',
+      branch: 'Bağdat Caddesi Şubesi (Kod: 320) / 4567890'
+    },
+    ziraat: {
+      name: 'Ziraat Bankası',
+      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+      iban: 'TR90 0001 0000 0005 6789 0123 45',
+      rawIban: 'TR900001000000056789012345',
+      fastEmail: 'fatura@relaxax.com',
+      branch: 'Kadıköy Şubesi (Kod: 110) / 3216549'
+    },
+    qnb: {
+      name: 'QNB Finansbank',
+      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+      iban: 'TR01 0011 1000 0006 7890 1234 56',
+      rawIban: 'TR010011100000067890123456',
+      fastEmail: 'fatura@relaxax.com',
+      branch: 'Feneryolu Şubesi (Kod: 412) / 8529631'
+    }
+  };
+
+  const bankPills = document.querySelectorAll('.bank-pill-btn');
+  const bActiveBankName = document.getElementById('bActiveBankName');
+  const bAccountHolder = document.getElementById('bAccountHolder');
+  const bIbanDisplay = document.getElementById('bIbanDisplay');
+  const bFastEmail = document.getElementById('bFastEmail');
+  const bBranchNo = document.getElementById('bBranchNo');
+  const btnCopyIbanMain = document.getElementById('btnCopyIbanMain');
+  const btnCopyHolder = document.getElementById('btnCopyHolder');
+
+  let currentSelectedBank = 'garanti';
+
+  const updateSelectedBankDisplay = (bankKey) => {
+    const bank = TURKISH_BANKS[bankKey] || TURKISH_BANKS.garanti;
+    currentSelectedBank = bankKey;
+    if (bActiveBankName) bActiveBankName.textContent = bank.name;
+    if (bAccountHolder) bAccountHolder.textContent = bank.holder;
+    if (bIbanDisplay) bIbanDisplay.textContent = bank.iban;
+    if (bFastEmail) bFastEmail.textContent = bank.fastEmail;
+    if (bBranchNo) bBranchNo.textContent = bank.branch;
+    if (btnCopyIbanMain) btnCopyIbanMain.dataset.iban = bank.rawIban;
+  };
+
+  bankPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      bankPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const bankKey = pill.dataset.bank || 'garanti';
+      updateSelectedBankDisplay(bankKey);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  });
+
+  if (btnCopyIbanMain) {
+    btnCopyIbanMain.addEventListener('click', (e) => {
       e.preventDefault();
-      e.stopPropagation();
-    }
-
-    const name = document.getElementById('cName')?.value.trim() || '';
-    const phone = document.getElementById('cPhone')?.value.trim() || '';
-    const city = document.getElementById('cCity')?.value || 'Izmir';
-    const service = document.getElementById('cService')?.value || 'standart';
-    const dateInput = document.getElementById('cDate')?.value || '';
-    const priceRange = document.getElementById('cPriceRange')?.value || '3';
-
-    const isPl = STATE.language === 'pl';
-
-    if (!name || name.length < 2) {
-      alert(isPl ? 'Proszę wpisać imię i nazwisko.' : 'Lütfen geçerli bir Ad Soyad giriniz.');
-      return;
-    }
-
-    const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
-    if (!cleanPhone || cleanPhone.length < 7) {
-      alert(isPl ? 'Proszę wpisać poprawny numer telefonu.' : 'Lütfen geçerli bir Telefon Numarası giriniz.');
-      return;
-    }
-
-    if (btnSubmit) {
-      btnSubmit.disabled = true;
-      btnSubmit.style.opacity = '0.5';
-      btnSubmit.style.cursor = 'not-allowed';
-    }
-
-    const date = dateInput || new Date().toISOString().split('T')[0];
-    const activeCode = (document.getElementById('cPromoCode')?.value || STATE.calculator.promoCode || '').trim().toUpperCase();
-    const roomIdx = parseInt(priceRange) || 3;
-    const notesLayoutTextPl = ROOM_LAYOUTS_PL[roomIdx] || priceRange;
-    const notesLayoutTextTr = ROOM_LAYOUTS_TR[roomIdx] || priceRange;
-
-    let serviceText = 'Belirtilmedi';
-    if (service === 'standart') serviceText = isPl ? 'Standardowe' : 'Standart Temizlik';
-    else if (service === 'detayli') serviceText = isPl ? 'Głębokie' : 'Detaylı Temizlik';
-    else if (service === 'kurumsal') serviceText = isPl ? 'Firmowe (B2B)' : 'Kurumsal Temizlik (B2B)';
-    else if (service === 'ilaclama') serviceText = isPl ? 'Dezynsekcja & Dezynfekcja' : 'İlaçlama & Dezenfeksiyon';
-    else if (service === 'insaat_sonrasi') serviceText = isPl ? 'Sprzątanie po budowie / remoncie' : 'İnşaat Sonrası Temizlik';
-    else if (service === 'tasinma_sonrasi') serviceText = isPl ? 'Sprzątanie przed/po przeprowadzce' : 'Taşınma Öncesi/Sonrası Temizlik';
-
-    const extraNames = [];
-    const activeExtras = document.querySelectorAll('.extra-btn.active');
-    activeExtras.forEach(btn => {
-      const labelText = btn.querySelector('.extra-label-text')?.textContent || '';
-      if (labelText) extraNames.push(labelText);
+      const iban = btnCopyIbanMain.dataset.iban || '';
+      if (iban && navigator.clipboard) {
+        navigator.clipboard.writeText(iban).then(() => {
+          const textSpan = btnCopyIbanMain.querySelector('.copy-text') || btnCopyIbanMain;
+          const orig = textSpan.textContent;
+          textSpan.textContent = '✓ IBAN Kopyalandı!';
+          btnCopyIbanMain.style.background = '#22c55e';
+          setTimeout(() => {
+            textSpan.textContent = orig;
+            btnCopyIbanMain.style.background = '';
+          }, 2000);
+        });
+      }
     });
+  }
 
-    const frequencySelect = document.getElementById('cFrequency');
-    const frequencyVal = frequencySelect ? frequencySelect.value : 'tekseferlik';
-    let freqText = isPl ? 'Jednorazowo' : 'Tek Seferlik Temizlik';
-    if (frequencyVal === 'haftalik') freqText = isPl ? 'Co tydzień' : 'Haftalık Düzenli Temizlik';
-    else if (frequencyVal === 'aylik') freqText = isPl ? 'Co miesiąc' : 'Aylık Düzenli Temizlik';
+  if (btnCopyHolder) {
+    btnCopyHolder.addEventListener('click', (e) => {
+      e.preventDefault();
+      const holder = btnCopyHolder.dataset.copy || '';
+      if (holder && navigator.clipboard) {
+        navigator.clipboard.writeText(holder).then(() => {
+          const orig = btnCopyHolder.textContent;
+          btnCopyHolder.textContent = '✓ Kopyalandı!';
+          btnCopyHolder.style.background = '#22c55e';
+          btnCopyHolder.style.color = '#ffffff';
+          setTimeout(() => {
+            btnCopyHolder.textContent = orig;
+            btnCopyHolder.style.background = '';
+            btnCopyHolder.style.color = '';
+          }, 2000);
+        });
+      }
+    });
+  }
 
-    const leadPayload = {
-      name: name,
-      phone: phone,
-      source: "WEBSITE",
-      sourceDetail: `Seçilen Şehir: ${city}, Tarih: ${date}`,
-      notes: isPl 
-        ? `Usługa: ${serviceText}, Częstotliwość: ${freqText}${service !== 'ilaclama' ? `, Pokoje: ${notesLayoutTextPl}` : ''}${extraNames.length > 0 ? `, Dodatki: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`
-        : `Hizmet: ${serviceText}, Sıklık: ${freqText}${service !== 'ilaclama' ? `, Oda Sayısı/Ev Tipi: ${notesLayoutTextTr}` : ''}${extraNames.length > 0 ? `, Ekstralar: ${extraNames.join(', ')}` : ''}${activeCode ? `, Kod: ${activeCode}` : ''}`,
-      tags: activeCode ? [service, city, `aff:${activeCode}`] : [service, city],
-      affiliateCode: activeCode || null,
-      promoCode: activeCode || null
-    };
+  // Payment Method Tabs (Havale / FAST vs Kapıda Ödeme)
+  const payTabBtns = document.querySelectorAll('.wizard-pay-tab-btn');
+  const payMethodInput = document.getElementById('payMethodInput');
+  const panelTransfer = document.getElementById('panelPayTransfer');
+  const panelCash = document.getElementById('panelPayCash');
 
-    // Send Lead to Backoffice Panel API via Cloudflare Function Relay (HTTPS)
-    const primaryEndpoint = "/api/leads";
-    const directVdsEndpoint = "https://panel.relaxax.com/api/leads";
+  payTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      payTabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const method = btn.dataset.payMethod || 'transfer';
+      if (payMethodInput) payMethodInput.value = method;
 
-    const sendLeadReq = (url) => {
-      return fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "hc_live_7x9f2m4a1v8"
-        },
-        body: JSON.stringify(leadPayload)
+      if (panelTransfer) panelTransfer.style.display = method === 'transfer' ? 'block' : 'none';
+      if (panelCash) panelCash.style.display = method === 'cash' ? 'block' : 'none';
+
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      updatePriceSliderDisplay();
+    });
+  });
+
+  // 9. Extra Services Cards Toggle & Sub-Counter Controls
+  const extraCards = document.querySelectorAll('.wizard-extra-card, .extra-btn');
+  extraCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.classList.contains('ec-btn')) return;
+      card.classList.toggle('active');
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      updatePriceSliderDisplay();
+    });
+  });
+
+  // Extra item quantity counters (+ / -)
+  const minusEcBtns = document.querySelectorAll('.minus-ec-btn');
+  minusEcBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const valEl = btn.nextElementSibling;
+      if (valEl) {
+        let current = parseInt(valEl.textContent || '1') || 1;
+        if (current > 1) {
+          valEl.textContent = current - 1;
+          updatePriceSliderDisplay();
+        }
+      }
+    });
+  });
+
+  const plusEcBtns = document.querySelectorAll('.plus-ec-btn');
+  plusEcBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const valEl = btn.previousElementSibling;
+      if (valEl) {
+        let current = parseInt(valEl.textContent || '1') || 1;
+        if (current < 10) {
+          valEl.textContent = current + 1;
+          updatePriceSliderDisplay();
+        }
+      }
+    });
+  });
+
+  // Phone Input Dynamic Formatting (TR: 05XX XXX XX XX / PL: XXX XXX XXX)
+  const phoneInputEl = document.getElementById('cPhone');
+  if (phoneInputEl) {
+    phoneInputEl.addEventListener('input', (e) => {
+      const isPlMode = (STATE.language || 'tr') === 'pl';
+      let digits = e.target.value.replace(/\D/g, '');
+      if (isPlMode) {
+        if (digits.startsWith('48')) digits = digits.substring(2);
+        if (digits.length > 9) digits = digits.substring(0, 9);
+        let formatted = '';
+        if (digits.length > 0) {
+          formatted = digits.substring(0, 3);
+          if (digits.length > 3) formatted += ' ' + digits.substring(3, 6);
+          if (digits.length > 6) formatted += ' ' + digits.substring(6, 9);
+        }
+        e.target.value = formatted;
+      } else {
+        if (digits.startsWith('90')) digits = digits.substring(2);
+        if (digits.length > 11) digits = digits.substring(0, 11);
+        let formatted = '';
+        if (digits.length > 0) {
+          formatted = digits.substring(0, 4);
+          if (digits.length > 4) formatted += ' ' + digits.substring(4, 7);
+          if (digits.length > 7) formatted += ' ' + digits.substring(7, 9);
+          if (digits.length > 9) formatted += ' ' + digits.substring(9, 11);
+        }
+        e.target.value = formatted;
+      }
+    });
+  }
+
+  // Real-time Input Blur Validation Indicators
+  const fieldsToValidate = ['cName', 'cPhone', 'cStreet', 'cAptNum'];
+  fieldsToValidate.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('blur', () => {
+        const val = el.value.trim();
+        if (val.length >= 2) {
+          el.style.borderColor = 'rgba(34, 197, 94, 0.6)';
+          el.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.15)';
+        } else if (val.length > 0) {
+          el.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+          el.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.15)';
+        } else {
+          el.style.borderColor = '';
+          el.style.boxShadow = '';
+        }
+      });
+    }
+  });
+
+  // LocalStorage Form Draft Auto-Save & Recovery
+  const saveBookingDraft = () => {
+    try {
+      const draft = {
+        name: document.getElementById('cName')?.value || '',
+        phone: document.getElementById('cPhone')?.value || '',
+        email: document.getElementById('cEmail')?.value || '',
+        city: document.getElementById('cCity')?.value || '',
+        district: document.getElementById('cDistrict')?.value || '',
+        street: document.getElementById('cStreet')?.value || '',
+        houseNum: document.getElementById('cHouseNum')?.value || '',
+        aptNum: document.getElementById('cAptNum')?.value || '',
+        building: document.getElementById('cBuilding')?.value || '',
+        floor: document.getElementById('cFloor')?.value || '',
+        notes: document.getElementById('cNotes')?.value || '',
+        companyName: document.getElementById('cCompanyName')?.value || '',
+        taxOffice: document.getElementById('cTaxOffice')?.value || '',
+        taxNumber: document.getElementById('cTaxNumber')?.value || '',
+        timestamp: Date.now()
+      };
+      localStorage.setItem('relaxax_booking_draft', JSON.stringify(draft));
+    } catch (e) {}
+  };
+
+  const sanitizeInputVal = (val, maxLen = 200) => {
+    if (typeof val !== 'string') return '';
+    return val.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').trim().substring(0, maxLen);
+  };
+
+  const restoreBookingDraft = () => {
+    try {
+      const raw = localStorage.getItem('relaxax_booking_draft');
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (Date.now() - (draft.timestamp || 0) < 86400000) {
+        if (draft.name && document.getElementById('cName')) document.getElementById('cName').value = sanitizeInputVal(draft.name, 100);
+        if (draft.phone && document.getElementById('cPhone')) document.getElementById('cPhone').value = sanitizeInputVal(draft.phone, 30);
+        if (draft.email && document.getElementById('cEmail')) document.getElementById('cEmail').value = sanitizeInputVal(draft.email, 100);
+        if (draft.city && document.getElementById('cCity')) {
+          document.getElementById('cCity').value = sanitizeInputVal(draft.city, 50);
+          document.getElementById('cCity').dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (draft.district && document.getElementById('cDistrict')) {
+          setTimeout(() => {
+            if (document.getElementById('cDistrict')) document.getElementById('cDistrict').value = sanitizeInputVal(draft.district, 50);
+          }, 50);
+        }
+        if (draft.street && document.getElementById('cStreet')) document.getElementById('cStreet').value = sanitizeInputVal(draft.street, 150);
+        if (draft.houseNum && document.getElementById('cHouseNum')) document.getElementById('cHouseNum').value = sanitizeInputVal(draft.houseNum, 20);
+        if (draft.aptNum && document.getElementById('cAptNum')) document.getElementById('cAptNum').value = sanitizeInputVal(draft.aptNum, 20);
+        if (draft.building && document.getElementById('cBuilding')) document.getElementById('cBuilding').value = sanitizeInputVal(draft.building, 50);
+        if (draft.floor && document.getElementById('cFloor')) document.getElementById('cFloor').value = sanitizeInputVal(draft.floor, 20);
+        if (draft.notes && document.getElementById('cNotes')) document.getElementById('cNotes').value = sanitizeInputVal(draft.notes, 500);
+        if (draft.companyName && document.getElementById('cCompanyName')) document.getElementById('cCompanyName').value = sanitizeInputVal(draft.companyName, 120);
+        if (draft.taxOffice && document.getElementById('cTaxOffice')) document.getElementById('cTaxOffice').value = sanitizeInputVal(draft.taxOffice, 80);
+        if (draft.taxNumber && document.getElementById('cTaxNumber')) document.getElementById('cTaxNumber').value = sanitizeInputVal(draft.taxNumber, 30);
+      }
+    } catch (e) {}
+  };
+
+  const bookingFormEl = document.getElementById('bookingForm');
+  if (bookingFormEl) {
+    bookingFormEl.addEventListener('input', debounce(saveBookingDraft, 300));
+  }
+  restoreBookingDraft();
+
+  // Date shortcut chips
+  const dateTodayBtn = document.getElementById('btnDateToday');
+  const dateTomorrowBtn = document.getElementById('btnDateTomorrow');
+  const dateWeekendBtn = document.getElementById('btnDateWeekend');
+  const dateInput = document.getElementById('cDate');
+
+  const setBookingDate = (daysToAdd) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysToAdd);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
+  };
+
+  setBookingDate(1);
+
+  if (dateTodayBtn) {
+    dateTodayBtn.addEventListener('click', () => {
+      document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
+      dateTodayBtn.classList.add('active');
+      setBookingDate(0);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  }
+  if (dateTomorrowBtn) {
+    dateTomorrowBtn.addEventListener('click', () => {
+      document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
+      dateTomorrowBtn.classList.add('active');
+      setBookingDate(1);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  }
+  if (dateWeekendBtn) {
+    dateWeekendBtn.addEventListener('click', () => {
+      document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
+      dateWeekendBtn.classList.add('active');
+      const d = new Date();
+      const day = d.getDay();
+      const diff = day === 6 ? 1 : (6 - day);
+      setBookingDate(diff);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  }
+  const dateNextWeekBtn = document.getElementById('btnDateNextWeek');
+  if (dateNextWeekBtn) {
+    dateNextWeekBtn.addEventListener('click', () => {
+      document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
+      dateNextWeekBtn.classList.add('active');
+      setBookingDate(7);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  }
+
+  // Time shortcut chips
+  const timeChips = document.querySelectorAll('.time-shortcut-chip');
+  const timeSelect = document.getElementById('cTime');
+  timeChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      timeChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const chosenTime = chip.dataset.time;
+      if (timeSelect && chosenTime) {
+        timeSelect.value = chosenTime;
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+      }
+    });
+  });
+
+  if (timeSelect) {
+    timeSelect.addEventListener('change', () => {
+      timeChips.forEach(chip => {
+        if (chip.dataset.time === timeSelect.value) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    });
+  }
+
+  // ScrollSpy for Step Progress Bar
+  const bookingRevealScreen = document.querySelector('.booking-reveal-screen') || document.getElementById('bookingReveal');
+  const stepSections = [
+    { id: 'wizardStep1Section', indicator: document.getElementById('stepIndicator1') },
+    { id: 'wizardStep2Section', indicator: document.getElementById('stepIndicator2') },
+    { id: 'wizardStep3Section', indicator: document.getElementById('stepIndicator3') }
+  ];
+
+  if (bookingRevealScreen) {
+    const handleScrollSpy = () => {
+      const scrollPos = bookingRevealScreen.scrollTop + 200;
+      let activeIndex = 0;
+      stepSections.forEach((sec, idx) => {
+        const el = document.getElementById(sec.id);
+        if (el && el.offsetTop <= scrollPos) {
+          activeIndex = idx;
+        }
+      });
+      stepSections.forEach((sec, idx) => {
+        if (sec.indicator) {
+          if (idx === activeIndex) {
+            sec.indicator.classList.add('active');
+          } else {
+            sec.indicator.classList.remove('active');
+          }
+        }
       });
     };
+    bookingRevealScreen.addEventListener('scroll', debounce(handleScrollSpy, 50), { passive: true });
+  }
 
-    sendLeadReq(primaryEndpoint).then(res => {
-      if (res.ok) {
-        logDebug("Lead synced to VDS panel via Cloudflare relay successfully:", res);
-      } else {
-        logErrorDebug("Relay response not OK (status " + res.status + "), attempting direct VDS connection...", res);
-        sendLeadReq(directVdsEndpoint).catch(e => logErrorDebug("Direct VDS fallback failed:", e));
+  // Promo Code Validation Engine
+  const promoInput = document.getElementById('cPromoCode');
+  const btnPromo = document.getElementById('btnApplyPromo');
+  const promoFeedback = document.getElementById('promoCodeFeedback');
+
+
+  // Scent selection cards active switcher
+  const scentCards = document.querySelectorAll('.wizard-scent-card');
+  scentCards.forEach(card => {
+    card.addEventListener('click', () => {
+      scentCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  });
+
+  // Finalize booking order submission
+  const finalizeBookingOrder = (paymentMeta) => {
+    const name = sanitizeInputVal(document.getElementById('cName')?.value || '', 100);
+    const phone = sanitizeInputVal(document.getElementById('cPhone')?.value || '', 30);
+    const email = sanitizeInputVal(document.getElementById('cEmail')?.value || '', 100);
+    const city = document.getElementById('cCity')?.value || 'Istanbul';
+    const street = sanitizeInputVal(document.getElementById('cStreet')?.value || '', 150);
+    const houseNum = sanitizeInputVal(document.getElementById('cHouseNum')?.value || '', 20);
+    const aptNum = sanitizeInputVal(document.getElementById('cAptNum')?.value || '', 20);
+    const building = sanitizeInputVal(document.getElementById('cBuilding')?.value || '', 50);
+    const floor = sanitizeInputVal(document.getElementById('cFloor')?.value || '', 20);
+    const intercom = sanitizeInputVal(document.getElementById('cIntercom')?.value || '', 30);
+    const district = document.getElementById('cDistrict')?.value || '';
+    const date = document.getElementById('cDate')?.value || '';
+    const time = document.getElementById('cTime')?.value || '';
+    const notes = sanitizeInputVal(document.getElementById('cNotes')?.value || '', 500);
+
+    const roomCount = parseInt(document.getElementById('roomVal')?.textContent || '1') || 1;
+    const bathCount = parseInt(document.getElementById('bathVal')?.textContent || '1') || 1;
+    const isSmallKitchen = document.getElementById('chkKitchenSmall')?.checked;
+    const isVilla = document.getElementById('chkVilla')?.checked;
+    const isDuplex = document.getElementById('chkDuplex')?.checked;
+    const hasVacuum = document.getElementById('chkVacuum')?.checked;
+    const staffPref = document.querySelector('input[name="staffPref"]:checked')?.value || 'any';
+    const scentPref = document.querySelector('input[name="scentPref"]:checked')?.value || 'akdeniz';
+    const keyOption = document.querySelector('input[name="keyOption"]:checked')?.value || 'home';
+    const isPetFriendly = document.getElementById('chkPetFriendly')?.checked;
+    const isBabyAllergy = document.getElementById('chkBabyAllergy')?.checked;
+
+    const companyName = sanitizeInputVal(document.getElementById('cCompanyName')?.value || '', 120);
+    const taxOffice = sanitizeInputVal(document.getElementById('cTaxOffice')?.value || '', 80);
+    const taxNumber = sanitizeInputVal(document.getElementById('cTaxNumber')?.value || '', 30);
+    const invoiceEmail = sanitizeInputVal(document.getElementById('cInvoiceEmail')?.value || '', 100);
+
+    const selectedExtraNames = [];
+    document.querySelectorAll('.wizard-extra-card.active, .extra-btn.active').forEach(card => {
+      const name = card.querySelector('.w-extra-name, .extra-label-text')?.textContent;
+      const countEl = card.querySelector('.ec-val');
+      const count = countEl ? parseInt(countEl.textContent) || 1 : 1;
+      if (name) selectedExtraNames.push(count > 1 ? `${name} (${count})` : name);
+    });
+
+    const isPl = STATE.language === 'pl';
+    const serviceText = isPl ? 'Sprzątanie Mieszkania' : 'Daire Temizliği';
+    const finalPriceText = document.getElementById('wizardFinalPrice')?.textContent || '0 TL';
+    const resCode = 'RLX-' + Math.floor(100000 + Math.random() * 900000);
+
+    const resCodeNumEl = document.getElementById('resCodeNum');
+    if (resCodeNumEl) resCodeNumEl.textContent = '#' + resCode;
+
+    const previewNoticeCodeEl = document.getElementById('previewNoticeCode');
+    if (previewNoticeCodeEl) previewNoticeCodeEl.textContent = '#' + resCode;
+
+    const keyOptionLabels = {
+      home: 'Evde Olacağım',
+      security: 'Güvenlik / Kapıcıda',
+      neighbor: 'Komşuma Bıraktım',
+      lockbox: 'Şifreli Kutu / Kilit'
+    };
+
+    const payMethodTitle = paymentMeta.method === 'transfer'
+      ? `Banka Havalesi / FAST (${TURKISH_BANKS[currentSelectedBank]?.name || 'Garanti BBVA'})`
+      : (isPl ? 'Płatność na miejscu (Gotówka / POS)' : 'Kapıda Güvenli Ödeme (Nakit / Mobil POS)');
+
+    // Construct formatted WhatsApp confirmation message
+    let waMsg = '';
+    if (isPl) {
+      const plKeyLabels = {
+        home: 'Będę w domu',
+        security: 'U ochrony / recepcji',
+        neighbor: 'Zostawię u sąsiada',
+        lockbox: 'Skrzynka z kodem / sejf'
+      };
+      const plPayMethodTitle = paymentMeta.method === 'transfer'
+        ? `Przelew Bankowy / BLIK (Rabat 5%)`
+        : 'Płatność na miejscu (Gotówka / Karta)';
+
+      waMsg = `Dzień dobry RELAXAX, złożyłem nowe zamówienie na stronie:\n\n`;
+      waMsg += `📋 *Kod rezerwacji:* #${resCode}\n`;
+      waMsg += `👤 *Klient:* ${name}\n`;
+      waMsg += `📞 *Telefon:* ${phone}\n`;
+      waMsg += `📍 *Miasto / Dzielnica / Adres:* ${city}${district ? ' / ' + district : ''}, ${street} ${houseNum}/${aptNum}`;
+      if (building) waMsg += ` (${building})`;
+      if (floor) waMsg += ` Piętro:${floor}`;
+      if (intercom) waMsg += ` Domofon:${intercom}`;
+      waMsg += `\n`;
+      waMsg += `🗓️ *Termin:* ${date} (${time})\n`;
+      waMsg += `🔑 *Odbiór kluczy:* ${plKeyLabels[keyOption] || keyOption}\n`;
+      waMsg += `🏠 *Lokal:* ${roomCount} pok., ${bathCount} łaz.`;
+      if (isSmallKitchen) waMsg += `, Mała kuchnia`;
+      if (isVilla) waMsg += `, Dom wolnostojący`;
+      if (isDuplex) waMsg += `, Dwupoziomowe`;
+      waMsg += `\n`;
+      if (selectedExtraNames.length > 0) {
+        waMsg += `✨ *Usługi dodatkowe:* ${selectedExtraNames.join(', ')}\n`;
       }
-    }).catch(err => {
-      logErrorDebug("Cloudflare relay network error, trying direct VDS fallback...", err);
-      sendLeadReq(directVdsEndpoint).catch(e => logErrorDebug("Direct VDS fallback failed:", e));
+      waMsg += `🌸 *Aromat:* ${scentPref.toUpperCase()}\n`;
+      if (isPetFriendly) waMsg += `🐾 *Zwierzęta w domu:* Tak\n`;
+      if (isBabyAllergy) waMsg += `👶 *Alergie / Dzieci:* Tak\n`;
+      waMsg += `💳 *Płatność:* ${plPayMethodTitle}\n`;
+      waMsg += `💰 *Kwota całkowita:* ${finalPriceText}\n`;
+      if (notes) waMsg += `📝 *Uwagi:* ${notes}\n`;
+      if (companyName) {
+        waMsg += `\n🏢 *Faktura VAT:* ${companyName} (NIP: ${taxNumber})`;
+      }
+    } else {
+      waMsg = `Merhaba RELAXAX, sitemiz üzerinden yeni bir sipariş oluşturdum:\n\n`;
+      waMsg += `📋 *Rezervasyon Kodu:* #${resCode}\n`;
+      waMsg += `👤 *Müşteri:* ${name}\n`;
+      waMsg += `📞 *Telefon:* ${phone}\n`;
+      waMsg += `📍 *Şehir / Semt / Adres:* ${city}${district ? ' / ' + district : ''}, ${street} No:${houseNum} D:${aptNum}`;
+      if (building) waMsg += ` (${building})`;
+      if (floor) waMsg += ` Kat:${floor}`;
+      if (intercom) waMsg += ` Zil:${intercom}`;
+      waMsg += `\n`;
+      waMsg += `🗓️ *Tarih & Saat:* ${date} (${time})\n`;
+      waMsg += `🔑 *Giriş Tercihi:* ${keyOptionLabels[keyOption] || keyOption}\n`;
+      waMsg += `🏠 *Mekan:* ${roomCount} Oda, ${bathCount} Banyo`;
+      if (isSmallKitchen) waMsg += `, Küçük Mutfak`;
+      if (isVilla) waMsg += `, Müstakil Villa`;
+      if (isDuplex) waMsg += `, Dubleks / Çatı Katı`;
+      waMsg += `\n`;
+      if (selectedExtraNames.length > 0) {
+        waMsg += `✨ *Ekstra Hizmetler:* ${selectedExtraNames.join(', ')}\n`;
+      }
+      waMsg += `🌸 *İmza Koku:* ${scentPref.toUpperCase()}\n`;
+      if (isPetFriendly) waMsg += `🐾 *Pati Dostu Protokolü:* Aktif\n`;
+      if (isBabyAllergy) waMsg += `👶 *Bebek / Alerji Hassasiyeti:* Aktif\n`;
+      waMsg += `💳 *Ödeme Yöntemi:* ${payMethodTitle}\n`;
+      waMsg += `💰 *Toplam Tutar:* ${finalPriceText}\n`;
+      if (notes) waMsg += `📝 *Not:* ${notes}\n`;
+
+      if (companyName) {
+        waMsg += `\n🏢 *Fatura Ünvanı:* ${companyName} (${taxOffice} V.D. - ${taxNumber})`;
+      }
+    }
+
+    const waFullUrl = `https://wa.me/905466479004?text=${encodeURIComponent(waMsg)}`;
+    const successWaBtn = document.getElementById('btnSuccessWhatsApp');
+    if (successWaBtn) {
+      successWaBtn.href = waFullUrl;
+    }
+
+    // Lead payload for backend synchronization
+    const leadPayload = {
+      resCode: resCode,
+      name: name,
+      phone: phone,
+      email: email,
+      city: city,
+      district: district,
+      address: `${district ? district + ', ' : ''}${street} No:${houseNum} D:${aptNum} ${building} Kat:${floor}`,
+      date: date,
+      time: time,
+      rooms: roomCount,
+      baths: bathCount,
+      extras: selectedExtraNames,
+      payment: paymentMeta,
+      finalPrice: finalPriceText,
+      scent: scentPref,
+      notes: notes,
+      company: companyName ? { name: companyName, taxOffice, taxNumber, invoiceEmail } : null,
+      createdAt: new Date().toISOString()
+    };
+
+    // Send lead to Cloudflare / backend API
+    const apiEndpoints = [
+      'https://backend-api.relaxaxserwis.workers.dev/api/leads',
+      'https://api.relaxax.com/api/leads'
+    ];
+
+    apiEndpoints.forEach(endpoint => {
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(leadPayload)
+      }).catch(() => {
+        saveLeadOffline(leadPayload);
+      });
     });
 
     // Tracking Event Triggers
     try {
       trackConversion('generate_lead', { city: city, service: serviceText, lang: STATE.language, user: { name: name, phone: phone } });
-      if (typeof gtag === 'function') {
-        gtag('event', 'conversion', { 'send_to': 'AW-XXXXXXXXXX/LABEL_VALUE', 'value': 1.0, 'currency': isPl ? 'PLN' : 'TRY' });
-        gtag('event', 'generate_lead', { 'event_category': 'Engagement', 'event_label': 'Website Booking', 'value': 1.0, 'currency': isPl ? 'PLN' : 'TRY', 'city': city, 'service': serviceText });
-      }
-      if (typeof fbq === 'function') {
-        fbq('track', 'Lead', { value: 1.0, currency: isPl ? 'PLN' : 'TRY', content_name: serviceText, content_category: 'Cleaning Booking', content_ids: [city] });
-      }
     } catch (trackErr) {
       console.warn("[TRACKING] Hata oluştu:", trackErr);
     }
 
+    // 🌹 Trigger Rose Vine Grand Blossom & Fluttering Petals Celebration 🌹
+    if (typeof window.triggerRoseGrandBlossom === 'function') {
+      window.triggerRoseGrandBlossom();
+    }
+
     // Instant GSAP Transition to Success State Screen
-    if (form) {
-      gsap.to(form, {
+    const targetFormEl = document.getElementById('bookingForm');
+    const targetSuccessEl = document.getElementById('bookingSuccessState');
+
+    // Display global success toast
+    let toast = document.getElementById('relaxaxGlobalToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'relaxaxGlobalToast';
+      toast.className = 'relaxax-toast';
+      document.body.appendChild(toast);
+    }
+    toast.className = 'relaxax-toast success';
+    toast.innerHTML = `<span style="font-size:1.3rem;">🎉</span> <span><strong>${isPl ? 'Twoje zamówienie zostało potwierdzone!' : 'Siparişiniz Onaylanmıştır!'}</strong> (#${resCode})</span>`;
+    toast.classList.add('show');
+    if (window.formToastTimeout) clearTimeout(window.formToastTimeout);
+    window.formToastTimeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 6000);
+
+    if (targetSuccessEl) {
+      const h3Title = targetSuccessEl.querySelector('#lblBookingSuccessTitle') || targetSuccessEl.querySelector('h3');
+      if (h3Title) {
+        h3Title.textContent = isPl ? 'TWOJE ZAMÓWIENIE ZOSTAŁO POTWIERDZONE!' : 'SİPARİŞİNİZ ONAYLANMIŞTIR!';
+      }
+      const pDesc = targetSuccessEl.querySelector('#lblBookingSuccessText') || targetSuccessEl.querySelector('p');
+      if (pDesc) {
+        pDesc.textContent = isPl
+          ? 'Twoje zamówienie zostało pomyślnie złożone i potwierdzone. Nasz zespół przybędzie pod wskazany adres w wybranym terminie.'
+          : 'Siparişiniz başarıyla alınmış ve onaylanmıştır. Temizlik ekibimiz seçtiğiniz randevu tarihinde adresinizde olacaktır.';
+      }
+    }
+
+    if (targetFormEl) {
+      gsap.to(targetFormEl, {
         opacity: 0,
-        duration: 0.3,
+        duration: 0.25,
         onComplete: () => {
-          form.style.display = 'none';
-          form.style.opacity = '1';
+          targetFormEl.style.display = 'none';
+          targetFormEl.style.opacity = '1';
           
-          if (successState) {
-            successState.removeAttribute('hidden');
-            successState.style.display = 'block';
-            gsap.fromTo(successState,
+          if (targetSuccessEl) {
+            targetSuccessEl.removeAttribute('hidden');
+            targetSuccessEl.style.display = 'flex';
+            targetSuccessEl.style.opacity = '1';
+            const revealScreen = document.getElementById('bookingReveal');
+            if (revealScreen) {
+              revealScreen.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            targetSuccessEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            gsap.fromTo(targetSuccessEl,
               { scale: 0.9, opacity: 0 },
               { scale: 1, opacity: 1, duration: 0.4, ease: 'power2.out', onComplete: () => {
-                const check = successState.querySelector('.success-check');
+                const check = targetSuccessEl.querySelector('.success-check');
                 if (check && typeof window.triggerDust === 'function') {
                   const rect = check.getBoundingClientRect();
                   const cx = rect.left + rect.width / 2;
@@ -5419,18 +8866,129 @@ function setupBookingReveal() {
                   window.triggerDust(cx, cy);
                   setTimeout(() => window.triggerDust(cx, cy), 150);
                 }
+                // Auto-open WhatsApp confirmation after 1.2 second delay
+                setTimeout(() => {
+                  try { window.open(waFullUrl, '_blank', 'noopener,noreferrer'); } catch (e) { /* blocked popup fallback */ }
+                }, 1200);
               }}
             );
           }
         }
       });
+    } else if (targetSuccessEl) {
+      targetSuccessEl.removeAttribute('hidden');
+      targetSuccessEl.style.display = 'flex';
+      const revealScreen = document.getElementById('bookingReveal');
+      if (revealScreen) {
+        revealScreen.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      targetSuccessEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+  };
+
+  const doSubmit = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const nameEl = document.getElementById('cName');
+    const phoneEl = document.getElementById('cPhone');
+    const streetEl = document.getElementById('cStreet');
+    const houseNumEl = document.getElementById('cHouseNum');
+    const aptNumEl = document.getElementById('cAptNum');
+    
+    const name = nameEl?.value.trim() || '';
+    const phone = phoneEl?.value.trim() || '';
+    const street = streetEl?.value.trim() || '';
+    const houseNum = houseNumEl?.value.trim() || '';
+    const aptNum = aptNumEl?.value.trim() || '';
+
+    const isPl = STATE.language === 'pl';
+
+    [nameEl, phoneEl, streetEl, houseNumEl, aptNumEl].forEach(el => {
+      if (el) {
+        el.style.border = '';
+        el.style.boxShadow = '';
+      }
+    });
+
+    const showFormToast = (msg) => {
+      let toast = document.getElementById('relaxaxGlobalToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'relaxaxGlobalToast';
+        toast.className = 'relaxax-toast';
+        document.body.appendChild(toast);
+      }
+      toast.className = 'relaxax-toast error';
+      toast.innerHTML = `<span style="font-size:1.2rem;">⚠️</span> <span>${escapeHTML(msg)}</span>`;
+      toast.classList.add('show');
+      if (window.formToastTimeout) clearTimeout(window.formToastTimeout);
+      window.formToastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    };
+
+    const highlightInvalidField = (el, msg) => {
+      if (!el) return;
+      el.style.border = '2px solid #ef4444';
+      el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.25)';
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.focus();
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo(el, { x: -8 }, { x: 8, duration: 0.06, repeat: 5, yoyo: true, onComplete: () => { el.style.transform = ''; } });
+      }
+      showFormToast(msg);
+    };
+
+    if (!name || name.length < 2) {
+      highlightInvalidField(nameEl, isPl ? 'Proszę wpisać imię i nazwisko.' : 'Lütfen geçerli bir Ad Soyad giriniz.');
+      return;
+    }
+
+    const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+    if (!cleanPhone || cleanPhone.length < 7) {
+      highlightInvalidField(phoneEl, isPl ? 'Proszę wpisać poprawny numer telefonu.' : 'Lütfen geçerli bir Telefon Numarası giriniz.');
+      return;
+    }
+
+    if (!street || street.length < 2) {
+      highlightInvalidField(streetEl, isPl ? 'Proszę wpisać nazwę ulicy.' : 'Lütfen geçerli bir Sokak / Cadde giriniz.');
+      return;
+    }
+
+    if (!houseNum) {
+      highlightInvalidField(houseNumEl, isPl ? 'Proszę wpisać numer domu.' : 'Lütfen geçerli bir Ev / Bina Numarası giriniz.');
+      return;
+    }
+
+    const isVilla = document.getElementById('chkVilla')?.checked || false;
+    if (!isVilla && !aptNum) {
+      highlightInvalidField(aptNumEl, isPl ? 'Proszę wpisać numer mieszkania.' : 'Lütfen geçerli bir Daire Numarası giriniz.');
+      return;
+    }
+
+    const selectedPayMethod = document.getElementById('payMethodInput')?.value || 'transfer';
+
+    const paymentMeta = {
+      method: selectedPayMethod,
+      bank: selectedPayMethod === 'transfer' ? (TURKISH_BANKS[currentSelectedBank]?.name || 'Garanti BBVA') : null,
+      iban: selectedPayMethod === 'transfer' ? (TURKISH_BANKS[currentSelectedBank]?.iban || null) : null,
+      gateway: selectedPayMethod === 'transfer' ? 'bank_transfer_fast' : 'cash_on_delivery',
+      authStatus: selectedPayMethod === 'transfer' ? 'AWAITING_TRANSFER_RECEIPT' : 'PAY_ON_COMPLETION',
+      amount: STATE.calculator.price,
+      currency: STATE.currency
+    };
+    finalizeBookingOrder(paymentMeta);
   };
 
   if (btnSubmit) {
     btnSubmit.addEventListener('click', doSubmit);
   }
-  if (form) {
+  if (form && !form._submitBound) {
+    form._submitBound = true;
     form.addEventListener('submit', doSubmit);
   }
 
@@ -5444,8 +9002,8 @@ function setupBookingReveal() {
       }
       if (successState) successState.setAttribute('hidden', '');
       
-      // Re-enable submit button
-      const submitBtn = form?.querySelector('.cinema-submit-btn');
+      // Re-enable submit button (use correct selector)
+      const submitBtn = document.getElementById('btnSubmitBooking');
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.style.opacity = '';
@@ -5468,6 +9026,10 @@ function setupBookingReveal() {
         window.scrollTo({ top: 0 });
         closeBookingScreen();
       }
+
+      if (typeof window.goToCinemaStep === 'function') {
+        window.goToCinemaStep(0);
+      }
     });
   }
 
@@ -5477,15 +9039,32 @@ function setupBookingReveal() {
 
 function setupGlobalEscapeKey() {
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeBookingScreen();
-      
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      // 1. Help Modal Overlay
+      const helpOverlay = document.getElementById('helpModalOverlay');
+      if (helpOverlay && helpOverlay.style.display !== 'none') {
+        helpOverlay.style.display = 'none';
+        return;
+      }
+
+      // 2. Mobile Menu Drawer
+      const mobileDrawer = document.getElementById('mobile-menu-drawer');
+      if (mobileDrawer && !mobileDrawer.hasAttribute('hidden')) {
+        const closeDrawerBtn = document.getElementById('closeMobileDrawerBtn');
+        if (closeDrawerBtn) closeDrawerBtn.click();
+        return;
+      }
+
+      // 3. Services Modal
       const servicesModal = document.getElementById('services-modal');
-      
       if (servicesModal && !servicesModal.hasAttribute('hidden')) {
         const closeBtn = document.getElementById('closeServicesBtn');
         if (closeBtn) closeBtn.click();
+        return;
       }
+
+      // 4. Booking Screen
+      closeBookingScreen();
     }
   });
 }
@@ -5516,40 +9095,16 @@ function setupServicesModal() {
   let currentCostObject = { val: 1500 }; // track and animate current price calculation
   
   const openServices = (targetService = 'standart') => {
-    // Sync UI selection status
-    serviceItems.forEach(item => {
-      if (item.dataset.service === targetService) {
-        item.classList.add('active');
-        currentServiceType = targetService;
-        currentBasePrice = parseFloat(item.dataset.basePrice || 15);
-      } else {
-        item.classList.remove('active');
-      }
-    });
-    
-    servicesModal.removeAttribute('hidden');
-    if (STATE.lenisInstance) STATE.lenisInstance.stop();
-    document.body.style.overflow = 'hidden';
-    
-    gsap.fromTo(modalWrapper,
-      { scale: 0.9, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto', onComplete: () => {
-        updateSliderBackground();
-      }}
-    );
-    calculatePrice();
+    selectServiceGlobal(targetService);
+    const servicesCard = document.querySelector('.services-select-card') || document.getElementById('cinema-section');
+    if (servicesCard) {
+      servicesCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
   
-  // Bind both nav links
-  if (navServicesLink) {
-    navServicesLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      openServices('standart');
-    });
-  }
-  
   window.openServicesModalWithPreset = (targetService) => {
-    openServices(targetService);
+    selectServiceGlobal(targetService);
+    openBookingScreen();
   };
   
   const closeServices = () => {
@@ -5573,6 +9128,7 @@ function setupServicesModal() {
       }
     });
   };
+  window.closeServicesModal = closeServices;
   
   if (closeServicesBtn) closeServicesBtn.addEventListener('click', closeServices);
   if (servicesBackdrop) servicesBackdrop.addEventListener('click', closeServices);
@@ -5588,21 +9144,11 @@ function setupServicesModal() {
       }
     });
 
-    item.addEventListener('click', () => {
-      serviceItems.forEach(el => el.classList.remove('active'));
-      item.classList.add('active');
+    item.addEventListener('click', (e) => {
       currentBasePrice = parseFloat(item.dataset.basePrice || 15);
       currentServiceType = item.dataset.service || 'standart';
       
-      // Update selection in cinematic select grid if exists
-      const selectItems = document.querySelectorAll('.service-select-item');
-      selectItems.forEach(cItem => {
-        if (cItem.dataset.service === currentServiceType) {
-          cItem.classList.add('selected');
-        } else {
-          cItem.classList.remove('selected');
-        }
-      });
+      selectServiceGlobal(currentServiceType, e);
 
       // Update the booking form select input
       const cServiceSelect = document.getElementById('cService');
@@ -5687,35 +9233,35 @@ function setupServicesModal() {
       }
 
       const layouts = isPl ? ROOM_LAYOUTS_PL : ROOM_LAYOUTS_TR;
-      const layoutText = layouts[area] || area.toString();
+      const layoutText = escapeHTML(layouts[area] || area.toString());
 
       let receiptHtml = `
-        <h4>${receiptTitle}</h4>
+        <h4>${escapeHTML(receiptTitle)}</h4>
         <div class="receipt-row">
-          <span class="receipt-lbl">${labelBaseArea}</span>
+          <span class="receipt-lbl">${escapeHTML(labelBaseArea)}</span>
           <span class="receipt-leader"></span>
           <span class="receipt-val">${layoutText}</span>
         </div>
         <div class="receipt-row">
-          <span class="receipt-lbl">${labelFrequency}</span>
+          <span class="receipt-lbl">${escapeHTML(labelFrequency)}</span>
           <span class="receipt-leader"></span>
-          <span class="receipt-val">${freqText}</span>
+          <span class="receipt-val">${escapeHTML(freqText)}</span>
         </div>
       `;
 
       if (activeExtras.length > 0) {
         receiptHtml += `
           <div class="receipt-row">
-            <span class="receipt-lbl">${labelExtras}</span>
+            <span class="receipt-lbl">${escapeHTML(labelExtras)}</span>
             <span class="receipt-leader"></span>
-            <span class="receipt-val">${activeExtras.join(', ')}</span>
+            <span class="receipt-val">${escapeHTML(activeExtras.join(', '))}</span>
           </div>
         `;
       }
 
       receiptHtml += `
         <div class="receipt-row receipt-total-row">
-          <span class="receipt-lbl receipt-total-lbl">${labelStatus}</span>
+          <span class="receipt-lbl receipt-total-lbl">${escapeHTML(labelStatus)}</span>
           <span class="receipt-leader"></span>
           <span class="receipt-val receipt-total-val" style="color: var(--clr-accent); font-weight: 700; text-transform: uppercase;">
             ${isPl ? 'OFERTA ZOSTANIE PRZYGOTOWANA' : 'TEKLİF HAZIRLANACAK'}
@@ -5753,24 +9299,18 @@ function setupServicesModal() {
         window.triggerDust(e.clientX, e.clientY);
       }
       
-      const formServiceSelect = document.getElementById('cService');
-      if (formServiceSelect) {
-        formServiceSelect.value = currentServiceType;
-      }
-      
-      // Lock applied state & render summary box in booking form
-      STATE.calculator.applied = true;
-      updateBookingSummaryBox();
-
       closeServices();
       
       setTimeout(() => {
-        scrollToTarget('#cinema-section', window.innerHeight * 48);
+        openBookingScreen();
       }, 300);
     });
   }
 
-  calculatePriceFn = calculatePrice;
+  calculatePriceFn = (svc) => {
+    if (svc) currentServiceType = svc;
+    calculatePrice();
+  };
 }
 
 // ==========================================
@@ -5796,6 +9336,7 @@ function openPortalGateway() {
   }
 
   // Clear cache from localStorage to force gateway
+  localStorage.removeItem('relaxax_city');
   localStorage.removeItem('tworose_city');
 
   // Clear bypassing class to allow gateway display
@@ -5835,6 +9376,12 @@ function openPortalGateway() {
     onComplete: () => {
       // Re-init portal particles
       setupPortalParticles();
+      if (turkeyMapInstance && typeof turkeyMapInstance.invalidateSize === 'function') {
+        turkeyMapInstance.invalidateSize();
+      }
+      if (polandMapInstance && typeof polandMapInstance.invalidateSize === 'function') {
+        polandMapInstance.invalidateSize();
+      }
       // Recalculate cached bounds now that map is static and returned to scale 1, translateY 0
       if (typeof window.updatePortalCachedRects === 'function') {
         window.updatePortalCachedRects();
@@ -5856,7 +9403,6 @@ function openPortalGateway() {
     .to('#portalDefaultPanel', { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.8');
 }
 
-let lastWidth = window.innerWidth;
 function setupResizeObserver() {
   let debounceTimeout = null;
   const observer = new ResizeObserver(() => {
@@ -5877,142 +9423,295 @@ function setupResizeObserver() {
 }
 
 // ==========================================
-// 12. CUSTOM CINEMATIC CURSOR (Desktop LERP)
+// 12. BESPOKE ULTRA-LUXURY KINETIC HALO FOLLOWER
 // ==========================================
 function setupCustomCursor() {
-  const cursor = document.createElement('div');
-  cursor.id = 'custom-cursor';
-  cursor.className = 'custom-cursor';
-  cursor.setAttribute('aria-hidden', 'true');
-  cursor.innerHTML = `
-    <div class="cursor-dot"></div>
-    <div class="cursor-ring"></div>
-  `;
-  document.body.appendChild(cursor);
-
-  // Cache dot and ring elements to avoid expensive DOM queries inside the animation loop
-  const dot = cursor.querySelector('.cursor-dot');
-  const ring = cursor.querySelector('.cursor-ring');
-
-  let mouseX = 0, mouseY = 0;
-  let dotX = 0, dotY = 0;
-  let ringX = 0, ringY = 0;
-  let isKeyboardNav = false;
-  let hasMoved = false;
-
-  let cursorActive = false;
-  function startCursorLoop() {
-    if (!cursorActive) {
-      cursorActive = true;
-      requestAnimationFrame(updateCursorLoop);
-    }
+  // Disable entirely on touch devices
+  if ('ontouchstart' in window || (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches)) {
+    return;
   }
 
-  window.addEventListener('mousemove', (e) => {
+  // Remove any legacy cursor elements
+  const legacyDot = document.getElementById('luxCursorDot');
+  if (legacyDot) legacyDot.remove();
+
+  // Create Luxury Cursor DOM Structure
+  let cursor = document.getElementById('lux-cursor');
+  if (!cursor) {
+    cursor = document.createElement('div');
+    cursor.id = 'lux-cursor';
+    cursor.className = 'lux-cursor';
+    cursor.setAttribute('aria-hidden', 'true');
+    cursor.innerHTML = `
+      <div class="lux-cursor-ring" id="luxCursorRing">
+        <div class="lux-cursor-lens"></div>
+        <div class="lux-cursor-glint"></div>
+        <div class="lux-cursor-badge" id="luxCursorBadge">
+          <span class="lux-badge-icon" id="luxBadgeIcon"></span>
+          <span class="lux-badge-text" id="luxBadgeText"></span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(cursor);
+  }
+
+  const ring = cursor.querySelector('#luxCursorRing');
+  const badgeIcon = cursor.querySelector('#luxBadgeIcon');
+  const badgeText = cursor.querySelector('#luxBadgeText');
+
+  let mouseX = -100;
+  let mouseY = -100;
+  let prevMouseX = mouseX;
+  let prevMouseY = mouseY;
+  let ringX = mouseX;
+  let ringY = mouseY;
+  let targetMagneticX = 0;
+  let targetMagneticY = 0;
+  let hasMagneticTarget = false;
+
+  let isVisible = false;
+  let isTicking = false;
+  let lastFrameTime = performance.now();
+
+  let activeMode = 'default';
+  let currentBadgeData = { text: '', icon: '' };
+
+  const getBadgeData = (type) => {
+    const lang = STATE.language || 'tr';
+    const dict = {
+      scrub: { 
+        tr: { text: '', icon: '' }, 
+        pl: { text: '', icon: '' }, 
+        uk: { text: '', icon: '' } 
+      },
+      select: { 
+        tr: { text: 'SEÇ', icon: '✦' }, 
+        pl: { text: 'WYBIERZ', icon: '✦' }, 
+        uk: { text: 'ОБРАТИ', icon: '✦' } 
+      },
+      city: { 
+        tr: { text: 'ŞEHİR', icon: '📍' }, 
+        pl: { text: 'MIASTO', icon: '📍' }, 
+        uk: { text: 'МІСТО', icon: '📍' } 
+      },
+      inspect: { 
+        tr: { text: 'İNCELE', icon: '👁' }, 
+        pl: { text: 'RAPORT', icon: '👁' }, 
+        uk: { text: 'ЗВİТ', icon: '👁' } 
+      },
+      order: { 
+        tr: { text: 'SİPARİŞ', icon: '⚡' }, 
+        pl: { text: 'ZAMÓW', icon: '⚡' }, 
+        uk: { text: 'ЗАМОВИТИ', icon: '⚡' } 
+      },
+      audio: { 
+        tr: { text: 'SES', icon: '♫' }, 
+        pl: { text: 'DŹWIĘK', icon: '♫' }, 
+        uk: { text: 'ЗВУК', icon: '♫' } 
+      }
+    };
+    return (dict[type] && dict[type][lang]) ? dict[type][lang] : (dict[type]?.tr || { text: '', icon: '' });
+  };
+
+  const startLoop = () => {
+    if (!isTicking) {
+      isTicking = true;
+      lastFrameTime = performance.now();
+      requestAnimationFrame(renderCursor);
+    }
+  };
+
+  // Pointer position update
+  window.addEventListener('pointermove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-    isKeyboardNav = false;
-    if (!hasMoved) {
-      hasMoved = true;
-      dotX = mouseX;
-      dotY = mouseY;
+
+    if (!isVisible) {
+      isVisible = true;
       ringX = mouseX;
       ringY = mouseY;
+      cursor.classList.add('active');
     }
-    cursor.style.opacity = '1';
-    startCursorLoop();
+
+    startLoop();
   }, { passive: true });
 
-  // Hide cursor on viewport escape/enter
   document.addEventListener('mouseleave', () => {
-    cursor.style.opacity = '0';
-  });
-  document.addEventListener('mouseenter', () => {
-    if (!isKeyboardNav && hasMoved) {
-      cursor.style.opacity = '1';
-    }
-    startCursorLoop();
+    isVisible = false;
+    cursor.classList.remove('active');
   });
 
-  // Track hover and focus transitions
+  document.addEventListener('mouseenter', () => {
+    isVisible = true;
+    cursor.classList.add('active');
+    startLoop();
+  });
+
+  // Dynamic Contextual Hover Inspector
   document.addEventListener('mouseover', (e) => {
     const target = e.target;
     if (!target) return;
 
-    const isInteractive = target.closest('a, button, .cc-gateway-card, .service-item-detail, .calc-cb-label, input, select, .map-hotspot');
-    const isInCinema = target.closest('#cinema-section') && !target.closest('.reveal-content-box, #main-nav');
+    // 0. Form inputs -> Immediately hide halo for 100% clean typing
+    if (target.closest('input, select, textarea, .form-control, [contenteditable="true"]')) {
+      activeMode = 'input';
+      currentBadgeData = { text: '', icon: '' };
+      cursor.className = 'lux-cursor lux-hover-input';
+      hasMagneticTarget = false;
+      if (badgeIcon) badgeIcon.textContent = '';
+      if (badgeText) badgeText.textContent = '';
+      startLoop();
+      return;
+    }
 
-    if (isInteractive) {
-      document.body.classList.add('cursor-hovering');
+    // 1. Audio toggle
+    const audioBtn = target.closest('#portalAudioToggle, .portal-audio-toggle');
+
+    // 2. City Map Hotspots
+    const mapHotspot = target.closest('.map-hotspot, .leaflet-marker-icon, .tms-city-mini-card, .portal-flag-card');
+
+    // 3. Service selection cards
+    const serviceCard = target.closest('.wizard-service-card, .service-select-item, .service-item-detail, .wizard-scent-card');
+
+    // 4. Inspect report / Quality modal
+    const inspectBtn = target.closest('.wizard-inspect-report-btn, #btnOpenQualityReportModal, .quality-report-trigger');
+
+    // 5. Cinema scrubbing / video stage
+    const scrubEl = target.closest('#cinema-section, .cinema-stage, .cinema-video-container, .cinema-scrub-zone');
+    const isInteractiveInsideCinema = target.closest('button, a, .reveal-card, .calc-trigger-btn, .service-nav-btn, .cinema-submit-btn, .wizard-tab-btn, .wizard-check-item, input, select');
+
+    // 6. Primary CTA Order buttons
+    const orderBtn = target.closest('#headerCtaBtn, .nav-cta-btn, .cinema-submit-btn');
+
+    // 7. Standard interactive buttons / links
+    const genericBtn = target.closest('a, button, [role="button"], .tab-btn, .counter-btn, .wizard-tab-btn, .w-info-link, .wizard-freq-card');
+
+    if (audioBtn) {
+      activeMode = 'pill';
+      currentBadgeData = getBadgeData('audio');
+      cursor.className = 'lux-cursor active lux-hover-pill';
+      hasMagneticTarget = false;
+    } else if (orderBtn) {
+      activeMode = 'button';
+      currentBadgeData = { text: '', icon: '' };
+      cursor.className = 'lux-cursor active lux-hover-button';
+      const rect = orderBtn.getBoundingClientRect();
+      targetMagneticX = rect.left + rect.width / 2;
+      targetMagneticY = rect.top + rect.height / 2;
+      hasMagneticTarget = true;
+    } else if (inspectBtn) {
+      activeMode = 'pill';
+      currentBadgeData = getBadgeData('inspect');
+      cursor.className = 'lux-cursor active lux-hover-pill';
+      hasMagneticTarget = false;
+    } else if (serviceCard) {
+      activeMode = 'pill';
+      currentBadgeData = getBadgeData('select');
+      cursor.className = 'lux-cursor active lux-hover-pill';
+      hasMagneticTarget = false;
+    } else if (mapHotspot) {
+      activeMode = 'city';
+      currentBadgeData = getBadgeData('city');
+      cursor.className = 'lux-cursor active lux-hover-city';
+      hasMagneticTarget = false;
+    } else if (scrubEl && !isInteractiveInsideCinema) {
+      activeMode = 'cinema';
+      currentBadgeData = getBadgeData('scrub');
+      cursor.className = 'lux-cursor active lux-hover-cinema';
+      hasMagneticTarget = false;
+    } else if (genericBtn) {
+      activeMode = 'button';
+      currentBadgeData = { text: '', icon: '' };
+      cursor.className = 'lux-cursor active lux-hover-button';
+      const rect = genericBtn.getBoundingClientRect();
+      targetMagneticX = rect.left + rect.width / 2;
+      targetMagneticY = rect.top + rect.height / 2;
+      hasMagneticTarget = true;
     } else {
-      document.body.classList.remove('cursor-hovering');
+      activeMode = 'default';
+      currentBadgeData = { text: '', icon: '' };
+      cursor.className = 'lux-cursor active';
+      hasMagneticTarget = false;
     }
 
-    if (isInCinema) {
-      document.body.classList.add('cursor-cinema-active');
-    } else {
-      document.body.classList.remove('cursor-cinema-active');
-    }
+    if (badgeIcon) badgeIcon.textContent = currentBadgeData.icon;
+    if (badgeText) badgeText.textContent = currentBadgeData.text;
+    startLoop();
   });
 
-  // Keyboard accessibility: hide custom cursor on Tab key press
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      isKeyboardNav = true;
-      cursor.style.opacity = '0';
-    }
+  // Hydraulic Click Shockwave
+  window.addEventListener('pointerdown', () => {
+    cursor.classList.add('lux-clicking');
+    startLoop();
   });
 
-  // Resume custom cursor on mouse movement
-  window.addEventListener('mousedown', () => {
-    isKeyboardNav = false;
-    cursor.style.opacity = '1';
-    startCursorLoop();
+  window.addEventListener('pointerup', () => {
+    cursor.classList.remove('lux-clicking');
+    startLoop();
   });
 
-  let lastDotX = -9999, lastDotY = -9999;
-  let lastRingX = -9999, lastRingY = -9999;
-
-  function updateCursorLoop() {
-    dotX += (mouseX - dotX) * 0.35;
-    dotY += (mouseY - dotY) * 0.35;
-    ringX += (mouseX - ringX) * 0.18;
-    ringY += (mouseY - ringY) * 0.18;
-
-    let settled = true;
-    if (Math.abs(mouseX - dotX) > 0.05 || Math.abs(mouseY - dotY) > 0.05) {
-      settled = false;
-    }
-    if (Math.abs(mouseX - ringX) > 0.05 || Math.abs(mouseY - ringY) > 0.05) {
-      settled = false;
+  // RAF Physics Loop (Harmonic Spring Tracking with Fluid Velocity Deformation)
+  function renderCursor() {
+    if (!isVisible) {
+      isTicking = false;
+      return;
     }
 
-    if (dot && ring) {
-      const roundedDotX = Math.round(dotX * 10) / 10;
-      const roundedDotY = Math.round(dotY * 10) / 10;
-      const roundedRingX = Math.round(ringX * 10) / 10;
-      const roundedRingY = Math.round(ringY * 10) / 10;
+    const now = performance.now();
+    let dt = (now - lastFrameTime) / 16.666;
+    lastFrameTime = now;
+    if (dt > 4) dt = 1.0;
 
-      // Only perform DOM updates if positions have changed meaningfully (prevents paint overhead when idle)
-      if (roundedDotX !== lastDotX || roundedDotY !== lastDotY) {
-        dot.style.transform = `translate3d(${roundedDotX}px, ${roundedDotY}px, 0) translate(-50%, -50%)`;
-        lastDotX = roundedDotX;
-        lastDotY = roundedDotY;
+    let targetX = mouseX;
+    let targetY = mouseY;
+
+    // Apply smooth magnetic attraction weight if over interactive target
+    if (hasMagneticTarget) {
+      targetX = mouseX * 0.65 + targetMagneticX * 0.35;
+      targetY = mouseY * 0.65 + targetMagneticY * 0.35;
+    }
+
+    // Spring damping lerp
+    const lerpRate = 1 - Math.pow(1 - 0.34, dt);
+    ringX += (targetX - ringX) * lerpRate;
+    ringY += (targetY - ringY) * lerpRate;
+
+    // Velocity calculation
+    const vx = mouseX - prevMouseX;
+    const vy = mouseY - prevMouseY;
+    const speed = Math.hypot(vx, vy);
+
+    let angle = 0;
+    let stretch = 0;
+    if (speed > 1.2 && activeMode === 'default') {
+      angle = Math.atan2(vy, vx);
+      stretch = Math.min(0.26, speed * 0.007);
+    }
+
+    // Apply transform to outer aura ring
+    if (ring) {
+      const rx = Math.round(ringX * 10) / 10;
+      const ry = Math.round(ringY * 10) / 10;
+      if (stretch > 0.02) {
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) rotate(${angle}rad) scale(${1 + stretch}, ${1 - stretch * 0.45})`;
+      } else {
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
       }
-      if (roundedRingX !== lastRingX || roundedRingY !== lastRingY) {
-        ring.style.transform = `translate3d(${roundedRingX}px, ${roundedRingY}px, 0) translate(-50%, -50%)`;
-        lastRingX = roundedRingX;
-        lastRingY = roundedRingY;
-      }
     }
 
-    if (!settled) {
-      requestAnimationFrame(updateCursorLoop);
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+
+    // Zero-Idle sleep check
+    const distToTarget = Math.hypot(targetX - ringX, targetY - ringY);
+    if (distToTarget > 0.15 || speed > 0.1) {
+      requestAnimationFrame(renderCursor);
     } else {
-      cursorActive = false;
+      isTicking = false;
     }
   }
-  startCursorLoop();
+
+  startLoop();
 }
 
 // ==========================================
@@ -6030,45 +9729,78 @@ function setupCinemaAmbientLight() {
   light.setAttribute('aria-hidden', 'true');
   targetContainer.appendChild(light);
 
-  let sectionTop = 0;
-  let sectionHeight = 0;
-  const updateSectionBounds = () => {
-    const rect = section.getBoundingClientRect();
-    sectionTop = rect.top + window.scrollY;
-    sectionHeight = rect.height;
-  };
-  updateSectionBounds();
-  window.addEventListener('resize', updateSectionBounds);
-  window.addEventListener('scroll', updateSectionBounds, { passive: true });
-
   let lightTicking = false;
   let lightMX = 0;
   let lightMY = 0;
 
   if (!('ontouchstart' in window)) {
-    window.addEventListener('mousemove', (e) => {
-      // Check viewport visibility using cached bounds
-      const relativeTop = sectionTop - window.scrollY;
-      const inView = relativeTop <= cachedWindowHeight && (relativeTop + sectionHeight) >= 0;
-      if (!inView) return;
-
+    targetContainer.addEventListener('mousemove', (e) => {
       lightMX = e.clientX;
       lightMY = e.clientY;
 
       if (!lightTicking) {
+        lightTicking = true;
         window.requestAnimationFrame(() => {
           light.style.transform = `translate3d(${lightMX}px, ${lightMY}px, 0)`;
           lightTicking = false;
         });
-        lightTicking = true;
       }
     }, { passive: true });
   }
 }
 
 // ==========================================
-// 14. GLOBAL HOLOGRAPHIC CLICK SHOCKWAVE RIPPLES & HOVER TICKS
+// 15. SEAMLESS VIDEO LOOP ENGINEERING DRIVER
 // ==========================================
+function setupVideoLoopEngineering() {
+  const attachLoopGuards = (root = document) => {
+    const loopingVideos = root.querySelectorAll('video[loop]');
+    loopingVideos.forEach(video => {
+      if (video.dataset.loopEngineered === 'true') return;
+      video.dataset.loopEngineered = 'true';
+
+      // 1. Proactive micro-stutter / zero-gap loop wrap
+      video.addEventListener('timeupdate', () => {
+        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.04)) {
+          video.currentTime = 0;
+          if (video.paused && !document.hidden) {
+            video.play().catch(() => {});
+          }
+        }
+      }, { passive: true });
+
+      // 2. Hardware / OS ended fallback
+      video.addEventListener('ended', () => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      });
+
+      // 3. Prevent low-power / battery saver freeze on active videos
+      video.addEventListener('pause', () => {
+        if (video.hasAttribute('loop') && !document.hidden && video.dataset.userPaused !== 'true') {
+          const rect = video.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            video.play().catch(() => {});
+          }
+        }
+      });
+    });
+  };
+
+  attachLoopGuards();
+
+  // Tab visibility resume handler for seamless infinite background loops
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      document.querySelectorAll('video[loop]').forEach(v => {
+        const rect = v.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0 && v.dataset.userPaused !== 'true') {
+          v.play().catch(() => {});
+        }
+      });
+    }
+  });
+}
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing
   document.addEventListener('mouseover', (e) => {
@@ -6087,6 +9819,12 @@ function setupHolographicClickRipples() {
   });
 
   document.addEventListener('click', (e) => {
+    // Check if any service card / option was clicked for Sand & Dust Storm animation
+    const serviceCard = e.target.closest('.service-select-item, .service-item-detail');
+    if (serviceCard) {
+      triggerDustCleaningEffect(serviceCard);
+    }
+
     // Detect closest interactive element
     const interactive = e.target.closest('a, button, .cc-gateway-card, .map-hotspot, .mobile-menu-toggle, .calculator-btn, .tab-btn, .service-item-detail, .service-select-item');
     if (!interactive) return;
@@ -6147,174 +9885,15 @@ function setupHolographicClickRipples() {
   });
 }
 
-// ==========================================
-// 15. FUTURISTIC WEB AUDIO SYNTH & UX TOGGLE
-// ==========================================
-class CyberSynth {
-  constructor() {
-    this.ctx = null;
-    this.muted = false;
-    try {
-      this.muted = localStorage.getItem('tworose_audio_muted') === 'true';
-    } catch (e) {
-      logDebug("localStorage read blocked", e);
-    }
-    this.spikeTimeout = null;
-    this.visualizerEl = null;
-  }
-
-  init() {
-    if (this.ctx) return;
-    try {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-      logDebug("Web Audio API not supported", e);
-    }
-  }
-
-  triggerSpike() {
-    if (!this.visualizerEl) {
-      this.visualizerEl = document.querySelector('.audio-visualizer-bars');
-    }
-    if (!this.visualizerEl) return;
-
-    // Use GPU-accelerated GSAP transform scale instead of class-toggling reflow triggers
-    if (typeof gsap !== 'undefined') {
-        gsap.killTweensOf(this.visualizerEl);
-        gsap.fromTo(this.visualizerEl, 
-          { scaleY: 1.5, opacity: 1 },
-          { scaleY: 1.0, opacity: 0.25, duration: 0.15, ease: 'power2.out' }
-        );
-    }
-  }
-
-  playTick() {
-    if (this.muted) return;
-    this.init();
-    if (!this.ctx || this.ctx.state === 'suspended') return;
-    this.triggerSpike();
-
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(2800, this.ctx.currentTime);
-
-    gain.gain.setValueAtTime(0.012, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + 0.04);
-
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.04);
-  }
-
-  playClick() {
-    if (this.muted) return;
-    this.init();
-    if (!this.ctx || this.ctx.state === 'suspended') return;
-    this.triggerSpike();
-
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(480, now);
-    osc.frequency.exponentialRampToValueAtTime(840, now + 0.09);
-
-    gain.gain.setValueAtTime(0.035, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-
-    osc.start();
-    osc.stop(now + 0.12);
-  }
-
-  playWarp() {
-    if (this.muted) return;
-    this.init();
-    if (!this.ctx || this.ctx.state === 'suspended') return;
-    this.triggerSpike();
-
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const filter = this.ctx.createBiquadFilter();
-    const gain = this.ctx.createGain();
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(90, now);
-    osc.frequency.exponentialRampToValueAtTime(880, now + 0.75);
-
-    filter.type = 'lowpass';
-    filter.Q.setValueAtTime(8, now);
-    filter.frequency.setValueAtTime(220, now);
-    filter.frequency.exponentialRampToValueAtTime(1500, now + 0.75);
-
-    gain.gain.setValueAtTime(0.04, now);
-    gain.gain.linearRampToValueAtTime(0.05, now + 0.25);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
-
-    osc.start();
-    osc.stop(now + 0.85);
-  }
-
-  toggleMute() {
-    this.muted = !this.muted;
-    try {
-      localStorage.setItem('tworose_audio_muted', this.muted);
-    } catch (e) {
-      logDebug("localStorage write blocked", e);
-    }
-    
-    // Resume audio context if suspended to satisfy browser gesture requirements
-    if (!this.muted && this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(err => logDebug("Audio Context resume failed", err));
-    }
-    
-    this.updateToggleUI();
-  }
-
-  updateToggleUI() {
-    const btn = document.getElementById('portalAudioToggle');
-    if (!btn) return;
-
-    const text = btn.querySelector('.audio-toggle-text');
-    const lang = STATE.language || STATE.currentLang || 'tr';
-    const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
-
-    if (this.muted) {
-      btn.classList.add('muted');
-      if (text) text.textContent = dict.audioOff || 'AUDIO: OFF';
-    } else {
-      btn.classList.remove('muted');
-      if (text) text.textContent = dict.audioOn || 'AUDIO: ON';
-    }
-  }
-}
-
-synth = new CyberSynth();
-
-// Global bindings for ease of use in event listeners
-window.playTickSound = () => synth.playTick();
-window.playClickSound = () => synth.playClick();
-window.playWarpSound = () => synth.playWarp();
-
 function setupAudioToggle() {
   const btn = document.getElementById('portalAudioToggle');
   if (!btn) return;
 
-  synth.updateToggleUI();
+  if (synth) synth.updateToggleUI();
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (!synth) return;
     synth.init(); // Initialize audio context on click
     synth.toggleMute();
     if (!synth.muted) {
@@ -6324,6 +9903,7 @@ function setupAudioToggle() {
 
   // Enable audio context on any interactive document click
   const enableAudioCtx = () => {
+    if (!synth) return;
     synth.init();
     if (synth.ctx && synth.ctx.state === 'suspended') {
       synth.ctx.resume().catch(() => {});

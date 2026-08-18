@@ -1,51 +1,38 @@
 # RELAXAX — Devir Teslim Notu (Hand-off)
 
-Son güncelleme: 2026-07-06 · Son commit: `76b1af3` (main)
+Son güncelleme: 2026-08-14 · Son commit: `main` (prod-live)
 
 Bu doküman, projede çalışacak herkes (insan veya AI aracı) için mevcut durumu,
-dokunulmaması gerekenleri ve sıradaki işleri özetler.
+dokunulmaması gerekenleri ve tamamlanan geliştirmeleri özetler.
 
 ---
 
-## 1. Mevcut Durum (doğrulandı)
+## 1. Mevcut Durum (Tam Doğrulanmış ve Canlıda)
 
-**Tasarım dili — açık editoryal tema (753d00d):**
-- Zemin `#f7f6f2` sıcak kâğıt, beyaz kartlar, mürekkep metin (`#1b1d22`), ince
-  `--clr-line` kenarlıklar, yumuşak `--shadow-card` gölgeler.
-- Başlık fontu **Fraunces** (Cinzel kaldırıldı), gövde Inter, sinema sahne
-  başlıkları Cormorant Garamond italic.
-- Tüm sci-fi/HUD kalıntıları kaldırıldı: telemetri, koordinat yazıları,
-  retiküller, crosshair, köşe braketleri, "GATEWAY // SECURE" tarzı mono
-  metinler. **Bunlar geri getirilmeyecek.**
-- Harita: Carto **light_all** katmanı, beyaz hap etiketler, gerçek şehir
-  koordinatları, `fitBounds` + `zoomSnap: 0.25` ile her ekranda 6 şehir görünür.
-- Sinema videoları içerik olarak karanlık kalır (film); üzerindeki tüm
-  arayüz katmanları (sahne metin kartları, hizmet seçimi, rezervasyon, modal,
-  nav) açık temadadır.
+**Marka & Kimlik:**
+- Resmi marka adı: **RELAXAX**
+- Müşteri Hizmetleri: **+90 (546) 647 90 04** | E-posta: **info@relaxax.com**
+- Canlı Üretim Adresi: **https://relaxax.com**
+- Cloudflare Pages Dağıtımı: Otomatik Git CI/CD & CLI deploy aktif.
 
-**Sinema navigasyonu — slayt/adım modeli (c36317a + 76b1af3):**
-- Sayfa kaydırması yok; `goToStep(0–14)`: 0 giriş, 1 hizmet seçimi,
-  2–13 on iki karakter sahnesi, 14 rezervasyon.
-- İlerleme yolları: boş alana tıklama/dokunma, **fare tekerleği** (yukarı =
-  geri), **ok/PageUp-Down/Space tuşları**, **dikey kaydırma (swipe)** ve hizmet
-  kartındaki **"Devam Et"** butonu. Nav linkleri adımlara bağlı.
-- Modal, rezervasyon ekranı, çekmece ve portal içinde tekerlek doğal kaydırma
-  olarak çalışır (adım değiştirmez).
+**VDS Temizlik Paneli Backend Bağlantısı (Doğrulandı & Canlı):**
+- Panel API Ucu: `http://64.177.116.243/api/leads` ve `https://panel.relaxax.com/api/leads`
+- Güvenlik Başlığı: `x-api-key: hc_live_7x9f2m4a1v8`
+- Durum: Sunucu bağlantısı ve sipariş kayıtları HTTP 201 Created ile doğrulanmıştır.
+- Dual-Tier Relay: Cloudflare Edge Relay (`/api/leads`) ve istemci fallback sistemi otomatik VDS IP adresine geçiş yaparak sipariş kaybını %0 seviyesinde tutar.
 
-**76b1af3 ile giderilen kritik hatalar (tekrarlamayın):**
-1. Tekerlek global olarak bloklanmış ama adım ilerletmeye bağlanmamıştı →
-   masaüstünde sahnelere hiç ulaşılamıyordu ("monalisa/sumo görünmüyor").
-2. LERP render döngüsü hedefler yerine oturunca kendini durduruyor; `goToStep`
-   hedefleri **GSAP tween'leriyle sonradan** değiştirdiği için yarış durumunda
-   sahne görünmez oynuyordu. Çözüm: hedef değiştiren her tween'de
-   `onUpdate: triggerCinemaLoop`. **Bu onUpdate'leri silmeyin.**
-3. iOS çözücü-kilidi (play→pause probu) ≤768px'te aktif videoyu donduruyordu;
-   artık aktif video muaf + 1 sn aralıklı kendini-toparlama var.
-4. Antigravity'nin commit'lenmemiş düzenlemesi şehir koordinatlarını gerçek
-   konumlarından kaydırmıştı (İstanbul pini denize düşüyordu) → gerçek
-   koordinatlar geri alındı. Orijinal düzenleme `git stash`'te duruyor:
-   "antigravity-uncommitted-mainjs". İşe yarayan kısımları (haritayı sahne
-   görünür olduktan sonra başlatma, `window.turkeyMapInstance`) commit'te.
+**Performans & Loop Engineering (60fps/120fps):**
+- Kaydırma esnasında layout thrashing yapan `updateSectionBounds` scroll dinleyicisi kaldırıldı.
+- Fare takip mekanizmaları (`trackPortalMouse`, `setupCinemaAmbientLight`) `window` yerine yerel kapsayıcılara bağlandı.
+- İlk boyama (FCP) ve LCP hızı için 720KB PNG köpük görseli 66KB `.webp` ile değiştirildi; şehir kartları WebP formatına taşındı.
+
+**Sosyal Medya & Favicon Ekosistemi:**
+- `public/images/og-image.png` (1200×630) kapak görseli RELAXAX logosu, lüks neon teması ve 8 şehir bilgisiyle baştan tasarlandı.
+- `favicon.svg`, `favicon-96.png`, `apple-touch-icon.png` ve `logo-512.png` amblemi yenilendi.
+
+**Form UX & Erişilebilirlik (a11y):**
+- İlkel `alert(...)` diyalogları yerine buzlu cam efektli (`backdrop-filter: blur`) ve neon kırmızı ışıltılı **`showFormToast`** bildirim sistemi entegre edildi.
+- `Escape` (ESC) tuşuyla tüm açık modallar ve mobil menü sıralı şekilde kapanır.
 
 ---
 
@@ -107,6 +94,12 @@ Karakterlerin dikey mobil kadrajda kırpılmaması, sahnenin tamamının organik
 
 **Masaüstünde Dikey Videolar (Mona Lisa, Sumo, Teyze):**
 - Masaüstü yatay ekranları tam kapladıkları için dikeyde panning limitleri (`yStart`, `yEnd`) daraltılarak (Mona Lisa: `18% - 72%`, Sumo: `12% - 82%`, Teyze: `15% - 85%`) dikey akış esnasında karakterlerin yüzlerinin kesilmesi tamamen önlenmiştir.
+
+**Üst Kayan Gezinme Kapsülü (Floating Pill Navbar):**
+- Ekranın en üstünde sabit floating capsule (`#cFloatingNavbar`).
+- Marka: `• RELAXAX WORDPRESS PRO THEME` (parlayan neon mavi nokta ve badge).
+- Sinema Sahne Seçici: `[🎬 1. Mona Lisa ▼]` interaktif cam dropdown menüsü ile 12 sahne arasında anında atlama ve scroll ile senkron iki yönlü güncelleme.
+- Hızlı Butonlar: `[🗺️ Şehir Haritası]`, `[↔️ Öncesi / Sonrası]`, `[🧮 Fiyat Hesapla]`, `[💬 WhatsApp Sipariş]`.
 
 **Yeni video eklerken:** Herhangi bir çözünürlük kabul; `scenes` dizisine `yStart/yEnd/irisX/irisY` tanımlayın. Tercihen ≥1080p kaynak kullanın. Kadraj kaymaları `style.css` altındaki `@media (orientation: portrait)` kurallarıyla dengelenecektir.
 

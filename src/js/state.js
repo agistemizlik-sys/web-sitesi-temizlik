@@ -26,7 +26,7 @@ export const STATE = {
     targetY: 50,
     currentY: 50,
     isScrubbing: false,
-    sceneStates: Array.from({ length: 12 }, () => ({
+    sceneStates: Array.from({ length: 3 }, () => ({
       currentTime: 0,
       targetTime: 0,
       currentOpacity: 0,

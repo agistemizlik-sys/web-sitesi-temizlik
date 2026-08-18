@@ -25,6 +25,8 @@ dist-ssr
 
 # Backups
 originals_backup/
+_backups/
+.wrangler/
 dist.zip
 
 # Temporary screenshots, scratch & logs
@@ -32,4 +34,7 @@ step_*.png
 screenshot_*.png
 scratch/
 userData_scroll/
+create_favicons.py
+create_og_image.py
+
 
