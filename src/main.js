@@ -7664,8 +7664,11 @@ function setupBookingReveal() {
       const rTrunk1 = rightStart + availRight * 0.25;
       const rTrunk2 = rightStart + availRight * 0.72;
 
+      const timeNow = performance.now();
+
       const getTrunkX = (baseX, phase, y) => {
-        return baseX + Math.sin((y + scrollTop + phase) * 0.007) * (14 * scaleFactor);
+        const breathingOffset = Math.sin(timeNow * 0.0014 + phase * 0.04) * (2.5 * scaleFactor);
+        return baseX + Math.sin((y + scrollTop + phase) * 0.007 + timeNow * 0.0009) * (14 * scaleFactor) + breathingOffset;
       };
 
       // Set gentle, non-intrusive botanical opacity for background garden
@@ -7739,12 +7742,13 @@ function setupBookingReveal() {
         const trunkY = screenY + (node.side === 'left' ? 22 : -22) * scaleFactor;
         const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, trunkY);
         const bloomProgress = node.currentIdx / (TOTAL_FRAMES - 1);
+        const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
 
         // Draw Stem connecting from trunk directly to flower base
         drawStemBranch(ctx, trunkActualX, trunkY, screenX, screenY, scaleFactor, bloomProgress);
 
-        // Draw Calyx Sepals under the rose head
-        drawRoseCalyxSepals(ctx, screenX, screenY, node.rot, scaleFactor, bloomProgress);
+        // Draw Calyx Sepals under the rose head with dynamic sway
+        drawRoseCalyxSepals(ctx, screenX, screenY, swayAngle, scaleFactor, bloomProgress);
       }
 
       // 3. Draw Blooming Red Velvet Roses at each Node (Hardware direct draw without Gaussian blur)
@@ -7768,9 +7772,10 @@ function setupBookingReveal() {
         const roundedIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(node.currentIdx)));
         const img = frames[roundedIdx];
         if (img && img.complete && img.naturalWidth > 0) {
+          const swayAngle = node.rot + Math.sin(timeNow * 0.0012 + i * 0.6) * 2.2;
           ctx.save();
           ctx.translate(screenX, screenY);
-          ctx.rotate((node.rot * Math.PI) / 180);
+          ctx.rotate((swayAngle * Math.PI) / 180);
           ctx.drawImage(img, -size / 2, -size / 2, size, size);
           ctx.restore();
         }
@@ -9759,28 +9764,52 @@ function setupVideoLoopEngineering() {
       if (video.dataset.loopEngineered === 'true') return;
       video.dataset.loopEngineered = 'true';
 
-      // 1. Proactive micro-stutter / zero-gap loop wrap
-      video.addEventListener('timeupdate', () => {
-        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.04)) {
-          video.currentTime = 0;
+      video.playbackRate = 1.0;
+      video.playsInline = true;
+      video.muted = true;
+
+      // 1. High-precision sub-millisecond loop wrap (fastSeek / requestVideoFrameCallback)
+      const handleSeamlessWrap = () => {
+        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.05)) {
+          if (typeof video.fastSeek === 'function') {
+            try { video.fastSeek(0); } catch(e) { video.currentTime = 0; }
+          } else {
+            video.currentTime = 0;
+          }
           if (video.paused && !document.hidden) {
-            video.play().catch(() => {});
+            const p = video.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
           }
         }
-      }, { passive: true });
+      };
 
-      // 2. Hardware / OS ended fallback
+      video.addEventListener('timeupdate', handleSeamlessWrap, { passive: true });
+
+      // 2. Hardware / OS ended event instant wrap fallback
       video.addEventListener('ended', () => {
         video.currentTime = 0;
-        video.play().catch(() => {});
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
       });
 
-      // 3. Prevent low-power / battery saver freeze on active videos
+      // 3. Auto-recovery from network or buffer glitches
+      video.addEventListener('error', () => {
+        logDebug('Video media glitch detected, auto-recovering stream:', video.id || video.src);
+        setTimeout(() => {
+          try {
+            video.load();
+            video.play().catch(() => {});
+          } catch(e) {}
+        }, 250);
+      });
+
+      // 4. Prevent low-power / battery saver freeze on active videos
       video.addEventListener('pause', () => {
         if (video.hasAttribute('loop') && !document.hidden && video.dataset.userPaused !== 'true') {
           const rect = video.getBoundingClientRect();
           if (rect.top < window.innerHeight && rect.bottom > 0) {
-            video.play().catch(() => {});
+            const p = video.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
           }
         }
       });
@@ -9801,6 +9830,7 @@ function setupVideoLoopEngineering() {
     }
   });
 }
+
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing
   document.addEventListener('mouseover', (e) => {
