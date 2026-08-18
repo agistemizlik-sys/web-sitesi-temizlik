@@ -7209,19 +7209,19 @@ function updatePriceSliderDisplay() {
   const bathCount = bathElem ? (parseInt(bathElem.textContent) || 1) : 1;
 
   // Base rate calculation:
-  // Poland (PLN): Base 179.00 PLN (Home) / 239.00 PLN (Business) + (rooms-1)*40.00 + (baths-1)*45.00
-  // Turkey (TL): Base 1.450,00 TL (Home) / 1.950,00 TL (Business) + (rooms-1)*250.00 + (baths-1)*250.00
+  // Poland (PLN): Base 219.00 PLN (Home) / 289.00 PLN (Business) + (rooms-1)*49.00 + (baths-1)*55.00
+  // Turkey (TL): Base 1.850,00 TL (Home) / 2.450,00 TL (Business) + (rooms-1)*350.00 + (baths-1)*350.00
   let baseCalc = 0;
   if (isPl) {
-    baseCalc = (isBusiness ? 239.00 : 179.00) + (roomCount - 1) * 40.00 + (bathCount - 1) * 45.00;
+    baseCalc = (isBusiness ? 289.00 : 219.00) + (roomCount - 1) * 49.00 + (bathCount - 1) * 55.00;
   } else {
-    baseCalc = (isBusiness ? 1950.00 : 1450.00) + (roomCount - 1) * 250.00 + (bathCount - 1) * 250.00;
+    baseCalc = (isBusiness ? 2450.00 : 1850.00) + (roomCount - 1) * 350.00 + (bathCount - 1) * 350.00;
   }
 
   // Kitchen Discount
   const isSmallKitchen = document.getElementById('chkKitchenSmall')?.checked;
   if (isSmallKitchen) {
-    baseCalc -= isPl ? 15.00 : 100.00;
+    baseCalc -= isPl ? 20.00 : 150.00;
   }
 
   // Villa Multiplier (x1.25)
@@ -7234,10 +7234,10 @@ function updatePriceSliderDisplay() {
   let extraSum = 0;
   const selectedExtraNames = [];
 
-  // Duplex Option (+200 TL / +35 PLN)
+  // Duplex Option (+300 TL / +45 PLN)
   const isDuplex = document.getElementById('chkDuplex')?.checked;
   if (isDuplex) {
-    extraSum += isPl ? 35.00 : 200.00;
+    extraSum += isPl ? 45.00 : 300.00;
     selectedExtraNames.push(isPl ? 'Mieszkanie dwupoziomowe' : 'Dubleks / Çatı Katı');
   }
 
@@ -7254,17 +7254,17 @@ function updatePriceSliderDisplay() {
     if (name) selectedExtraNames.push(count > 1 ? `${name} (${count})` : name);
   });
 
-  // Vacuum cleaner option (+300 TL / +35 PLN)
+  // Vacuum cleaner option (+400 TL / +45 PLN)
   const vacuumChk = document.getElementById('chkVacuum');
   if (vacuumChk && vacuumChk.checked) {
-    extraSum += isPl ? 35.00 : 300.00;
+    extraSum += isPl ? 45.00 : 400.00;
     selectedExtraNames.push(isPl ? 'Profesjonalny odkurzacz HEPA' : 'Profesyonel Elektrikli Süpürge Temini');
   }
 
-  // 2-Person Team Preference (+400 TL / +60 PLN)
+  // 2-Person Team Preference (+550 TL / +79 PLN)
   const isTeamPref = document.querySelector('input[name="staffPref"][value="team"]')?.checked;
   if (isTeamPref) {
-    extraSum += isPl ? 60.00 : 400.00;
+    extraSum += isPl ? 79.00 : 550.00;
     selectedExtraNames.push(isPl ? 'Zespół 2-osobowy' : '2 Kişilik Uzman Ekip');
   }
 
