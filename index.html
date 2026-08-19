@@ -291,26 +291,55 @@
   
   <!-- ── PORTAL ENTRANCE VIDEO INTRO (Dedicated Mobile Vertical & Desktop Videos) ────────────────────── -->
   <div id="portal-intro-stage" class="portal-intro-stage" aria-label="Giriş Ekranı" role="button" tabindex="0">
-    <video id="portalIntroVideo" class="portal-intro-video" autoplay muted loop playsinline webkit-playsinline preload="auto" x5-video-player-type="h5" x5-video-player-fullscreen="true">
-      <source id="portalIntroVideoSrcMobile" src="/videos/giris_ekrani_mobil.mp4" media="(max-width: 768px)" type="video/mp4">
-      <source id="portalIntroVideoSrcDesktop" src="/videos/giris_ekrani.mp4" type="video/mp4">
-    </video>
+    <video id="portalIntroVideo" class="portal-intro-video" autoplay muted loop playsinline webkit-playsinline preload="auto" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
     <script>
       (function(){
-        var v = document.getElementById('portalIntroVideo');
-        if (v) {
-          var isMob = window.innerWidth <= 768;
-          var targetSrc = isMob ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
-          v.src = targetSrc;
-          v.muted = true;
-          v.playsInline = true;
-          v.setAttribute('muted', '');
-          v.setAttribute('playsinline', '');
-          v.setAttribute('webkit-playsinline', '');
-          var promise = v.play();
-          if (promise !== undefined) {
-            promise.catch(function(){});
+        function setMobileVideoSources() {
+          var isMob = (window.innerWidth <= 820) || (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+          
+          var intro = document.getElementById('portalIntroVideo');
+          if (intro) {
+            var targetIntro = isMob ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
+            if (intro.getAttribute('src') !== targetIntro) {
+              intro.setAttribute('src', targetIntro);
+              intro.muted = true;
+              intro.playsInline = true;
+              intro.setAttribute('muted', '');
+              intro.setAttribute('playsinline', '');
+              intro.setAttribute('webkit-playsinline', '');
+              var p1 = intro.play();
+              if (p1 !== undefined) p1.catch(function(){});
+            }
           }
+
+          var earth = document.getElementById('csoEarthVideo');
+          if (earth) {
+            var targetEarth = isMob ? '/videos/earth_rotating_mobil.mp4' : '/videos/earth_rotating.mp4';
+            if (earth.getAttribute('src') !== targetEarth) {
+              earth.setAttribute('src', targetEarth);
+              earth.muted = true;
+              earth.playsInline = true;
+              earth.setAttribute('muted', '');
+              earth.setAttribute('playsinline', '');
+            }
+          }
+
+          var ivy = document.getElementById('servicesIvyVideo');
+          if (ivy) {
+            var targetIvy = isMob ? '/videos/sarmasik_mobil.mp4' : '/videos/sarmasik.mp4';
+            if (ivy.getAttribute('src') !== targetIvy) {
+              ivy.setAttribute('src', targetIvy);
+              ivy.muted = true;
+              ivy.playsInline = true;
+              ivy.setAttribute('muted', '');
+              ivy.setAttribute('playsinline', '');
+            }
+          }
+        }
+
+        setMobileVideoSources();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setMobileVideoSources);
         }
       })();
     </script>
