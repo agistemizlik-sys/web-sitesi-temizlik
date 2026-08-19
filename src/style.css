@@ -12487,7 +12487,12 @@ iframe[title*="Message preview"] {
     padding: 16px 12px !important;
     border-radius: 18px !important;
     margin: 0 auto !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    background: rgba(10, 26, 20, 0.90) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(52, 211, 153, 0.25) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+    color: #ffffff !important;
   }
 
   .services-select-grid {
@@ -12498,6 +12503,16 @@ iframe[title*="Message preview"] {
   .service-select-item {
     padding: 14px 12px !important;
     border-radius: 14px !important;
+    background: rgba(18, 38, 30, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  .service-select-item.selected {
+    background: rgba(16, 185, 129, 0.22) !important;
+    border: 1.5px solid #10b981 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3) !important;
   }
 
   .service-card-bg-img {
@@ -12508,6 +12523,8 @@ iframe[title*="Message preview"] {
   .services-stepper-bar {
     padding: 8px 10px !important;
     gap: 4px !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border-radius: 12px !important;
   }
 
   .stepper-label {
@@ -12558,9 +12575,13 @@ iframe[title*="Message preview"] {
     width: 100% !important;
     max-width: 100% !important;
     padding: 18px 12px !important;
-    border-radius: 18px !important;
+    border-radius: 20px !important;
     margin: 0 auto !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(225, 29, 72, 0.14) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08), 0 0 24px rgba(225, 29, 72, 0.03) !important;
   }
 
   .wizard-title {
@@ -12583,6 +12604,15 @@ iframe[title*="Message preview"] {
     padding: 10px 8px !important;
     min-height: 72px !important;
     border-radius: 12px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .wizard-service-preset-card.active {
+    background: #fff1f2 !important;
+    border-color: #e11d48 !important;
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.18) !important;
   }
 
   .s-preset-icon {
@@ -12616,6 +12646,15 @@ iframe[title*="Message preview"] {
     text-align: center !important;
     font-size: 0.76rem !important;
     border-radius: 10px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+  }
+
+  .area-chip.active {
+    background: #fff1f2 !important;
+    border-color: #e11d48 !important;
+    color: #e11d48 !important;
+    font-weight: 700 !important;
   }
 
   /* Extras Grid on Mobile */

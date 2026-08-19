@@ -7587,66 +7587,62 @@ function setupBookingReveal() {
     mainStemImg.src = '/images/vines/main_rose_stem.png';
 
     // 🌿 Botanical Vine Tendril Nodes (Spirals, climbing curls, and leafy shoots)
+    // 🌿 Botanical Vine Tendril Nodes (Single Clean Vertical Line)
     const botanicalTendrilNodes = [];
-    const TOTAL_TENDRILS_PER_SIDE = 90;
-    const TENDRIL_STEP_Y = 105;
+    const TOTAL_TENDRILS_PER_SIDE = 60;
+    const TENDRIL_STEP_Y = 140;
 
-    // Left Flank Vine Tendrils
+    // Left Flank Vine Tendrils (Single Line)
     for (let i = 0; i < TOTAL_TENDRILS_PER_SIDE; i++) {
-      const yPx = 40 + i * TENDRIL_STEP_Y + ((i * 23) % 35);
-      const lane = i % 2;
+      const yPx = 40 + i * TENDRIL_STEP_Y;
       const assetIdx = i % TOTAL_VINE_ASSETS;
-      const size = 75 + ((i * 13) % 5) * 14; // 75px to 131px
-      const rot = ((i * 53) % 90) - 45;
+      const size = 80 + (i % 4) * 14;
+      const rot = ((i * 47) % 60) - 30;
       botanicalTendrilNodes.push({
         side: 'left',
-        lane,
+        lane: 0,
         yPx,
         assetIdx,
         size,
         rot,
-        swaySpeed: 0.00016 + (i % 4) * 0.00005, // Ultra-slow gentle breeze
+        swaySpeed: 0.00016 + (i % 3) * 0.00004,
         swayPhase: i * 0.75
       });
     }
 
-    // Right Flank Vine Tendrils
+    // Right Flank Vine Tendrils (Single Line)
     for (let i = 0; i < TOTAL_TENDRILS_PER_SIDE; i++) {
-      const yPx = 65 + i * TENDRIL_STEP_Y + (((i + 2) * 23) % 35);
-      const lane = i % 2;
-      const assetIdx = (i + 5) % TOTAL_VINE_ASSETS;
-      const size = 75 + (((i + 2) * 13) % 5) * 14;
-      const rot = (((i + 3) * 53) % 90) - 45;
+      const yPx = 70 + i * TENDRIL_STEP_Y;
+      const assetIdx = (i + 4) % TOTAL_VINE_ASSETS;
+      const size = 80 + ((i + 1) % 4) * 14;
+      const rot = (((i + 2) * 47) % 60) - 30;
       botanicalTendrilNodes.push({
         side: 'right',
-        lane,
+        lane: 0,
         yPx,
         assetIdx,
         size,
         rot,
-        swaySpeed: 0.00016 + ((i + 1) % 4) * 0.00005, // Ultra-slow gentle breeze
+        swaySpeed: 0.00016 + ((i + 1) % 3) * 0.00004,
         swayPhase: (i + 2) * 0.75
       });
     }
 
-    // 🌹 Ultra-Dense Royal Botanical Rose Garden (300 Blooming Roses with 4 Distinct 3D Angles) 🌹
+    // 🌹 Ultra-Dense Royal Botanical Rose Garden (Single Elegant Line / Tek Satır) 🌹
     const roseGardenNodes = [];
-    const TOTAL_ROSES_PER_SIDE = 150; // 300 total blooming roses covering every section from top to bottom
-    const STEP_Y = 64; // Spanning from y = 50px all the way down to 9650px+
+    const TOTAL_ROSES_PER_SIDE = 80;
+    const STEP_Y = 110; // Spaced evenly along the single vertical line
 
-    // Generate 150 Left Flank Roses across 3 cascading depth lanes with diverse angles
+    // Generate Left Flank Roses in a single line
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
       const yPx = 50 + i * STEP_Y;
-      const lane = i % 3; // 0 = outer, 1 = mid, 2 = inner
-      const angleVariant = (i + lane) % 4; // Cycles harmoniously through 4 rose angles
-      const xPct = 0.025 + lane * 0.052 + ((i * 17) % 20) * 0.0012;
-      const size = 110 + (i % 5) * 28; // Original opulent sizes from 110px to 222px
-      const rot = ((i * 43) % 60) - 30;
+      const angleVariant = i % 4; // Cycles through 4 rose angles
+      const size = 120 + (i % 3) * 20; // Opulent 120px - 160px
+      const rot = ((i * 37) % 40) - 20;
       roseGardenNodes.push({
         side: 'left',
-        lane,
+        lane: 0,
         angleVariant,
-        xPct,
         yPx,
         size,
         rot,
@@ -7655,19 +7651,16 @@ function setupBookingReveal() {
       });
     }
 
-    // Generate 150 Right Flank Roses across 3 cascading depth lanes with diverse angles
+    // Generate Right Flank Roses in a single line
     for (let i = 0; i < TOTAL_ROSES_PER_SIDE; i++) {
-      const yPx = 70 + i * STEP_Y;
-      const lane = i % 3;
-      const angleVariant = (i + lane + 2) % 4; // Diverse 3D perspective angles for right flank
-      const xPct = 0.975 - lane * 0.052 - ((i * 17) % 20) * 0.0012;
-      const size = 110 + ((i + 2) % 5) * 28;
-      const rot = (((i + 3) * 43) % 60) - 30;
+      const yPx = 65 + i * STEP_Y;
+      const angleVariant = (i + 2) % 4;
+      const size = 120 + ((i + 1) % 3) * 20;
+      const rot = (((i + 2) * 37) % 40) - 20;
       roseGardenNodes.push({
         side: 'right',
-        lane,
+        lane: 0,
         angleVariant,
-        xPct,
         yPx,
         size,
         rot,
@@ -7918,12 +7911,11 @@ function setupBookingReveal() {
         }
       };
 
+      // 🌿 Draw Single Majestic Climbing Rose Trunk on Left and Right 🌿
       drawTrunk(lTrunk1, 0, false);
-      drawTrunk(lTrunk2, 60, false);
-      drawTrunk(rTrunk1, 40, true);
       drawTrunk(rTrunk2, 100, true);
 
-      // 🌿 1.5 Draw 16 High-Fidelity Botanical Vine Tendril Sprites along Climbing Trellises 🌿
+      // 🌿 1.5 Draw 16 High-Fidelity Botanical Vine Tendril Sprites along the Single Trellis 🌿
       for (let i = 0; i < botanicalTendrilNodes.length; i++) {
         const tNode = botanicalTendrilNodes[i];
         const screenY = tNode.yPx - scrollTop;
@@ -7933,14 +7925,8 @@ function setupBookingReveal() {
         const vImg = vineAssets[tNode.assetIdx];
         if (!vImg || !vImg.complete || vImg.naturalWidth === 0) continue;
 
-        let trunkBaseX, trunkPhase;
-        if (tNode.side === 'left') {
-          trunkBaseX = tNode.lane === 0 ? lTrunk1 : lTrunk2;
-          trunkPhase = tNode.lane === 0 ? 0 : 60;
-        } else {
-          trunkBaseX = tNode.lane === 0 ? rTrunk2 : rTrunk1;
-          trunkPhase = tNode.lane === 0 ? 100 : 40;
-        }
+        const trunkBaseX = tNode.side === 'left' ? lTrunk1 : rTrunk2;
+        const trunkPhase = tNode.side === 'left' ? 0 : 100;
         const trunkActualX = getTrunkX(trunkBaseX, trunkPhase, screenY);
         // Ultra-slow, delicate organic tendril sway
         const sway = Math.sin(timeNow * tNode.swaySpeed + tNode.swayPhase) * 1.6;
@@ -7959,7 +7945,7 @@ function setupBookingReveal() {
         ctx.restore();
       }
 
-      // 2. Draw Blooming Red Velvet Roses at each Node (100% Solid Opacity with 4 Diverse 3D Perspectives)
+      // 2. Draw Blooming Red Velvet Roses along the Single Line (Tek Satır / Tek Hat)
       for (let i = 0; i < roseGardenNodes.length; i++) {
         const node = roseGardenNodes[i];
         const screenY = node.yPx - scrollTop;
@@ -7973,14 +7959,9 @@ function setupBookingReveal() {
           node.currentProgress += (node.targetProgress - node.currentProgress) * 0.35;
         }
 
-        let screenX;
-        if (node.side === 'left') {
-          const laneRatio = node.lane === 0 ? 0.20 : (node.lane === 1 ? 0.52 : 0.84);
-          screenX = Math.max(14, availLeft * laneRatio);
-        } else {
-          const laneRatio = node.lane === 0 ? 0.80 : (node.lane === 1 ? 0.48 : 0.16);
-          screenX = Math.min(w - 14, rightStart + availRight * laneRatio);
-        }
+        const trunkBaseX = node.side === 'left' ? lTrunk1 : rTrunk2;
+        const trunkPhase = node.side === 'left' ? 0 : 100;
+        const screenX = getTrunkX(trunkBaseX, trunkPhase, screenY);
 
         const pack = roseAnglePacks[node.angleVariant] || roseAnglePacks[0];
         const framesArr = roseAngleFrames[node.angleVariant] || roseAngleFrames[0];
