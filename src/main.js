@@ -4118,6 +4118,105 @@ function setupPortalGateway() {
   }
   window.selectCountryGlobal = selectCountryGlobal;
 
+  function returnToCountrySelector() {
+    const csoOverlay = document.getElementById('country-selector-overlay');
+    const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
+    const earthVideo = document.getElementById('csoEarthVideo');
+    
+    if (mapSelectorStage) {
+      mapSelectorStage.style.display = 'none';
+      mapSelectorStage.style.opacity = '0';
+    }
+    if (csoOverlay) {
+      csoOverlay.classList.remove('cso-hidden');
+      csoOverlay.style.display = 'flex';
+      csoOverlay.style.visibility = 'visible';
+      csoOverlay.style.pointerEvents = 'all';
+      csoOverlay.style.opacity = '1';
+      if (earthVideo) {
+        earthVideo.play().catch(() => {});
+      }
+    }
+    document.body.classList.remove('flag-selection-mode');
+  }
+  window.returnToCountrySelector = returnToCountrySelector;
+
+  function returnToCityMap() {
+    const portalStage = document.getElementById('portal-stage');
+    const servicesOverlay = document.getElementById('servicesTextOverlay');
+    const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
+    
+    if (servicesOverlay) {
+      servicesOverlay.classList.remove('active');
+    }
+    if (portalStage) {
+      portalStage.style.display = 'flex';
+      portalStage.style.opacity = '1';
+      portalStage.style.pointerEvents = 'all';
+    }
+    if (mapSelectorStage) {
+      mapSelectorStage.style.display = 'block';
+      mapSelectorStage.style.opacity = '1';
+      mapSelectorStage.style.pointerEvents = 'all';
+      setTimeout(() => {
+        if (window.turkeyMapInstance) window.turkeyMapInstance.invalidateSize();
+        if (window.polandMapInstance) window.polandMapInstance.invalidateSize();
+      }, 150);
+    }
+    document.body.classList.add('flag-selection-mode');
+    window.portalWarping = false;
+  }
+  window.returnToCityMap = returnToCityMap;
+
+  // ── MASTER MOBILE VIDEO LOOP WATCHDOG ENGINE ──
+  function initMobileVideoLoopEngine() {
+    const allVideos = document.querySelectorAll('video');
+    allVideos.forEach(v => {
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+      v.setAttribute('muted', '');
+      v.muted = true;
+
+      v.addEventListener('ended', () => {
+        if (v.hasAttribute('loop') || v.loop) {
+          v.currentTime = 0;
+          v.play().catch(() => {});
+        }
+      });
+    });
+
+    const handleVisibilityResume = () => {
+      if (document.visibilityState === 'visible') {
+        const activeIntro = document.getElementById('portalIntroVideo');
+        if (activeIntro && !activeIntro.paused) activeIntro.play().catch(() => {});
+        const activeEarth = document.getElementById('csoEarthVideo');
+        const cso = document.getElementById('country-selector-overlay');
+        if (activeEarth && cso && !cso.classList.contains('cso-hidden')) activeEarth.play().catch(() => {});
+        const activeIvy = document.getElementById('servicesIvyVideo');
+        const sOverlay = document.getElementById('servicesTextOverlay');
+        if (activeIvy && sOverlay && sOverlay.classList.contains('active')) activeIvy.play().catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityResume, { passive: true });
+    window.addEventListener('pageshow', handleVisibilityResume, { passive: true });
+    window.addEventListener('focus', handleVisibilityResume, { passive: true });
+
+    const unlockMediaOnTouch = () => {
+      allVideos.forEach(v => {
+        if (!v.paused && v.readyState >= 2) v.play().catch(() => {});
+      });
+      document.removeEventListener('touchstart', unlockMediaOnTouch);
+      document.removeEventListener('click', unlockMediaOnTouch);
+    };
+    document.addEventListener('touchstart', unlockMediaOnTouch, { passive: true });
+    document.addEventListener('click', unlockMediaOnTouch, { passive: true });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileVideoLoopEngine);
+  } else {
+    initMobileVideoLoopEngine();
+  }
+
   if (csoBtnTurkey) {
     csoBtnTurkey.addEventListener('click', (e) => {
       e.preventDefault();

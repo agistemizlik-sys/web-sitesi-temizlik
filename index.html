@@ -520,6 +520,9 @@
 
       <!-- 1. Header Bar -->
       <header class="tms-header-bar">
+        <button type="button" class="tms-back-country-btn" id="tmsBackCountryBtn" onclick="if(typeof returnToCountrySelector==='function')returnToCountrySelector();" aria-label="Ülke Seçimine Geri Dön">
+          <span>←</span> <span>Ülke Değiştir</span>
+        </button>
         <div class="tms-logo-group">
           <div class="tms-logo-icon">🏠</div>
           <span>PROFESYONEL TEMİZLİK HİZMETLERİ</span>
@@ -1272,6 +1275,11 @@
                 </svg>
               </div>
               <h3 class="services-select-title">Hangi hizmete ihtiyacınız var?</h3>
+              <div class="services-city-badge-row">
+                <button type="button" class="services-change-city-btn" id="servicesChangeCityBtn" onclick="if(typeof returnToCityMap==='function')returnToCityMap();" aria-label="Şehri Değiştir">
+                  <span>📍</span> <span id="servicesCurrentCityBadge">Şehir Değiştir</span>
+                </button>
+              </div>
               <p class="services-select-subtitle">
                 <span class="sub-line"></span>
                 <span>İhtiyacınıza uygun temizlik paketini seçin.</span>
