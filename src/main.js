@@ -2678,6 +2678,16 @@ function setupPortalIntroClick() {
   const introVideo = document.getElementById('portalIntroVideo');
   if (!introStage) return;
 
+  const isMobile = window.innerWidth <= 768;
+  if (introVideo) {
+    const targetSrc = isMobile ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
+    if (introVideo.getAttribute('src') !== targetSrc) {
+      introVideo.setAttribute('src', targetSrc);
+      introVideo.load();
+      introVideo.play().catch(() => {});
+    }
+  }
+
   let triggered = false;
 
   // Smooth 3D liquid parallax reaction on mouse movement over video
