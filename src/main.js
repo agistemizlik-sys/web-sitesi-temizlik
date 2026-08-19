@@ -2736,6 +2736,9 @@ function setupPortalIntroClick() {
       window.playTickSound();
     }
 
+    document.body.classList.remove('portal-intro-mode');
+    document.body.classList.add('flag-selection-mode');
+
     // Reveal country selector underneath the liquify wipe canvas
     const csoOverlay = document.getElementById('country-selector-overlay');
     if (csoOverlay) {
@@ -2772,10 +2775,10 @@ function setupPortalIntroClick() {
       if (introVideo && !introVideo.paused) {
         try { introVideo.pause(); } catch(err) {}
       }
-      document.body.classList.remove('portal-intro-mode');
-      document.body.classList.add('flag-selection-mode');
-      introStage.style.display = 'none';
-      introStage.remove();
+      if (introStage && introStage.parentNode) {
+        introStage.style.display = 'none';
+        introStage.remove();
+      }
       if (STATE.lenisInstance) {
         STATE.lenisInstance.stop();
       }
@@ -4541,9 +4544,9 @@ function setupPortalGateway() {
 
         ScrollTrigger.refresh();
 
-        // Initialize cinema engine directly at Step 0 (City Intro Card) after city portal closes
+        // Initialize cinema engine directly at Step 1 (Services Selection) after city portal closes
         if (typeof window.goToCinemaStep === 'function') {
-          window.goToCinemaStep(0);
+          window.goToCinemaStep(1);
         }
 
         if (window.history && window.history.pushState) {
@@ -6188,9 +6191,12 @@ function setupCinemaEngine() {
         bgServicesOverlay.classList.add('active');
         bgServicesOverlay.style.display = 'flex';
         bgServicesOverlay.style.opacity = '1';
+        bgServicesOverlay.style.visibility = 'visible';
         bgServicesOverlay.style.pointerEvents = 'all';
         const ivyVid = document.getElementById('servicesIvyVideo');
         if (ivyVid) {
+          ivyVid.muted = true;
+          ivyVid.playsInline = true;
           try {
             const p = ivyVid.play();
             if (p && typeof p.then === 'function') p.catch(() => {});

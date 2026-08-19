@@ -12488,14 +12488,17 @@ iframe[title*="Message preview"] {
     object-position: center !important;
   }
 
-  .services-text-overlay {
-    position: absolute !important;
+  .services-text-overlay.active {
+    display: flex !important;
+    position: fixed !important;
     inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     padding: 64px 10px 110px 10px !important;
+    z-index: 100 !important;
   }
 
   .services-select-card {
