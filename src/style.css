@@ -6330,94 +6330,13 @@ video,
   }
   #servicesTextOverlay.active {
     pointer-events: all !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-y !important;
+    overflow: hidden !important;
     display: flex !important;
-    align-items: flex-start !important;
-    padding: max(82px, calc(68px + 2vh)) 14px 60px !important; /* Proper clearance below floating pill navbar */
     box-sizing: border-box !important;
   }
   #servicesTextOverlay:not(.active) {
     display: none !important;
     pointer-events: none !important;
-  }
-  .services-select-card {
-    margin: auto !important;
-    padding: 0 !important;
-    max-width: 100%;
-    width: 100%;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-  .services-select-title {
-    font-size: 1.25rem;
-    letter-spacing: -0.02em;
-    margin-bottom: 4px;
-  }
-  .services-select-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  @media (max-width: 540px) {
-    .services-select-grid {
-      grid-template-columns: 1fr !important;
-      gap: 10px;
-    }
-  }
-  .service-select-item {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 8px 12px;
-    gap: 8px;
-    border-radius: 16px;
-    min-height: 90px;
-  }
-  .service-select-icon {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
-    margin-top: 0;
-    border-radius: 10px;
-    font-size: 1.15rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .service-select-svg {
-    width: 16px;
-    height: 16px;
-  }
-  .service-select-info {
-    padding-right: 0;
-    text-align: center;
-  }
-  .service-select-info h4 {
-    font-size: 0.78rem;
-    margin-bottom: 0;
-    letter-spacing: 0;
-    line-height: 1.2;
-  }
-  .service-select-info p,
-  .service-select-tags,
-  .service-select-badge {
-    display: none !important;
-  }
-  .service-select-active-indicator {
-    top: 6px;
-    right: 6px;
-    width: 18px;
-    height: 18px;
-  }
-  .service-select-active-indicator svg {
-    width: 9px;
-    height: 9px;
-    stroke-width: 4px;
-  }
-  .service-price-hint {
-    display: none;
   }
   .cinema-intro-card .intro-title {
     font-size: clamp(2rem, 6vw, 3.2rem);
@@ -12500,7 +12419,7 @@ iframe[title*="Message preview"] {
     height: 100vh !important;
     height: 100dvh !important;
     overflow: hidden !important; /* NO VERTICAL SCROLL */
-    padding: calc(env(safe-area-inset-top, 0px) + 68px) 8px calc(env(safe-area-inset-bottom, 0px) + 8px) 8px !important;
+    padding: calc(max(10px, env(safe-area-inset-top, 10px)) + 58px) max(8px, env(safe-area-inset-right, 8px)) max(8px, env(safe-area-inset-bottom, 8px)) max(8px, env(safe-area-inset-left, 8px)) !important;
     z-index: 100 !important;
     box-sizing: border-box !important;
   }

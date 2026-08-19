@@ -6630,14 +6630,15 @@ function setupCinemaEngine() {
       playAcousticSandSnapSound();
     }
 
-    // 2. Exactly 2-Second intentional cadence before animated transition to next stage
+    // 2. Fast responsive animated transition to next stage (300ms on mobile, 700ms on desktop)
+    const transitionCadence = window.innerWidth <= 820 ? 280 : 750;
     setTimeout(() => {
       if (servicesCard) {
         gsap.to(servicesCard, {
           opacity: 0,
-          y: -35,
+          y: -25,
           scale: 0.96,
-          duration: 0.45,
+          duration: 0.3,
           ease: 'power2.in',
           onComplete: () => {
             // Open Booking Screen Calculator pre-populated with chosen service package
@@ -6658,14 +6659,14 @@ function setupCinemaEngine() {
                 continueBtn.innerHTML = `<span>Devam Et</span> <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
               }
               isIvyTransitioning = false;
-            }, 600);
+            }, 400);
           }
         });
       } else {
         if (typeof openBookingScreen === 'function') openBookingScreen();
         isIvyTransitioning = false;
       }
-    }, 2000);
+    }, transitionCadence);
   }
   window.proceedWithIvyTransition = proceedWithIvyTransition;
 
