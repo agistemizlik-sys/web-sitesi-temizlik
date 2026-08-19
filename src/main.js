@@ -8296,18 +8296,40 @@ function setupBookingReveal() {
     // 🌹 Scroll-Driven Card Rose Blooming Engine 🌹
     function setupCardsRoseBlooming() {
       const targets = bookingScreen.querySelectorAll(
-        '.wizard-section-card, .wizard-service-preset-card, .wizard-extra-card, .summary-breakdown-card, .wizard-pay-method-card'
+        '.wizard-section-card, .wizard-service-preset-card, .wizard-extra-card, .summary-breakdown-card, .wizard-pay-method-card, .wizard-property-addons-card'
       );
 
-      targets.forEach((card, idx) => {
+      targets.forEach((card) => {
         if (!card.querySelector('.card-rose-sprig')) {
-          const sprigTop = document.createElement('div');
-          sprigTop.className = 'card-rose-sprig ' + (idx % 2 === 0 ? 'top-left' : 'top-right');
-          card.appendChild(sprigTop);
+          // Top Left Rose
+          const sprigTL = document.createElement('div');
+          sprigTL.className = 'card-rose-sprig top-left';
+          card.appendChild(sprigTL);
 
-          const vineLeaf = document.createElement('div');
-          vineLeaf.className = 'card-vine-leaf ' + (idx % 2 === 0 ? 'leaf-left' : 'leaf-right');
-          card.appendChild(vineLeaf);
+          // Top Right Rose
+          const sprigTR = document.createElement('div');
+          sprigTR.className = 'card-rose-sprig top-right';
+          card.appendChild(sprigTR);
+
+          // Bottom Right Rose
+          const sprigBR = document.createElement('div');
+          sprigBR.className = 'card-rose-sprig bottom-right';
+          card.appendChild(sprigBR);
+
+          // Left Vine Tendril Leaf
+          const vineLeafL = document.createElement('div');
+          vineLeafL.className = 'card-vine-leaf leaf-left';
+          card.appendChild(vineLeafL);
+
+          // Right Vine Tendril Leaf
+          const vineLeafR = document.createElement('div');
+          vineLeafR.className = 'card-vine-leaf leaf-right';
+          card.appendChild(vineLeafR);
+
+          // Full Garland Glow Frame
+          const garlandFrame = document.createElement('div');
+          garlandFrame.className = 'card-rose-garland-frame';
+          card.appendChild(garlandFrame);
         }
       });
 
@@ -8321,26 +8343,29 @@ function setupBookingReveal() {
           const cardBottomRelative = cardRect.bottom - screenRect.top;
 
           let bloom = 0;
-          if (cardTopRelative < vh * 0.92 && cardBottomRelative > 0) {
-            bloom = Math.min(1, Math.max(0, (vh * 0.92 - cardTopRelative) / (vh * 0.45)));
-          } else if (cardTopRelative >= vh * 0.92) {
+          if (cardTopRelative < vh * 0.94 && cardBottomRelative > 0) {
+            bloom = Math.min(1, Math.max(0, (vh * 0.94 - cardTopRelative) / (vh * 0.45)));
+          } else if (cardTopRelative >= vh * 0.94) {
             bloom = 0;
           } else {
             bloom = 1;
           }
 
           card.style.setProperty('--card-rose-bloom', bloom.toFixed(2));
-          if (bloom > 0.15) {
+          if (bloom > 0.12) {
             card.classList.add('card-bloomed');
           } else {
             card.classList.remove('card-bloomed');
           }
 
-          const sprig = card.querySelector('.card-rose-sprig');
-          if (sprig) {
+          const sprigs = card.querySelectorAll('.card-rose-sprig');
+          if (sprigs.length > 0) {
             let frameNum = Math.min(59, Math.max(0, Math.floor(bloom * 59)));
             let frameStr = frameNum < 10 ? `00${frameNum}` : (frameNum < 100 ? `0${frameNum}` : `${frameNum}`);
-            sprig.style.backgroundImage = `url('/images/bloom_rose_frames/rose_${frameStr}.webp')`;
+            const bgUrl = `url('/images/bloom_rose_frames/rose_${frameStr}.webp')`;
+            sprigs.forEach(s => {
+              s.style.backgroundImage = bgUrl;
+            });
           }
         });
       };
