@@ -257,24 +257,30 @@
   <!-- Inline Fast Mobile Video Switcher -->
   <script>
     (function() {
-      if (window.innerWidth <= 768) {
-        document.addEventListener('DOMContentLoaded', function() {
+      var isMobile = (window.innerWidth <= 820) || (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
+      if (isMobile) {
+        function switchMobileVideos() {
           var vIntro = document.getElementById('portalIntroVideo');
-          if (vIntro) {
+          if (vIntro && vIntro.getAttribute('src') !== '/videos/giris_ekrani_mobil.mp4') {
             vIntro.src = '/videos/giris_ekrani_mobil.mp4';
             vIntro.play().catch(function(){});
           }
           var vIvy = document.getElementById('servicesIvyVideo');
-          if (vIvy) {
+          if (vIvy && vIvy.getAttribute('src') !== '/videos/sarmasik_mobil.mp4') {
             vIvy.src = '/videos/sarmasik_mobil.mp4';
             vIvy.play().catch(function(){});
           }
           var vEarth = document.getElementById('csoEarthVideo');
-          if (vEarth) {
+          if (vEarth && vEarth.getAttribute('src') !== '/videos/earth_rotating_mobil.mp4') {
             vEarth.src = '/videos/earth_rotating_mobil.mp4';
             vEarth.play().catch(function(){});
           }
-        });
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', switchMobileVideos);
+        } else {
+          switchMobileVideos();
+        }
       }
     })();
   </script>
