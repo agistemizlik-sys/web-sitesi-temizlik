@@ -9069,6 +9069,25 @@ body.flag-selection-mode .portal-center-hint {
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 197, 94, 0.25);
 }
 
+@media (max-width: 768px) {
+  .relaxax-toast {
+    top: max(16px, env(safe-area-inset-top, 16px));
+    bottom: auto;
+    transform: translateX(-50%) translateY(-100px);
+    width: calc(100% - 28px);
+    max-width: 380px;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    justify-content: center;
+    text-align: center;
+    z-index: 100000000;
+  }
+  .relaxax-toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 /* Trust & Quality Guarantee Strip */
 .wizard-trust-strip {
   display: grid;
