@@ -6445,16 +6445,21 @@ function setupCinemaEngine() {
     }
   });
 
-  // Touch swipe: swipe up = next scene, swipe down = previous scene
+  // Touch swipe: swipe up/left = next scene, swipe down/right = previous scene
   let touchStartY = null;
+  let touchStartX = null;
   window.addEventListener('touchstart', (e) => {
     touchStartY = e.touches[0] ? e.touches[0].clientY : null;
+    touchStartX = e.touches[0] ? e.touches[0].clientX : null;
   }, { passive: true });
   window.addEventListener('touchend', (e) => {
-    if (touchStartY === null) return;
+    if (touchStartY === null || touchStartX === null) return;
     const endY = e.changedTouches[0] ? e.changedTouches[0].clientY : touchStartY;
+    const endX = e.changedTouches[0] ? e.changedTouches[0].clientX : touchStartX;
     const dy = endY - touchStartY;
+    const dx = endX - touchStartX;
     touchStartY = null;
+    touchStartX = null;
     if (portalActive()) return;
     
     const servicesOverlay = document.getElementById('servicesTextOverlay');
@@ -6464,10 +6469,20 @@ function setupCinemaEngine() {
     }
 
     if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer, #main-nav, input, select, textarea, button, a')) return;
-    if (Math.abs(dy) < 50) return; // short movement counts as a tap (click handler)
-    if (gestureDebounced(600)) return;
-    if (dy < 0) stepNext();
-    else stepPrev();
+    
+    const absDy = Math.abs(dy);
+    const absDx = Math.abs(dx);
+    if (absDy < 45 && absDx < 45) return; // Short movement counts as a tap
+
+    if (gestureDebounced(500)) return;
+
+    if (absDy >= absDx) {
+      if (dy < 0) stepNext();
+      else stepPrev();
+    } else {
+      if (dx < 0) stepNext();
+      else stepPrev();
+    }
   }, { passive: true });
 
   // "Continue" button on the services selection card
