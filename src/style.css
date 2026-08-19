@@ -6786,7 +6786,7 @@ body:not(.flag-selection-mode) .portal-map-selector-stage {
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
-  background-color: #050b14;
+  background-color: #0b1528;
 }
 
 .cso-earth-video {
@@ -6801,8 +6801,8 @@ body:not(.flag-selection-mode) .portal-map-selector-stage {
   object-position: center 48%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  opacity: 1;
-  filter: none !important;
+  opacity: 0.95;
+  filter: brightness(1.18) contrast(1.08) saturate(1.25) !important;
 }
 
 .cso-earth-overlay-gradient {
@@ -6812,8 +6812,8 @@ body:not(.flag-selection-mode) .portal-map-selector-stage {
   height: 100%;
   pointer-events: none;
   background: 
-    radial-gradient(ellipse 65% 58% at 50% 50%, #030712 0%, #030712 38%, rgba(3, 7, 18, 0.85) 60%, transparent 88%),
-    linear-gradient(180deg, #030712 0%, rgba(3, 7, 18, 0.75) 12%, transparent 24%, transparent 68%, rgba(3, 7, 18, 0.8) 84%, #030712 96%, #030712 100%);
+    radial-gradient(ellipse 80% 70% at 50% 45%, transparent 0%, rgba(3, 7, 18, 0.2) 60%, rgba(3, 7, 18, 0.6) 100%),
+    linear-gradient(180deg, rgba(3, 7, 18, 0.55) 0%, transparent 18%, transparent 75%, rgba(3, 7, 18, 0.7) 100%);
 }
 
 .cso-ambient {
@@ -6821,7 +6821,7 @@ body:not(.flag-selection-mode) .portal-map-selector-stage {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  background: radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.03) 0%, transparent 65%);
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 65%);
 }
 
 /* ── Top Bar ── */
@@ -7246,7 +7246,9 @@ body:not(.flag-selection-mode) .portal-map-selector-stage {
     justify-content: space-between;
   }
   .cso-earth-overlay-gradient {
-    background: linear-gradient(180deg, #030712 0%, #030712 24%, rgba(3, 7, 18, 0.95) 42%, rgba(3, 7, 18, 0.92) 75%, #030712 100%) !important;
+    background: 
+      radial-gradient(ellipse 90% 75% at 50% 40%, transparent 0%, rgba(3, 7, 18, 0.25) 60%, rgba(3, 7, 18, 0.65) 100%),
+      linear-gradient(180deg, rgba(3, 7, 18, 0.5) 0%, transparent 15%, transparent 75%, rgba(3, 7, 18, 0.7) 100%) !important;
   }
   .cso-topbar {
     padding: 2px 0 6px;
