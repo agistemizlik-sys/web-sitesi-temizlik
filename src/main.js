@@ -2748,6 +2748,14 @@ function setupPortalIntroClick() {
       csoOverlay.style.opacity = '1';
       const earthVideo = document.getElementById('csoEarthVideo');
       if (earthVideo) {
+        const isMob = window.innerWidth <= 768;
+        const targetEarthSrc = isMob ? '/videos/earth_rotating_mobil.mp4' : '/videos/earth_rotating.mp4';
+        if (!earthVideo.getAttribute('src') || earthVideo.getAttribute('src') !== targetEarthSrc) {
+          earthVideo.setAttribute('src', targetEarthSrc);
+          earthVideo.load();
+        }
+        earthVideo.muted = true;
+        earthVideo.playsInline = true;
         try { earthVideo.play().catch(() => {}); } catch(err) {}
       }
     }
