@@ -12522,6 +12522,105 @@ iframe[title*="Message preview"] {
     display: block !important;
   }
 
+  .portal-intro-overlay-content {
+    position: absolute !important;
+    bottom: max(32px, env(safe-area-inset-bottom, 32px)) !important;
+    left: 16px !important;
+    right: 16px !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    background: rgba(15, 23, 42, 0.72) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 24px !important;
+    padding: 20px 16px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .portal-intro-badge {
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    color: #fb7185 !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .portal-intro-title {
+    font-size: 1.25rem !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    line-height: 1.25 !important;
+    margin: 0 0 6px 0 !important;
+  }
+
+  .portal-intro-sub {
+    font-size: 0.76rem !important;
+    color: #cbd5e1 !important;
+    line-height: 1.35 !important;
+    margin: 0 0 16px 0 !important;
+  }
+
+  .portal-intro-start-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    padding: 14px 24px !important;
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+    color: #ffffff !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    border-radius: 30px !important;
+    border: none !important;
+    box-shadow: 0 6px 20px rgba(225, 29, 72, 0.5) !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    animation: introBtnPulse 2s infinite ease-in-out !important;
+  }
+
+  @keyframes introBtnPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(225, 29, 72, 0.5); }
+    50% { transform: scale(1.03); box-shadow: 0 10px 28px rgba(225, 29, 72, 0.7); }
+  }
+
+  /* Fast Mobile City Chips */
+  .mobile-fast-city-chips {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 10px !important;
+  }
+
+  .m-fast-city-btn {
+    padding: 8px 4px !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    border: 1.5px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .m-fast-city-btn.active,
+  .m-fast-city-btn:active {
+    background: #fff1f2 !important;
+    border-color: #e11d48 !important;
+    color: #e11d48 !important;
+    transform: scale(0.98);
+  }
+
   /* 4. Country Selector Overlay on Mobile */
   .country-selector-overlay {
     padding: calc(max(10px, env(safe-area-inset-top, 10px))) max(10px, env(safe-area-inset-right, 10px)) calc(max(10px, env(safe-area-inset-bottom, 10px))) max(10px, env(safe-area-inset-left, 10px)) !important;

@@ -292,6 +292,15 @@
   <!-- ── PORTAL ENTRANCE VIDEO INTRO (Dedicated Mobile Vertical & Desktop Videos) ────────────────────── -->
   <div id="portal-intro-stage" class="portal-intro-stage" aria-label="Giriş Ekranı" role="button" tabindex="0">
     <video id="portalIntroVideo" class="portal-intro-video" src="/videos/giris_ekrani.mp4" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
+    <div class="portal-intro-overlay-content" id="portalIntroOverlayContent">
+      <div class="portal-intro-badge">✨ RELAXAX PREMIUM HİJYEN</div>
+      <h1 class="portal-intro-title">Eviniz İçin Kusursuz Temizlik</h1>
+      <p class="portal-intro-sub">Dakikalar içinde canlı fiyat hesaplayın ve rezervasyon yapın</p>
+      <button type="button" class="portal-intro-start-btn" id="portalIntroStartBtn" aria-label="Hemen Başla">
+        <span>Hemen Başla</span>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
   </div>
   
   <!-- Accessibility skip link -->
@@ -553,6 +562,16 @@
         <button type="button" class="tms-gps-btn" id="tmsUseGpsBtn">
           <span>🎯</span> Konumumu kullan
         </button>
+      </div>
+
+      <!-- 4. Fast Mobile City Chips Bar -->
+      <div class="mobile-fast-city-chips" id="mobileFastCityChips">
+        <button type="button" class="m-fast-city-btn active" data-city="Istanbul" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Istanbul');">📍 İstanbul</button>
+        <button type="button" class="m-fast-city-btn" data-city="Ankara" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Ankara');">📍 Ankara</button>
+        <button type="button" class="m-fast-city-btn" data-city="Izmir" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Izmir');">📍 İzmir</button>
+        <button type="button" class="m-fast-city-btn" data-city="Bursa" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Bursa');">📍 Bursa</button>
+        <button type="button" class="m-fast-city-btn" data-city="Antalya" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Antalya');">📍 Antalya</button>
+        <button type="button" class="m-fast-city-btn" data-city="Mugla" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Bodrum');">📍 Muğla</button>
       </div>
 
       <!-- 5. Main Grid Layout (Map + Selected City Card) -->

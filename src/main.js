@@ -4118,6 +4118,52 @@ function setupPortalGateway() {
   }
   window.selectCountryGlobal = selectCountryGlobal;
 
+  function selectCityGlobal(city) {
+    if (!city) return;
+    setCityState(city, true);
+
+    const portalStage = document.getElementById('portal-stage');
+    const csoOverlay = document.getElementById('country-selector-overlay');
+    const portalIntro = document.getElementById('portal-intro-stage');
+
+    if (portalIntro) {
+      portalIntro.style.display = 'none';
+    }
+    if (csoOverlay) {
+      csoOverlay.style.display = 'none';
+    }
+    if (portalStage) {
+      gsap.to(portalStage, {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'power2.out',
+        onComplete: () => {
+          portalStage.style.display = 'none';
+        }
+      });
+    }
+
+    document.body.classList.remove('flag-selection-mode', 'portal-intro-mode');
+
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+      mainContent.style.display = 'block';
+      mainContent.style.opacity = '1';
+      mainContent.style.pointerEvents = 'all';
+    }
+
+    if (STATE.lenisInstance) {
+      STATE.lenisInstance.start();
+      STATE.lenisInstance.scrollTo(0, { immediate: true });
+    }
+    window.scrollTo(0, 0);
+
+    if (typeof window.goToCinemaStep === 'function') {
+      window.goToCinemaStep(1);
+    }
+  }
+  window.selectCityGlobal = selectCityGlobal;
+
   function returnToCountrySelector() {
     const csoOverlay = document.getElementById('country-selector-overlay');
     const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
@@ -4683,18 +4729,22 @@ function setupPortalGateway() {
       tl.to('#hudTargetLock', { opacity: 0, scale: 0.3, rotation: 35, duration: 0.45, ease: 'power2.in' }, 0);
     }
 
+    const isMob = window.innerWidth <= 820;
+    const warpDuration = isMob ? 0.35 : 1.15;
+    const fadeDuration = isMob ? 0.25 : 0.95;
+
     tl.to('.portal-map-wrapper', {
-      scale: 11,
-      rotationZ: -25,
+      scale: isMob ? 4 : 11,
+      rotationZ: isMob ? -10 : -25,
       rotateX: 0,
       rotateY: 0,
       opacity: 0,
-      duration: 1.15,
+      duration: warpDuration,
       ease: 'power4.in'
     }, 0)
-      .to(portalStage, { opacity: 0, duration: 0.95, ease: 'power2.out' }, '-=0.75')
-      .to('#main-content', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '-=0.45')
-      .to('#main-nav', { opacity: 1, pointerEvents: 'all', duration: 0.6, ease: 'power2.out' }, '<');
+      .to(portalStage, { opacity: 0, duration: fadeDuration, ease: 'power2.out' }, isMob ? '<' : '-=0.75')
+      .to('#main-content', { opacity: 1, pointerEvents: 'all', duration: 0.35, ease: 'power2.out' }, isMob ? '<' : '-=0.45')
+      .to('#main-nav', { opacity: 1, pointerEvents: 'all', duration: 0.35, ease: 'power2.out' }, '<');
   };
 
   showCityPreviewFn = showCityPreview;
@@ -4823,7 +4873,7 @@ function setupPortalGateway() {
   });
 
   // Bind Mobile City Selector Buttons
-  const mobileCityBtns = document.querySelectorAll('.mobile-city-btn');
+  const mobileCityBtns = document.querySelectorAll('.mobile-city-btn, .m-fast-city-btn');
   mobileCityBtns.forEach(btn => {
     const city = btn.dataset.city;
 
@@ -4871,7 +4921,6 @@ function setupPortalGateway() {
     };
 
     btn.addEventListener('click', clickHandler);
-    btn.addEventListener('pointerdown', clickHandler);
     btn.addEventListener('keydown', keyHandler);
 
     portalHotspotListeners.push({ hotspot: btn, clickHandler, keyHandler });
