@@ -4177,6 +4177,13 @@ function setupPortalGateway() {
       v.setAttribute('muted', '');
       v.muted = true;
 
+      // Pre-emptive seamless loop reset to eliminate mobile video decoder 1-frame blackout
+      v.addEventListener('timeupdate', () => {
+        if (v.duration && v.duration > 0.5 && v.currentTime >= v.duration - 0.08) {
+          v.currentTime = 0;
+        }
+      });
+
       v.addEventListener('ended', () => {
         if (v.hasAttribute('loop') || v.loop) {
           v.currentTime = 0;
@@ -6542,14 +6549,22 @@ function setupCinemaEngine() {
   };
 
   const stepNext = () => {
-    if (currentStep < totalSteps - 1) goToStep(currentStep + 1);
+    if (currentStep < totalSteps - 1) {
+      goToStep(currentStep + 1);
+    } else {
+      goToStep(1);
+    }
   };
   const stepPrev = () => {
     if (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) {
       goToStep(4);
       return;
     }
-    if (currentStep > 0) goToStep(currentStep - 1);
+    if (currentStep > 1) {
+      goToStep(currentStep - 1);
+    } else if (currentStep === 1) {
+      goToStep(totalSteps - 1);
+    }
   };
 
   const handleCinemaTap = (e) => {
