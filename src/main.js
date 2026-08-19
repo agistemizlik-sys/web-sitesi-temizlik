@@ -6267,14 +6267,17 @@ function setupCinemaEngine() {
       // (onUpdate wakes the LERP loop: it self-suspends when settled, and these
       // tweens move the targets AFTER goToStep returns — without the wake-up the
       // scene can stay invisible even though its video is playing)
-      gsap.to(cState, {
-        targetRadius: 120,
-        targetX: scenes[activeIdx].irisX,
-        targetY: scenes[activeIdx].irisY,
-        duration: 0.65,
-        ease: 'power2.out',
-        onUpdate: triggerCinemaLoop
-      });
+      const currentScene = scenes && scenes[activeIdx];
+      if (currentScene) {
+        gsap.to(cState, {
+          targetRadius: 120,
+          targetX: currentScene.irisX || 50,
+          targetY: currentScene.irisY || 50,
+          duration: 0.65,
+          ease: 'power2.out',
+          onUpdate: triggerCinemaLoop
+        });
+      }
 
       if (cState.activeIdx !== activeIdx) {
         cState.activeIdx = activeIdx;
