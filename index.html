@@ -291,7 +291,29 @@
   
   <!-- ── PORTAL ENTRANCE VIDEO INTRO (Dedicated Mobile Vertical & Desktop Videos) ────────────────────── -->
   <div id="portal-intro-stage" class="portal-intro-stage" aria-label="Giriş Ekranı" role="button" tabindex="0">
-    <video id="portalIntroVideo" class="portal-intro-video" src="/videos/giris_ekrani.mp4" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
+    <video id="portalIntroVideo" class="portal-intro-video" autoplay muted loop playsinline webkit-playsinline preload="auto" x5-video-player-type="h5" x5-video-player-fullscreen="true">
+      <source id="portalIntroVideoSrcMobile" src="/videos/giris_ekrani_mobil.mp4" media="(max-width: 768px)" type="video/mp4">
+      <source id="portalIntroVideoSrcDesktop" src="/videos/giris_ekrani.mp4" type="video/mp4">
+    </video>
+    <script>
+      (function(){
+        var v = document.getElementById('portalIntroVideo');
+        if (v) {
+          var isMob = window.innerWidth <= 768;
+          var targetSrc = isMob ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
+          v.src = targetSrc;
+          v.muted = true;
+          v.playsInline = true;
+          v.setAttribute('muted', '');
+          v.setAttribute('playsinline', '');
+          v.setAttribute('webkit-playsinline', '');
+          var promise = v.play();
+          if (promise !== undefined) {
+            promise.catch(function(){});
+          }
+        }
+      })();
+    </script>
   </div>
   
   <!-- Accessibility skip link -->

@@ -5341,6 +5341,18 @@ video,
   -webkit-filter: contrast(1.03) brightness(1.02) saturate(1.05) !important;
 }
 
+/* Hide native iOS Safari / Chrome video play overlay buttons and controls */
+video::-webkit-media-controls,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .services-select-card {
   position: relative !important;
   max-width: 1320px !important;
