@@ -5345,12 +5345,12 @@ function setupCinemaEngine() {
     return fallback;
   }
 
-  // Populate module-level scenes array (3 Character Scenes)
+  // Populate module-level scenes array (Empty when cinema character videos are removed)
   scenes = [
-    { video: v1, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 25, xEnd: 70, duration: 12 }, // Mona Lisa (Dusting)
-    { video: v2, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55, duration: 12 }, // Knight (Square)
-    { video: v3, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70, duration: 14 }  // Monk (Landscape)
-  ];
+    v1 ? { video: v1, irisX: 50, irisY: 50, yStart: 0, yEnd: 90, xStart: 25, xEnd: 70, duration: 12 } : null,
+    v2 ? { video: v2, irisX: 50, irisY: 50, yStart: 12, yEnd: 80, xStart: 45, xEnd: 55, duration: 12 } : null,
+    v3 ? { video: v3, irisX: 50, irisY: 50, yStart: 0, yEnd: 100, xStart: 30, xEnd: 70, duration: 14 } : null
+  ].filter(Boolean);
 
   let trigger = null;
 

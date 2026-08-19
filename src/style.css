@@ -12514,72 +12514,21 @@ iframe[title*="Message preview"] {
     font-size: 0.68rem !important;
   }
 
-  /* 6. Steps 2-12: Cinema Section & Character Videos */
-  .cinema-stage,
-  #cinema-section {
-    position: relative !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: -webkit-fill-available !important;
-    overflow: hidden !important;
-    background: #000000 !important;
-  }
-
-  .cinema-video-container {
+  /* 6. Step 1: Services Section & Ivy Ambient Video */
+  .services-ivy-video-wrap {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
     overflow: hidden !important;
+    z-index: 1 !important;
   }
 
-  .cinema-video {
-    position: absolute !important;
-    inset: 0 !important;
+  .services-ivy-bg-video {
     width: 100% !important;
     height: 100% !important;
-    min-width: 100% !important;
-    min-height: 100% !important;
     object-fit: cover !important;
-    -webkit-object-fit: cover !important;
-    display: block !important;
-    background-color: #000000 !important;
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    will-change: transform, opacity !important;
-  }
-
-  /* Specific Character Focal Points Calibrated for Vertical Mobile Displays */
-  #video-scene-1 { object-position: 50% 28% !important; } /* Mona Lisa */
-  #video-scene-2 { object-position: 48% 32% !important; } /* Knight */
-  #video-scene-3 { object-position: 50% 36% !important; } /* Monk */
-  #video-scene-4 { object-position: 50% 30% !important; } /* Samurai */
-  #video-scene-5 { object-position: 52% 34% !important; } /* Cowboy */
-  #video-scene-6 { object-position: 50% 26% !important; } /* Gandalf / Wizard */
-  #video-scene-7 { object-position: 50% 32% !important; } /* Roman */
-  #video-scene-8 { object-position: 50% 38% !important; } /* Sumo */
-  #video-scene-9 { object-position: 50% 28% !important; } /* Victorian */
-  #video-scene-10 { object-position: 50% 32% !important; } /* Viking */
-  #video-scene-11 { object-position: 50% 30% !important; } /* Grandmother */
-  #video-scene-12 { object-position: 50% 36% !important; } /* Astronaut */
-
-  .scene-text-card {
-    padding: 12px 14px !important;
-    border-radius: 16px !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    background: rgba(15, 23, 42, 0.82) !important;
-  }
-
-  /* Floating CTA Dock on Cinema Screen */
-  .cinema-floating-dock {
-    position: fixed !important;
-    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
-    left: 14px !important;
-    right: 14px !important;
-    width: auto !important;
-    z-index: 99999 !important;
+    object-position: center !important;
   }
 
   .cinema-floating-cta {
