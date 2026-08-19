@@ -8851,12 +8851,17 @@ function setupBookingReveal() {
 
   if (bookingRevealScreen) {
     const handleScrollSpy = () => {
-      const scrollPos = bookingRevealScreen.scrollTop + 200;
+      const scrollPos = bookingRevealScreen.scrollTop + 180;
       let activeIndex = 0;
+      const screenRect = bookingRevealScreen.getBoundingClientRect();
       stepSections.forEach((sec, idx) => {
         const el = document.getElementById(sec.id);
-        if (el && el.offsetTop <= scrollPos) {
-          activeIndex = idx;
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const relativeTop = rect.top - screenRect.top + bookingRevealScreen.scrollTop;
+          if (relativeTop <= scrollPos) {
+            activeIndex = idx;
+          }
         }
       });
       stepSections.forEach((sec, idx) => {
@@ -8869,8 +8874,30 @@ function setupBookingReveal() {
         }
       });
     };
-    bookingRevealScreen.addEventListener('scroll', debounce(handleScrollSpy, 50), { passive: true });
+    bookingRevealScreen.addEventListener('scroll', debounce(handleScrollSpy, 40), { passive: true });
   }
+
+  function handleMobileStickyCheckout() {
+    const bookingScreen = document.getElementById('bookingReveal');
+    if (!bookingScreen) return;
+    
+    const step3 = document.getElementById('wizardStep3Section');
+    const nameInput = document.getElementById('cName');
+    const phoneInput = document.getElementById('cPhone');
+    const submitBtn = document.getElementById('btnSubmitBooking');
+    
+    if (nameInput && nameInput.value.trim() && phoneInput && phoneInput.value.trim()) {
+      if (submitBtn) submitBtn.click();
+    } else {
+      if (step3) {
+        step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (nameInput) setTimeout(() => { try { nameInput.focus(); } catch(e){} }, 400);
+      } else if (submitBtn) {
+        submitBtn.click();
+      }
+    }
+  }
+  window.handleMobileStickyCheckout = handleMobileStickyCheckout;
 
   // Promo Code Validation Engine
   const promoInput = document.getElementById('cPromoCode');

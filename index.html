@@ -2660,7 +2660,7 @@
             <span class="m-sticky-lbl">Ödenecek Tutar:</span>
             <span class="m-sticky-price" id="mobileStickyPrice">1.377,50 TL</span>
           </div>
-          <button type="button" class="m-sticky-btn" onclick="document.getElementById('btnSubmitBooking').click();">
+          <button type="button" class="m-sticky-btn" onclick="if(typeof handleMobileStickyCheckout==='function'){handleMobileStickyCheckout();}else{document.getElementById('btnSubmitBooking').click();}">
             <span>Siparişi Tamamla ➔</span>
           </button>
         </div>
