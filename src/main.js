@@ -4025,10 +4025,16 @@ function setupPortalGateway() {
       }
     }
 
+    document.body.classList.add('flag-selection-mode');
+
     if (mapSelectorStage) {
       mapSelectorStage.style.display = 'block';
       mapSelectorStage.style.pointerEvents = 'all';
       mapSelectorStage.style.opacity = '1';
+      setTimeout(() => {
+        if (window.turkeyMapInstance) window.turkeyMapInstance.invalidateSize();
+        if (window.polandMapInstance) window.polandMapInstance.invalidateSize();
+      }, 150);
     }
     const logoContainer = document.querySelector('.portal-logo-container');
     if (logoContainer) logoContainer.style.display = 'none';

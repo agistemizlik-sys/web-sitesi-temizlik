@@ -6662,8 +6662,7 @@ video,
 #portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-logo-container,
 #portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-center-hint,
 #portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-audio-toggle,
-#portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-map-selector-stage,
-body:not(.flag-selection-mode) .portal-map-selector-stage {
+#portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-map-selector-stage {
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
@@ -12400,6 +12399,312 @@ iframe[title*="Message preview"] {
 
   .cso-capsule-desc {
     font-size: 0.65rem !important;
+  }
+
+  /* 4.5. Turkey & Poland Interactive Map Stage on Mobile */
+  #portal-stage {
+    padding: max(10px, env(safe-area-inset-top, 10px)) 8px max(24px, env(safe-area-inset-bottom, 24px)) 8px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .portal-map-selector-stage {
+    display: none;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 12px 10px 20px !important;
+    background: #ffffff !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+    box-sizing: border-box !important;
+  }
+
+  .tms-header-bar {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+
+  .tms-logo-group {
+    font-size: 0.76rem !important;
+    gap: 6px !important;
+  }
+
+  .tms-logo-icon {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .tms-top-center-pill {
+    font-size: 0.7rem !important;
+    padding: 3px 10px !important;
+    margin: 2px 0 !important;
+  }
+
+  .tms-top-actions {
+    gap: 8px !important;
+  }
+
+  .tms-help-btn {
+    font-size: 0.75rem !important;
+  }
+
+  .tms-guarantee-pill {
+    font-size: 0.72rem !important;
+    padding: 4px 10px !important;
+  }
+
+  .tms-title-block {
+    text-align: center !important;
+    margin-bottom: 12px !important;
+  }
+
+  .tms-main-heading {
+    font-size: 1.45rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .tms-main-sub {
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
+    padding: 0 6px !important;
+  }
+
+  .tms-search-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+    max-width: 100% !important;
+    margin-bottom: 14px !important;
+  }
+
+  .tms-search-input {
+    padding: 10px 14px 10px 38px !important;
+    font-size: 0.85rem !important;
+    border-radius: 20px !important;
+  }
+
+  .tms-search-icon {
+    left: 12px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .tms-gps-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px !important;
+    font-size: 0.82rem !important;
+    border-radius: 20px !important;
+  }
+
+  .tms-main-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .portal-map-wrapper {
+    height: 260px !important;
+    border-radius: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    position: relative !important;
+  }
+
+  .portal-leaflet-map {
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  .tms-filters-row {
+    position: absolute !important;
+    top: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 4px 6px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+    max-width: calc(100% - 16px) !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .tms-filter-btn {
+    padding: 4px 8px !important;
+    font-size: 0.68rem !important;
+    white-space: nowrap !important;
+    border-radius: 14px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .tms-near-widget {
+    display: none !important;
+  }
+
+  .tms-map-inset-box {
+    position: absolute !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    z-index: 1000 !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 2px !important;
+    background: #ffffff !important;
+    border-radius: 10px !important;
+  }
+
+  .tms-reset-map-btn {
+    font-size: 0.65rem !important;
+    padding: 4px 8px !important;
+    border-radius: 10px !important;
+  }
+
+  .portal-preview-panel {
+    height: auto !important;
+    min-height: auto !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  .portal-preview-cards .cc-gateway-card {
+    height: auto !important;
+    border-radius: 16px !important;
+  }
+
+  .tms-card-image-header {
+    height: 135px !important;
+  }
+
+  .tms-card-status-badge {
+    left: 10px !important;
+    top: 10px !important;
+    font-size: 0.72rem !important;
+    padding: 4px 10px !important;
+  }
+
+  .tms-card-body {
+    padding: 12px 14px !important;
+  }
+
+  .tms-card-country-tag {
+    font-size: 0.72rem !important;
+  }
+
+  .tms-card-city-name {
+    font-size: 1.25rem !important;
+  }
+
+  .tms-card-desc {
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .tms-card-services-header {
+    font-size: 0.72rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .tms-services-chips {
+    gap: 4px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .tms-service-chip {
+    font-size: 0.68rem !important;
+    padding: 3px 7px !important;
+  }
+
+  .tms-date-box {
+    padding: 8px 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .tms-date-info-title {
+    font-size: 0.65rem !important;
+  }
+
+  .tms-date-info-val {
+    font-size: 0.75rem !important;
+  }
+
+  .tms-select-city-btn {
+    padding: 12px !important;
+    font-size: 0.88rem !important;
+    border-radius: 12px !important;
+  }
+
+  .tms-popular-header {
+    margin-bottom: 10px !important;
+  }
+
+  .tms-popular-title {
+    font-size: 0.92rem !important;
+  }
+
+  .tms-popular-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .tms-city-mini-card {
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+    gap: 8px !important;
+  }
+
+  .tms-mini-thumb {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+
+  .tms-mini-name {
+    font-size: 0.78rem !important;
+  }
+
+  .tms-mini-region {
+    font-size: 0.65rem !important;
+  }
+
+  .tms-trust-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .tms-trust-item {
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+
+  .tms-trust-title {
+    font-size: 0.75rem !important;
+  }
+
+  .tms-trust-desc {
+    font-size: 0.65rem !important;
+  }
+
+  .mobile-city-selector {
+    display: none !important;
   }
 
   /* 5. Step 1: Services Selection Section & Background Ivy Video */
