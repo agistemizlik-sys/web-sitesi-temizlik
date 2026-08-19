@@ -6759,7 +6759,7 @@ function openBookingScreen() {
 
   // Update prices
   updatePriceSliderDisplay();
-  document.body.classList.add('wizard-modal-open');
+  document.body.classList.add('wizard-modal-open', 'booking-open');
   if (typeof window.pauseCinemaLoop === 'function') window.pauseCinemaLoop();
   if (typeof window.startGardenLoop === 'function') window.startGardenLoop();
 }
@@ -6771,7 +6771,7 @@ window.openBookingScreen = openBookingScreen;
 function closeBookingScreen() {
   const bookingEl = document.getElementById('bookingReveal') || bookingRevealEl;
   if (bookingEl && (!bookingEl.hasAttribute('hidden') || bookingEl.classList.contains('active'))) {
-    document.body.classList.remove('wizard-modal-open');
+    document.body.classList.remove('wizard-modal-open', 'booking-open');
     if (typeof window.stopGardenLoop === 'function') window.stopGardenLoop();
     if (typeof window.triggerCinemaLoop === 'function') window.triggerCinemaLoop();
     logDebug('Hiding booking screen.');
@@ -7913,24 +7913,25 @@ function setupBookingReveal() {
       ctx.clearRect(0, 0, w, h);
 
       // Responsive scaling for small/medium mobile and desktop viewports
-      const scaleFactor = w < 480 ? 0.44 : (w < 768 ? 0.60 : (w < 1200 ? 0.85 : 1.0));
+      const isMob = w < 768;
+      const scaleFactor = w < 480 ? 0.32 : (isMob ? 0.44 : (w < 1200 ? 0.85 : 1.0));
 
       // Calculate active central booking card boundaries to position flank roses with 100% page harmony
-      const cardWidth = w < 768 ? (w - 20) : Math.min(1240, Math.max(320, w - 40));
+      const cardWidth = isMob ? (w - 24) : Math.min(1240, Math.max(320, w - 40));
       const cardLeft = Math.max(8, (w - cardWidth) / 2);
       const cardRight = Math.min(w - 8, cardLeft + cardWidth);
 
       // Dedicated breathing margin between cards and flanking botanical rose garden
-      const CARD_MARGIN = w < 768 ? 4 : Math.min(48 * scaleFactor, cardLeft * 0.25);
+      const CARD_MARGIN = isMob ? 2 : Math.min(48 * scaleFactor, cardLeft * 0.25);
       const availLeft = Math.max(10, cardLeft - CARD_MARGIN);
       const rightStart = cardRight + CARD_MARGIN;
       const availRight = Math.max(10, w - rightStart);
 
       // Dynamic Left & Right Margins for Living Root Trellises
-      const lTrunk1 = Math.max(14, availLeft * 0.28);
-      const lTrunk2 = Math.max(26, availLeft * 0.75);
-      const rTrunk1 = rightStart + availRight * 0.25;
-      const rTrunk2 = rightStart + availRight * 0.72;
+      const lTrunk1 = isMob ? 4 : Math.max(14, availLeft * 0.28);
+      const lTrunk2 = isMob ? 10 : Math.max(26, availLeft * 0.75);
+      const rTrunk1 = isMob ? (w - 10) : (rightStart + availRight * 0.25);
+      const rTrunk2 = isMob ? (w - 4) : (rightStart + availRight * 0.72);
 
       const timeNow = performance.now();
 
