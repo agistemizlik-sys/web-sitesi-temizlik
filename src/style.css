@@ -7387,67 +7387,6 @@ body:not(.flag-selection-mode) .portal-map-selector-stage {
   will-change: transform;
 }
 
-.portal-intro-prompt {
-  position: absolute;
-  bottom: max(32px, env(safe-area-inset-bottom, 32px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.portal-intro-tap-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(225, 29, 72, 0.35);
-  color: #ffffff;
-  font-family: 'Cinzel', 'Outfit', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  animation: badgeFloatingGlow 2.5s ease-in-out infinite alternate;
-}
-
-@keyframes badgeFloatingGlow {
-  0% {
-    transform: translateY(0);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(225, 29, 72, 0.2);
-  }
-  100% {
-    transform: translateY(-5px);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 28px rgba(225, 29, 72, 0.5);
-  }
-}
-
-.tap-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #e11d48;
-  box-shadow: 0 0 10px #e11d48;
-  animation: pulseDot 1.5s infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.75); }
-}
-
-.tap-arrow {
-  font-size: 1.1rem;
-  color: #fb7185;
-}
-
 body.portal-intro-mode #portal-stage {
   pointer-events: none !important;
 }
@@ -12485,16 +12424,6 @@ iframe[title*="Message preview"] {
     object-fit: cover !important;
     -webkit-object-fit: cover !important;
     object-position: 50% 28% !important; /* Perfectly centers woman and cleaning motion on mobile */
-  }
-
-  .portal-intro-prompt {
-    bottom: max(24px, env(safe-area-inset-bottom, 24px)) !important;
-  }
-
-  .portal-intro-tap-badge {
-    padding: 10px 20px !important;
-    font-size: 0.82rem !important;
-    border-radius: 30px !important;
   }
 
   /* 4. Country Selector Overlay on Mobile */
