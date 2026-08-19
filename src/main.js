@@ -5230,9 +5230,15 @@ function setupCinemaEngine() {
   const servicesSelectCard = document.querySelector('.services-select-card');
   const serviceSelectItems = document.querySelectorAll('.service-select-item, .service-item-detail');
 
-  // Ensure Ivy background video is ready and playing
+  // Ensure Ivy background video is ready and playing with device-specific optimization
+  const isMobile = window.innerWidth <= 768;
   const ivyVideoEl = document.getElementById('servicesIvyVideo');
   if (ivyVideoEl) {
+    const targetIvySrc = isMobile ? '/videos/sarmasik_mobil.mp4' : '/videos/sarmasik.mp4';
+    if (!ivyVideoEl.getAttribute('src') || ivyVideoEl.getAttribute('src') !== targetIvySrc) {
+      ivyVideoEl.setAttribute('src', targetIvySrc);
+      ivyVideoEl.load();
+    }
     ivyVideoEl.muted = true;
     ivyVideoEl.playsInline = true;
     ivyVideoEl.loop = true;
