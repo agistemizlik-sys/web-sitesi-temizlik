@@ -1817,6 +1817,50 @@ function applyServiceSelectTranslations(lang) {
         desc: 'Dokładne sprzątanie przed lub po przeprowadzce.',
         tags: ['Puste Mieszkanie', 'Wnętrza Szaf', 'Gotowe do Zamieszkania']
       }
+    ],
+    uk: [
+      {
+        badge: '⭐ Найпопулярніша',
+        title: 'Стандартне Прибирання',
+        sub: 'Ідеально для дому',
+        desc: 'Загальний порядок та основна гігієна.',
+        tags: ['Пилосошення', 'Протирання пилу', 'Гігієна поверхонь']
+      },
+      {
+        badge: 'Рекомендована',
+        title: 'Генеральне Прибирання',
+        sub: 'Глибоке прибирання',
+        desc: 'Ретельна гігієна парою та видалення плям.',
+        tags: ['Парова гігієна', 'Важкодоступні місця', 'Видалення плям']
+      },
+      {
+        badge: 'Для Бізнесу',
+        title: 'Прибирання Офісів (B2B)',
+        sub: 'Для офісів та бізнес-приміщень',
+        desc: 'Професійні та регулярні рішення.',
+        tags: ['Офіси та бізнес-центри', 'Гнучкий графік', 'Спеціальний звіт']
+      },
+      {
+        badge: 'Сертифікована',
+        title: 'Дезінфекція',
+        sub: 'Захист від бактерій та шкідників',
+        desc: 'Рішення для контролю бактерій та шкідників.',
+        tags: ['Контроль шкідників', 'Дезінфекція', 'Гігієна приміщення']
+      },
+      {
+        badge: 'Важкий Бруд',
+        title: 'Після Ремонту',
+        sub: 'Чистий простір після будівництва',
+        desc: 'Глибоке прибирання після ремонту та будівництва.',
+        tags: ['Пил та сміття', 'Очищення фарби', 'Вікна та шви']
+      },
+      {
+        badge: 'Легкий Переїзд',
+        title: 'Прибирання До/Після Переїзду',
+        sub: 'Детальна гігієна порожнього житла',
+        desc: 'Детальне прибирання перед або після переїзду.',
+        tags: ['Порожня квартира', 'Всередині шаф', 'Готово до заселення']
+      }
     ]
   };
 
@@ -1852,10 +1896,10 @@ function applyServiceSelectTranslations(lang) {
   const headerSubtitleSpan = document.querySelector('.services-select-subtitle span:nth-child(2)');
 
   if (headerTitle) {
-    headerTitle.textContent = lang === 'pl' ? 'Jakiej usługi potrzebujesz?' : 'Hangi hizmete ihtiyacınız var?';
+    headerTitle.textContent = lang === 'pl' ? 'Jakiej usługi potrzebujesz?' : (lang === 'uk' ? 'Яка послуга вам потрібна?' : 'Hangi hizmete ihtiyacınız var?');
   }
   if (headerSubtitleSpan) {
-    headerSubtitleSpan.textContent = lang === 'pl' ? 'Wybierz pakiet sprzątania dopasowany do Twoich potrzeb.' : 'İhtiyacınıza uygun temizlik paketini seçin.';
+    headerSubtitleSpan.textContent = lang === 'pl' ? 'Wybierz pakiet sprzątania dopasowany do Twoich potrzeb.' : (lang === 'uk' ? 'Оберіть пакет прибирання, що відповідає вашим потребам.' : 'İhtiyacınıza uygun temizlik paketini seçin.');
   }
 
   const continueLabel = document.querySelector('#servicesContinueBtn span');
