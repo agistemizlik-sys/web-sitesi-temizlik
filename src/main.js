@@ -2496,15 +2496,36 @@ function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
   camera.position.z = 1;
 
-  // Snapshot canvas texture for rock-solid frame capturing
+  // Snapshot canvas texture for rock-solid frame capturing on all screen ratios
   const snapCanvas = document.createElement('canvas');
-  snapCanvas.width = Math.min(width, 1920);
-  snapCanvas.height = Math.min(height, 1080);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  snapCanvas.width = Math.min(width * dpr, 1920);
+  snapCanvas.height = Math.min(height * dpr, 1920);
   const sCtx = snapCanvas.getContext('2d');
-  if (introVideo && introVideo.readyState >= 2) {
+  if (introVideo && introVideo.readyState >= 2 && introVideo.videoWidth && introVideo.videoHeight) {
     try {
-      sCtx.drawImage(introVideo, 0, 0, snapCanvas.width, snapCanvas.height);
-    } catch(e) {}
+      const vW = introVideo.videoWidth;
+      const vH = introVideo.videoHeight;
+      const cW = snapCanvas.width;
+      const cH = snapCanvas.height;
+      const vRatio = vW / vH;
+      const cRatio = cW / cH;
+      let sWidth, sHeight, sx, sy;
+      if (cRatio > vRatio) {
+        sWidth = vW;
+        sHeight = vW / cRatio;
+        sx = 0;
+        sy = (vH - sHeight) / 2;
+      } else {
+        sHeight = vH;
+        sWidth = vH * cRatio;
+        sx = (vW - sWidth) / 2;
+        sy = 0;
+      }
+      sCtx.drawImage(introVideo, sx, sy, sWidth, sHeight, 0, 0, cW, cH);
+    } catch(e) {
+      try { sCtx.drawImage(introVideo, 0, 0, snapCanvas.width, snapCanvas.height); } catch(err) {}
+    }
   } else {
     sCtx.fillStyle = '#0f172a';
     sCtx.fillRect(0, 0, snapCanvas.width, snapCanvas.height);
@@ -2728,7 +2749,23 @@ function setupPortalIntroClick() {
       }
     }
 
-    const clickCoords = e && typeof e.clientX === 'number' ? { x: e.clientX, y: e.clientY } : { x: window.innerWidth / 2, y: window.innerHeight * 0.35 };
+    let clickCoords = { x: window.innerWidth / 2, y: window.innerHeight * 0.35 };
+    if (e) {
+      if (e.touches && e.touches[0]) {
+        clickCoords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else if (e.changedTouches && e.changedTouches[0]) {
+        clickCoords = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+      } else if (typeof e.clientX === 'number') {
+        clickCoords = { x: e.clientX, y: e.clientY };
+      }
+    }
+
+    if (typeof window.triggerDust === 'function') {
+      window.triggerDust(clickCoords.x, clickCoords.y);
+    }
+    if (typeof window.playWarpSound === 'function') {
+      window.playWarpSound();
+    }
 
     // Execute Three.js WebGL Liquify Screen Wipe Shader Transition
     runLiquifyScreenWipe(introStage, introVideo, clickCoords, () => {
@@ -2756,7 +2793,7 @@ function setupPortalIntroClick() {
   };
   window.addEventListener('wheel', onWheel, { passive: true });
 
-  // Touch swipe gesture detection
+  // Touch swipe & touch parallax detection
   let touchStartY = 0;
   let touchStartX = 0;
   const onTouchStart = (e) => {
@@ -2767,9 +2804,12 @@ function setupPortalIntroClick() {
   };
   const onTouchMove = (e) => {
     if (e.touches && e.touches[0]) {
+      const nx = (e.touches[0].clientX / window.innerWidth - 0.5) * 14;
+      const ny = (e.touches[0].clientY / window.innerHeight - 0.5) * 14;
+      if (introVideo) introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
       const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
       if (deltaY > 15) {
-        onTriggerIntro({ clientX: touchStartX, clientY: touchStartY });
+        onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
       }
     }
   };
