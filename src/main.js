@@ -2883,12 +2883,14 @@ function setupCorporateModals() {
     document.body.style.overflow = 'hidden';
     if (window.playTickSound) window.playTickSound();
   }
+  window.openCorporateModal = openCorporateModal;
 
   function closeCorporateModal(modalEl) {
     if (!modalEl) return;
     modalEl.style.display = 'none';
     document.body.style.overflow = '';
   }
+  window.closeCorporateModal = closeCorporateModal;
 
   modalConfigs.forEach(cfg => {
     const modalEl = document.getElementById(cfg.id);
@@ -5080,12 +5082,27 @@ function setupMobileDrawer() {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const target = link.dataset.target;
+      const modalTarget = link.dataset.modalTarget;
       closeDrawer();
 
       links.forEach(l => l.classList.remove('active'));
       link.classList.add('active');
 
       setTimeout(() => {
+        if (modalTarget) {
+          const modalEl = document.getElementById(modalTarget);
+          if (modalEl) {
+            if (typeof window.openCorporateModal === 'function') {
+              window.openCorporateModal(modalEl);
+            } else {
+              modalEl.removeAttribute('hidden');
+              modalEl.style.display = 'flex';
+              modalEl.classList.add('active');
+            }
+          }
+          return;
+        }
+
         if (target === 'home') {
           if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(0);
         } else if (target === 'services') {
