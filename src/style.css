@@ -12324,16 +12324,21 @@ iframe[title*="Message preview"] {
 }
 
 /* ==========================================================================
-   13. MASTER FLAWLESS MOBILE OPTIMIZATION SUITE (< 768px & < 480px)
+   13. MASTER FLAWLESS ALL-INCLUSIVE MOBILE OPTIMIZATION SUITE (< 768px & < 480px)
    ========================================================================== */
 @media (max-width: 768px) {
-  /* Prevent horizontal screen shift */
+  /* 1. Universal Layout & Horizontal Shift Immunity */
   html, body {
     overflow-x: hidden !important;
     width: 100vw !important;
     max-width: 100vw !important;
     -webkit-overflow-scrolling: touch;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Universal Media Responsiveness */
+  img, video, canvas, svg {
+    max-width: 100%;
   }
 
   /* Immunity against iOS Safari auto-zoom on input focus */
@@ -12349,7 +12354,198 @@ iframe[title*="Message preview"] {
     touch-action: manipulation;
   }
 
-  /* Booking Reveal Screen Mobile Spacing & Structure */
+  /* 2. Top Floating Pill Navbar on Mobile */
+  .c-floating-navbar {
+    padding: 4px 8px !important;
+    gap: 4px !important;
+    max-width: calc(100vw - 12px) !important;
+    top: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .c-nav-brand-title {
+    font-size: 11px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .c-nav-pill-btn {
+    padding: 6px 8px !important;
+    min-height: 32px !important;
+    font-size: 10.5px !important;
+  }
+
+  .c-nav-whatsapp-pill-btn {
+    padding: 6px 10px !important;
+    min-height: 32px !important;
+    font-size: 10.5px !important;
+  }
+
+  /* 3. Portal / Gateway Screen on Mobile */
+  #portal-intro-stage {
+    padding: 12px !important;
+  }
+
+  .portal-intro-card {
+    width: 100% !important;
+    max-width: 380px !important;
+    padding: 20px 16px !important;
+    border-radius: 22px !important;
+  }
+
+  /* 4. Country Selector Overlay on Mobile */
+  .country-selector-overlay {
+    padding: max(14px, env(safe-area-inset-top)) 10px max(14px, env(safe-area-inset-bottom)) 10px !important;
+  }
+
+  .cso-arch-cards-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    justify-content: center !important;
+  }
+
+  .cso-capsule-card {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    border-radius: 22px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .cso-capsule-media {
+    height: 95px !important;
+  }
+
+  .cso-circle-flag-wrap {
+    width: 32px !important;
+    height: 32px !important;
+    bottom: -16px !important;
+  }
+
+  .cso-capsule-info {
+    padding: 18px 6px 4px 6px !important;
+  }
+
+  .cso-capsule-title {
+    font-size: 0.95rem !important;
+  }
+
+  .cso-capsule-desc {
+    font-size: 0.65rem !important;
+  }
+
+  /* 5. Step 1: Services Selection Section & Background Ivy Video */
+  .services-ivy-video-wrap {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    z-index: 1 !important;
+  }
+
+  .services-ivy-bg-video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  .services-text-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 64px 10px 110px 10px !important;
+  }
+
+  .services-select-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px 12px !important;
+    border-radius: 18px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .services-select-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .service-select-item {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .service-card-bg-img {
+    border-radius: 14px !important;
+    opacity: 0.16 !important;
+  }
+
+  .services-stepper-bar {
+    padding: 8px 10px !important;
+    gap: 4px !important;
+  }
+
+  .stepper-label {
+    font-size: 0.68rem !important;
+  }
+
+  /* 6. Steps 2-12: Cinema Section & Character Videos */
+  .cinema-stage,
+  #cinema-section {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .cinema-video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  .scene-text-card {
+    padding: 12px 14px !important;
+    border-radius: 16px !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    background: rgba(15, 23, 42, 0.82) !important;
+  }
+
+  /* Floating CTA Dock on Cinema Screen */
+  .cinema-floating-dock {
+    position: fixed !important;
+    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+    left: 14px !important;
+    right: 14px !important;
+    width: auto !important;
+    z-index: 99999 !important;
+  }
+
+  .cinema-floating-cta {
+    width: 100% !important;
+    min-height: 48px !important;
+    border-radius: 28px !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+    box-shadow: 0 4px 18px rgba(225, 29, 72, 0.45) !important;
+    color: #ffffff !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+  }
+
+  /* 7. Step 13: Booking Reveal Screen & Wizard Form */
   .booking-reveal-screen {
     padding: 68px 8px 120px 8px !important;
     overflow-x: hidden !important;
@@ -12405,6 +12601,21 @@ iframe[title*="Message preview"] {
     overflow: hidden;
   }
 
+  /* Quick Area Size Chips */
+  .wizard-area-quick-chips {
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .area-chip {
+    flex: 1 1 calc(25% - 6px) !important;
+    min-width: 60px !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+    font-size: 0.76rem !important;
+    border-radius: 10px !important;
+  }
+
   /* Extras Grid on Mobile */
   .wizard-extras-grid {
     grid-template-columns: 1fr 1fr !important;
@@ -12444,6 +12655,26 @@ iframe[title*="Message preview"] {
     touch-action: manipulation;
   }
 
+  .ec-val {
+    font-size: 0.85rem !important;
+    min-width: 20px !important;
+  }
+
+  /* Fragrance Pills */
+  .wizard-fragrance-pills {
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .fragrance-pill {
+    flex: 1 1 calc(33.333% - 6px) !important;
+    min-width: 80px !important;
+    padding: 8px 6px !important;
+    font-size: 0.72rem !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+  }
+
   /* Address Fields on Mobile */
   .wizard-form-row {
     grid-template-columns: 1fr !important;
@@ -12458,6 +12689,19 @@ iframe[title*="Message preview"] {
     grid-template-columns: 1fr 1fr 1fr !important;
   }
 
+  /* Staff Preference & Payment Methods Grid */
+  .wizard-payment-methods-grid,
+  .wizard-staff-pref-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .wizard-pay-method-card,
+  .wizard-staff-pref-card {
+    padding: 12px 10px !important;
+    border-radius: 12px !important;
+  }
+
   /* Sticky Mobile Bottom Bar */
   .mobile-wizard-sticky-bar,
   .mobile-sticky-checkout-bar {
@@ -12465,27 +12709,78 @@ iframe[title*="Message preview"] {
     position: fixed !important;
     inset: auto 0 0 0 !important;
     z-index: 9999999 !important;
-    background: rgba(250, 248, 245, 0.95) !important;
+    background: rgba(250, 248, 245, 0.96) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
     border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
     padding: 10px 14px max(14px, env(safe-area-inset-bottom, 14px)) 14px !important;
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08) !important;
+    align-items: center !important;
+    justify-content: space-between !important;
   }
 
-  /* Step 1 Services Grid on Mobile */
-  .services-text-overlay {
-    padding: 60px 10px 30px 10px !important;
+  .m-sticky-info {
+    display: flex !important;
+    flex-direction: column !important;
   }
 
-  .services-cards-grid {
+  .m-sticky-lbl {
+    font-size: 0.72rem !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+  }
+
+  .m-sticky-price {
+    font-size: 1.25rem !important;
+    font-weight: 900 !important;
+    color: #e11d48 !important;
+  }
+
+  .m-sticky-btn {
+    background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: 28px !important;
+    font-weight: 800 !important;
+    font-size: 0.88rem !important;
+    box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35) !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+
+  .m-sticky-btn:active {
+    transform: scale(0.96) !important;
+  }
+
+  /* 8. Modals Mobile Optimization */
+  .rx-corporate-modal-card {
+    width: 100% !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 30px) !important;
+    border-radius: 20px !important;
+    padding: 16px 12px !important;
+    margin: auto !important;
+  }
+
+  .rx-countries-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .rx-country-card {
+    padding: 10px 8px !important;
+    border-radius: 14px !important;
+  }
+
+  .rx-country-media {
+    height: 80px !important;
+    border-radius: 10px !important;
+  }
+
+  .rx-franchise-pillars {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  .service-card-clean {
-    padding: 18px 14px !important;
-    border-radius: 16px !important;
+    gap: 10px !important;
   }
 }
 
