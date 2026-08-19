@@ -7288,10 +7288,10 @@ video,
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  pointer-events: auto; /* Capture clicks/taps to trigger transition */
+  pointer-events: none; /* Auto-trigger: tıklama artık gerekmiyor */
   background: #000000;
   will-change: transform, opacity;
-  cursor: pointer;
+  cursor: default;
 }
 
 .portal-intro-video {
@@ -12509,7 +12509,7 @@ iframe[title*="Message preview"] {
     overflow: hidden !important;
   }
 
-  /* Background Video Mobile Compatibility Engine */
+  /* ── Mobile Video Full-Cover Engine (Kusursuz Mobil Video Kapsama) ── */
   video,
   .portal-intro-video,
   .cso-earth-video,
@@ -12522,19 +12522,54 @@ iframe[title*="Message preview"] {
     object-position: center center !important;
     width: 100% !important;
     height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
     pointer-events: none !important;
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
   }
 
+  /* Portal Intro Video — tam ekran, kenar boşluğu yok */
   .portal-intro-video {
     position: absolute !important;
     inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100vw !important;
+    height: 100vh !important;
     height: 100dvh !important;
-    min-width: 100% !important;
-    min-height: 100% !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    object-position: center center !important;
     display: block !important;
+  }
+
+  /* Earth/CSO Video — portrait'te dikey fill, bar yok */
+  .cso-earth-video {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    transform: translate(-50%, -50%) translateZ(0) !important;
+    -webkit-transform: translate(-50%, -50%) translateZ(0) !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+  }
+
+  /* Portal intro stage — tam ekran fixed */
+  #portal-intro-stage,
+  .portal-intro-stage {
+    cursor: default !important;
   }
 
   /* Fast Mobile City Chips */

@@ -208,7 +208,7 @@ export async function onRequestPost(context) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-api-key": "hc_live_7x9f2m4a1v8"
+            "x-api-key": (env && env.PANEL_API_KEY) ? env.PANEL_API_KEY : "hc_live_7x9f2m4a1v8"
           },
           body: finalJsonBody,
           signal: ctrl.signal

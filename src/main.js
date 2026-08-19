@@ -2710,6 +2710,7 @@ function setupPortalIntroClick() {
   }
 
   let triggered = false;
+  let autoTimer = null;
 
   // Smooth 3D liquid parallax reaction on mouse movement over video
   const onMouseMove = (e) => {
@@ -2731,6 +2732,7 @@ function setupPortalIntroClick() {
     introStage.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('wheel', onWheel);
     document.removeEventListener('keydown', onKeyDown);
+    if (autoTimer) clearTimeout(autoTimer);
 
     if (window.playTickSound) {
       window.playTickSound();
@@ -2793,7 +2795,14 @@ function setupPortalIntroClick() {
     });
   };
 
-  // Scroll wheel detection for animated entrance scroll
+  // ── AUTO-START: Kullanıcının tıklaması gerekmeden otomatik geçiş ──
+  // Mobilde 1800ms, masaüstünde 2200ms sonra otomatik tetiklenir
+  const autoDelay = isMobile ? 1800 : 2200;
+  autoTimer = setTimeout(() => {
+    onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
+  }, autoDelay);
+
+  // Scroll wheel ile erken tetikleyebilme
   let wheelDeltaAccum = 0;
   const onWheel = (e) => {
     if (triggered) return;
@@ -2833,8 +2842,8 @@ function setupPortalIntroClick() {
     }
   };
 
-  introStage.addEventListener('click', onTriggerIntro);
-  introStage.addEventListener('pointerdown', onTriggerIntro);
+  // Artık tıklama beklenmez — auto-timer tetikler
+  // Sadece erken tetikleme için scroll/touch/key event'leri bırakıldı
   document.addEventListener('keydown', onKeyDown, { once: true });
   window.dismissIntroScreen = onTriggerIntro;
 }
@@ -3848,22 +3857,15 @@ function setupPortalGateway() {
     if (!popularGrid) return;
 
     if (countryCode === 'pl') {
-      if (popularTitle) popularTitle.textContent = '🏠 Popularne Dzielnice & Miasta';
-      if (seeAllLink) seeAllLink.textContent = 'Wszystkie lokalizacje ➔';
+      if (popularTitle) popularTitle.textContent = '🏠 MIASTA';
+      if (seeAllLink) seeAllLink.textContent = 'Zobacz wszystkie miasta ➔';
 
       const plList = [
-        { key: 'Srodmiescie', name: 'Śródmieście', sub: 'Centrum Warszawy', status: '🟢 Dostępne', coords: [52.2300, 21.0100], img: '/images/warszawa_day_landmark.jpg' },
-        { key: 'Mokotow', name: 'Mokotów', sub: 'Warszawa Południe', status: '🟢 Dostępne', coords: [52.1950, 21.0350], img: '/images/warszawa_landmark.webp' },
-        { key: 'Wola', name: 'Wola', sub: 'Biznesowe Centrum', status: '🟢 Dostępne', coords: [52.2380, 20.9650], img: '/images/warszawa_landmark.webp' },
-        { key: 'Ursynow', name: 'Ursynów', sub: 'Dzielnica Południowa', status: '🟢 Dostępne', coords: [52.1400, 21.0450], img: '/images/warszawa_landmark.webp' },
-        { key: 'Wilanow', name: 'Wilanów', sub: 'Miasteczko & Pałac', status: '🟢 Dostępne', coords: [52.1650, 21.0950], img: '/images/warszawa_landmark.webp' },
-        { key: 'Praga-Polnoc', name: 'Praga-Północ', sub: 'Klimatyczna Praga', status: '🟢 Dostępne', coords: [52.2560, 21.0380], img: '/images/warszawa_landmark.webp' },
-        { key: 'Bielany', name: 'Bielany', sub: 'Zielona Dzielnica', status: '🟢 Dostępne', coords: [52.2950, 20.9350], img: '/images/warszawa_landmark.webp' },
-        { key: 'Bemowo', name: 'Bemowo', sub: 'Warszawa Zachód', status: '🟢 Dostępne', coords: [52.2520, 20.9100], img: '/images/warszawa_landmark.webp' },
-        { key: 'Ochota', name: 'Ochota', sub: 'Bliska Warszawa', status: '🟢 Dostępne', coords: [52.2150, 20.9750], img: '/images/warszawa_landmark.webp' },
-        { key: 'Krakow', name: 'Kraków', sub: 'Małopolska', status: '🟡 Wkrótce', coords: [50.0647, 19.9450], isComingSoon: true, img: '/images/warszawa_landmark.webp' },
-        { key: 'Wroclaw', name: 'Wrocław', sub: 'Dolny Śląsk', status: '🟡 Wkrótce', coords: [51.1079, 17.0385], isComingSoon: true, img: '/images/warszawa_landmark.webp' },
-        { key: 'Gdansk', name: 'Gdańsk', sub: 'Trójmiasto', status: '🟡 Wkrótce', coords: [54.3520, 18.6466], isComingSoon: true, img: '/images/warszawa_landmark.webp' }
+        { key: 'Warszawa', name: 'Warszawa (Wszystkie Dzielnice)', sub: 'Mazowsze', status: '🟢 Dostępne', coords: [52.2297, 21.0122], img: '/images/warszawa_landmark.webp' },
+        { key: 'Mokotow', name: 'Mokotów', sub: 'Warszawa', status: '🟢 Dostępne', coords: [52.1950, 21.0350], img: '/images/warszawa_landmark.webp' },
+        { key: 'Srodmiescie', name: 'Śródmieście', sub: 'Warszawa', status: '🟢 Dostępne', coords: [52.2300, 21.0100], img: '/images/warszawa_landmark.webp' },
+        { key: 'Wola', name: 'Wola', sub: 'Warszawa', status: '🟢 Dostępne', coords: [52.2380, 20.9650], img: '/images/warszawa_landmark.webp' },
+        { key: 'Ursynow', name: 'Ursynów', sub: 'Warszawa', status: '🟢 Dostępne', coords: [52.1400, 21.0450], img: '/images/warszawa_landmark.webp' }
       ];
 
       popularGrid.innerHTML = plList.map((item, idx) => `
@@ -3880,7 +3882,7 @@ function setupPortalGateway() {
       bindPopularMiniCardsEvents('pl');
 
     } else {
-      if (popularTitle) popularTitle.textContent = '🏠 Popüler Şehirler';
+      if (popularTitle) popularTitle.textContent = '🏠 ŞEHİRLER';
       if (seeAllLink) seeAllLink.textContent = 'Tüm şehirleri gör ➔';
 
       const trList = [
@@ -3917,8 +3919,21 @@ function setupPortalGateway() {
       const city = mini.dataset.city;
       mini.addEventListener('click', (e) => {
         e.stopPropagation();
+        e.preventDefault();
         cards.forEach(c => c.classList.remove('is-active'));
         mini.classList.add('is-active');
+
+        let targetCity = city;
+        if (country === 'pl') {
+          targetCity = 'Warszawa';
+        }
+
+        if (typeof selectCityGlobal === 'function') {
+          selectCityGlobal(targetCity);
+        } else if (typeof triggerSelectionFn === 'function') {
+          const rect = mini.getBoundingClientRect();
+          triggerSelectionFn(targetCity, rect.left + rect.width / 2, rect.top + rect.height / 2, mini);
+        }
 
         if (country === 'pl') {
           if (typeof showCityPreviewFn === 'function') {
@@ -4934,23 +4949,12 @@ function setupPortalGateway() {
     const city = mini.dataset.city;
     mini.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (typeof showCityPreviewFn === 'function') {
-        showCityPreviewFn(city, mini);
-      }
-      if (window.turkeyMapInstance) {
-        const CITY_COORDS = {
-          Istanbul: [41.0082, 28.9784],
-          Ankara: [39.9334, 32.8597],
-          Izmir: [38.4237, 27.1428],
-          Antalya: [36.8969, 30.7133],
-          Bursa: [40.1885, 29.0610],
-          Kocaeli: [40.7654, 29.9408],
-          Samsun: [41.2928, 36.3313]
-        };
-        const coords = CITY_COORDS[city];
-        if (coords) {
-          window.turkeyMapInstance.flyTo(coords, 9, { duration: 1.2 });
-        }
+      e.preventDefault();
+      if (typeof selectCityGlobal === 'function') {
+        selectCityGlobal(city);
+      } else if (typeof triggerSelectionFn === 'function') {
+        const rect = mini.getBoundingClientRect();
+        triggerSelectionFn(city, rect.left + rect.width / 2, rect.top + rect.height / 2, mini);
       }
     });
   });

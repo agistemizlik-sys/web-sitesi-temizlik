@@ -185,7 +185,7 @@ export async function onRequestPost(context) {
 
 export function onRequestOptions(context) {
   const origin = (context && context.request) ? context.request.headers.get('Origin') : '';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev'))) ? origin : 'https://relaxax.com';
+  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost'))) ? origin : 'https://relaxax.com';
 
   return new Response(null, {
     status: 204,
@@ -195,5 +195,17 @@ export function onRequestOptions(context) {
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',
     },
+  });
+}
+
+export async function onRequest(context) {
+  if (context.request.method === 'POST') return onRequestPost(context);
+  if (context.request.method === 'OPTIONS') return onRequestOptions(context);
+  return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+    status: 405,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
   });
 }
