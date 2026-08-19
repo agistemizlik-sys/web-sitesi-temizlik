@@ -12349,7 +12349,7 @@ iframe[title*="Message preview"] {
 /* ==========================================================================
    13. MASTER FLAWLESS ALL-INCLUSIVE MOBILE OPTIMIZATION SUITE (< 768px & < 480px)
    ========================================================================== */
-@media (max-width: 768px) {
+@media (max-width: 820px) {
   /* 1. Universal Layout & Horizontal Shift Immunity */
   html, body {
     overflow-x: hidden !important;
@@ -12499,121 +12499,230 @@ iframe[title*="Message preview"] {
     width: 100vw !important;
     height: 100vh !important;
     height: 100dvh !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding: calc(env(safe-area-inset-top, 0px) + 84px) 10px calc(env(safe-area-inset-bottom, 0px) + 110px) 10px !important;
+    overflow: hidden !important; /* NO VERTICAL SCROLL */
+    padding: calc(env(safe-area-inset-top, 0px) + 68px) 8px calc(env(safe-area-inset-bottom, 0px) + 8px) 8px !important;
     z-index: 100 !important;
+    box-sizing: border-box !important;
   }
 
   .services-select-card {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 16px 12px !important;
-    border-radius: 18px !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    padding: 8px 8px !important;
+    border-radius: 16px !important;
     margin: 0 auto !important;
     background: rgba(10, 26, 20, 0.92) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
     border: 1px solid rgba(52, 211, 153, 0.25) !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
     color: #ffffff !important;
-  }
-
-  .services-select-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  .service-select-item {
-    padding: 14px 12px !important;
-    border-radius: 14px !important;
-    background: rgba(18, 38, 30, 0.92) !important;
-    border: 1px solid rgba(52, 211, 153, 0.25) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
-  }
-
-  .service-select-item .service-title-group h4 {
-    color: #ffffff !important;
-    font-size: 1.05rem !important;
-    font-weight: 800 !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
-  }
-
-  .service-select-item .service-title-group .service-sub {
-    color: #38bdf8 !important;
-    font-size: 0.76rem !important;
-    font-weight: 600 !important;
-  }
-
-  .service-select-item .service-desc {
-    color: #cbd5e1 !important;
-    font-size: 0.82rem !important;
-    line-height: 1.4 !important;
-  }
-
-  .service-select-item .service-feature-list li {
-    color: #f1f5f9 !important;
-    font-size: 0.78rem !important;
-    font-weight: 500 !important;
-  }
-
-  .service-select-item .service-meta-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
-  }
-
-  .service-select-item .meta-pill {
-    color: #cbd5e1 !important;
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    font-size: 0.72rem !important;
-  }
-
-  .service-select-item .meta-pill.price {
-    color: #ffffff !important;
-  }
-
-  .service-select-item .meta-pill.price strong {
-    color: #34d399 !important;
-    font-size: 0.95rem !important;
-  }
-
-  .service-select-item .service-action-btn {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
-  }
-
-  .service-select-item.selected {
-    background: rgba(16, 185, 129, 0.24) !important;
-    border: 1.5px solid #10b981 !important;
-    box-shadow: 0 0 24px rgba(16, 185, 129, 0.35) !important;
-  }
-
-  .service-select-item.selected .service-action-btn {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-    color: #ffffff !important;
-    border-color: #34d399 !important;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.5) !important;
-  }
-
-  .service-card-bg-img {
-    border-radius: 14px !important;
-    opacity: 0.16 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
   }
 
   .services-stepper-bar {
-    padding: 8px 10px !important;
-    gap: 4px !important;
+    padding: 3px 6px !important;
+    gap: 3px !important;
     background: rgba(0, 0, 0, 0.35) !important;
-    border-radius: 12px !important;
+    border-radius: 10px !important;
+    margin-bottom: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .stepper-num,
+  .stepper-icon {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 0.62rem !important;
   }
 
   .stepper-label {
+    font-size: 0.62rem !important;
+  }
+
+  .services-header-wrap {
+    margin-bottom: 4px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .services-sparkle-icon,
+  .services-select-subtitle {
+    display: none !important;
+  }
+
+  .services-select-title {
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  /* 2-Column x 3-Row Compact Grid fitting perfectly on mobile */
+  .services-select-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: repeat(3, 1fr) !important;
+    gap: 5px !important;
+    flex: 1 1 auto !important;
+    margin: 2px 0 !important;
+    min-height: 0 !important;
+  }
+
+  .service-select-item {
+    padding: 6px 6px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+  }
+
+  .service-card-bg-img {
+    display: none !important;
+  }
+
+  .service-card-top-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1px !important;
+  }
+
+  .service-badge {
+    font-size: 0.52rem !important;
+    padding: 1px 4px !important;
+    border-radius: 4px !important;
+    line-height: 1 !important;
+  }
+
+  .service-check-indicator {
+    width: 13px !important;
+    height: 13px !important;
+    border-radius: 50% !important;
+    font-size: 0.55rem !important;
+  }
+
+  .service-card-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin: 0 !important;
+  }
+
+  .service-icon-box {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    border-radius: 6px !important;
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .service-icon-box svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .service-title-group h4 {
+    color: #0f172a !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    text-shadow: none !important;
+  }
+
+  .service-title-group .service-sub,
+  .service-desc,
+  .service-feature-list,
+  .service-action-btn,
+  .meta-pill:not(.price) {
+    display: none !important;
+  }
+
+  .service-meta-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding-top: 2px !important;
+    margin: 0 !important;
+  }
+
+  .service-meta-row .meta-pill.price {
+    display: flex !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    color: #059669 !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+  }
+
+  .service-meta-row .meta-pill.price strong {
+    color: #059669 !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+  }
+
+  .service-meta-row .meta-pill.price svg {
+    display: none !important;
+  }
+
+  /* Selected Card on Mobile */
+  .service-select-item.selected {
+    background: #ecfdf5 !important;
+    border: 2px solid #10b981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+  }
+
+  .service-select-item.selected .service-title-group h4 {
+    color: #065f46 !important;
+  }
+
+  .service-select-item.selected .service-icon-box {
+    background: #10b981 !important;
+    color: #ffffff !important;
+  }
+
+  .services-footer-action {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    margin-top: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .services-continue-btn {
+    width: 100% !important;
+    padding: 10px 14px !important;
+    font-size: 0.88rem !important;
+    border-radius: 24px !important;
+  }
+
+  .selected-service-text {
     font-size: 0.68rem !important;
+    color: #a7f3d0 !important;
+    text-align: center !important;
+  }
+
+  .services-trust-badges-bar {
+    display: none !important;
   }
 
   /* 6. Step 1: Services Section & Ivy Ambient Video */
