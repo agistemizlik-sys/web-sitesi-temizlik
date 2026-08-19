@@ -12421,32 +12421,76 @@ iframe[title*="Message preview"] {
   #main-nav,
   #main-nav.rx-floating-nav-bar {
     top: max(8px, env(safe-area-inset-top, 8px)) !important;
-    padding: 0 max(8px, env(safe-area-inset-right, 8px)) 0 max(8px, env(safe-area-inset-left, 8px)) !important;
+    padding: 0 8px !important;
     height: auto !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .c-floating-navbar {
-    padding: 4px 8px !important;
-    gap: 4px !important;
+    padding: 4px 10px !important;
+    gap: 6px !important;
+    width: auto !important;
     max-width: calc(100vw - 16px) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45) !important;
+    background: rgba(15, 23, 42, 0.88) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 9999px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
   }
 
-  .c-nav-brand-title {
-    font-size: 11px !important;
+  /* Hide intermediate desktop menu buttons on mobile to avoid overcrowding */
+  .c-nav-dropdown-wrap,
+  #cNavBeforeAfterBtn,
+  #cNavCityMapBtn,
+  #cNavProductsBtn,
+  #cNavPriceCalcBtn {
+    display: none !important;
+  }
+
+  .c-nav-brand-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+
+  .c-nav-brand-title,
+  .c-nav-theme-badge {
+    font-size: 11.5px !important;
     letter-spacing: 0.5px !important;
-  }
-
-  .c-nav-pill-btn {
-    padding: 6px 8px !important;
-    min-height: 32px !important;
-    font-size: 10.5px !important;
+    font-weight: 800 !important;
   }
 
   .c-nav-whatsapp-pill-btn {
-    padding: 6px 10px !important;
+    padding: 6px 12px !important;
     min-height: 32px !important;
-    font-size: 10.5px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
   }
 
   /* 3. Portal / Gateway Screen on Mobile */
