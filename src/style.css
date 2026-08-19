@@ -12257,6 +12257,79 @@ iframe[title*="Message preview"] {
   }
 }
 
+/* 🌹 Scroll-Driven Card Rose Blooming System 🌹 */
+.wizard-section-card,
+.wizard-service-preset-card,
+.wizard-extra-card,
+.summary-breakdown-card,
+.wizard-pay-method-card {
+  position: relative;
+  overflow: visible !important;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s ease;
+}
+
+.card-rose-sprig {
+  position: absolute;
+  pointer-events: none;
+  z-index: 15;
+  width: 44px;
+  height: 44px;
+  background-image: url('/images/bloom_rose_frames/rose_059.webp');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: var(--card-rose-bloom, 0);
+  transform: scale(calc(0.4 + 0.6 * var(--card-rose-bloom, 0))) rotate(calc(-10deg + 15deg * var(--card-rose-bloom, 0)));
+  filter: drop-shadow(0 3px 8px rgba(190, 18, 60, 0.45));
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.card-rose-sprig.top-left {
+  top: -14px;
+  left: -12px;
+}
+
+.card-rose-sprig.top-right {
+  top: -14px;
+  right: -12px;
+  transform: scale(calc(0.4 + 0.6 * var(--card-rose-bloom, 0))) scaleX(-1) rotate(calc(-10deg + 15deg * var(--card-rose-bloom, 0)));
+}
+
+.card-vine-leaf {
+  position: absolute;
+  pointer-events: none;
+  z-index: 14;
+  width: 28px;
+  height: 28px;
+  background-image: url('/images/vines/vine_asset_1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: var(--card-rose-bloom, 0);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.card-vine-leaf.leaf-left {
+  top: 16px;
+  left: -14px;
+  transform: rotate(-35deg) scale(calc(0.5 + 0.5 * var(--card-rose-bloom, 0)));
+}
+
+.card-vine-leaf.leaf-right {
+  bottom: 12px;
+  right: -14px;
+  transform: rotate(145deg) scale(calc(0.5 + 0.5 * var(--card-rose-bloom, 0)));
+}
+
+.wizard-section-card.card-bloomed {
+  border-color: rgba(225, 29, 72, 0.35) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 0 20px rgba(225, 29, 72, 0.08) !important;
+}
+
+.wizard-service-preset-card.card-bloomed,
+.wizard-extra-card.card-bloomed {
+  border-color: rgba(244, 63, 94, 0.45) !important;
+}
+
 @media (max-width: 640px) {
   .rose-vine-branch {
     width: 48px;
@@ -13162,6 +13235,32 @@ iframe[title*="Message preview"] {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* Mobile Card Rose Blooming Sprigs */
+  .card-rose-sprig {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .card-rose-sprig.top-left {
+    top: -10px !important;
+    left: -8px !important;
+  }
+  .card-rose-sprig.top-right {
+    top: -10px !important;
+    right: -8px !important;
+  }
+  .card-vine-leaf {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .card-vine-leaf.leaf-left {
+    top: 10px !important;
+    left: -10px !important;
+  }
+  .card-vine-leaf.leaf-right {
+    bottom: 8px !important;
+    right: -10px !important;
   }
 
   /* Quick Area Size Chips */

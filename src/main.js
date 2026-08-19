@@ -8293,6 +8293,65 @@ function setupBookingReveal() {
       }
     };
 
+    // 🌹 Scroll-Driven Card Rose Blooming Engine 🌹
+    function setupCardsRoseBlooming() {
+      const targets = bookingScreen.querySelectorAll(
+        '.wizard-section-card, .wizard-service-preset-card, .wizard-extra-card, .summary-breakdown-card, .wizard-pay-method-card'
+      );
+
+      targets.forEach((card, idx) => {
+        if (!card.querySelector('.card-rose-sprig')) {
+          const sprigTop = document.createElement('div');
+          sprigTop.className = 'card-rose-sprig ' + (idx % 2 === 0 ? 'top-left' : 'top-right');
+          card.appendChild(sprigTop);
+
+          const vineLeaf = document.createElement('div');
+          vineLeaf.className = 'card-vine-leaf ' + (idx % 2 === 0 ? 'leaf-left' : 'leaf-right');
+          card.appendChild(vineLeaf);
+        }
+      });
+
+      const updateCardsBloom = () => {
+        const vh = bookingScreen.clientHeight || 800;
+        const screenRect = bookingScreen.getBoundingClientRect();
+
+        targets.forEach((card) => {
+          const cardRect = card.getBoundingClientRect();
+          const cardTopRelative = cardRect.top - screenRect.top;
+          const cardBottomRelative = cardRect.bottom - screenRect.top;
+
+          let bloom = 0;
+          if (cardTopRelative < vh * 0.92 && cardBottomRelative > 0) {
+            bloom = Math.min(1, Math.max(0, (vh * 0.92 - cardTopRelative) / (vh * 0.45)));
+          } else if (cardTopRelative >= vh * 0.92) {
+            bloom = 0;
+          } else {
+            bloom = 1;
+          }
+
+          card.style.setProperty('--card-rose-bloom', bloom.toFixed(2));
+          if (bloom > 0.15) {
+            card.classList.add('card-bloomed');
+          } else {
+            card.classList.remove('card-bloomed');
+          }
+
+          const sprig = card.querySelector('.card-rose-sprig');
+          if (sprig) {
+            let frameNum = Math.min(59, Math.max(0, Math.floor(bloom * 59)));
+            let frameStr = frameNum < 10 ? `00${frameNum}` : (frameNum < 100 ? `0${frameNum}` : `${frameNum}`);
+            sprig.style.backgroundImage = `url('/images/bloom_rose_frames/rose_${frameStr}.webp')`;
+          }
+        });
+      };
+
+      bookingScreen.addEventListener('scroll', updateCardsBloom, { passive: true });
+      updateCardsBloom();
+      return updateCardsBloom;
+    }
+
+    const cardsBloomUpdater = setupCardsRoseBlooming();
+
     bookingScreen.addEventListener('scroll', updateRoseProgress, { passive: true });
 
     // Subtle Romantic Rose Petal Breeze when scrolled into view
@@ -8305,8 +8364,12 @@ function setupBookingReveal() {
     setTimeout(() => {
       resizeCanvas();
       updateRoseProgress();
+      if (typeof cardsBloomUpdater === 'function') cardsBloomUpdater();
     }, 50);
-    window.updateRoseVineProgress = updateRoseProgress;
+    window.updateRoseVineProgress = () => {
+      updateRoseProgress();
+      if (typeof cardsBloomUpdater === 'function') cardsBloomUpdater();
+    };
   }
 
   window.triggerRoseGrandBlossom = function() {
