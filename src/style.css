@@ -12554,9 +12554,13 @@ iframe[title*="Message preview"] {
     width: 100vw !important;
     height: 100vh !important;
     height: 100dvh !important;
+    height: -webkit-fill-available !important;
     min-width: 100vw !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
+    min-height: -webkit-fill-available !important;
+    object-fit: cover !important;
+    -webkit-object-fit: cover !important;
     object-position: center center !important;
     display: block !important;
   }
@@ -12569,12 +12573,35 @@ iframe[title*="Message preview"] {
     width: 100vw !important;
     height: 100vh !important;
     height: 100dvh !important;
+    height: -webkit-fill-available !important;
     min-width: 100vw !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
+    min-height: -webkit-fill-available !important;
     transform: translate(-50%, -50%) translateZ(0) !important;
     -webkit-transform: translate(-50%, -50%) translateZ(0) !important;
     object-fit: cover !important;
+    -webkit-object-fit: cover !important;
+    object-position: center center !important;
+  }
+
+  /* Services Ivy Video — portrait'te dikey fill */
+  .services-ivy-bg-video {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    min-height: -webkit-fill-available !important;
+    transform: translate(-50%, -50%) translateZ(0) !important;
+    -webkit-transform: translate(-50%, -50%) translateZ(0) !important;
+    object-fit: cover !important;
+    -webkit-object-fit: cover !important;
     object-position: center center !important;
   }
 
@@ -12582,6 +12609,11 @@ iframe[title*="Message preview"] {
   #portal-intro-stage,
   .portal-intro-stage {
     cursor: default !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
+    overflow: hidden !important;
   }
 
   /* Fast Mobile City Chips */
