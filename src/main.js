@@ -356,7 +356,12 @@ class CyberSynth {
 
 synth = new CyberSynth();
 
-window.playTickSound = () => { if (synth) synth.playTick(); };
+window.playTickSound = () => {
+  if (synth) synth.playTick();
+  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+    try { navigator.vibrate(8); } catch (e) {}
+  }
+};
 window.playClickSound = () => { if (synth) synth.playClick(); };
 window.playWarpSound = () => { if (synth) synth.playWarp(); };
 
