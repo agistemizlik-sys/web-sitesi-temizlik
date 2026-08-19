@@ -6838,6 +6838,10 @@ function openBookingScreen() {
       }
     });
   }
+  const ivyVideo = document.getElementById('servicesIvyVideo');
+  if (ivyVideo && !ivyVideo.paused) {
+    try { ivyVideo.pause(); } catch(e) {}
+  }
 
   // Pause Lenis smooth scroll so user can freely scroll inside overlay
   if (STATE.lenisInstance) {
@@ -6932,6 +6936,11 @@ function closeBookingScreen() {
     if (mainNav) {
       mainNav.style.visibility = 'visible';
       gsap.to(mainNav, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+    }
+
+    const ivyVideo = document.getElementById('servicesIvyVideo');
+    if (ivyVideo && ivyVideo.paused) {
+      try { ivyVideo.play().catch(() => {}); } catch(e) {}
     }
   }
 }
@@ -8097,9 +8106,11 @@ function setupBookingReveal() {
               ctx.scale(-1, 1);
             }
             ctx.rotate((stemSway * Math.PI) / 180);
-            ctx.shadowColor = 'rgba(15, 35, 20, 0.25)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 4;
+            if (!isMob) {
+              ctx.shadowColor = 'rgba(15, 35, 20, 0.25)';
+              ctx.shadowBlur = 10;
+              ctx.shadowOffsetY = 4;
+            }
             ctx.drawImage(mainStemImg, -segmentW * 0.5, -segmentH * 0.5, segmentW, segmentH);
             ctx.restore();
           }
@@ -8133,9 +8144,11 @@ function setupBookingReveal() {
           ctx.scale(-1, 1); // Natural organic reflection for right flank
         }
         ctx.rotate((currentRot * Math.PI) / 180);
-        ctx.shadowColor = 'rgba(15, 35, 20, 0.25)';
-        ctx.shadowBlur = 6;
-        ctx.shadowOffsetY = 3;
+        if (!isMob) {
+          ctx.shadowColor = 'rgba(15, 35, 20, 0.25)';
+          ctx.shadowBlur = 6;
+          ctx.shadowOffsetY = 3;
+        }
         ctx.drawImage(vImg, -size * 0.25, -size * 0.5, size, size);
         ctx.restore();
       }
@@ -8170,9 +8183,11 @@ function setupBookingReveal() {
           ctx.save();
           ctx.translate(screenX, screenY);
           ctx.rotate((swayAngle * Math.PI) / 180);
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-          ctx.shadowBlur = 12;
-          ctx.shadowOffsetY = 5;
+          if (!isMob) {
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+            ctx.shadowBlur = 12;
+            ctx.shadowOffsetY = 5;
+          }
           ctx.drawImage(img, -size / 2, -size / 2, size, size);
           ctx.restore();
         }
@@ -8180,13 +8195,22 @@ function setupBookingReveal() {
       ctx.restore();
     }
 
-    // Controlled High-FPS Animation Loop
-    function gardenAnimLoop() {
+    // Controlled High-FPS Animation Loop (30 FPS throttle on mobile for 100% fluid scroll)
+    let lastGardenRenderTime = 0;
+    function gardenAnimLoop(now) {
       if (!bookingScreen || bookingScreen.style.display === 'none') {
         gardenRafId = null;
         return;
       }
-      renderGarden();
+      const isMobDevice = window.innerWidth <= 820;
+      if (isMobDevice) {
+        if (!now || now - lastGardenRenderTime >= 33) {
+          lastGardenRenderTime = now || performance.now();
+          renderGarden();
+        }
+      } else {
+        renderGarden();
+      }
       gardenRafId = requestAnimationFrame(gardenAnimLoop);
     }
 

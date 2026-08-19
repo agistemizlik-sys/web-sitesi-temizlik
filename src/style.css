@@ -12279,6 +12279,27 @@ iframe[title*="Message preview"] {
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Mobile 60-120 FPS GPU Acceleration & Filter Relaxation */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .c-floating-navbar,
+  .services-select-card,
+  .cc-gateway-card,
+  .tms-styled-card,
+  .country-selector-overlay,
+  .cso-capsule-card,
+  .modal-wrapper,
+  .rx-corporate-modal-card,
+  .mobile-wizard-sticky-bar {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+
   /* Universal Media Responsiveness */
   img, video, canvas, svg {
     max-width: 100%;
