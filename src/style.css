@@ -13339,7 +13339,22 @@ iframe[title*="Message preview"] {
     transform: scale(0.96) !important;
   }
 
-  /* 8. Modals Mobile Optimization */
+  /* 8. Modals & Drawers Mobile Optimization */
+  .modal-wrapper {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - 30px) !important;
+    padding: 24px 14px 18px !important;
+    border-radius: 20px !important;
+    margin: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .mobile-menu-drawer {
+    width: min(320px, 85vw) !important;
+    padding: calc(max(10px, env(safe-area-inset-top, 10px)) + 12px) 16px max(14px, env(safe-area-inset-bottom, 14px)) 16px !important;
+  }
+
   .rx-corporate-modal-card {
     width: 100% !important;
     max-width: calc(100vw - 20px) !important;
@@ -13369,10 +13384,16 @@ iframe[title*="Message preview"] {
     gap: 10px !important;
   }
 
-  /* 9. Floating Buttons & Modals Safe-Area Support */
+  /* 9. Floating Buttons, Docks & Modals Safe-Area Support */
   .custom-tawk-launcher-dock {
     bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
     right: max(14px, env(safe-area-inset-right, 14px)) !important;
+  }
+
+  #floatingCtaDock,
+  .cinema-floating-dock {
+    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+    right: 76px !important;
   }
 
   .booking-close-btn {
