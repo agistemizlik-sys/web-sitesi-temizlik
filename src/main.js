@@ -911,8 +911,8 @@ function applyBookingTranslations(dict, lang) {
   // 1. Customer Type Buttons
   const tabPersonBtn = document.getElementById('tabPersonBtn');
   const tabBusinessBtn = document.getElementById('tabBusinessBtn');
-  if (tabPersonBtn) tabPersonBtn.textContent = lang === 'pl' ? 'Osoba prywatna' : 'Özel kişi';
-  if (tabBusinessBtn) tabBusinessBtn.textContent = lang === 'pl' ? 'Firma / Biuro' : 'İşletme';
+  if (tabPersonBtn) tabPersonBtn.innerHTML = lang === 'pl' ? '👤 Osoba prywatna' : '👤 Bireysel';
+  if (tabBusinessBtn) tabBusinessBtn.innerHTML = lang === 'pl' ? '🏢 Firma / Biuro' : '🏢 Kurumsal';
 
   // 2. Section Titles
   const aptTitle = document.getElementById('wizardApartmentSecTitle');
