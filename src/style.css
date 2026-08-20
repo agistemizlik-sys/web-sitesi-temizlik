@@ -12116,6 +12116,21 @@ iframe[title*="Message preview"] {
   z-index: 9999;
 }
 
+.rose-scroll-tracker-container,
+.rose-garden-master-canvas,
+.rose-petals-overlay,
+.rose-petal-particle,
+.card-rose-sprig,
+.card-rose-garland-frame,
+#roseScrollTracker,
+#roseGardenCanvas,
+#rosePetalsOverlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .rose-scroll-tracker-container {
   position: fixed;
   inset: 0;

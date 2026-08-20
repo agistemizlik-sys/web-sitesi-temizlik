@@ -7853,6 +7853,7 @@ function setupBookingReveal() {
   // 🌹 Ultra-Luxury Rose & Botanical Root Vine Scroll Progression System 🌹
   // 🌹 Ultra-Luxury Multi-Node Botanical Rose Garden Scattered Bloom Engine 🌹
   function initRoseScrollVineSystem() {
+    return; // Roses completely removed as per user request
     const bookingScreen = document.getElementById('bookingReveal');
     if (!bookingScreen) return;
 
