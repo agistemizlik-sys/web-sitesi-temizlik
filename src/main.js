@@ -9648,8 +9648,12 @@ function setupBookingReveal() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
-      const res = await fetch('/api/leads', { method: 'HEAD', signal: controller.signal });
+      const res = await fetch('/api/health', { method: 'GET', signal: controller.signal });
       clearTimeout(timeoutId);
+      if (res && res.ok) {
+        const data = await res.json();
+        return { status: 'online', ok: true, data };
+      }
       return { status: 'online', ok: res.ok };
     } catch(e) {
       return { status: 'offline_fallback_active', ok: true };
