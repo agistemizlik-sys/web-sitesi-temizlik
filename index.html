@@ -294,11 +294,23 @@
     <video id="portalIntroVideo" class="portal-intro-video" autoplay muted loop playsinline webkit-playsinline preload="auto" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
     <script>
       (function(){
+        function attachSeamlessLoop(video) {
+          if (!video) return;
+          video.addEventListener('ended', function() {
+            try {
+              video.currentTime = 0;
+              var p = video.play();
+              if (p !== undefined) p.catch(function(){});
+            } catch(e){}
+          });
+        }
+
         function setMobileVideoSources() {
           var isMob = (window.innerWidth <= 820) || (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
           
           var intro = document.getElementById('portalIntroVideo');
           if (intro) {
+            attachSeamlessLoop(intro);
             var targetIntro = isMob ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
             if (intro.getAttribute('src') !== targetIntro) {
               intro.setAttribute('src', targetIntro);
@@ -314,6 +326,7 @@
 
           var earth = document.getElementById('csoEarthVideo');
           if (earth) {
+            attachSeamlessLoop(earth);
             var targetEarth = isMob ? '/videos/earth_rotating_mobil.mp4' : '/videos/earth_rotating.mp4';
             if (earth.getAttribute('src') !== targetEarth) {
               earth.setAttribute('src', targetEarth);
@@ -326,6 +339,7 @@
 
           var ivy = document.getElementById('servicesIvyVideo');
           if (ivy) {
+            attachSeamlessLoop(ivy);
             var targetIvy = isMob ? '/videos/sarmasik_mobil.mp4' : '/videos/sarmasik.mp4';
             if (ivy.getAttribute('src') !== targetIvy) {
               ivy.setAttribute('src', targetIvy);
