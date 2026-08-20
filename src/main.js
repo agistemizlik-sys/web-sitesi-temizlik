@@ -9585,6 +9585,9 @@ function setupBookingReveal() {
 
   function saveLeadOffline(payload) {
     try {
+      if (payload && typeof payload === 'object') {
+        if (payload.synced === undefined) payload.synced = false;
+      }
       const existing = JSON.parse(localStorage.getItem('relaxax_booking_history') || '[]');
       existing.unshift(payload);
       localStorage.setItem('relaxax_booking_history', JSON.stringify(existing.slice(0, 50)));
@@ -9616,6 +9619,45 @@ function setupBookingReveal() {
   window.getBookingHistoryGlobal = getBookingHistory;
   window.getLastBookingGlobal = getLastBooking;
   window.clearBookingHistoryGlobal = clearBookingHistory;
+
+  function syncOfflineLeads() {
+    if (!navigator.onLine) return;
+    try {
+      const history = getBookingHistory();
+      const unsynced = history.filter(item => item && item.synced === false);
+      if (unsynced.length === 0) return;
+
+      unsynced.forEach(lead => {
+        fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': 'hc_live_7x9f2m4a1v8' },
+          body: JSON.stringify(lead)
+        }).then(res => {
+          if (res && res.ok) {
+            lead.synced = true;
+            localStorage.setItem('relaxax_booking_history', JSON.stringify(history));
+          }
+        }).catch(() => {});
+      });
+    } catch(e) {}
+  }
+
+  window.addEventListener('online', syncOfflineLeads);
+
+  async function checkBackendHealth() {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch('/api/leads', { method: 'HEAD', signal: controller.signal });
+      clearTimeout(timeoutId);
+      return { status: 'online', ok: res.ok };
+    } catch(e) {
+      return { status: 'offline_fallback_active', ok: true };
+    }
+  }
+
+  window.syncOfflineLeadsGlobal = syncOfflineLeads;
+  window.checkBackendHealthGlobal = checkBackendHealth;
 
   const doSubmit = (e) => {
     if (e) {
