@@ -9592,7 +9592,30 @@ function setupBookingReveal() {
       logErrorDebug('Failed to save lead offline:', e);
     }
   }
+  
+  function getBookingHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('relaxax_booking_history') || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function getLastBooking() {
+    const history = getBookingHistory();
+    return history.length > 0 ? history[0] : null;
+  }
+
+  function clearBookingHistory() {
+    try {
+      localStorage.removeItem('relaxax_booking_history');
+    } catch (e) {}
+  }
+
   window.saveLeadOfflineGlobal = saveLeadOffline;
+  window.getBookingHistoryGlobal = getBookingHistory;
+  window.getLastBookingGlobal = getLastBooking;
+  window.clearBookingHistoryGlobal = clearBookingHistory;
 
   const doSubmit = (e) => {
     if (e) {
