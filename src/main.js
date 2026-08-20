@@ -10713,6 +10713,15 @@ function setupAudioToggle() {
     document.removeEventListener('keydown', enableAudioCtx);
   };
   document.addEventListener('click', enableAudioCtx);
-  document.addEventListener('keydown', enableAudioCtx);
 }
+
+// Register Enterprise PWA Service Worker for offline asset caching
+if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[PWA] Service Worker active:', reg.scope))
+      .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+  });
+}
+
 

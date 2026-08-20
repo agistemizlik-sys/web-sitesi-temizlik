@@ -1,0 +1,57 @@
+/**
+ * RELAXAX Enterprise Offline PWA Service Worker
+ * Stale-While-Revalidate & Cache First Asset Caching Engine
+ */
+
+const CACHE_NAME = 'relaxax-pwa-v2.5.0';
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/favicon.svg',
+  '/site.webmanifest'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS);
+    }).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+
+  // Skip caching for API endpoints
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Stale-While-Revalidate for HTML, CSS, JS, and Images
+  event.respondWith(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cachedResponse = await cache.match(event.request);
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
+    })
+  );
+});
