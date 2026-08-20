@@ -9475,6 +9475,8 @@ function setupBookingReveal() {
       });
     });
 
+    saveLeadOffline(leadPayload);
+
     // Tracking Event Triggers
     try {
       trackConversion('generate_lead', { city: city, service: serviceText, lang: STATE.language, user: { name: name, phone: phone } });
@@ -9565,10 +9567,20 @@ function setupBookingReveal() {
       if (revealScreen) {
         revealScreen.scrollTo({ top: 0, behavior: 'smooth' });
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       targetSuccessEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
+
+  function saveLeadOffline(payload) {
+    try {
+      const existing = JSON.parse(localStorage.getItem('relaxax_booking_history') || '[]');
+      existing.unshift(payload);
+      localStorage.setItem('relaxax_booking_history', JSON.stringify(existing.slice(0, 50)));
+    } catch (e) {
+      logErrorDebug('Failed to save lead offline:', e);
+    }
+  }
+  window.saveLeadOfflineGlobal = saveLeadOffline;
 
   const doSubmit = (e) => {
     if (e) {
