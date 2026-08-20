@@ -31,6 +31,18 @@ function escapeHTML(str) {
     .replace(/'/g, '&#039;');
 }
 
+// Input Sanitizer against control characters, XSS, null bytes, and payload overflow
+function sanitizeInputVal(val, maxLen = 255) {
+  if (val === null || val === undefined) return '';
+  let str = String(val).trim();
+  str = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  if (str.length > maxLen) {
+    str = str.substring(0, maxLen);
+  }
+  return escapeHTML(str);
+}
+window.sanitizeInputValGlobal = sanitizeInputVal;
+
 // Global window exception tracker writing directly to our visual screen logger when in debug mode
 window.onerror = function(message, source, lineno, colno, error) {
   if (DEBUG) {
