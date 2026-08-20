@@ -3682,10 +3682,13 @@ async function initLeafletMap(country) {
     }, 300);
 
     setTimeout(() => {
-      gsap.fromTo('#portalNeonMap .hotspot-core',
-        { scale: 0 },
-        { scale: 1, duration: 0.6, stagger: 0.02, ease: 'back.out(1.7)', overwrite: 'auto' }
-      );
+      const targets = document.querySelectorAll('#portalNeonMap .hotspot-core');
+      if (targets.length > 0) {
+        gsap.fromTo(targets,
+          { scale: 0 },
+          { scale: 1, duration: 0.6, stagger: 0.02, ease: 'back.out(1.7)', overwrite: 'auto' }
+        );
+      }
     }, 150);
 
   } else if (country === 'poland') {
@@ -3770,10 +3773,13 @@ async function initLeafletMap(country) {
     setTimeout(updateZoomClass, 400);
 
     setTimeout(() => {
-      gsap.fromTo('#portalNeonMapPoland .map-hotspot',
-        { opacity: 0, scale: 0 },
-        { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: 'back.out(1.7)', overwrite: 'auto' }
-      );
+      const targets = document.querySelectorAll('#portalNeonMapPoland .map-hotspot');
+      if (targets.length > 0) {
+        gsap.fromTo(targets,
+          { opacity: 0, scale: 0 },
+          { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: 'back.out(1.7)', overwrite: 'auto' }
+        );
+      }
     }, 150);
   }
 }
