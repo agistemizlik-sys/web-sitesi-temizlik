@@ -5316,11 +5316,13 @@ function setupMobileDrawer() {
     if (STATE.lenisInstance) STATE.lenisInstance.stop();
     document.body.style.overflow = 'hidden';
 
-    // GSAP staggered entry for links in the drawer
-    gsap.fromTo('.drawer-link-item', 
-      { x: 30, opacity: 0 },
-      { x: 0, opacity: 1, stagger: 0.08, duration: 0.5, ease: 'power2.out', delay: 0.1, overwrite: 'auto' }
-    );
+    const drawerLinks = drawer.querySelectorAll('.drawer-link-item');
+    if (drawerLinks.length > 0) {
+      gsap.fromTo(drawerLinks, 
+        { x: 30, opacity: 0 },
+        { x: 0, opacity: 1, stagger: 0.08, duration: 0.5, ease: 'power2.out', delay: 0.1, overwrite: 'auto' }
+      );
+    }
   };
 
   const closeDrawer = () => {
