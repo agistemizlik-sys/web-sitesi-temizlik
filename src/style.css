@@ -1617,6 +1617,47 @@ html.bypassing-gateway #portal-stage {
   color: #1e293b !important;
 }
 
+/* 🎬 Cinematic Character Video Stage Behind Booking Cards 🎬 */
+.booking-bg-video-stage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.booking-bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  opacity: 0;
+  filter: brightness(0.92) contrast(1.08) saturate(1.15);
+  transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.booking-bg-video.active {
+  opacity: 0.38;
+}
+
+.booking-bg-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(248, 250, 252, 0.4) 0%, rgba(241, 245, 249, 0.75) 60%, rgba(226, 232, 240, 0.92) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(248, 250, 252, 0.4) 50%, rgba(241, 245, 249, 0.8) 100%);
+  z-index: 1;
+}
+
 /* Ambient Soft Luminous Glow Layer */
 .booking-section-wrapper::before {
   content: '';

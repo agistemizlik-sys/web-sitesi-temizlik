@@ -7454,6 +7454,9 @@ function navigateToStage(stage, shouldPush = true) {
         { opacity: 0 },
         { opacity: 1, duration: 0.35, ease: 'power2.out' }
       );
+      if (typeof startBookingCinematicBgEngine === 'function') {
+        startBookingCinematicBgEngine();
+      }
     }
     
     // Sync price display and extras visibility
@@ -10610,6 +10613,58 @@ function setupVideoLoopEngineering() {
     }
   });
 }
+
+// 🎬 CINEMATIC CHARACTER BACKGROUND VIDEO ENGINE FOR BOOKING FORM CARDS 🎬
+const BOOKING_CINEMATIC_VIDEOS = [
+  '/videos/monalisa.mp4',
+  '/videos/sumo.mp4',
+  '/videos/samurai.mp4',
+  '/videos/astronaut.mp4',
+  '/videos/viking.mp4',
+  '/videos/knight.mp4',
+  '/videos/cowboy.mp4',
+  '/videos/gandalf.mp4',
+  '/videos/roman.mp4',
+  '/videos/victorian.mp4',
+  '/videos/monk.mp4',
+  '/videos/grandmother.mp4'
+];
+
+let bookingCinematicIndex = 0;
+let bookingCinematicTimer = null;
+
+function startBookingCinematicBgEngine() {
+  const vidA = document.getElementById('bookingBgVideoA');
+  const vidB = document.getElementById('bookingBgVideoB');
+  if (!vidA || !vidB) return;
+
+  if (bookingCinematicTimer) clearInterval(bookingCinematicTimer);
+
+  let activeIsA = true;
+  vidA.classList.add('active');
+  vidB.classList.remove('active');
+  const p0 = vidA.play();
+  if (p0 && typeof p0.catch === 'function') p0.catch(() => {});
+
+  bookingCinematicTimer = setInterval(() => {
+    bookingCinematicIndex = (bookingCinematicIndex + 1) % BOOKING_CINEMATIC_VIDEOS.length;
+    const nextSrc = BOOKING_CINEMATIC_VIDEOS[bookingCinematicIndex];
+
+    const currentVid = activeIsA ? vidA : vidB;
+    const nextVid = activeIsA ? vidB : vidA;
+
+    nextVid.src = nextSrc;
+    nextVid.currentTime = 0;
+    const p = nextVid.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+
+    nextVid.classList.add('active');
+    currentVid.classList.remove('active');
+
+    activeIsA = !activeIsA;
+  }, 7000);
+}
+window.startBookingCinematicBgEngine = startBookingCinematicBgEngine;
 
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing

@@ -1731,12 +1731,11 @@
 
     <!-- 🌹 DYNAMIC OPULENT ROYAL ROSE & BOTANICAL VINE SCROLL SYSTEM 🌹 -->
     <section class="booking-section-wrapper" id="bookingReveal" data-lenis-prevent="true" data-lenis-prevent-wheel="true" data-lenis-prevent-touch="true" hidden>
-      <div class="rose-scroll-tracker-container" id="roseScrollTracker" aria-hidden="true">
-        <!-- 🌹 Multi-Node Botanical Rose & Living Root Garden Canvas 🌹 -->
-        <canvas id="roseGardenCanvas" class="rose-garden-master-canvas"></canvas>
-
-        <!-- 3D Rose Petals Floating Layer -->
-        <div class="rose-petals-overlay" id="rosePetalsOverlay"></div>
+      <!-- 🎬 CINEMATIC CHARACTER BACKGROUND VIDEO STAGE FOR BOOKING FORM CARDS 🎬 -->
+      <div class="booking-bg-video-stage" id="bookingBgVideoStage">
+        <div class="booking-bg-video-overlay"></div>
+        <video id="bookingBgVideoA" class="booking-bg-video active" autoplay muted loop playsinline webkit-playsinline src="/videos/monalisa.mp4" preload="auto"></video>
+        <video id="bookingBgVideoB" class="booking-bg-video" autoplay muted loop playsinline webkit-playsinline src="/videos/sumo.mp4" preload="auto"></video>
       </div>
 
       <button type="button" class="booking-close-btn" onclick="if(typeof closeBookingScreen==='function')closeBookingScreen();" aria-label="Kapat">&times;</button>
