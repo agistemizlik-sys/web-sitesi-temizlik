@@ -6741,9 +6741,7 @@ video::-webkit-media-controls-overlay-play-button {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: 
-    radial-gradient(ellipse 80% 70% at 50% 45%, transparent 0%, rgba(3, 7, 18, 0.2) 60%, rgba(3, 7, 18, 0.6) 100%),
-    linear-gradient(180deg, rgba(3, 7, 18, 0.55) 0%, transparent 18%, transparent 75%, rgba(3, 7, 18, 0.7) 100%);
+  background: transparent !important;
 }
 
 .cso-ambient {
@@ -7176,9 +7174,7 @@ video::-webkit-media-controls-overlay-play-button {
     justify-content: space-between;
   }
   .cso-earth-overlay-gradient {
-    background: 
-      radial-gradient(ellipse 90% 75% at 50% 40%, transparent 0%, rgba(3, 7, 18, 0.25) 60%, rgba(3, 7, 18, 0.65) 100%),
-      linear-gradient(180deg, rgba(3, 7, 18, 0.5) 0%, transparent 15%, transparent 75%, rgba(3, 7, 18, 0.7) 100%) !important;
+    background: transparent !important;
   }
   .cso-topbar {
     padding: 2px 0 6px;
