@@ -296,6 +296,15 @@
       (function(){
         function attachSeamlessLoop(video) {
           if (!video) return;
+          video.addEventListener('timeupdate', function() {
+            try {
+              if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.05)) {
+                video.currentTime = 0;
+                var p = video.play();
+                if (p !== undefined) p.catch(function(){});
+              }
+            } catch(e){}
+          }, { passive: true });
           video.addEventListener('ended', function() {
             try {
               video.currentTime = 0;
