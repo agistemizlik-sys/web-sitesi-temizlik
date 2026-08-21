@@ -10638,6 +10638,22 @@ function startBookingCinematicBgEngine() {
   const vidB = document.getElementById('bookingBgVideoB');
   if (!vidA || !vidB) return;
 
+  const attachSubMsLoop = (v) => {
+    if (!v || v.dataset.seamlessBound === 'true') return;
+    v.dataset.seamlessBound = 'true';
+    v.addEventListener('timeupdate', () => {
+      try {
+        if (v.duration > 0.5 && v.currentTime >= (v.duration - 0.05)) {
+          v.currentTime = 0;
+          const p = v.play();
+          if (p && typeof p.catch === 'function') p.catch(() => {});
+        }
+      } catch(e){}
+    }, { passive: true });
+  };
+  attachSubMsLoop(vidA);
+  attachSubMsLoop(vidB);
+
   if (bookingCinematicTimer) clearInterval(bookingCinematicTimer);
 
   let activeIsA = true;
