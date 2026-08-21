@@ -3225,18 +3225,20 @@ function initApp() {
   const isPolandLocation = timezone.includes('warsaw') || timezone.includes('poland');
   const isTurkeyLocation = timezone.includes('istanbul') || timezone.includes('turkey');
 
-  let detectedLang = 'tr';
-  if (hasUkrainianLang || isUkraineLocation) {
-    detectedLang = 'uk';
+  let detectedLang = 'en';
+  if (savedLang && TRANSLATIONS[savedLang]) {
+    detectedLang = savedLang;
   } else if (hasPolishLang || isPolandLocation) {
     detectedLang = 'pl';
+  } else if (hasUkrainianLang || isUkraineLocation) {
+    detectedLang = 'uk';
   } else if (hasTurkishLang || isTurkeyLocation) {
     detectedLang = 'tr';
   } else {
-    detectedLang = 'tr';
+    detectedLang = 'en';
   }
 
-  const defaultLang = savedLang && TRANSLATIONS[savedLang] ? savedLang : detectedLang;
+  const defaultLang = savedLang && TRANSLATIONS[savedLang] ? savedLang : 'en';
   applyLanguage(defaultLang);
 
   // Initialize selected service states & texts
