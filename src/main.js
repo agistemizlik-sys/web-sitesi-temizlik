@@ -1266,102 +1266,102 @@ function applyBookingTranslations(dict, lang) {
     if (successWaBtn) successWaBtn.textContent = lang === 'pl' ? '💬 Wyślij potwierdzenie WhatsApp' : '💬 WhatsApp Teyidi İlet';
 
     // Premium Wizard Fields & Placeholders Translations
-    const translateLabel = (forAttr, plText, trText) => {
+    const translateLabel = (forAttr, enText, plText, trText) => {
       const label = bookingForm.querySelector(`label[for="${forAttr}"]`);
-      if (label) label.textContent = lang === 'pl' ? plText : trText;
+      if (label) label.textContent = lang === 'en' ? enText : (lang === 'pl' ? plText : trText);
     };
-    const translatePlaceholder = (id, plText, trText) => {
+    const translatePlaceholder = (id, enText, plText, trText) => {
       const el = document.getElementById(id);
-      if (el) el.placeholder = lang === 'pl' ? plText : trText;
+      if (el) el.placeholder = lang === 'en' ? enText : (lang === 'pl' ? plText : trText);
     };
 
     // City Dropdown label
     const cityLabel = bookingForm.querySelector('.wizard-city-dropdown-row label');
-    if (cityLabel) cityLabel.textContent = lang === 'pl' ? 'Wybierz miasto:' : 'Şehir seçin:';
+    if (cityLabel) cityLabel.textContent = lang === 'en' ? 'Select city:' : (lang === 'pl' ? 'Wybierz miasto:' : 'Şehir seçin:');
 
     // Wizard fields labels
-    translateLabel('cStreet', 'Ulica / Aleja', 'Sokak / Cadde');
-    translateLabel('cZip', 'Kod pocztowy', 'Posta Kodu');
-    translateLabel('cHouseNum', 'Numer domu', 'Ev Numarası');
-    translateLabel('cAptNum', 'Numer mieszkania *', 'Daire Numarası *');
-    translateLabel('cBuilding', 'Budynek / Blok', 'Bina / Blok');
-    translateLabel('cFloor', 'Piętro', 'Zemin / Kat');
-    translateLabel('cIntercom', 'Kod do domofonu', 'İnterkom / Diyafon Kodu');
-    translateLabel('cName', 'Imię i nazwisko *', 'Ad Soyad *');
-    translateLabel('cPhone', 'Numer telefonu *', 'Telefon Numarası *');
-    translateLabel('cEmail', 'Adres e-mail *', 'E-posta Adresi *');
-    translateLabel('cDate', '🗓️ Wybierz datę sprzątania', '🗓️ Temizlik Tarihi Seçin');
-    translateLabel('cTime', '🕒 Godzina rozpoczęcia', '🕒 Başlangıç Saati');
-    translateLabel('cNotes', '📝 Uwagi dla wykonawcy / instrukcje specjalne', '📝 Yüklenici İçin Notlar / Özel Talimatlar');
+    translateLabel('cStreet', 'Street / Avenue', 'Ulica / Aleja', 'Sokak / Cadde');
+    translateLabel('cZip', 'Postal Code', 'Kod pocztowy', 'Posta Kodu');
+    translateLabel('cHouseNum', 'House Number', 'Numer domu', 'Ev Numarası');
+    translateLabel('cAptNum', 'Apartment Number *', 'Numer mieszkania *', 'Daire Numarası *');
+    translateLabel('cBuilding', 'Building / Block', 'Budynek / Blok', 'Bina / Blok');
+    translateLabel('cFloor', 'Floor', 'Piętro', 'Zemin / Kat');
+    translateLabel('cIntercom', 'Intercom Code', 'Kod do domofonu', 'İnterkom / Diyafon Kodu');
+    translateLabel('cName', 'Full Name *', 'Imię i nazwisko *', 'Ad Soyad *');
+    translateLabel('cPhone', 'Phone Number *', 'Numer telefonu *', 'Telefon Numarası *');
+    translateLabel('cEmail', 'E-mail Address *', 'Adres e-mail *', 'E-posta Adresi *');
+    translateLabel('cDate', '🗓️ Select Cleaning Date', '🗓️ Wybierz datę sprzątania', '🗓️ Temizlik Tarihi Seçin');
+    translateLabel('cTime', '🕒 Start Time', '🕒 Godzina rozpoczęcia', '🕒 Başlangıç Saati');
+    translateLabel('cNotes', '📝 Special Instructions / Notes', '📝 Uwagi dla wykonawcy / instrukcje specjalne', '📝 Yüklenici İçin Notlar / Özel Talimatlar');
 
     // Placeholders
-    translatePlaceholder('cStreet', 'Np. Marszałkowska 12', 'Örn: Atatürk Cd. No:12');
-    translatePlaceholder('cZip', '00-001', '34000');
-    translatePlaceholder('cHouseNum', '12', '12');
-    translatePlaceholder('cAptNum', '4', '4');
-    translatePlaceholder('cBuilding', 'Blok A', 'A Blok');
-    translatePlaceholder('cFloor', 'Piętro 2', '2. Kat');
-    translatePlaceholder('cIntercom', '1234', '1234');
-    translatePlaceholder('cName', 'Jan Kowalski', 'Ahmet Yılmaz');
-    translatePlaceholder('cPhone', '+48 500 600 700', '0555 555 55 55');
-    translatePlaceholder('cEmail', 'jan.kowalski@email.com', 'ornek@email.com');
-    translatePlaceholder('cNotes', 'Np. klucze u dozorcy, jest kot, proszę nie dzwonić dzwonkiem...', 'Örn: Anahtar kapıcıda, evcil kedi var, lütfen zili çalmayın...');
+    translatePlaceholder('cStreet', 'E.g. Main Street 12', 'Np. Marszałkowska 12', 'Örn: Atatürk Cd. No:12');
+    translatePlaceholder('cZip', '10001', '00-001', '34000');
+    translatePlaceholder('cHouseNum', '12', '12', '12');
+    translatePlaceholder('cAptNum', '4', '4', '4');
+    translatePlaceholder('cBuilding', 'Block A', 'Blok A', 'A Blok');
+    translatePlaceholder('cFloor', 'Floor 2', 'Piętro 2', '2. Kat');
+    translatePlaceholder('cIntercom', '1234', '1234', '1234');
+    translatePlaceholder('cName', 'John Doe', 'Jan Kowalski', 'Ahmet Yılmaz');
+    translatePlaceholder('cPhone', '+1 555 123 4567', '+48 500 600 700', '0555 555 55 55');
+    translatePlaceholder('cEmail', 'john.doe@email.com', 'jan.kowalski@email.com', 'ornek@email.com');
+    translatePlaceholder('cNotes', 'E.g. keys with doorman, pet at home, please do not ring doorbell...', 'Np. klucze u dozorcy, jest kot, proszę nie dzwonić dzwonkiem...', 'Örn: Anahtar kapıcıda, evcil kedi var, lütfen zili çalmayın...');
 
     // Apt Num Hint
     const aptHint = bookingForm.querySelector('.w-field-hint');
     if (aptHint) {
-      aptHint.textContent = lang === 'pl' 
-        ? '* Bez numeru mieszkania zamówienie nie może zostać złożone' 
-        : '* Daire numarası olmadan sipariş verilemez';
+      aptHint.textContent = lang === 'en'
+        ? '* Order cannot be placed without apartment number'
+        : (lang === 'pl' ? '* Bez numeru mieszkania zamówienie nie może zostać złożone' : '* Daire numarası olmadan sipariş verilemez');
     }
 
     // Corporate Invoice Fields Block
     const corpTitle = document.querySelector('#businessFieldsBlock h4');
-    if (corpTitle) corpTitle.textContent = lang === 'pl' ? '🏢 Dane do faktury firmowej' : '🏢 Kurumsal Fatura Bilgileri';
-    translateLabel('cCompanyName', 'Nazwa firmy *', 'Firma / Şirket Unvanı *');
-    translatePlaceholder('cCompanyName', 'Np. ABC Sp. z o.o.', 'Örn: ABC Teknoloji Ltd. Şti.');
-    translateLabel('cTaxOffice', 'Urząd skarbowy *', 'Vergi Dairesi *');
-    translatePlaceholder('cTaxOffice', 'Np. US Warszawa', 'Örn: Kadıköy V.D.');
-    translateLabel('cTaxNumber', 'NIP / Numer podatkowy *', 'Vergi Numarası (VKN / T.C.) *');
-    translatePlaceholder('cTaxNumber', '1234567890', '1234567890');
-    translateLabel('cInvoiceEmail', 'E-mail do faktury', 'E-Fatura E-postası');
-    translatePlaceholder('cInvoiceEmail', 'faktura@firma.pl', 'fatura@sirket.com');
+    if (corpTitle) corpTitle.textContent = lang === 'en' ? '🏢 Corporate Invoice Details' : (lang === 'pl' ? '🏢 Dane do faktury firmowej' : '🏢 Kurumsal Fatura Bilgileri');
+    translateLabel('cCompanyName', 'Company Name *', 'Nazwa firmy *', 'Firma / Şirket Unvanı *');
+    translatePlaceholder('cCompanyName', 'E.g. ABC Corp.', 'Np. ABC Sp. z o.o.', 'Örn: ABC Teknoloji Ltd. Şti.');
+    translateLabel('cTaxOffice', 'Tax Office *', 'Urząd skarbowy *', 'Vergi Dairesi *');
+    translatePlaceholder('cTaxOffice', 'E.g. Tax Dept.', 'Np. US Warszawa', 'Örn: Kadıköy V.D.');
+    translateLabel('cTaxNumber', 'Tax ID / VAT Number *', 'NIP / Numer podatkowy *', 'Vergi Numarası (VKN / T.C.) *');
+    translatePlaceholder('cTaxNumber', '1234567890', '1234567890', '1234567890');
+    translateLabel('cInvoiceEmail', 'E-Invoice Email', 'E-mail do faktury', 'E-Fatura E-postası');
+    translatePlaceholder('cInvoiceEmail', 'invoice@company.com', 'faktura@firma.pl', 'fatura@sirket.com');
 
     // Staff Preferences section
     const lblStaffTitle = document.getElementById('lblStaffPrefTitle');
     const lblStaffSub = document.getElementById('lblStaffPrefSub');
-    if (lblStaffTitle) lblStaffTitle.textContent = lang === 'pl' ? '👥 PREFERENCJE PERSONELU' : '👥 EKİP VE EKİPMAN TERCİHİNİZ';
+    if (lblStaffTitle) lblStaffTitle.textContent = lang === 'en' ? '👥 STAFF PREFERENCES' : (lang === 'pl' ? '👥 PREFERENCJE PERSONELU' : '👥 EKİP VE EKİPMAN TERCİHİNİZ');
     if (lblStaffSub) {
-      lblStaffSub.textContent = lang === 'pl'
-        ? 'Możesz wybrać preferencje dotyczące płci lub składu zespołu.'
-        : 'Hizmet verecek uzmanın cinsiyet veya ekip kadrosu tercihini seçebilirsiniz.';
+      lblStaffSub.textContent = lang === 'en'
+        ? 'You can choose gender preferences or team composition.'
+        : (lang === 'pl' ? 'Możesz wybrać preferencje dotyczące płci lub składu zespołu.' : 'Hizmet verecek uzmanın cinsiyet veya ekip kadrosu tercihini seçebilirsiniz.');
     }
 
     // Staff preferences cards details
-    const updatePrefCard = (id, plTitle, plDesc, trTitle, trDesc) => {
+    const updatePrefCard = (id, enTitle, enDesc, plTitle, plDesc, trTitle, trDesc) => {
       const card = document.getElementById(id);
       if (card) {
         const titleEl = card.querySelector('.pref-title');
         const descEl = card.querySelector('.pref-desc');
-        if (titleEl) titleEl.textContent = lang === 'pl' ? plTitle : trTitle;
-        if (descEl) descEl.textContent = lang === 'pl' ? plDesc : trDesc;
+        if (titleEl) titleEl.textContent = lang === 'en' ? enTitle : (lang === 'pl' ? plTitle : trTitle);
+        if (descEl) descEl.textContent = lang === 'en' ? enDesc : (lang === 'pl' ? plDesc : trDesc);
       }
     };
-    updatePrefCard('lblStaffPrefAny', 'Dowolny / Najlepszy zespół', 'Najwyżej oceniany dostępny specjalista', 'Fark Etmez / En Uygun Ekip', 'Müsait olan en yüksek puanlı uzman');
-    updatePrefCard('lblStaffPrefFemale', 'Kobieta', 'Gwarancja kobiecego personelu', 'Bayan Temizlik Uzmanı', 'Kadın temizlik personeli garantisi');
-    updatePrefCard('lblStaffPrefTeam', '2-osobowy zespół', 'Szybki i dokładny zespół dwuosobowy (+50 PLN / +350 TL)', '2 Kişilik Uzman Ekip', 'Hızlı ve detaylı ikili ekip (+350 TL)');
+    updatePrefCard('lblStaffPrefAny', 'Any / Best Available Team', 'Highest rated available specialist', 'Dowolny / Najlepszy zespół', 'Najwyżej oceniany dostępny specjalista', 'Fark Etmez / En Uygun Ekip', 'Müsait olan en yüksek puanlı uzman');
+    updatePrefCard('lblStaffPrefFemale', 'Female Specialist', 'Female staff guarantee', 'Kobieta', 'Gwarancja kobiecego personelu', 'Bayan Temizlik Uzmanı', 'Kadın temizlik personeli garantisi');
+    updatePrefCard('lblStaffPrefTeam', '2-Person Expert Team', 'Fast and thorough 2-person team', '2-osobowy zespół', 'Szybki i dokładny zespół dwuosobowy (+50 PLN / +350 TL)', '2 Kişilik Uzman Ekip', 'Hızlı ve detaylı ikili ekip (+350 TL)');
 
     // Payment header
     const lblPayTitle = document.getElementById('lblPaymentTitle');
-    if (lblPayTitle) lblPayTitle.textContent = lang === 'pl' ? '💵 GWARANCJA PŁATNOŚCI' : '💵 ÖDEME GÜVENCESİ';
+    if (lblPayTitle) lblPayTitle.textContent = lang === 'en' ? '💵 PAYMENT GUARANTEE' : (lang === 'pl' ? '💵 GWARANCJA PŁATNOŚCI' : '💵 ÖDEME GÜVENCESİ');
 
     // Checkout labels
     const checkoutLabel = bookingForm.querySelector('.wizard-price-checkout-box .p-label');
-    if (checkoutLabel) checkoutLabel.textContent = lang === 'pl' ? 'Do zapłaty:' : 'Ödenecek tutar:';
+    if (checkoutLabel) checkoutLabel.textContent = lang === 'en' ? 'Total to Pay:' : (lang === 'pl' ? 'Do zapłaty:' : 'Ödenecek tutar:');
 
     // Sidebar elements
     const promoPlaceholder = document.getElementById('cPromoCode');
-    if (promoPlaceholder) promoPlaceholder.placeholder = lang === 'pl' ? 'Kod rabatowy / referencyjny' : 'İndirim / Referans Kodu';
+    if (promoPlaceholder) promoPlaceholder.placeholder = lang === 'en' ? 'Promo / Referral code' : (lang === 'pl' ? 'Kod rabatowy / referencyjny' : 'İndirim / Referans Kodu');
     const promoBtn = document.getElementById('btnApplyPromo');
     if (promoBtn) promoBtn.textContent = lang === 'pl' ? 'Zastosuj' : 'Uygula';
 
