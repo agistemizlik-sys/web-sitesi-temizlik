@@ -252,7 +252,7 @@ class CyberSynth {
     this.init();
     if (!this.ctx) return;
     if (this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(() => {});
+      this.ctx.resume().then(() => this.playTick()).catch(() => {});
       return;
     }
     this.triggerSpike();
@@ -278,7 +278,7 @@ class CyberSynth {
     this.init();
     if (!this.ctx) return;
     if (this.ctx.state === 'suspended') {
-      this.ctx.resume().catch(() => {});
+      this.ctx.resume().then(() => this.playClick()).catch(() => {});
       return;
     }
     this.triggerSpike();
@@ -304,7 +304,11 @@ class CyberSynth {
   playWarp() {
     if (this.muted) return;
     this.init();
-    if (!this.ctx || this.ctx.state === 'suspended') return;
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().then(() => this.playWarp()).catch(() => {});
+      return;
+    }
     this.triggerSpike();
 
     const now = this.ctx.currentTime;
