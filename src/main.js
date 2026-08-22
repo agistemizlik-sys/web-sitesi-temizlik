@@ -9632,6 +9632,18 @@ function setupBookingReveal() {
   const dateTomorrowBtn = document.getElementById('btnDateTomorrow');
   const dateWeekendBtn = document.getElementById('btnDateWeekend');
   const dateInput = document.getElementById('cDate');
+  if (dateInput) {
+    const todayIso = new Date().toISOString().split('T')[0];
+    dateInput.min = todayIso;
+    if (!dateInput.value) {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+  }
 
   const setBookingDate = (daysToAdd) => {
     const d = new Date();
