@@ -10762,30 +10762,26 @@ function openPortalGateway() {
   portalStage.style.opacity = '0';
   portalStage.style.pointerEvents = 'all';
 
-  // Set initial states for staggered card entrance and sci-fi decorations
   gsap.set('.cc-gateway-card', { display: 'none', opacity: 0 });
-  gsap.set('.portal-map-wrapper', {
-    opacity: 0,
-    x: 0,
-    y: 30,
-    scale: 0.98,
-    rotationZ: 0,
-    rotateX: 0,
-    rotateY: 0,
-    transformOrigin: '50% 50%'
-  });
-  gsap.set('.map-hotspot', { opacity: 0, scale: 0 });
-  gsap.set('#portalDefaultPanel', { display: 'flex', opacity: 0, x: 20 });
-  gsap.set('.portal-logo-container', { y: -30, scale: 1, opacity: 0 });
-  gsap.set('.portal-center-hint', { y: 12, scale: 1, opacity: 0 });
-  gsap.set('.grid-line.horizontal', { scaleX: 0 });
-  gsap.set('.grid-line.vertical', { scaleY: 0 });
-  gsap.set('.hud-tl', { x: -20, y: -20, opacity: 0 });
-  gsap.set('.hud-tr', { x: 20, y: -20, opacity: 0 });
-  gsap.set('.hud-bl', { x: -20, y: 20, opacity: 0 });
-  gsap.set('.hud-br', { x: 20, y: 20, opacity: 0 });
-  gsap.set('.telemetry-tick', { opacity: 0 });
-  gsap.set('#portalMapHUD', { opacity: 0 });
+  const mapWrapper = document.querySelector('.portal-map-wrapper');
+  if (mapWrapper) {
+    gsap.set(mapWrapper, {
+      opacity: 0,
+      x: 0,
+      y: 30,
+      scale: 0.98,
+      rotationZ: 0,
+      rotateX: 0,
+      rotateY: 0,
+      transformOrigin: '50% 50%'
+    });
+  }
+  const defaultPanel = document.getElementById('portalDefaultPanel');
+  if (defaultPanel) gsap.set(defaultPanel, { display: 'flex', opacity: 0, x: 20 });
+  const logoContainer = document.querySelector('.portal-logo-container');
+  if (logoContainer) gsap.set(logoContainer, { y: -30, scale: 1, opacity: 0 });
+  const centerHint = document.querySelector('.portal-center-hint');
+  if (centerHint) gsap.set(centerHint, { y: 12, scale: 1, opacity: 0 });
 
   const tl = gsap.timeline({
     onComplete: () => {
@@ -10797,7 +10793,6 @@ function openPortalGateway() {
       if (polandMapInstance && typeof polandMapInstance.invalidateSize === 'function') {
         polandMapInstance.invalidateSize();
       }
-      // Recalculate cached bounds now that map is static and returned to scale 1, translateY 0
       if (typeof window.updatePortalCachedRects === 'function') {
         window.updatePortalCachedRects();
       }
@@ -10806,16 +10801,12 @@ function openPortalGateway() {
   });
 
   tl.to('#main-content', { opacity: 0, pointerEvents: 'none', duration: 0.4, ease: 'power2.inOut' })
-    .to(portalStage, { opacity: 1, duration: 0.5, ease: 'power2.out' }, '-=0.1')
-    .to('.grid-line.horizontal', { scaleX: 1, duration: 1.1, ease: 'power3.inOut' }, '-=0.2')
-    .to('.grid-line.vertical', { scaleY: 1, duration: 1.1, ease: 'power3.inOut' }, '-=1.1')
-    .to(['.hud-tl', '.hud-tr', '.hud-bl', '.hud-br'], { x: 0, y: 0, opacity: 1, duration: 0.7, ease: 'power2.out', stagger: 0.05 }, '-=0.4')
-    .to('.telemetry-tick', { opacity: 0.45, duration: 0.6, stagger: 0.05, ease: 'power1.inOut' }, '-=0.4')
-    .to('.portal-logo-container', { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out' }, '-=0.4')
-    .to('.portal-center-hint', { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-    .to('.portal-map-wrapper', { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' }, '-=0.4')
-    .to('.map-hotspot', { opacity: 1, scale: 1, duration: 0.7, stagger: 0.05, ease: 'back.out(1.7)' }, '-=0.8')
-    .to('#portalDefaultPanel', { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.8');
+    .to(portalStage, { opacity: 1, duration: 0.5, ease: 'power2.out' }, '-=0.1');
+
+  if (logoContainer) tl.to(logoContainer, { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out' }, '-=0.4');
+  if (centerHint) tl.to(centerHint, { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.3');
+  if (mapWrapper) tl.to(mapWrapper, { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' }, '-=0.4');
+  if (defaultPanel) tl.to(defaultPanel, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.8');
 }
 
 function setupResizeObserver() {
