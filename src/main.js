@@ -4333,7 +4333,7 @@ function setupPortalGateway() {
       portalStageEl.style.opacity = '1';
       portalStageEl.style.pointerEvents = 'all';
       portalStageEl.style.padding = '16px 12px';
-      portalStageEl.style.background = '#f8fafc';
+      portalStageEl.style.background = 'radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%)';
     }
 
     const csoOverlayEl = document.getElementById('country-selector-overlay') || document.querySelector('.country-selector-overlay');
