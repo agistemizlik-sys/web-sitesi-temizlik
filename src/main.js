@@ -7972,7 +7972,7 @@ function setupPromoCodeLogic() {
   const feedbackEl = document.getElementById('promoCodeFeedback');
   if (!promoInput || !applyBtn || !feedbackEl) return;
 
-  function applyCode(rawCode, isAuto = false) {
+  async function applyCode(rawCode, isAuto = false) {
     const code = (rawCode || '').replace(/[^a-zA-Z0-9_-]/g, '').trim().toUpperCase().substring(0, 20);
     const isPl = STATE.language === 'pl';
     const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
@@ -7987,6 +7987,39 @@ function setupPromoCodeLogic() {
       return;
     }
 
+    // Try backend API verification
+    try {
+      const resp = await fetch('/api/promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code,
+          lang: STATE.language || 'tr',
+          currency: isPl ? 'PLN' : 'TL',
+          subtotal: STATE.calculator.basePrice || 1000
+        })
+      });
+
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.valid) {
+          const discountRate = data.type === 'percent' ? (data.discount / 100) : 0.15;
+          STATE.calculator.promoCode = code;
+          STATE.calculator.discountRate = discountRate;
+          feedbackEl.textContent = `✓ ${data.message || data.title}`;
+          feedbackEl.style.color = '#10b981';
+          feedbackEl.style.display = 'block';
+          if (typeof window.playTickSound === 'function') window.playTickSound();
+          if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
+          if (typeof updatePriceSliderDisplay === 'function') updatePriceSliderDisplay();
+          return;
+        }
+      }
+    } catch(e) {
+      logDebug('Backend promo check fallback to client:', e);
+    }
+
+    // Client-side fallback
     if (KNOWN_DISCOUNT_CODES.hasOwnProperty(code)) {
       const discountRate = KNOWN_DISCOUNT_CODES[code];
       const discountPct = Math.round(discountRate * 100);
@@ -7997,6 +8030,7 @@ function setupPromoCodeLogic() {
       feedbackEl.textContent = template.replace('{code}', code).replace('{discount}', discountPct);
       feedbackEl.style.color = '#10b981';
       feedbackEl.style.display = 'block';
+      if (typeof window.playTickSound === 'function') window.playTickSound();
     } else {
       STATE.calculator.promoCode = code;
       STATE.calculator.discountRate = 0;
