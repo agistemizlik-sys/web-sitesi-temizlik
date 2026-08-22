@@ -1,4 +1,4 @@
-/**
+﻿/**
  * RELAXAX Enterprise Backend Health Check & Telemetry Endpoint
  * GET /api/health & HEAD /api/health
  */
@@ -15,7 +15,7 @@ export async function onRequest(context) {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
     "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
@@ -33,7 +33,7 @@ export async function onRequest(context) {
     status: "healthy",
     code: 200,
     service: "RELAXAX Global Edge Serverless Engine",
-    version: "3.2.0-enterprise",
+    version: "3.5.0-enterprise",
     timestamp: new Date().toISOString(),
     traceId,
     runtime: {
@@ -52,14 +52,20 @@ export async function onRequest(context) {
       kvPersistence: Boolean(env && env.LEADS_KV),
       serverSideConversions: Boolean(env && env.META_PIXEL_ID && env.META_CAPI_ACCESS_TOKEN),
       geoEnrichment: true,
-      dynamicPrerender: true
+      dynamicPrerender: true,
+      cryptographicQuoteVerification: true
     },
     endpoints: [
-      { path: "/api/leads", methods: ["POST", "OPTIONS"], desc: "Lead dispatch & multi-channel notification relay" },
-      { path: "/api/promo", methods: ["POST", "OPTIONS"], desc: "Discount & coupon validation engine" },
-      { path: "/api/services", methods: ["GET", "OPTIONS"], desc: "Multi-currency service catalog & pricing tables" },
-      { path: "/api/conversion", methods: ["POST", "OPTIONS"], desc: "Server-side Meta CAPI & GA4 analytics relay" },
-      { path: "/api/health", methods: ["GET", "HEAD", "OPTIONS"], desc: "System diagnostics & status endpoint" }
+      { path: "/api/leads", methods: ["POST", "OPTIONS"], desc: "Lead dispatch, validation, multi-channel notification & KV persistence relay" },
+      { path: "/api/quote", methods: ["POST", "OPTIONS"], desc: "Authoritative server-side price calculation & HMAC cryptographic quote token generator" },
+      { path: "/api/promo", methods: ["POST", "OPTIONS"], desc: "Multi-currency discount & coupon code verification engine with anti brute-force" },
+      { path: "/api/availability", methods: ["GET", "POST", "OPTIONS"], desc: "Real-time date and hourly time-slot capacity engine" },
+      { path: "/api/contact", methods: ["POST", "OPTIONS"], desc: "Customer support tickets, B2B commercial quotes & franchise applications" },
+      { path: "/api/reviews", methods: ["GET", "HEAD", "OPTIONS"], desc: "Verified customer ratings, sentiment score & localized reviews catalog" },
+      { path: "/api/newsletter", methods: ["POST", "OPTIONS"], desc: "VIP Hygiene Club coupon generation & email collector" },
+      { path: "/api/services", methods: ["GET", "HEAD", "OPTIONS"], desc: "Multi-currency service catalog, extras & regional pricing tables" },
+      { path: "/api/conversion", methods: ["POST", "OPTIONS"], desc: "Server-side Meta Conversions API & GA4 Measurement Protocol relay" },
+      { path: "/api/health", methods: ["GET", "HEAD", "OPTIONS"], desc: "System diagnostics, capability flags & edge status monitor" }
     ]
   };
 
