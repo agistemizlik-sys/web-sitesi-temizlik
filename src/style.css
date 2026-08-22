@@ -253,25 +253,26 @@ html.bypassing-gateway #portal-stage {
 }
 
 .portal-main-logo {
-  width: 48px;
-  height: 38px;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.6));
-  transition: transform 0.3s var(--ease-smooth);
+  width: 52px;
+  height: 52px;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.75));
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
 }
 
 .portal-brand-name {
   font-family: var(--font-serif);
-  font-size: 1.8rem;
+  font-size: 1.85rem;
   font-weight: 800;
   letter-spacing: 0.18em;
   color: #ffffff;
   margin: 0;
-  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 35px rgba(56, 189, 248, 0.3);
 }
 
 .portal-logo-container:hover .portal-main-logo {
-  transform: scale(1.08);
+  transform: scale(1.12) rotate(-3deg);
+  filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.95));
 }
 
 .cso-brand-logo-img {
