@@ -900,6 +900,179 @@ function applyGatewayCardTranslations(dict, lang) {
   if (cNavWhatsappText) cNavWhatsappText.textContent = lang === 'pl' ? 'WhatsApp Zamów' : 'WhatsApp Sipariş';
 }
 
+// ==========================================
+// 2.B. ENTERPRISE MULTI-CURRENCY BANK SELECTOR MANAGER
+// ==========================================
+const TURKISH_BANKS = {
+  garanti: {
+    name: 'Garanti BBVA',
+    holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+    iban: 'TR12 0006 2000 0001 2345 6789 01',
+    rawIban: 'TR120006200000012345678901',
+    fastEmail: 'fatura@relaxax.com',
+    branch: 'Kadıköy Şubesi (Kod: 620) / 1234567'
+  },
+  isbank: {
+    name: 'Türkiye İş Bankası',
+    holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+    iban: 'TR34 0006 4000 0002 3456 7890 12',
+    rawIban: 'TR340006400000023456789012',
+    fastEmail: 'fatura@relaxax.com',
+    branch: 'Moda Şubesi (Kod: 1042) / 7654321'
+  },
+  yapikredi: {
+    name: 'Yapı Kredi',
+    holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+    iban: 'TR56 0006 7000 0003 4567 8901 23',
+    rawIban: 'TR560006700000034567890123',
+    fastEmail: 'fatura@relaxax.com',
+    branch: 'Kadıköy Rıhtım Şubesi (Kod: 815) / 9876543'
+  },
+  akbank: {
+    name: 'Akbank',
+    holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+    iban: 'TR78 0004 6000 0004 5678 9012 34',
+    rawIban: 'TR780004600000045678901234',
+    fastEmail: 'fatura@relaxax.com',
+    branch: 'Bağdat Caddesi Şubesi (Kod: 320) / 4567890'
+  },
+  ziraat: {
+    name: 'Ziraat Bankası',
+    holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+    iban: 'TR90 0001 0000 0005 6789 0123 45',
+    rawIban: 'TR900001000000056789012345',
+    fastEmail: 'fatura@relaxax.com',
+    branch: 'Kadıköy Şubesi (Kod: 110) / 3216549'
+  },
+  qnb: {
+    name: 'QNB Finansbank',
+    holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
+    iban: 'TR01 0011 1000 0006 7890 1234 56',
+    rawIban: 'TR010011100000067890123456',
+    fastEmail: 'fatura@relaxax.com',
+    branch: 'Feneryolu Şubesi (Kod: 412) / 8529631'
+  }
+};
+
+const POLISH_BANKS = {
+  blik: {
+    name: 'BLIK / Płatność Telefonem',
+    holder: 'RELAXAX POLSKA SP. Z O.O.',
+    iban: '+48 546 647 900 (BLIK Telefon)',
+    rawIban: '+48546647900',
+    fastEmail: 'faktury@relaxax.com',
+    branch: 'Warszawa Centrum / Natychmiastowy Przelew BLIK'
+  },
+  pko: {
+    name: 'PKO Bank Polski',
+    holder: 'RELAXAX POLSKA SP. Z O.O.',
+    iban: 'PL 42 1020 1013 0000 0002 0001 2345',
+    rawIban: 'PL42102010130000000200012345',
+    fastEmail: 'faktury@relaxax.com',
+    branch: 'Oddział 1 w Warszawie (Śródmieście)'
+  },
+  mbank: {
+    name: 'mBank',
+    holder: 'RELAXAX POLSKA SP. Z O.O.',
+    iban: 'PL 11 1140 1010 0000 0001 2345 6789',
+    rawIban: 'PL11114010100000000123456789',
+    fastEmail: 'faktury@relaxax.com',
+    branch: 'Centrum Korporacyjne Warszawa'
+  },
+  santander: {
+    name: 'Santander Bank Polska',
+    holder: 'RELAXAX POLSKA SP. Z O.O.',
+    iban: 'PL 88 1090 1014 0000 0001 2345 6789',
+    rawIban: 'PL88109010140000000123456789',
+    fastEmail: 'faktury@relaxax.com',
+    branch: 'Oddział Warszawa Mokotów'
+  },
+  ing: {
+    name: 'ING Bank Śląski',
+    holder: 'RELAXAX POLSKA SP. Z O.O.',
+    iban: 'PL 22 1050 1012 1000 0022 1234 5678',
+    rawIban: 'PL22105010121000002212345678',
+    fastEmail: 'faktury@relaxax.com',
+    branch: 'Warszawa Wola'
+  },
+  millennium: {
+    name: 'Bank Millennium',
+    holder: 'RELAXAX POLSKA SP. Z O.O.',
+    iban: 'PL 55 1160 2202 0000 0002 1234 5678',
+    rawIban: 'PL55116022020000000212345678',
+    fastEmail: 'faktury@relaxax.com',
+    branch: 'Warszawa Ursynów'
+  }
+};
+
+let currentSelectedBank = 'garanti';
+
+function updateSelectedBankDisplay(bankKey) {
+  const isPl = STATE.language === 'pl' || (STATE.city && String(STATE.city).toLowerCase().includes('warsz')) || (STATE.calculator?.city && String(STATE.calculator.city).toLowerCase().includes('warsz'));
+  const bankSet = isPl ? POLISH_BANKS : TURKISH_BANKS;
+  const defaultKey = isPl ? 'blik' : 'garanti';
+  const bank = bankSet[bankKey] || bankSet[defaultKey] || (isPl ? POLISH_BANKS.blik : TURKISH_BANKS.garanti);
+  currentSelectedBank = bankKey || defaultKey;
+
+  const bActiveBankName = document.getElementById('bActiveBankName');
+  const bAccountHolder = document.getElementById('bAccountHolder');
+  const bIbanDisplay = document.getElementById('bIbanDisplay');
+  const bFastEmail = document.getElementById('bFastEmail');
+  const bBranchNo = document.getElementById('bBranchNo');
+  const btnCopyIbanMain = document.getElementById('btnCopyIbanMain');
+  const btnCopyHolder = document.getElementById('btnCopyHolder');
+
+  if (bActiveBankName) bActiveBankName.textContent = bank.name;
+  if (bAccountHolder) bAccountHolder.textContent = bank.holder;
+  if (bIbanDisplay) bIbanDisplay.textContent = bank.iban;
+  if (bFastEmail) bFastEmail.textContent = bank.fastEmail;
+  if (bBranchNo) bBranchNo.textContent = bank.branch;
+  if (btnCopyIbanMain) btnCopyIbanMain.dataset.iban = bank.rawIban;
+  if (btnCopyHolder) btnCopyHolder.dataset.copy = bank.holder;
+}
+
+function refreshBankSelector(targetLang) {
+  const lang = targetLang || STATE.language || 'tr';
+  const isPl = lang === 'pl' || (STATE.city && String(STATE.city).toLowerCase().includes('warsz'));
+  const bankTabsContainer = document.querySelector('.bank-selector-tabs');
+  if (!bankTabsContainer) return;
+
+  if (isPl) {
+    bankTabsContainer.innerHTML = `
+      <button type="button" class="bank-pill-btn active" data-bank="blik">⚡ BLIK / Tel</button>
+      <button type="button" class="bank-pill-btn" data-bank="pko">PKO Bank Polski</button>
+      <button type="button" class="bank-pill-btn" data-bank="mbank">mBank</button>
+      <button type="button" class="bank-pill-btn" data-bank="santander">Santander</button>
+      <button type="button" class="bank-pill-btn" data-bank="ing">ING Bank</button>
+      <button type="button" class="bank-pill-btn" data-bank="millennium">Millennium</button>
+    `;
+    updateSelectedBankDisplay('blik');
+  } else {
+    bankTabsContainer.innerHTML = `
+      <button type="button" class="bank-pill-btn active" data-bank="garanti">Garanti BBVA</button>
+      <button type="button" class="bank-pill-btn" data-bank="isbank">İş Bankası</button>
+      <button type="button" class="bank-pill-btn" data-bank="yapikredi">Yapı Kredi</button>
+      <button type="button" class="bank-pill-btn" data-bank="akbank">Akbank</button>
+      <button type="button" class="bank-pill-btn" data-bank="ziraat">Ziraat Bankası</button>
+      <button type="button" class="bank-pill-btn" data-bank="qnb">QNB Finansbank</button>
+    `;
+    updateSelectedBankDisplay('garanti');
+  }
+
+  const pills = bankTabsContainer.querySelectorAll('.bank-pill-btn');
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const bankKey = pill.dataset.bank || (isPl ? 'blik' : 'garanti');
+      updateSelectedBankDisplay(bankKey);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  });
+}
+window.refreshBankSelector = refreshBankSelector;
+window.updateSelectedBankDisplay = updateSelectedBankDisplay;
+
 function applyBookingTranslations(dict, lang) {
   const revealTitle = document.querySelector('.booking-reveal-screen .reveal-title');
   const revealSubtitle = document.querySelector('.booking-reveal-screen .reveal-subtitle');
@@ -1554,6 +1727,52 @@ function applyBookingTranslations(dict, lang) {
         ? 'Cześć RELAXAX, chciałbym uzyskać informacje na temat kalkulacji zamówienia na stronie.'
         : 'Merhaba RELAXAX, siteden sipariş hesaplama hakkında bilgi almak istiyorum.';
       whatsappHelpBtn.href = `https://wa.me/905466479004?text=${encodeURIComponent(helpMsg)}`;
+    }
+
+    // Bank Transfer Alert & Notice Boxes
+    const transferAlertBox = document.querySelector('.transfer-alert-box .t-alert-txt');
+    if (transferAlertBox) {
+      transferAlertBox.innerHTML = lang === 'pl'
+        ? '<strong>Wybrano przelew bankowy / BLIK: 5% rabatu naliczone!</strong><span>Możesz dokonać płatności 24/7 za pomocą numeru BLIK lub przelewu na konto. Potwierdzenie rezerwacji otrzymasz natychmiast.</span>'
+        : '<strong>Havale / EFT / FAST Seçildi: %5 Anında İndirim Uygulandı!</strong><span>Ödemenizi dilediğiniz bankanın kurumsal hesabına 7/24 FAST ile yapabilirsiniz. Rezervasyon onayınız anında üretilecektir.</span>';
+    }
+
+    const transferNoticeBox = document.querySelector('.transfer-notice-box .t-notice-text');
+    if (transferNoticeBox) {
+      transferNoticeBox.innerHTML = lang === 'pl'
+        ? '<strong>Tytuł przelewu / Opis:</strong><span>Wykonując przelew, w tytule wpisz <strong>Kod Rezerwacji</strong> (np. <code id="previewNoticeCode">#RLX-WARSZAWA</code>) lub <strong>Imię i Nazwisko</strong>.</span>'
+        : '<strong>Havale / EFT Açıklaması:</strong><span>Transfer yaparken açıklama kısmına <strong>Rezervasyon Kodunuzu</strong> (Örn: <code id="previewNoticeCode">#RLX-TEMİZLİK</code>) veya <strong>Ad Soyadınızı</strong> yazmanız yeterlidir.</span>';
+    }
+
+    const cashBannerBox = document.querySelector('.cash-banner-box .c-banner-txt');
+    if (cashBannerBox) {
+      cashBannerBox.innerHTML = lang === 'pl'
+        ? '<strong>Płatność po zakończeniu sprzątania z gwarancją 100% satysfakcji</strong><span>Nasz zespół zrealizuje usługę, a po Twojej akceptacji i sprawdzeniu czystości uregulujesz płatność <strong>Gotówką</strong> lub <strong>Kartą / Mobilnym POS</strong>.</span>'
+        : '<strong>Hizmet Sonrası Memnuniyet Garantili Ödeme</strong><span>Ekibimiz temizlik hizmetinizi tamamladıktan ve siz evinizi detaylıca kontrol edip %100 memnun kaldıktan sonra ödemenizi kapıda <strong>Nakit</strong> veya <strong>Mobil POS Temassız Kart</strong> ile gerçekleştirebilirsiniz.</span>';
+    }
+
+    // Bank Selector Tabs Dynamic Generator
+    const bankTabsContainer = document.querySelector('.bank-selector-tabs');
+    if (bankTabsContainer) {
+      if (lang === 'pl') {
+        bankTabsContainer.innerHTML = `
+          <button type="button" class="bank-pill-btn active" data-bank="blik">⚡ BLIK / Tel</button>
+          <button type="button" class="bank-pill-btn" data-bank="pko">PKO Bank Polski</button>
+          <button type="button" class="bank-pill-btn" data-bank="mbank">mBank</button>
+          <button type="button" class="bank-pill-btn" data-bank="santander">Santander</button>
+          <button type="button" class="bank-pill-btn" data-bank="ing">ING Bank</button>
+          <button type="button" class="bank-pill-btn" data-bank="millennium">Millennium</button>
+        `;
+      } else {
+        bankTabsContainer.innerHTML = `
+          <button type="button" class="bank-pill-btn active" data-bank="garanti">Garanti BBVA</button>
+          <button type="button" class="bank-pill-btn" data-bank="isbank">İş Bankası</button>
+          <button type="button" class="bank-pill-btn" data-bank="yapikredi">Yapı Kredi</button>
+          <button type="button" class="bank-pill-btn" data-bank="akbank">Akbank</button>
+          <button type="button" class="bank-pill-btn" data-bank="ziraat">Ziraat Bankası</button>
+          <button type="button" class="bank-pill-btn" data-bank="qnb">QNB Finansbank</button>
+        `;
+      }
     }
 
     if (typeof window.refreshBankSelector === 'function') {
@@ -7263,6 +7482,15 @@ function openBookingScreen() {
     bgServicesOverlay.style.pointerEvents = 'none';
   }
 
+  // Update translations & bank selector according to active language
+  const activeDict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
+  if (typeof applyBookingTranslations === 'function') {
+    applyBookingTranslations(activeDict, STATE.language);
+  }
+  if (typeof window.refreshBankSelector === 'function') {
+    window.refreshBankSelector();
+  }
+
   // Update prices
   updatePriceSliderDisplay();
   document.body.classList.add('wizard-modal-open', 'booking-open');
@@ -9093,178 +9321,15 @@ function setupBookingReveal() {
     });
   });
 
-  // ==========================================
-  // TURKISH & POLISH BANKS DATA & BANK TRANSFER SUITE
-  // ==========================================
-  const TURKISH_BANKS = {
-    garanti: {
-      name: 'Garanti BBVA',
-      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
-      iban: 'TR12 0006 2000 0001 2345 6789 01',
-      rawIban: 'TR120006200000012345678901',
-      fastEmail: 'fatura@relaxax.com',
-      branch: 'Kadıköy Şubesi (Kod: 620) / 1234567'
-    },
-    isbank: {
-      name: 'Türkiye İş Bankası',
-      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
-      iban: 'TR34 0006 4000 0002 3456 7890 12',
-      rawIban: 'TR340006400000023456789012',
-      fastEmail: 'fatura@relaxax.com',
-      branch: 'Moda Şubesi (Kod: 1042) / 7654321'
-    },
-    yapikredi: {
-      name: 'Yapı Kredi',
-      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
-      iban: 'TR56 0006 7000 0003 4567 8901 23',
-      rawIban: 'TR560006700000034567890123',
-      fastEmail: 'fatura@relaxax.com',
-      branch: 'Kadıköy Rıhtım Şubesi (Kod: 815) / 9876543'
-    },
-    akbank: {
-      name: 'Akbank',
-      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
-      iban: 'TR78 0004 6000 0004 5678 9012 34',
-      rawIban: 'TR780004600000045678901234',
-      fastEmail: 'fatura@relaxax.com',
-      branch: 'Bağdat Caddesi Şubesi (Kod: 320) / 4567890'
-    },
-    ziraat: {
-      name: 'Ziraat Bankası',
-      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
-      iban: 'TR90 0001 0000 0005 6789 0123 45',
-      rawIban: 'TR900001000000056789012345',
-      fastEmail: 'fatura@relaxax.com',
-      branch: 'Kadıköy Şubesi (Kod: 110) / 3216549'
-    },
-    qnb: {
-      name: 'QNB Finansbank',
-      holder: 'RELAXAX TEMİZLİK VE HİJYEN TEKNOLOJİLERİ A.Ş.',
-      iban: 'TR01 0011 1000 0006 7890 1234 56',
-      rawIban: 'TR010011100000067890123456',
-      fastEmail: 'fatura@relaxax.com',
-      branch: 'Feneryolu Şubesi (Kod: 412) / 8529631'
-    }
-  };
-
-  const POLISH_BANKS = {
-    blik: {
-      name: 'BLIK / Płatność Telefonem',
-      holder: 'RELAXAX POLSKA SP. Z O.O.',
-      iban: '+48 546 647 900 (BLIK Telefon)',
-      rawIban: '+48546647900',
-      fastEmail: 'faktury@relaxax.com',
-      branch: 'Warszawa Centrum / Natychmiastowy Przelew BLIK'
-    },
-    pko: {
-      name: 'PKO Bank Polski',
-      holder: 'RELAXAX POLSKA SP. Z O.O.',
-      iban: 'PL 42 1020 1013 0000 0002 0001 2345',
-      rawIban: 'PL42102010130000000200012345',
-      fastEmail: 'faktury@relaxax.com',
-      branch: 'Oddział 1 w Warszawie (Śródmieście)'
-    },
-    mbank: {
-      name: 'mBank',
-      holder: 'RELAXAX POLSKA SP. Z O.O.',
-      iban: 'PL 11 1140 1010 0000 0001 2345 6789',
-      rawIban: 'PL11114010100000000123456789',
-      fastEmail: 'faktury@relaxax.com',
-      branch: 'Centrum Korporacyjne Warszawa'
-    },
-    santander: {
-      name: 'Santander Bank Polska',
-      holder: 'RELAXAX POLSKA SP. Z O.O.',
-      iban: 'PL 88 1090 1014 0000 0001 2345 6789',
-      rawIban: 'PL88109010140000000123456789',
-      fastEmail: 'faktury@relaxax.com',
-      branch: 'Oddział Warszawa Mokotów'
-    },
-    ing: {
-      name: 'ING Bank Śląski',
-      holder: 'RELAXAX POLSKA SP. Z O.O.',
-      iban: 'PL 22 1050 1012 1000 0022 1234 5678',
-      rawIban: 'PL22105010121000002212345678',
-      fastEmail: 'faktury@relaxax.com',
-      branch: 'Warszawa Wola'
-    },
-    millennium: {
-      name: 'Bank Millennium',
-      holder: 'RELAXAX POLSKA SP. Z O.O.',
-      iban: 'PL 55 1160 2202 0000 0002 1234 5678',
-      rawIban: 'PL55116022020000000212345678',
-      fastEmail: 'faktury@relaxax.com',
-      branch: 'Warszawa Ursynów'
-    }
-  };
-
-  const bActiveBankName = document.getElementById('bActiveBankName');
-  const bAccountHolder = document.getElementById('bAccountHolder');
-  const bIbanDisplay = document.getElementById('bIbanDisplay');
-  const bFastEmail = document.getElementById('bFastEmail');
-  const bBranchNo = document.getElementById('bBranchNo');
   const btnCopyIbanMain = document.getElementById('btnCopyIbanMain');
   const btnCopyHolder = document.getElementById('btnCopyHolder');
 
-  let currentSelectedBank = 'garanti';
+  if (typeof window.refreshBankSelector === 'function') {
+    window.refreshBankSelector();
+  }
 
-  const updateSelectedBankDisplay = (bankKey) => {
-    const isPl = currentLanguage === 'pl' || (selectedCity && selectedCity.toLowerCase().includes('warsz'));
-    const bankSet = isPl ? POLISH_BANKS : TURKISH_BANKS;
-    const defaultKey = isPl ? 'blik' : 'garanti';
-    const bank = bankSet[bankKey] || bankSet[defaultKey] || TURKISH_BANKS.garanti;
-    currentSelectedBank = bankKey;
-    if (bActiveBankName) bActiveBankName.textContent = bank.name;
-    if (bAccountHolder) bAccountHolder.textContent = bank.holder;
-    if (bIbanDisplay) bIbanDisplay.textContent = bank.iban;
-    if (bFastEmail) bFastEmail.textContent = bank.fastEmail;
-    if (bBranchNo) bBranchNo.textContent = bank.branch;
-    if (btnCopyIbanMain) btnCopyIbanMain.dataset.iban = bank.rawIban;
-  };
-
-  const bindBankPills = () => {
-    const bankTabsContainer = document.querySelector('.bank-selector-tabs');
-    if (!bankTabsContainer) return;
-    const isPl = currentLanguage === 'pl' || (selectedCity && selectedCity.toLowerCase().includes('warsz'));
-
-    if (isPl) {
-      bankTabsContainer.innerHTML = `
-        <button type="button" class="bank-pill-btn active" data-bank="blik">⚡ BLIK / Tel</button>
-        <button type="button" class="bank-pill-btn" data-bank="pko">PKO Bank Polski</button>
-        <button type="button" class="bank-pill-btn" data-bank="mbank">mBank</button>
-        <button type="button" class="bank-pill-btn" data-bank="santander">Santander</button>
-        <button type="button" class="bank-pill-btn" data-bank="ing">ING Bank</button>
-        <button type="button" class="bank-pill-btn" data-bank="millennium">Millennium</button>
-      `;
-      updateSelectedBankDisplay('blik');
-    } else {
-      bankTabsContainer.innerHTML = `
-        <button type="button" class="bank-pill-btn active" data-bank="garanti">Garanti BBVA</button>
-        <button type="button" class="bank-pill-btn" data-bank="isbank">İş Bankası</button>
-        <button type="button" class="bank-pill-btn" data-bank="yapikredi">Yapı Kredi</button>
-        <button type="button" class="bank-pill-btn" data-bank="akbank">Akbank</button>
-        <button type="button" class="bank-pill-btn" data-bank="ziraat">Ziraat Bankası</button>
-        <button type="button" class="bank-pill-btn" data-bank="qnb">QNB Finansbank</button>
-      `;
-      updateSelectedBankDisplay('garanti');
-    }
-
-    const pills = bankTabsContainer.querySelectorAll('.bank-pill-btn');
-    pills.forEach(pill => {
-      pill.addEventListener('click', () => {
-        pills.forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        const bankKey = pill.dataset.bank || (isPl ? 'blik' : 'garanti');
-        updateSelectedBankDisplay(bankKey);
-        if (typeof window.playTickSound === 'function') window.playTickSound();
-      });
-    });
-  };
-
-  bindBankPills();
-  window.refreshBankSelector = bindBankPills;
-
-  if (btnCopyIbanMain) {
+  if (btnCopyIbanMain && !btnCopyIbanMain._bound) {
+    btnCopyIbanMain._bound = true;
     btnCopyIbanMain.addEventListener('click', (e) => {
       e.preventDefault();
       const iban = btnCopyIbanMain.dataset.iban || '';
@@ -9272,7 +9337,7 @@ function setupBookingReveal() {
         navigator.clipboard.writeText(iban).then(() => {
           const textSpan = btnCopyIbanMain.querySelector('.copy-text') || btnCopyIbanMain;
           const orig = textSpan.textContent;
-          textSpan.textContent = '✓ IBAN Kopyalandı!';
+          textSpan.textContent = (STATE.language === 'pl') ? '✓ Skopiowano IBAN!' : '✓ IBAN Kopyalandı!';
           btnCopyIbanMain.style.background = '#22c55e';
           setTimeout(() => {
             textSpan.textContent = orig;
