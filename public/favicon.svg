@@ -1,42 +1,68 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" fill="none">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
   <defs>
-    <linearGradient id="goldLeafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#f59e0b"/>
-      <stop offset="45%" stop-color="#fbbf24"/>
-      <stop offset="85%" stop-color="#fef08a"/>
-      <stop offset="100%" stop-color="#ffffff"/>
+    <!-- Rich Golden Gradient -->
+    <linearGradient id="leafGoldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dfa745" />
+      <stop offset="35%" stop-color="#f3cb75" />
+      <stop offset="70%" stop-color="#fae39c" />
+      <stop offset="100%" stop-color="#fdf4cf" />
     </linearGradient>
-    <linearGradient id="goldStemGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#d97706"/>
-      <stop offset="100%" stop-color="#fde68a"/>
-    </linearGradient>
+
+    <!-- Warm Golden Glow Filter -->
+    <filter id="leafAura" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
   </defs>
 
-  <!-- Background Ambient Glow -->
-  <circle cx="60" cy="60" r="45" fill="#f59e0b" opacity="0.15" />
+  <g transform="translate(0, 0)">
+    <!-- 1. Upper Leaf Blade (Soft curved back, sharp tip at top right, organic vein curve) -->
+    <path d="M 52,118 C 44,78 68,46 166,32 C 160,82 132,126 76,146 C 68,136 56,128 52,118 Z" 
+          fill="url(#leafGoldGrad)" 
+          filter="url(#leafAura)" />
 
-  <!-- Main Organic Golden Leaf Blade (Upper Section) -->
-  <path d="M26,98 C24,84 28,60 48,42 C68,24 88,20 102,18 C98,34 94,54 78,72 C64,88 44,96 26,98 Z" 
-        fill="url(#goldLeafGrad)" />
+    <!-- 2. Lower Stem & Vein Arch (Arching from stem at bottom-left along lower contour) -->
+    <path d="M 40,166 C 45,152 58,124 94,102 C 124,84 140,74 150,60 C 136,78 116,94 84,114 C 54,132 46,154 40,166 Z" 
+          fill="url(#leafGoldGrad)" 
+          filter="url(#leafAura)" />
 
-  <!-- Curved Stem & Midrib Slicing Arch (Lower Section) -->
-  <path d="M24,102 C28,92 38,76 56,62 C74,48 88,36 98,24 C82,38 66,52 48,68 C36,78 28,92 24,102 Z" 
-        fill="url(#goldStemGrad)" 
-        opacity="0.95" />
+    <!-- 3. Sparkling Stars (4-Point Diamond Sparkles) -->
+    <!-- Top-Right Prominent Star -->
+    <g transform="translate(154, 18)" filter="url(#starGlow)">
+      <path d="M0,-16 Q0,0 -16,0 Q0,0 0,16 Q0,0 16,0 Q0,0 0,-16 Z" fill="#fffbe8" />
+      <circle cx="0" cy="0" r="1.5" fill="#ffffff" />
+    </g>
 
-  <!-- Dynamic Sparkle Stars -->
-  <!-- Top Left Sparkle -->
-  <path d="M36,22 Q36,28 30,28 Q36,28 36,34 Q36,28 42,28 Q36,28 36,22 Z" fill="#fffbeb" opacity="0.95" />
-  <circle cx="36" cy="28" r="1" fill="#ffffff" />
+    <!-- Top-Left Star -->
+    <g transform="translate(56, 40)" filter="url(#starGlow)">
+      <path d="M0,-14 Q0,0 -14,0 Q0,0 0,14 Q0,0 14,0 Q0,0 0,-14 Z" fill="#fffbe8" />
+      <circle cx="0" cy="0" r="1.2" fill="#ffffff" />
+    </g>
 
-  <!-- Top Center-Right Sparkle -->
-  <path d="M92,10 Q92,16 86,16 Q92,16 92,22 Q92,16 98,16 Q92,16 92,10 Z" fill="#ffffff" />
-  <circle cx="92" cy="16" r="1.2" fill="#ffffff" />
+    <!-- Mid-Left Small Star -->
+    <g transform="translate(34, 82)" filter="url(#starGlow)">
+      <path d="M0,-10 Q0,0 -10,0 Q0,0 0,10 Q0,0 10,0 Q0,0 0,-10 Z" fill="#fae39c" />
+    </g>
 
-  <!-- Far Left Small Sparkle -->
-  <path d="M20,48 Q20,52 16,52 Q20,52 20,56 Q20,52 24,52 Q20,52 20,48 Z" fill="#fef08a" opacity="0.8" />
+    <!-- Far Top-Left Tiny Star -->
+    <g transform="translate(14, 46)">
+      <path d="M0,-7 Q0,0 -7,0 Q0,0 0,7 Q0,0 7,0 Q0,0 0,-7 Z" fill="#fdf4cf" opacity="0.8" />
+    </g>
 
-  <!-- Bottom Right Sparkle -->
-  <path d="M96,68 Q96,75 89,75 Q96,75 96,82 Q96,75 103,75 Q96,75 96,68 Z" fill="#ffffff" />
-  <circle cx="96" cy="75" r="1.5" fill="#ffffff" />
+    <!-- Bottom-Right Star -->
+    <g transform="translate(156, 118)" filter="url(#starGlow)">
+      <path d="M0,-13 Q0,0 -13,0 Q0,0 0,13 Q0,0 13,0 Q0,0 0,-13 Z" fill="#fffbe8" />
+      <circle cx="0" cy="0" r="1.2" fill="#ffffff" />
+    </g>
+
+    <!-- Mid-Right Subtle Sparkle -->
+    <g transform="translate(162, 70)">
+      <path d="M0,-6 Q0,0 -6,0 Q0,0 0,6 Q0,0 6,0 Q0,0 0,-6 Z" fill="#fae39c" opacity="0.85" />
+    </g>
+  </g>
 </svg>
