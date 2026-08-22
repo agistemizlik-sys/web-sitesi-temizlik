@@ -7804,7 +7804,25 @@ function setupPromoCodeLogic() {
       return;
     }
 
-    // Try backend API verification
+    // 1. Instant Client-Side Verification for Known Promo Codes
+    if (Object.prototype.hasOwnProperty.call(KNOWN_DISCOUNT_CODES, code)) {
+      const discountRate = KNOWN_DISCOUNT_CODES[code];
+      const discountPct = Math.round(discountRate * 100);
+      STATE.calculator.promoCode = code;
+      STATE.calculator.discountRate = discountRate;
+
+      const template = dict.promoValidDiscount || '✓ Kod Uygulandı: {code} (%{discount} İndirim!)';
+      feedbackEl.textContent = template.replace('{code}', code).replace('{discount}', discountPct);
+      feedbackEl.style.color = '#10b981';
+      feedbackEl.style.display = 'block';
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
+      if (typeof updatePriceSliderDisplay === 'function') updatePriceSliderDisplay();
+      logDebug('Promo code applied instantly:', code, 'Discount:', discountRate);
+      return;
+    }
+
+    // 2. Try backend API verification for dynamic campaigns / referral codes
     try {
       const resp = await fetch('/api/promo', {
         method: 'POST',
@@ -7833,30 +7851,16 @@ function setupPromoCodeLogic() {
         }
       }
     } catch(e) {
-      logDebug('Backend promo check fallback to client:', e);
+      logDebug('Backend promo check fallback:', e);
     }
 
-    // Client-side fallback
-    if (KNOWN_DISCOUNT_CODES.hasOwnProperty(code)) {
-      const discountRate = KNOWN_DISCOUNT_CODES[code];
-      const discountPct = Math.round(discountRate * 100);
-      STATE.calculator.promoCode = code;
-      STATE.calculator.discountRate = discountRate;
-
-      const template = dict.promoValidDiscount || '✓ Kod Uygulandı: {code} (%{discount} İndirim!)';
-      feedbackEl.textContent = template.replace('{code}', code).replace('{discount}', discountPct);
-      feedbackEl.style.color = '#10b981';
-      feedbackEl.style.display = 'block';
-      if (typeof window.playTickSound === 'function') window.playTickSound();
-    } else {
-      STATE.calculator.promoCode = code;
-      STATE.calculator.discountRate = 0;
-
-      const template = dict.promoValidTracking || '✓ Emlakçı Referans Kodu Onaylandı ({code})';
-      feedbackEl.textContent = template.replace('{code}', code);
-      feedbackEl.style.color = '#3b82f6';
-      feedbackEl.style.display = 'block';
-    }
+    // 3. Fallback tracking reference code
+    STATE.calculator.promoCode = code;
+    STATE.calculator.discountRate = 0;
+    const template = dict.promoValidTracking || '✓ Referans Kodu Kaydedildi ({code})';
+    feedbackEl.textContent = template.replace('{code}', code);
+    feedbackEl.style.color = '#38bdf8';
+    feedbackEl.style.display = 'block';
 
     if (typeof updateBookingSummaryBox === 'function') updateBookingSummaryBox();
     if (typeof updatePriceSliderDisplay === 'function') updatePriceSliderDisplay();
