@@ -8197,9 +8197,9 @@ function updatePriceSliderDisplay() {
   const grossTotal = baseCalc + extraSum;
   let finalNetTotal = (baseCalc * freqDiscountRate) + extraSum;
 
-  // Payment Method Discount (%5 discount for bank transfer / Havale / EFT)
+  // Payment Method Discount (%5 discount for bank transfer / Havale / EFT / BLIK / FAST)
   const currentPayMethod = document.getElementById('payMethodInput')?.value || 'transfer';
-  if (currentPayMethod === 'transfer') {
+  if (currentPayMethod === 'transfer' || currentPayMethod === 'blik' || currentPayMethod === 'fast') {
     finalNetTotal *= 0.95;
   }
 
@@ -8215,10 +8215,11 @@ function updatePriceSliderDisplay() {
   const elO = document.getElementById('freqValOnce');
 
   const formatMoney = (val) => {
+    const rounded = Math.round((val + Number.EPSILON) * 100) / 100;
     if (isPl) {
-      return val.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' PLN';
+      return rounded.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' PLN';
     } else {
-      return val.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
+      return rounded.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
     }
   };
   const promoMultiplier = STATE.calculator.discountRate > 0 ? (1 - STATE.calculator.discountRate) : 1;
@@ -8253,10 +8254,14 @@ function updatePriceSliderDisplay() {
 
   const rowTransferDiscountEl = document.getElementById('rowTransferDiscount');
   const valTransferDiscountEl = document.getElementById('valTransferDiscount');
+  const lblTransferDiscountTextEl = document.getElementById('lblTransferDiscountText');
   if (rowTransferDiscountEl && valTransferDiscountEl) {
-    if (currentPayMethod === 'transfer') {
+    if (currentPayMethod === 'transfer' || currentPayMethod === 'blik' || currentPayMethod === 'fast') {
       const transferDiscountAmt = ((baseCalc * freqDiscountRate) + extraSum) * 0.05;
-      valTransferDiscountEl.textContent = `-%5 Anında (-${formatMoney(transferDiscountAmt)})`;
+      if (lblTransferDiscountTextEl) {
+        lblTransferDiscountTextEl.textContent = isPl ? 'Zniżka płatności przelew/BLIK (-5%):' : 'Havale / EFT / FAST İndirimi (-%5):';
+      }
+      valTransferDiscountEl.textContent = isPl ? `-5% Natychmiast (-${formatMoney(transferDiscountAmt)})` : `-%5 Anında (-${formatMoney(transferDiscountAmt)})`;
       rowTransferDiscountEl.style.display = 'flex';
     } else {
       rowTransferDiscountEl.style.display = 'none';
@@ -8265,10 +8270,14 @@ function updatePriceSliderDisplay() {
 
   const rowPromoDiscountEl = document.getElementById('rowPromoDiscount');
   const valPromoDiscountEl = document.getElementById('valPromoDiscount');
+  const lblPromoDiscountTextEl = document.getElementById('lblPromoDiscountText');
   if (rowPromoDiscountEl && valPromoDiscountEl) {
     if (STATE.calculator.discountRate > 0) {
       const promoPct = Math.round(STATE.calculator.discountRate * 100);
-      valPromoDiscountEl.textContent = `-%${promoPct} Kupon İndirimi`;
+      if (lblPromoDiscountTextEl) {
+        lblPromoDiscountTextEl.textContent = isPl ? `Kod promocyjny (-${promoPct}%):` : `Promosyon Kodu (-%${promoPct}):`;
+      }
+      valPromoDiscountEl.textContent = isPl ? `-${promoPct}% Rabat` : `-%${promoPct} Kupon İndirimi`;
       rowPromoDiscountEl.style.display = 'flex';
     } else {
       rowPromoDiscountEl.style.display = 'none';
@@ -9472,7 +9481,7 @@ function setupBookingReveal() {
       const isPlMode = (STATE.language || 'tr') === 'pl';
       let digits = e.target.value.replace(/\D/g, '');
       if (isPlMode) {
-        if (digits.startsWith('48')) digits = digits.substring(2);
+        if (digits.startsWith('48') && digits.length > 9) digits = digits.substring(2);
         if (digits.length > 9) digits = digits.substring(0, 9);
         let formatted = '';
         if (digits.length > 0) {
@@ -9482,7 +9491,10 @@ function setupBookingReveal() {
         }
         e.target.value = formatted;
       } else {
-        if (digits.startsWith('90')) digits = digits.substring(2);
+        if (digits.startsWith('90') && digits.length > 10) digits = digits.substring(2);
+        if (digits.length > 0 && !digits.startsWith('0') && digits.length <= 10) {
+          digits = '0' + digits;
+        }
         if (digits.length > 11) digits = digits.substring(0, 11);
         let formatted = '';
         if (digits.length > 0) {
