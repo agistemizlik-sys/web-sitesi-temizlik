@@ -7743,12 +7743,13 @@ function getServiceLabelTranslated(service, dict) {
 }
 
 function getFrequencyLabelTranslated(coeff, dict) {
+  const isPl = STATE.language === 'pl';
   const labels = {
-    '1': dict.calcFreqSingle || 'Tek Seferlik',
-    '0.8': dict.calcFreqWeekly || 'Haftalık Düzenli (%20 İndirim)',
-    '0.9': dict.calcFreqMonthly || 'Aylık Düzenli (%10 İndirim)'
+    '1': dict.calcFreqSingle || (isPl ? 'Jednorazowo' : 'Tek Seferlik'),
+    '0.8': dict.calcFreqWeekly || (isPl ? 'Cotygodniowe (-20% Rabat)' : 'Haftalık Düzenli (%20 İndirim)'),
+    '0.9': dict.calcFreqMonthly || (isPl ? 'Miesięczne (-10% Rabat)' : 'Aylık Düzenli (%10 İndirim)')
   };
-  return labels[coeff] || 'Düzenli';
+  return labels[coeff] || (isPl ? 'Regularne' : 'Düzenli');
 }
 
 const ROOM_LAYOUTS_TR = {
@@ -7829,7 +7830,7 @@ function updateBookingSummaryBox() {
   const layoutText = escapeHTML(layouts[parseInt(area)] || area);
 
   const promoHtml = STATE.calculator.promoCode ? `
-    <div class="summary-row"><span>${escapeHTML(isPl ? 'Kod partnerski/rabatowy:' : 'Referans / Kupon Kodu:')}</span> <span class="summary-val" style="color: var(--clr-accent); font-weight: 700;">${escapeHTML(STATE.calculator.promoCode)}${STATE.calculator.discountRate > 0 ? ` (%${Math.round(STATE.calculator.discountRate * 100)} İndirim)` : ''}</span></div>
+    <div class="summary-row"><span>${escapeHTML(isPl ? 'Kod partnerski/rabatowy:' : 'Referans / Kupon Kodu:')}</span> <span class="summary-val" style="color: var(--clr-accent); font-weight: 700;">${escapeHTML(STATE.calculator.promoCode)}${STATE.calculator.discountRate > 0 ? (isPl ? ` (-${Math.round(STATE.calculator.discountRate * 100)}% Rabat)` : ` (%${Math.round(STATE.calculator.discountRate * 100)} İndirim)`) : ''}</span></div>
   ` : '';
 
   summaryBox.innerHTML = `
