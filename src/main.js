@@ -9768,7 +9768,7 @@ function setupBookingReveal() {
     });
   }
 
-  // ScrollSpy for Step Progress Bar
+  // ScrollSpy & Interactive Jump Navigation for Step Progress Bar
   const bookingRevealScreen = document.querySelector('.booking-reveal-screen') || document.getElementById('bookingReveal');
   const stepSections = [
     { id: 'wizardStep1Section', indicator: document.getElementById('stepIndicator1') },
@@ -9776,8 +9776,22 @@ function setupBookingReveal() {
     { id: 'wizardStep3Section', indicator: document.getElementById('stepIndicator3') }
   ];
 
+  // Interactive click on step indicators to jump smoothly
+  stepSections.forEach(sec => {
+    if (sec.indicator) {
+      sec.indicator.addEventListener('click', () => {
+        const targetEl = document.getElementById(sec.id);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (typeof window.playTickSound === 'function') window.playTickSound();
+        }
+      });
+    }
+  });
+
   if (bookingRevealScreen) {
     const handleScrollSpy = () => {
+      const isPl = (STATE.language || 'tr') === 'pl';
       const scrollPos = bookingRevealScreen.scrollTop + 180;
       let activeIndex = 0;
       const screenRect = bookingRevealScreen.getBoundingClientRect();
@@ -9800,25 +9814,52 @@ function setupBookingReveal() {
           }
         }
       });
+
+      // Update sticky bottom button text based on active step on mobile
+      const stickyBtnSpan = document.querySelector('.m-sticky-btn span');
+      if (stickyBtnSpan) {
+        if (activeIndex === 0) {
+          stickyBtnSpan.textContent = isPl ? 'Dalej: Szczegóły ➔' : 'İlerle: Ekstra & Tarih ➔';
+        } else if (activeIndex === 1) {
+          stickyBtnSpan.textContent = isPl ? 'Dalej: Adres i Płatność ➔' : 'İlerle: Adres & Ödeme ➔';
+        } else {
+          stickyBtnSpan.textContent = isPl ? 'Potwierdź zamówienie ➔' : 'Siparişi Tamamla ➔';
+        }
+      }
     };
-    bookingRevealScreen.addEventListener('scroll', debounce(handleScrollSpy, 40), { passive: true });
+    bookingRevealScreen.addEventListener('scroll', debounce(handleScrollSpy, 30), { passive: true });
   }
 
   function handleMobileStickyCheckout() {
     const bookingScreen = document.getElementById('bookingReveal');
     if (!bookingScreen) return;
     
+    const step2 = document.getElementById('wizardStep2Section');
     const step3 = document.getElementById('wizardStep3Section');
     const nameInput = document.getElementById('cName');
     const phoneInput = document.getElementById('cPhone');
     const submitBtn = document.getElementById('btnSubmitBooking');
     
-    if (nameInput && nameInput.value.trim() && phoneInput && phoneInput.value.trim()) {
-      if (submitBtn) submitBtn.click();
-    } else {
+    const scrollPos = bookingScreen.scrollTop + 220;
+    const s2Top = step2 ? (step2.offsetTop - bookingScreen.offsetTop) : 9999;
+    const s3Top = step3 ? (step3.offsetTop - bookingScreen.offsetTop) : 9999;
+
+    if (scrollPos < s2Top) {
+      if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    } else if (scrollPos < s3Top) {
       if (step3) {
         step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
         if (nameInput) setTimeout(() => { try { nameInput.focus(); } catch(e){} }, 400);
+      }
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    } else {
+      if (nameInput && !nameInput.value.trim()) {
+        nameInput.focus();
+        nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (phoneInput && !phoneInput.value.trim()) {
+        phoneInput.focus();
+        phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (submitBtn) {
         submitBtn.click();
       }
