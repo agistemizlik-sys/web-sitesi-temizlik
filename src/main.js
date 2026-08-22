@@ -9406,6 +9406,19 @@ function setupBookingReveal() {
   }
   restoreBookingDraft();
 
+  // Interactive Live Clear for Required Fields
+  ['cName', 'cPhone', 'cStreet', 'cHouseNum', 'cAptNum'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (el.value.trim().length > 0) {
+          el.style.border = '';
+          el.style.boxShadow = '';
+        }
+      });
+    }
+  });
+
   // Date shortcut chips
   const dateTodayBtn = document.getElementById('btnDateToday');
   const dateTomorrowBtn = document.getElementById('btnDateTomorrow');
