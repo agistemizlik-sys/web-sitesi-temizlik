@@ -3227,31 +3227,73 @@ function setupPortalIntroClick() {
   let triggered = false;
   let autoTimer = null;
 
-  // Smooth 3D liquid parallax reaction on mouse movement over video
+  // 1. Declare event handler functions first to prevent Temporal Dead Zone (TDZ) ReferenceErrors
   const onMouseMove = (e) => {
     if (triggered || !introVideo) return;
     const nx = (e.clientX / window.innerWidth - 0.5) * 14;
     const ny = (e.clientY / window.innerHeight - 0.5) * 14;
     introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
   };
-  introStage.addEventListener('mousemove', onMouseMove, { passive: true });
 
-  const onTriggerIntro = (e) => {
+  let touchStartY = 0;
+  let touchStartX = 0;
+  const onTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    }
+  };
+
+  const onTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      const nx = (e.touches[0].clientX / window.innerWidth - 0.5) * 14;
+      const ny = (e.touches[0].clientY / window.innerHeight - 0.5) * 14;
+      if (introVideo) introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
+      const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+      if (deltaY > 15) {
+        onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+      }
+    }
+  };
+
+  let wheelDeltaAccum = 0;
+  const onWheel = (e) => {
+    if (triggered) return;
+    wheelDeltaAccum += Math.abs(e.deltaY) + Math.abs(e.deltaX);
+    if (wheelDeltaAccum > 10 || Math.abs(e.deltaY) > 8) {
+      onTriggerIntro(e);
+    }
+  };
+
+  const onKeyDown = (e) => {
+    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowDown' || e.code === 'PageDown') {
+      onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
+    }
+  };
+
+  const cleanupIntroListeners = () => {
+    try {
+      introStage.removeEventListener('click', onTriggerIntro);
+      introStage.removeEventListener('pointerdown', onTriggerIntro);
+      introStage.removeEventListener('touchstart', onTouchStart);
+      introStage.removeEventListener('touchend', onTriggerIntro);
+      introStage.removeEventListener('touchmove', onTouchMove);
+      introStage.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('wheel', onWheel);
+      document.removeEventListener('keydown', onKeyDown);
+    } catch(err) {}
+    if (autoTimer) clearTimeout(autoTimer);
+  };
+
+  // 2. Main entrance trigger handler
+  function onTriggerIntro(e) {
     if (triggered) return;
     triggered = true;
 
-    introStage.removeEventListener('click', onTriggerIntro);
-    introStage.removeEventListener('pointerdown', onTriggerIntro);
-    introStage.removeEventListener('touchstart', onTouchStart);
-    introStage.removeEventListener('touchend', onTriggerIntro);
-    introStage.removeEventListener('touchmove', onTouchMove);
-    introStage.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('wheel', onWheel);
-    document.removeEventListener('keydown', onKeyDown);
-    if (autoTimer) clearTimeout(autoTimer);
+    cleanupIntroListeners();
 
     if (window.playTickSound) {
-      window.playTickSound();
+      try { window.playTickSound(); } catch(e) {}
     }
 
     document.body.classList.remove('portal-intro-mode');
@@ -3264,6 +3306,7 @@ function setupPortalIntroClick() {
       csoOverlay.style.display = 'flex';
       csoOverlay.style.visibility = 'visible';
       csoOverlay.style.opacity = '1';
+      csoOverlay.style.pointerEvents = 'all';
       const earthVideo = document.getElementById('csoEarthVideo');
       if (earthVideo) {
         const isMob = window.innerWidth <= 768;
@@ -3290,31 +3333,43 @@ function setupPortalIntroClick() {
     }
 
     if (typeof window.triggerDust === 'function') {
-      window.triggerDust(clickCoords.x, clickCoords.y);
+      try { window.triggerDust(clickCoords.x, clickCoords.y); } catch(e) {}
     }
     if (typeof window.playWarpSound === 'function') {
-      window.playWarpSound();
+      try { window.playWarpSound(); } catch(e) {}
     }
 
     // Execute Three.js WebGL Liquify Screen Wipe Shader Transition
-    runLiquifyScreenWipe(introStage, introVideo, clickCoords, () => {
-      if (introVideo && !introVideo.paused) {
-        try { introVideo.pause(); } catch(err) {}
-      }
-      if (introStage && introStage.parentNode) {
+    if (typeof runLiquifyScreenWipe === 'function') {
+      runLiquifyScreenWipe(introStage, introVideo, clickCoords, () => {
+        if (introVideo && !introVideo.paused) {
+          try { introVideo.pause(); } catch(err) {}
+        }
+        if (introStage && introStage.parentNode) {
+          introStage.style.display = 'none';
+          introStage.remove();
+        }
+        if (STATE.lenisInstance) {
+          STATE.lenisInstance.stop();
+        }
+      });
+    } else {
+      if (introStage) {
         introStage.style.display = 'none';
         introStage.remove();
       }
-      if (STATE.lenisInstance) {
-        STATE.lenisInstance.stop();
-      }
-    });
-  };
+    }
+  }
 
-  // Direct click & touch listeners on intro stage for instantaneous advance
+  // 3. Attach listeners
+  introStage.addEventListener('mousemove', onMouseMove, { passive: true });
   introStage.addEventListener('click', onTriggerIntro);
   introStage.addEventListener('pointerdown', onTriggerIntro);
+  introStage.addEventListener('touchstart', onTouchStart, { passive: true });
+  introStage.addEventListener('touchmove', onTouchMove, { passive: true });
   introStage.addEventListener('touchend', onTriggerIntro);
+  window.addEventListener('wheel', onWheel, { passive: true });
+  document.addEventListener('keydown', onKeyDown, { once: true });
 
   // Auto-start fallback in 1200ms
   const autoDelay = isMobile ? 1200 : 1600;
@@ -3322,46 +3377,6 @@ function setupPortalIntroClick() {
     onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
   }, autoDelay);
 
-  // Scroll wheel
-  let wheelDeltaAccum = 0;
-  const onWheel = (e) => {
-    if (triggered) return;
-    wheelDeltaAccum += Math.abs(e.deltaY) + Math.abs(e.deltaX);
-    if (wheelDeltaAccum > 10 || Math.abs(e.deltaY) > 8) {
-      onTriggerIntro(e);
-    }
-  };
-  window.addEventListener('wheel', onWheel, { passive: true });
-
-  // Touch swipe
-  let touchStartY = 0;
-  let touchStartX = 0;
-  const onTouchStart = (e) => {
-    if (e.touches && e.touches[0]) {
-      touchStartY = e.touches[0].clientY;
-      touchStartX = e.touches[0].clientX;
-    }
-  };
-  const onTouchMove = (e) => {
-    if (e.touches && e.touches[0]) {
-      const nx = (e.touches[0].clientX / window.innerWidth - 0.5) * 14;
-      const ny = (e.touches[0].clientY / window.innerHeight - 0.5) * 14;
-      if (introVideo) introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
-      const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-      if (deltaY > 15) {
-        onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-      }
-    }
-  };
-  introStage.addEventListener('touchstart', onTouchStart, { passive: true });
-  introStage.addEventListener('touchmove', onTouchMove, { passive: true });
-
-  const onKeyDown = (e) => {
-    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowDown' || e.code === 'PageDown') {
-      onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
-    }
-  };
-  document.addEventListener('keydown', onKeyDown, { once: true });
   window.dismissIntroScreen = onTriggerIntro;
 }
 
