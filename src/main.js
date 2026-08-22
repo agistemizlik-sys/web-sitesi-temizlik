@@ -11004,7 +11004,7 @@ function setupVideoLoopEngineering() {
   const unlockAllAutoplayVideos = () => {
     if (autoplayUnlocked) return;
     autoplayUnlocked = true;
-    document.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video').forEach(v => {
+    document.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video, .cso-earth-video, .services-ivy-bg-video').forEach(v => {
       if (v.paused && v.dataset.userPaused !== 'true' && !v.closest('.cso-hidden, [style*="display: none"]')) {
         const p = v.play();
         if (p && typeof p.catch === 'function') p.catch(() => {});
@@ -11019,7 +11019,7 @@ function setupVideoLoopEngineering() {
   window.addEventListener('keydown', unlockAllAutoplayVideos, { passive: true, once: true });
 
   const attachLoopGuards = (root = document) => {
-    const loopingVideos = root.querySelectorAll('video[loop], .wizard-card-video-bg video');
+    const loopingVideos = root.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video, .cso-earth-video, .services-ivy-bg-video');
     loopingVideos.forEach(video => {
       if (video.dataset.loopEngineered === 'true') return;
       video.dataset.loopEngineered = 'true';
@@ -11036,17 +11036,17 @@ function setupVideoLoopEngineering() {
 
       let isWrapping = false;
 
-      // 1. High-Precision Frame-Accurate Loop Wrapper (requestVideoFrameCallback -> 60fps frame level)
+      // 1. High-Precision Frame-Accurate Loop Wrapper (requestVideoFrameCallback -> 60fps sub-frame level)
       const setupFrameAccurateLoop = () => {
         if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && typeof video.requestVideoFrameCallback === 'function') {
           const onFrame = (now, metadata) => {
-            if (video.duration > 0.5 && metadata.mediaTime >= (video.duration - 0.04)) {
+            if (video.duration > 0.5 && metadata.mediaTime >= (video.duration - 0.035)) {
               if (!isWrapping) {
                 isWrapping = true;
                 if (typeof video.fastSeek === 'function') {
-                  try { video.fastSeek(0); } catch(e) { video.currentTime = 0; }
+                  try { video.fastSeek(0.001); } catch(e) { video.currentTime = 0.001; }
                 } else {
-                  video.currentTime = 0;
+                  video.currentTime = 0.001;
                 }
                 if (video.paused && !document.hidden) {
                   video.play().catch(() => {});
@@ -11068,19 +11068,19 @@ function setupVideoLoopEngineering() {
 
       // 2. Fallback timeupdate sub-millisecond loop wrap
       const handleSeamlessWrap = () => {
-        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.045)) {
+        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.04)) {
           if (!isWrapping) {
             isWrapping = true;
             if (typeof video.fastSeek === 'function') {
-              try { video.fastSeek(0); } catch(e) { video.currentTime = 0; }
+              try { video.fastSeek(0.001); } catch(e) { video.currentTime = 0.001; }
             } else {
-              video.currentTime = 0;
+              video.currentTime = 0.001;
             }
             if (video.paused && !document.hidden) {
               const p = video.play();
               if (p && typeof p.catch === 'function') p.catch(() => {});
             }
-            setTimeout(() => { isWrapping = false; }, 40);
+            setTimeout(() => { isWrapping = false; }, 35);
           }
         }
       };
@@ -11089,7 +11089,7 @@ function setupVideoLoopEngineering() {
 
       // 3. Hardware / OS ended event instant wrap fallback
       video.addEventListener('ended', () => {
-        video.currentTime = 0;
+        video.currentTime = 0.001;
         const p = video.play();
         if (p && typeof p.catch === 'function') p.catch(() => {});
       });
@@ -11108,7 +11108,7 @@ function setupVideoLoopEngineering() {
             video.load();
             video.play().catch(() => {});
           } catch(e) {}
-        }, 200);
+        }, 180);
       });
 
       // 5. Battery saver / low-power freeze guard
@@ -11126,6 +11126,27 @@ function setupVideoLoopEngineering() {
 
   attachLoopGuards();
 
+  // Dynamic MutationObserver to catch any dynamically injected videos in modals or steps
+  if ('MutationObserver' in window) {
+    const domObserver = new MutationObserver((mutations) => {
+      mutations.forEach(m => {
+        if (m.addedNodes && m.addedNodes.length) {
+          m.addedNodes.forEach(node => {
+            if (node.nodeType === 1) {
+              if (node.tagName === 'VIDEO') {
+                attachLoopGuards(node.parentElement || document);
+              } else if (node.querySelectorAll) {
+                const innerVideos = node.querySelectorAll('video');
+                if (innerVideos.length) attachLoopGuards(node);
+              }
+            }
+          });
+        }
+      });
+    });
+    domObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
   // IntersectionObserver to pause offscreen looping videos for battery & GPU savings, and resume on view
   if ('IntersectionObserver' in window) {
     const videoObserver = new IntersectionObserver((entries) => {
@@ -11137,20 +11158,20 @@ function setupVideoLoopEngineering() {
           }
         } else {
           // Offscreen: can pause to save resources unless actively in transition
-          if (!v.paused && !v.classList.contains('intro-video')) {
+          if (!v.paused && !v.classList.contains('intro-video') && !v.classList.contains('cso-earth-video')) {
             v.pause();
           }
         }
       });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.12 });
 
-    document.querySelectorAll('.wizard-card-video-bg video').forEach(v => videoObserver.observe(v));
+    document.querySelectorAll('video[loop], .wizard-card-video-bg video').forEach(v => videoObserver.observe(v));
   }
 
   // Tab visibility resume handler for seamless infinite background loops
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      document.querySelectorAll('video[loop], .wizard-card-video-bg video').forEach(v => {
+      document.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video, .cso-earth-video').forEach(v => {
         const rect = v.getBoundingClientRect();
         if (rect.top < window.innerHeight && rect.bottom > 0 && v.dataset.userPaused !== 'true') {
           v.play().catch(() => {});
