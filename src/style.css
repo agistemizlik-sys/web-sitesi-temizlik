@@ -7337,10 +7337,11 @@ video::-webkit-media-controls-overlay-play-button {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  pointer-events: none; /* Auto-trigger: tıklama artık gerekmiyor */
+  pointer-events: auto !important;
   background: #000000;
   will-change: transform, opacity;
-  cursor: default;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .portal-intro-video {

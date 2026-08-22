@@ -2960,6 +2960,18 @@ function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
   };
   renderLoop();
 
+  // Safety watchdog fallback: guarantee onComplete is called within 1400ms
+  let completed = false;
+  const safeComplete = () => {
+    if (completed) return;
+    completed = true;
+    try { cancelAnimationFrame(animFrameId); } catch(e){}
+    try { geometry.dispose(); material.dispose(); texture.dispose(); renderer.dispose(); } catch(e){}
+    if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
+    if (onComplete) onComplete();
+  };
+  const watchdogTimer = setTimeout(safeComplete, 1400);
+
   // Hide the HTML video after first WebGL render frame
   requestAnimationFrame(() => {
     if (introVideo) {
@@ -2969,18 +2981,11 @@ function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
 
   gsap.to(uniforms.u_progress, {
     value: 1.0,
-    duration: 1.25,
+    duration: 1.0,
     ease: 'power2.inOut',
     onComplete: () => {
-      cancelAnimationFrame(animFrameId);
-      geometry.dispose();
-      material.dispose();
-      texture.dispose();
-      renderer.dispose();
-      if (canvas && canvas.parentNode) {
-        canvas.parentNode.removeChild(canvas);
-      }
-      if (onComplete) onComplete();
+      clearTimeout(watchdogTimer);
+      safeComplete();
     }
   });
 }
@@ -3019,6 +3024,7 @@ function setupPortalIntroClick() {
     introStage.removeEventListener('click', onTriggerIntro);
     introStage.removeEventListener('pointerdown', onTriggerIntro);
     introStage.removeEventListener('touchstart', onTouchStart);
+    introStage.removeEventListener('touchend', onTriggerIntro);
     introStage.removeEventListener('touchmove', onTouchMove);
     introStage.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('wheel', onWheel);
@@ -3086,14 +3092,18 @@ function setupPortalIntroClick() {
     });
   };
 
-  // ── AUTO-START: Kullanıcının tıklaması gerekmeden otomatik geçiş ──
-  // Mobilde 1800ms, masaüstünde 2200ms sonra otomatik tetiklenir
-  const autoDelay = isMobile ? 1800 : 2200;
+  // Direct click & touch listeners on intro stage for instantaneous advance
+  introStage.addEventListener('click', onTriggerIntro);
+  introStage.addEventListener('pointerdown', onTriggerIntro);
+  introStage.addEventListener('touchend', onTriggerIntro);
+
+  // Auto-start fallback in 1200ms
+  const autoDelay = isMobile ? 1200 : 1600;
   autoTimer = setTimeout(() => {
     onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
   }, autoDelay);
 
-  // Scroll wheel ile erken tetikleyebilme
+  // Scroll wheel
   let wheelDeltaAccum = 0;
   const onWheel = (e) => {
     if (triggered) return;
@@ -3104,7 +3114,7 @@ function setupPortalIntroClick() {
   };
   window.addEventListener('wheel', onWheel, { passive: true });
 
-  // Touch swipe & touch parallax detection
+  // Touch swipe
   let touchStartY = 0;
   let touchStartX = 0;
   const onTouchStart = (e) => {
@@ -3132,9 +3142,6 @@ function setupPortalIntroClick() {
       onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
     }
   };
-
-  // Artık tıklama beklenmez — auto-timer tetikler
-  // Sadece erken tetikleme için scroll/touch/key event'leri bırakıldı
   document.addEventListener('keydown', onKeyDown, { once: true });
   window.dismissIntroScreen = onTriggerIntro;
 }
