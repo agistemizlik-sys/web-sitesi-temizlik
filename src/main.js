@@ -3463,11 +3463,17 @@ function initApp() {
   const isPolandLocation = timezone.includes('warsaw') || timezone.includes('poland');
   const isTurkeyLocation = timezone.includes('istanbul') || timezone.includes('turkey');
 
-  let detectedLang = 'en';
+  let detectedLang = 'tr';
   if (savedLang && TRANSLATIONS[savedLang]) {
     detectedLang = savedLang;
+  } else if (hasPolishLang || isPolandLocation) {
+    detectedLang = 'pl';
+  } else if (hasUkrainianLang || isUkraineLocation) {
+    detectedLang = 'uk';
+  } else if (hasTurkishLang || isTurkeyLocation) {
+    detectedLang = 'tr';
   } else {
-    detectedLang = 'en';
+    detectedLang = 'tr';
   }
 
   const defaultLang = detectedLang;
