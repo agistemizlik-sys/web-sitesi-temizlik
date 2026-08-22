@@ -3448,6 +3448,7 @@ function initApp() {
   setupHolographicClickRipples();
   setupAudioToggle();
   setupVideoLoopEngineering();
+  setupCodeBlockEngine();
 
   // Auto-detect browser/device language and location (prioritizing saved preference)
   const savedLang = localStorage.getItem('relaxax_language');
@@ -11363,6 +11364,61 @@ function setupAudioToggle() {
     document.removeEventListener('keydown', enableAudioCtx);
   };
   document.addEventListener('click', enableAudioCtx);
+}
+
+// ==========================================
+// 16. ELEVATED CODE BLOCKS & CLICK-TO-COPY ENGINE
+// ==========================================
+function setupCodeBlockEngine() {
+  const handleCodeCopy = (el, customText = '') => {
+    const textToCopy = customText || el.textContent.trim();
+    if (!textToCopy) return;
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+
+        // Visual bounce & micro glow
+        el.style.transition = 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+        el.style.transform = 'scale(1.08)';
+        el.style.boxShadow = '0 0 20px rgba(34, 197, 94, 0.7)';
+        el.style.borderColor = '#22c55e';
+        el.style.color = '#22c55e';
+
+        // Toast feedback
+        let toast = document.getElementById('relaxaxGlobalToast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'relaxaxGlobalToast';
+          toast.className = 'relaxax-toast';
+          document.body.appendChild(toast);
+        }
+        toast.className = 'relaxax-toast success show';
+        const isPl = STATE && STATE.language === 'pl';
+        toast.innerHTML = `<span style="font-size:1.2rem;">📋</span> <span><strong>${isPl ? 'Skopiowano:' : 'Kopyalandı:'}</strong> <code>${textToCopy}</code></span>`;
+
+        if (window.codeToastTimeout) clearTimeout(window.codeToastTimeout);
+        window.codeToastTimeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+
+        setTimeout(() => {
+          el.style.transform = '';
+          el.style.boxShadow = '';
+          el.style.borderColor = '';
+          el.style.color = '';
+        }, 1200);
+      }).catch(() => {});
+    }
+  };
+
+  // Delegate click for any code tag, pre block or copyable code badge
+  document.addEventListener('click', (e) => {
+    const codeTarget = e.target.closest('code, .code-copy-btn, .btn-copy-code-block, #previewNoticeCode, #resCodeNum');
+    if (codeTarget && !codeTarget.closest('#btnCopyIbanMain, #btnCopyHolder')) {
+      handleCodeCopy(codeTarget);
+    }
+  });
 }
 
 // Register Enterprise PWA Service Worker for offline asset caching

@@ -8513,17 +8513,134 @@ body.flag-selection-mode .portal-center-hint {
   color: #cbd5e1;
 }
 
-.transfer-notice-box strong {
-  color: #38bdf8;
-  margin-right: 4px;
+/* ==========================================================================
+   ELEVATED CODE BLOCKS, MONOSPACE SNIPPETS & INTERACTIVE COPY PILLS
+   ========================================================================== */
+code,
+kbd,
+samp,
+pre {
+  font-family: ui-monospace, 'SF Mono', 'Fira Code', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, Monaco, monospace !important;
+  font-feature-settings: 'liga' on, 'calt' on, 'zero' on;
+}
+
+code {
+  background: rgba(14, 165, 233, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-size: 0.88em !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+  display: inline-block;
+  vertical-align: middle;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: all;
+  cursor: copy;
+}
+
+code:hover {
+  background: rgba(14, 165, 233, 0.28) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+  transform: translateY(-1px);
 }
 
 .transfer-notice-box code {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 800;
+  background: rgba(251, 191, 36, 0.18) !important;
+  border: 1px solid rgba(251, 191, 36, 0.45) !important;
+  color: #fbbf24 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+  user-select: all;
+  cursor: copy;
+}
+
+.transfer-notice-box code:hover {
+  background: rgba(251, 191, 36, 0.32) !important;
+  border-color: #fbbf24 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Elevated Preformatted Code Blocks */
+pre,
+.code-block {
+  position: relative;
+  background: rgba(10, 17, 34, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 14px !important;
+  padding: 18px 20px !important;
+  margin: 14px 0 !important;
+  color: #f1f5f9 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.6 !important;
+  overflow-x: auto !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.12) !important;
+}
+
+pre code,
+.code-block code {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: 1em !important;
+  display: block;
+}
+
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.code-mac-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.code-mac-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.code-mac-dot.red { background: #ef4444; }
+.code-mac-dot.yellow { background: #f59e0b; }
+.code-mac-dot.green { background: #10b981; }
+
+.btn-copy-code-block {
+  background: rgba(30, 41, 69, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-code-block:hover {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
 }
 
 /* 9. Cash Panel Features */
