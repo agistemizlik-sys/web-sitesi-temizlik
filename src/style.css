@@ -10814,12 +10814,12 @@ iframe[title*="Message preview"] {
 
 @media (max-width: 768px) {
   .custom-tawk-launcher-dock {
-    bottom: 14px;
-    right: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom, 14px));
+    right: max(14px, env(safe-area-inset-right, 14px));
   }
   .custom-chat-avatar-wrapper {
-    width: 56px;
-    height: 56px;
+    width: 54px;
+    height: 54px;
   }
   .custom-chat-status-pulse {
     width: 13px;
