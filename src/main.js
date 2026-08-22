@@ -8,6 +8,7 @@ import { escapeHTML, sanitizeInputVal, debounce, throttle, formatCurrency } from
 import { playTickSound, playSuccessChime, toggleSound, isSoundEnabled } from './js/modules/soundEngine.js';
 import { openModal, closeModal } from './js/modules/modalManager.js';
 import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from './js/modules/pricingEngine.js';
+import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,6 +19,8 @@ window.playSuccessChime = playSuccessChime;
 window.toggleSound = toggleSound;
 window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
+window.initLoopEngineering = initLoopEngineering;
+window.attachSubMsVideoLoop = attachSubMsVideoLoop;
 
 // Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
 let DEBUG = window.location.hash.includes('debug') || localStorage.getItem('relaxax_debug') === 'true' || localStorage.getItem('tworose_debug') === 'true';
