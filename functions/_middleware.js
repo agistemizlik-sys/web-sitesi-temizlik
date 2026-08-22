@@ -37,12 +37,26 @@ const META = {
     description:
       "İzmir, İstanbul, Sakarya, Kocaeli, Samsun, Balıkesir ve Antalya'da premium temizlik. Kaydırarak kontrol edebileceğiniz efsanevi sinematik sahnelerle tanışın.",
   },
+  en: {
+    htmlLang: 'en',
+    ogLocale: 'en_US',
+    title: 'RELAXAX | Cinematic Interactive Cleaning Experience',
+    description:
+      'Premium residential and commercial cleaning services across Warsaw and major regions. Experience legendary cinematic visual scenes and book online.',
+  },
   pl: {
     htmlLang: 'pl',
     ogLocale: 'pl_PL',
     title: 'RELAXAX | Kinowe Interaktywne Wrażenia Sprzątania',
     description:
       'Kompleksowe usługi sprzątania premium w Warszawie — mieszkania, biura i firmy. Poznaj legendarne kinowe sceny i zarezerwuj sprzątanie online.',
+  },
+  uk: {
+    htmlLang: 'uk',
+    ogLocale: 'uk_UA',
+    title: 'RELAXAX | Преміальний Сервіс Прибирання та Клінінгу',
+    description:
+      'Професійне прибирання квартир, будинків та офісів у Варшаві та Туреччині. Розрахуйте вартість онлайн за лічені хвилини.',
   },
 };
 
@@ -67,6 +81,14 @@ const FAQ = {
     ["Çalışma saatleriniz nedir?", "Her gün 09:00 - 19:00 saatleri arasında hizmet veriyoruz."],
     ["Kurumsal (B2B) temizlik hizmeti veriyor musunuz?", "Evet; ofis, restoran, plaza ve iş yerleri için periyodik kurumsal temizlik çözümleri sunuyoruz."],
   ],
+  en: [
+    ["In which cities does RELAXAX provide cleaning services?", "We provide professional services in Warsaw (Poland) and across Istanbul, Izmir, Antalya, Kocaeli, Sakarya, Samsun, and Balıkesir (Turkey)."],
+    ["What cleaning services do you provide?", "Standard apartment cleaning, deep/spring cleaning, move-in/move-out turnkey cleaning, post-construction care, and corporate B2B solutions."],
+    ["How are cleaning prices calculated?", "Pricing is calculated dynamically based on total square meters, room/bath count, service type, cleaning frequency, and selected optional extras."],
+    ["How can I book a service?", "Simply fill out our interactive online booking calculator — our team confirms your appointment via WhatsApp promptly."],
+    ["What are your working hours?", "We are at your service daily from 09:00 to 19:00."],
+    ["Do you provide commercial / B2B cleaning?", "Yes, we provide recurring corporate cleaning contracts for offices, clinics, retail shops, and commercial spaces."],
+  ],
   pl: [
     ["W jakich miastach RELAXAX świadczy usługi sprzątania?", "W Polsce działamy w Warszawie, a w Turcji w Stambule, Izmirze, Kocaeli, Sakarii, Samsunie, Balıkesirze i Antalyi."],
     ["Jakie usługi sprzątania oferujecie?", "Sprzątanie standardowe, głębokie sprzątanie, sprzątanie firmowe (B2B) oraz dezynsekcję i dezynfekcję."],
@@ -74,6 +96,14 @@ const FAQ = {
     ["Jak dokonać rezerwacji?", "Wystarczy wypełnić formularz na stronie — zapytanie trafia do naszego zespołu przez WhatsApp i szybko się z Tobą kontaktujemy."],
     ["W jakich godzinach pracujecie?", "Codziennie w godzinach 09:00 - 19:00."],
     ["Czy oferujecie sprzątanie dla firm (B2B)?", "Tak — oferujemy okresowe usługi dla biur, restauracji i centrów biznesowych."],
+  ],
+  uk: [
+    ["У яких містах працює сервіс RELAXAX?", "У Польщі ми надаємо послуги у Варшаві, а в Туреччині — у Стамбулі, Ізмірі, Анталії, Коджаелі та інших регіонах."],
+    ["Які види клінінгу доступні?", "Стандартне прибирання, генеральне прибирання, після ремонту, прибирання після переїзду та B2B клінінг."],
+    ["Як формується вартість?", "Ціна залежить від площі приміщення (м²), кількості кімнат/санвузлів, періодичності та обраних додаткових послуг."],
+    ["Як оформити замовлення?", "Заповніть онлайн-калькулятор на сайті — наш менеджер миттєво зв'яжеться з вами для підтвердження."],
+    ["Який графік роботи?", "Щодня без вихідних з 09:00 до 19:00."],
+    ["Чи обслуговуєте ви комерційні об'єкти?", "Так, ми укладаємо договори на періодичне обслуговування офісів, закладів та компаній."],
   ],
 };
 
@@ -86,6 +116,13 @@ const SERVICES = {
     ['İnşaat Sonrası Temizlik', 'Tadilat tozu arındırma, boya/alçı kazıma ve şantiye temizliği.'],
     ['Taşınma Öncesi/Sonrası Temizlik', 'Boş ev sterilizasyonu, dolap içi hijyen ve taşınmaya hazır temizlik.'],
   ],
+  en: [
+    ['Standard Home Cleaning', 'Routine periodic hygiene and accessible surface care.'],
+    ['Deep Spring Cleaning', 'In-depth steam purification and thorough corner detailing.'],
+    ['Move-in / Move-out Cleaning', 'Turnkey empty apartment sterilization and cabinet hygiene.'],
+    ['Post-Construction Cleaning', 'Heavy dust extraction, plaster removal, and paint scraping.'],
+    ['Commercial & Office B2B', 'Customized corporate cleaning plans for businesses.'],
+  ],
   pl: [
     ['Standardowe Sprzątanie', 'Ogólne porządki i podstawowa czystość dla domu i biura.'],
     ['Głębokie Sprzątanie', 'Dokładne czyszczenie zakamarków i głębokie usuwanie brudu.'],
@@ -94,17 +131,26 @@ const SERVICES = {
     ['Sprzątanie po budowie / remoncie', 'Usuwanie pyłu budowlanego, resztek farby, gipsu i czyszczenie spoin.'],
     ['Sprzątanie przed/po przeprowadzce', 'Sterylizacja pustego mieszkania, mycie wnętrza szafek i odkażanie.'],
   ],
+  uk: [
+    ['Стандартне Прибирання', 'Регулярна підтримка чистоти та свіжості в оселі.'],
+    ['Генеральне Прибирання', 'Глибоке парове очищення важкодоступних місць.'],
+    ['Прибирання після Переїзду', 'Підготовка житла до заселення або передачі орендодавцю.'],
+    ['Прибирання після Ремонту', 'Очищення від будівельного пилу, шпаклівки та фарби.'],
+    ['Клінінг для Бізнесу', 'Регулярне прибирання офісних та комерційних приміщень.'],
+  ],
 };
 
 const CITIES_LABEL = {
   tr: 'İstanbul, İzmir, Kocaeli, Sakarya, Samsun, Balıkesir, Antalya (Türkiye) ve Warszawa (Polonya)',
+  en: 'Warsaw (Poland), Istanbul, Izmir, Antalya, Kocaeli, Sakarya, Samsun, Balikesir (Turkey)',
   pl: 'Warszawa (Polska) oraz Stambuł, Izmir, Kocaeli, Sakarya, Samsun, Balıkesir i Antalya (Turcja)',
+  uk: 'Варшава (Польща), Стамбул, Ізмір, Анталія, Коджаелі, Сакар’я, Самсун (Туреччина)',
 };
 
 /** İstek URL'inden kanonik varyant URL'ini üretir (yalnız tanımlı parametreler korunur). */
 function variantUrl(lang, city) {
   const params = new URLSearchParams();
-  if (lang === 'pl') params.set('lang', 'pl');
+  if (lang && lang !== 'tr') params.set('lang', lang);
   if (city) params.set('city', city);
   const qs = params.toString();
   return `${ORIGIN}/${qs ? `?${qs}` : ''}`;
@@ -114,8 +160,10 @@ function variantUrl(lang, city) {
 function buildLinkHeader(lang, city) {
   return [
     `<${variantUrl('tr')}>; rel="alternate"; hreflang="tr"`,
+    `<${variantUrl('en')}>; rel="alternate"; hreflang="en"`,
     `<${variantUrl('pl')}>; rel="alternate"; hreflang="pl"`,
-    `<${variantUrl('tr')}>; rel="alternate"; hreflang="x-default"`,
+    `<${variantUrl('uk')}>; rel="alternate"; hreflang="uk"`,
+    `<${variantUrl('en')}>; rel="alternate"; hreflang="x-default"`,
     `<${variantUrl(lang, city)}>; rel="canonical"`,
   ].join(', ');
 }
@@ -293,20 +341,23 @@ export async function onRequest(context) {
   if (!contentType.includes('text/html')) return response;
 
   const langParam = url.searchParams.get('lang');
-  if (langParam === 'tr') {
-    url.searchParams.delete('lang');
-    const qs = url.searchParams.toString();
-    return Response.redirect(`${url.origin}/${qs ? `?${qs}` : ''}`, 301);
-  }
-
   const cityParam = (url.searchParams.get('city') || '').toLowerCase();
   const city = CITY_META[cityParam] ? cityParam : null;
-  const lang = langParam === 'pl' || (city && CITY_META[city].lang === 'pl') ? 'pl' : 'tr';
+  
+  let lang = 'en';
+  if (langParam && META[langParam]) {
+    lang = langParam;
+  } else if (city && CITY_META[city]) {
+    lang = CITY_META[city].lang;
+  }
 
-  // 1B — HTTP header düzeyinde hreflang + canonical: her HTML yanıtına (insan + bot)
+  // 1B — HTTP header düzeyinde hreflang + canonical + security headers: her HTML yanıtına
   const withHeaders = new Response(response.body, response);
   withHeaders.headers.set('Link', buildLinkHeader(lang, city));
-  withHeaders.headers.append('Vary', 'User-Agent');
+  withHeaders.headers.set('X-Content-Type-Options', 'nosniff');
+  withHeaders.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  withHeaders.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  withHeaders.headers.append('Vary', 'User-Agent, Accept-Language');
 
   const userAgent = request.headers.get('user-agent') || '';
   const isBot = BOT_RE.test(userAgent);

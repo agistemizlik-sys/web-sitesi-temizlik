@@ -20,6 +20,10 @@ const ALLOWED_EVENTS = new Set([
   'contact_whatsapp',
   'contact_phone',
   'contact_email',
+  'view_catalog',
+  'start_checkout',
+  'apply_promo',
+  'select_city'
 ]);
 
 // GA4 event adı → Meta standart event adı
@@ -28,6 +32,10 @@ const META_EVENT_MAP = {
   contact_whatsapp: 'Contact',
   contact_phone: 'Contact',
   contact_email: 'Contact',
+  view_catalog: 'ViewContent',
+  start_checkout: 'InitiateCheckout',
+  apply_promo: 'CustomizeProduct',
+  select_city: 'FindLocation'
 };
 
 async function sha256Hex(value) {
