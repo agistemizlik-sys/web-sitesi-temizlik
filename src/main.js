@@ -7263,9 +7263,14 @@ function openBookingScreen() {
       setTimeout(window.updateRoseVineProgress, 150);
     }
 
-    // Initialize In-Card Scroll Parallax Video Engine
+    // Initialize In-Card Scroll Parallax Video Engine & Sub-Ms Loop Registration
     if (typeof window.setupInCardVideoScrollEngine === 'function') {
       window.setupInCardVideoScrollEngine();
+    }
+    if (typeof window.attachSubMsVideoLoop === 'function') {
+      bookingEl.querySelectorAll('.wizard-card-video-bg video').forEach(v => {
+        window.attachSubMsVideoLoop(v);
+      });
     }
   }
 
