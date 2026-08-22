@@ -8601,45 +8601,75 @@ function setupBookingReveal() {
     });
   }
 
-  // Turkish Phone Number Auto-Formatter & Carrier Detection
+  // Multi-Country Smart Phone Number Auto-Formatter & Carrier Detection
   const phoneInput = document.getElementById('cPhone');
   const carrierBadge = document.getElementById('carrierBadge');
-  if (phoneInput && carrierBadge) {
+  if (phoneInput) {
     phoneInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '');
-      if (val.startsWith('90')) val = val.substring(2);
-      if (val.length > 11) val = val.substring(0, 11);
-      
-      let formatted = '';
-      if (val.length > 0) {
-        if (!val.startsWith('0')) val = '0' + val;
-        formatted = val.substring(0, 4);
-        if (val.length > 4) formatted += ' ' + val.substring(4, 7);
-        if (val.length > 7) formatted += ' ' + val.substring(7, 9);
-        if (val.length > 9) formatted += ' ' + val.substring(9, 11);
-      }
-      phoneInput.value = formatted;
+      const isPlMode = (STATE.language === 'pl');
+      let raw = e.target.value;
+      let digits = raw.replace(/\D/g, '');
 
-      // Carrier Detection
-      if (val.length >= 4) {
-        carrierBadge.style.display = 'inline-block';
-        const prefix = val.substring(0, 4);
-        const num = parseInt(prefix, 10);
-        if (num >= 530 && num <= 539) {
-          carrierBadge.className = 'carrier-badge turkcell';
-          carrierBadge.textContent = '🟡 Turkcell';
-        } else if (num >= 540 && num <= 549) {
-          carrierBadge.className = 'carrier-badge vodafone';
-          carrierBadge.textContent = '🔴 Vodafone';
-        } else if ((num >= 501 && num <= 509) || (num >= 550 && num <= 559)) {
-          carrierBadge.className = 'carrier-badge turktelekom';
-          carrierBadge.textContent = '🔵 Türk Telekom';
-        } else {
-          carrierBadge.className = 'carrier-badge';
-          carrierBadge.textContent = '📱 TR GSM';
+      if (isPlMode || digits.startsWith('48')) {
+        // Polish Phone Number: 9 digits (excluding 48) -> +48 XXX XXX XXX
+        if (digits.startsWith('48')) digits = digits.substring(2);
+        if (digits.length > 9) digits = digits.substring(0, 9);
+
+        let formatted = '+48 ';
+        if (digits.length > 0) {
+          formatted += digits.substring(0, 3);
+          if (digits.length > 3) formatted += ' ' + digits.substring(3, 6);
+          if (digits.length > 6) formatted += ' ' + digits.substring(6, 9);
+        }
+        phoneInput.value = (digits.length > 0) ? formatted : '';
+
+        if (carrierBadge) {
+          if (digits.length >= 3) {
+            carrierBadge.style.display = 'inline-block';
+            carrierBadge.className = 'carrier-badge';
+            carrierBadge.textContent = '🇵🇱 PL GSM';
+          } else {
+            carrierBadge.style.display = 'none';
+          }
         }
       } else {
-        carrierBadge.style.display = 'none';
+        // Turkish Phone Number: 11 digits starting with 05 -> 05XX XXX XX XX
+        if (digits.startsWith('90')) digits = digits.substring(2);
+        if (digits.length > 11) digits = digits.substring(0, 11);
+        
+        let formatted = '';
+        if (digits.length > 0) {
+          if (!digits.startsWith('0')) digits = '0' + digits;
+          formatted = digits.substring(0, 4);
+          if (digits.length > 4) formatted += ' ' + digits.substring(4, 7);
+          if (digits.length > 7) formatted += ' ' + digits.substring(7, 9);
+          if (digits.length > 9) formatted += ' ' + digits.substring(9, 11);
+        }
+        phoneInput.value = formatted;
+
+        // Carrier Detection
+        if (carrierBadge) {
+          if (digits.length >= 4) {
+            carrierBadge.style.display = 'inline-block';
+            const prefix = digits.substring(0, 4);
+            const num = parseInt(prefix, 10);
+            if (num >= 530 && num <= 539) {
+              carrierBadge.className = 'carrier-badge turkcell';
+              carrierBadge.textContent = '🟡 Turkcell';
+            } else if (num >= 540 && num <= 549) {
+              carrierBadge.className = 'carrier-badge vodafone';
+              carrierBadge.textContent = '🔴 Vodafone';
+            } else if ((num >= 501 && num <= 509) || (num >= 550 && num <= 559)) {
+              carrierBadge.className = 'carrier-badge turktelekom';
+              carrierBadge.textContent = '🔵 Türk Telekom';
+            } else {
+              carrierBadge.className = 'carrier-badge';
+              carrierBadge.textContent = '📱 TR GSM';
+            }
+          } else {
+            carrierBadge.style.display = 'none';
+          }
+        }
       }
     });
   }
