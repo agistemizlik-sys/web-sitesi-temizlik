@@ -1040,7 +1040,7 @@ function updateSelectedBankDisplay(bankKey) {
 
 function refreshBankSelector(targetLang) {
   const lang = targetLang || STATE.language || 'tr';
-  const isPl = lang === 'pl' || (STATE.city && String(STATE.city).toLowerCase().includes('warsz'));
+  const isPl = lang === 'pl' || (STATE.selectedCity && String(STATE.selectedCity).toLowerCase().includes('warsz'));
   const bankTabsContainer = document.querySelector('.bank-selector-tabs');
   if (!bankTabsContainer) return;
 
