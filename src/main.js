@@ -4,7 +4,20 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { STATE, REGION_THEMES, CITY_TO_REGION, CITY_NAMES_TR, CITY_NAMES_TR_TITLE } from './js/state.js';
 import { TRANSLATIONS, SERVICE_SCENE_TEXTS, SERVICE_SCENE_TEXTS_PL } from './js/translations.js';
 import { initAttribution, trackConversion } from './js/tracking.js';
+import { escapeHTML, sanitizeInputVal, debounce, throttle, formatCurrency } from './js/modules/domUtils.js';
+import { playTickSound, playSuccessChime, toggleSound, isSoundEnabled } from './js/modules/soundEngine.js';
+import { openModal, closeModal } from './js/modules/modalManager.js';
+import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from './js/modules/pricingEngine.js';
+
 gsap.registerPlugin(ScrollTrigger);
+
+// Attach globally required public helpers to window
+window.sanitizeInputValGlobal = sanitizeInputVal;
+window.playTickSound = playTickSound;
+window.playSuccessChime = playSuccessChime;
+window.toggleSound = toggleSound;
+window.openCorporateModal = openModal;
+window.closeCorporateModal = closeModal;
 
 // Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
 let DEBUG = window.location.hash.includes('debug') || localStorage.getItem('relaxax_debug') === 'true' || localStorage.getItem('tworose_debug') === 'true';
@@ -20,28 +33,6 @@ function logErrorDebug(...args) {
     console.error(...args);
   }
 }
-// Universal HTML Entity Sanitizer to eliminate DOM-based XSS vulnerabilities
-function escapeHTML(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-// Input Sanitizer against control characters, XSS, null bytes, and payload overflow
-function sanitizeInputVal(val, maxLen = 255) {
-  if (val === null || val === undefined) return '';
-  let str = String(val).trim();
-  str = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-  if (str.length > maxLen) {
-    str = str.substring(0, maxLen);
-  }
-  return escapeHTML(str);
-}
-window.sanitizeInputValGlobal = sanitizeInputVal;
 
 // Global window exception tracker writing directly to our visual screen logger when in debug mode
 window.onerror = function(message, source, lineno, colno, error) {
@@ -77,15 +68,6 @@ window.addEventListener('hashchange', () => {
 // Global cached window dimensions to prevent layout recalculations in mousemove events
 let cachedWindowWidth = window.innerWidth;
 let cachedWindowHeight = window.innerHeight;
-
-// Utility function to debounce high-frequency events
-function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
-}
 
 // Safari viewport height fix — sets --safari-vh CSS custom property
 // This compensates for iOS Safari's dynamic toolbar resizing the visual viewport
