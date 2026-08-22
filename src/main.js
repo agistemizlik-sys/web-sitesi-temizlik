@@ -6989,6 +6989,21 @@ function openBookingScreen() {
     if (typeof window.updateRoseVineProgress === 'function') {
       setTimeout(window.updateRoseVineProgress, 150);
     }
+
+    // Start Cinematic Video Rotation Stage & In-Card Videos
+    if (typeof window.startBookingCinematicBgEngine === 'function') {
+      window.startBookingCinematicBgEngine();
+    }
+    const inCardVideos = bookingEl.querySelectorAll('.wizard-card-video-bg video');
+    inCardVideos.forEach(v => {
+      try {
+        v.muted = true;
+        v.playsInline = true;
+        v.playbackRate = 1.0;
+        const p = v.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } catch(e) {}
+    });
   }
 
   // Hide portal if visible
