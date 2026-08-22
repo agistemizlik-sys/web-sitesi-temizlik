@@ -14149,7 +14149,7 @@ iframe[title*="Message preview"] {
     font-size: 0.62rem !important;
   }
 
-  /* Unified Luxury Porcelain Light Theme for Scent, Pet, Staff & Addons */
+  /* Unified Luxury Midnight Sapphire Theme for Scent, Pet, Staff & Addons */
   .wizard-scent-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -14159,27 +14159,28 @@ iframe[title*="Message preview"] {
   }
 
   .wizard-scent-card {
-    background: #ffffff !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: rgba(19, 31, 60, 0.85) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
     padding: 8px 6px !important;
     border-radius: 10px !important;
     width: 100% !important;
     box-sizing: border-box !important;
     min-width: 0 !important;
+    color: #ffffff !important;
   }
 
   .wizard-scent-card.active {
-    background: #fff1f2 !important;
-    border-color: #e11d48 !important;
+    background: rgba(2, 132, 199, 0.25) !important;
+    border-color: #38bdf8 !important;
   }
 
   .wizard-scent-card .scent-info strong {
-    color: #0f172a !important;
+    color: #ffffff !important;
     font-size: 0.72rem !important;
   }
 
   .wizard-scent-card .scent-info span {
-    color: #64748b !important;
+    color: #94a3b8 !important;
     font-size: 0.62rem !important;
   }
 
@@ -14192,31 +14193,32 @@ iframe[title*="Message preview"] {
   }
 
   .wizard-care-item {
-    background: #ffffff !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: rgba(19, 31, 60, 0.85) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
     padding: 8px 10px !important;
     border-radius: 10px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    color: #ffffff !important;
   }
 
   .wizard-care-item.active {
-    background: #f0fdf4 !important;
-    border-color: #10b981 !important;
+    background: rgba(34, 197, 94, 0.2) !important;
+    border-color: #4ade80 !important;
   }
 
   .wizard-care-item .care-text strong {
-    color: #0f172a !important;
+    color: #ffffff !important;
     font-size: 0.74rem !important;
   }
 
   .wizard-care-item .care-text span {
-    color: #64748b !important;
+    color: #94a3b8 !important;
     font-size: 0.62rem !important;
   }
 
   .wizard-care-item .care-switch {
-    background: #e2e8f0 !important;
+    background: rgba(255, 255, 255, 0.2) !important;
   }
 
   .wizard-kitchen-row,
@@ -14224,11 +14226,11 @@ iframe[title*="Message preview"] {
   .wizard-vacuum-banner,
   .wizard-supply-choice-row,
   .wizard-trust-strip {
-    background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    padding: 8px !important;
-    color: #0f172a !important;
+    background: rgba(19, 31, 60, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 12px !important;
+    padding: 10px !important;
+    color: #ffffff !important;
     box-sizing: border-box !important;
     width: 100% !important;
   }
@@ -14236,15 +14238,15 @@ iframe[title*="Message preview"] {
   .wizard-vacuum-banner .v-text-wrap strong,
   .supply-choice-header strong,
   .w-trust-info strong {
-    color: #0f172a !important;
-    font-size: 0.74rem !important;
+    color: #ffffff !important;
+    font-size: 0.78rem !important;
   }
 
   .wizard-vacuum-banner .v-text-wrap span,
   .supply-choice-header span,
   .w-trust-info span {
-    color: #64748b !important;
-    font-size: 0.62rem !important;
+    color: #94a3b8 !important;
+    font-size: 0.68rem !important;
   }
 
   .wizard-summary-box,
