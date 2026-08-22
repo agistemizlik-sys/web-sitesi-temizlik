@@ -1,11 +1,11 @@
 ﻿/**
- * @fileoverview High-Precision Loop Engineering Subsystem (Clean Code Module)
+ * @fileoverview Ultra-Precision Loop Engineering Subsystem (Clean Code Module)
  * Provides:
- * 1. Sub-millisecond seamless video looping with frame-accurate pre-seek
+ * 1. Sub-millisecond seamless video looping with frame-accurate pre-seek & stall auto-recovery
  * 2. GPU decoder keepalive & automatic battery power-state adaptation
  * 3. Infinite 3D floating ambient particle physics loop
- * 4. Continuous smooth kinetic marquee ticker loop
- * 5. Master requestAnimationFrame time-synchronized ticker
+ * 4. Continuous smooth kinetic marquee ticker loop for trust badges and reviews
+ * 5. Master requestAnimationFrame time-synchronized ticker (60/120Hz display refresh)
  */
 
 let isEngineActive = false;
@@ -30,12 +30,33 @@ export function attachSubMsVideoLoop(video) {
   video.setAttribute('webkit-playsinline', '');
   video.setAttribute('muted', '');
   video.setAttribute('loop', '');
+  video.setAttribute('preload', 'auto');
 
   // Secondary fallback event for low-power mode devices
   video.addEventListener('ended', () => {
     video.currentTime = 0.001;
     const p = video.play();
     if (p && typeof p.catch === 'function') p.catch(() => {});
+  }, { passive: true });
+
+  // Stall & waiting auto-recovery: prevents mobile decoders from freezing indefinitely
+  video.addEventListener('waiting', () => {
+    setTimeout(() => {
+      if (video.paused && !document.hidden && video.dataset.userPaused !== 'true') {
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+    }, 250);
+  }, { passive: true });
+
+  video.addEventListener('stalled', () => {
+    setTimeout(() => {
+      if (video.paused && !document.hidden && video.dataset.userPaused !== 'true') {
+        video.currentTime += 0.01;
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+    }, 300);
   }, { passive: true });
 
   // Timeupdate coarse guard
@@ -113,7 +134,7 @@ function masterLoopTick() {
   if (!isEngineActive) return;
 
   if (!document.hidden) {
-    // 1. Video loop inspection
+    // 1. Video loop inspection with sub-frame lookahead
     registeredLoopVideos.forEach(v => {
       if (!v.paused && v.duration > 0.4) {
         if (v.currentTime >= (v.duration - 0.045)) {
@@ -140,7 +161,7 @@ export function initLoopEngineering() {
 
   // Auto-discover and attach all looping videos in DOM
   const scanAndAttach = () => {
-    const videos = document.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video, #csoEarthVideo, #portalIntroVideo');
+    const videos = document.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video, #csoEarthVideo, #portalIntroVideo, #servicesIvyVideo');
     videos.forEach(v => attachSubMsVideoLoop(v));
   };
 
