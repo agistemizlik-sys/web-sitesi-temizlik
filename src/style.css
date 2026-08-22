@@ -11347,19 +11347,12 @@ iframe[title*="Message preview"] {
   transform: translateY(-1px);
 }
 
-.wizard-inspect-report-btn .r-icon {
-  font-size: 1.1rem;
-}
-
-/* ==========================================
-   📋 5. 48 NOKTA DİJİTAL HİJYEN RAPORU MODALI
-   ========================================== */
 .quality-report-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 11, 19, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(4, 8, 19, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   z-index: 10000020;
   display: flex;
   align-items: center;
@@ -11372,10 +11365,12 @@ iframe[title*="Message preview"] {
   width: 100%;
   max-width: 680px;
   max-height: 90vh;
-  background: #0f172a;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 20px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+  background: rgba(13, 22, 44, 0.96) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -11383,12 +11378,12 @@ iframe[title*="Message preview"] {
 }
 
 .qr-header {
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 26px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(19, 31, 60, 0.7);
 }
 
 .qr-badge {
@@ -11401,19 +11396,19 @@ iframe[title*="Message preview"] {
 }
 
 .qr-header h4 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #ffffff;
   margin: 0;
 }
 
 .qr-close-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 50%;
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 1rem;
   cursor: pointer;
   display: flex;
@@ -11423,12 +11418,13 @@ iframe[title*="Message preview"] {
 }
 
 .qr-close-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
 }
 
 .qr-body {
-  padding: 20px 24px;
+  padding: 22px 26px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -11439,10 +11435,11 @@ iframe[title*="Message preview"] {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 14px 18px;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 14px;
+  padding: 16px 20px;
+  background: rgba(19, 31, 60, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .qr-score-circle {
@@ -11454,7 +11451,7 @@ iframe[title*="Message preview"] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
   flex-shrink: 0;
 }
 
@@ -11469,22 +11466,22 @@ iframe[title*="Message preview"] {
   font-size: 0.55rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   margin-top: 2px;
 }
 
 .qr-score-info strong {
-  font-size: 0.92rem;
-  color: #f8fafc;
+  font-size: 0.95rem;
+  color: #ffffff;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .qr-score-info p {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: #94a3b8;
   margin: 0;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .qr-checklist-grid {
@@ -11494,17 +11491,17 @@ iframe[title*="Message preview"] {
 }
 
 .qr-check-category {
-  padding: 14px;
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  padding: 16px;
+  background: rgba(19, 31, 60, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
 }
 
 .qr-check-category h5 {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: #38bdf8;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 
 .qr-check-category ul {
@@ -11513,11 +11510,11 @@ iframe[title*="Message preview"] {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .qr-check-category li {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: #cbd5e1;
   display: flex;
   align-items: center;
@@ -11525,17 +11522,17 @@ iframe[title*="Message preview"] {
 }
 
 .qr-check-category .c-ok {
-  color: #10b981;
+  color: #4ade80;
   font-weight: 900;
 }
 
 .qr-footer {
-  padding: 14px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 18px 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(19, 31, 60, 0.7);
 }
 
 .qr-signature-box {
@@ -11548,23 +11545,18 @@ iframe[title*="Message preview"] {
   font-size: 0.68rem;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .sig-name {
   font-size: 0.82rem;
   font-weight: 800;
-  color: #fbbf24;
+  color: #4ade80;
 }
 
 .qr-ok-btn {
-  padding: 10px 20px;
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 800;
   cursor: pointer;
   transition: all 0.2s ease;
 }
