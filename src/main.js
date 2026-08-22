@@ -529,6 +529,18 @@ function applyPageMetaTranslations(dict, lang) {
   const twitterDesc = document.querySelector('meta[name="twitter:description"]');
   if (twitterDesc) twitterDesc.setAttribute('content', dict.description);
 
+  // Dynamic Geo-Targeting Meta Update
+  const isPlMode = lang === 'pl';
+  const geoRegionMeta = document.querySelector('meta[name="geo.region"]');
+  const geoPlacenameMeta = document.querySelector('meta[name="geo.placename"]');
+  const geoPositionMeta = document.querySelector('meta[name="geo.position"]');
+  const icbmMeta = document.querySelector('meta[name="ICBM"]');
+
+  if (geoRegionMeta) geoRegionMeta.setAttribute('content', isPlMode ? 'PL-14' : 'TR-34, TR-35, TR-07, TR-41, TR-54, TR-55, TR-10');
+  if (geoPlacenameMeta) geoPlacenameMeta.setAttribute('content', isPlMode ? 'Warszawa, Mazowieckie, Polska' : 'İstanbul, İzmir, Antalya, Kocaeli, Sakarya, Samsun, Balıkesir, Türkiye');
+  if (geoPositionMeta) geoPositionMeta.setAttribute('content', isPlMode ? '52.2297;21.0122' : '41.0082;28.9784');
+  if (icbmMeta) icbmMeta.setAttribute('content', isPlMode ? '52.2297, 21.0122' : '41.0082, 28.9784');
+
   // Dynamic LocalBusiness JSON-LD Structured Data Update
   const schemaScript = document.querySelector('script[type="application/ld+json"]');
   if (schemaScript) {
