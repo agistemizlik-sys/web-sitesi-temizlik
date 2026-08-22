@@ -7265,20 +7265,10 @@ function openBookingScreen() {
       setTimeout(window.updateRoseVineProgress, 150);
     }
 
-    // Start Cinematic Video Rotation Stage & In-Card Videos
-    if (typeof window.startBookingCinematicBgEngine === 'function') {
-      window.startBookingCinematicBgEngine();
+    // Initialize In-Card Scroll Parallax Video Engine
+    if (typeof window.setupInCardVideoScrollEngine === 'function') {
+      window.setupInCardVideoScrollEngine();
     }
-    const inCardVideos = bookingEl.querySelectorAll('.wizard-card-video-bg video');
-    inCardVideos.forEach(v => {
-      try {
-        v.muted = true;
-        v.playsInline = true;
-        v.playbackRate = 1.0;
-        const p = v.play();
-        if (p && typeof p.catch === 'function') p.catch(() => {});
-      } catch(e) {}
-    });
   }
 
   // Hide portal if visible
@@ -11144,73 +11134,76 @@ function setupVideoLoopEngineering() {
   });
 }
 
-// 🎬 CINEMATIC CHARACTER BACKGROUND VIDEO ENGINE FOR BOOKING FORM CARDS 🎬
-const BOOKING_CINEMATIC_VIDEOS = [
-  '/videos/monalisa.mp4',
-  '/videos/astronaut.mp4',
-  '/videos/sumo.mp4',
-  '/videos/samurai.mp4',
-  '/videos/gandalf.mp4',
-  '/videos/viking.mp4',
-  '/videos/knight.mp4',
-  '/videos/cowboy.mp4',
-  '/videos/roman.mp4',
-  '/videos/victorian.mp4',
-  '/videos/monk.mp4',
-  '/videos/grandmother.mp4'
-];
+// 🎬 IN-CARD VIDEO SCROLL PARALLAX ENGINE FOR BOOKING FORM CARDS 🎬
+function setupInCardVideoScrollEngine() {
+  const bookingScreen = document.getElementById('bookingReveal');
+  if (!bookingScreen) return;
 
-let bookingCinematicIndex = 0;
-let bookingCinematicTimer = null;
+  const cardVideoPairs = [];
+  const cards = bookingScreen.querySelectorAll('.wizard-section-card, .wizard-summary-card');
 
-function startBookingCinematicBgEngine() {
-  const vidA = document.getElementById('bookingBgVideoA');
-  const vidB = document.getElementById('bookingBgVideoB');
-  if (!vidA || !vidB) return;
+  cards.forEach(card => {
+    const video = card.querySelector('.wizard-card-video-bg video');
+    if (video) {
+      cardVideoPairs.push({ card, video });
+      video.muted = true;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.setAttribute('muted', '');
+      video.setAttribute('loop', '');
+      video.playbackRate = 1.0;
+    }
+  });
 
-  const attachSubMsLoop = (v) => {
-    if (!v || v.dataset.seamlessBound === 'true') return;
-    v.dataset.seamlessBound = 'true';
-    v.addEventListener('timeupdate', () => {
-      try {
-        if (v.duration > 0.5 && v.currentTime >= (v.duration - 0.05)) {
-          v.currentTime = 0;
-          const p = v.play();
+  if (cardVideoPairs.length === 0) return;
+
+  let ticking = false;
+  const updateScrollParallax = () => {
+    const screenRect = bookingScreen.getBoundingClientRect();
+    const screenCenterY = screenRect.top + screenRect.height / 2;
+
+    cardVideoPairs.forEach(({ card, video }) => {
+      const cardRect = card.getBoundingClientRect();
+      // Check if card is near or within the visible viewport of the booking modal
+      if (cardRect.bottom > screenRect.top - 80 && cardRect.top < screenRect.bottom + 80) {
+        const cardCenterY = cardRect.top + cardRect.height / 2;
+        const diffFromCenter = (cardCenterY - screenCenterY) / (screenRect.height / 2);
+        // Subtle vertical parallax offset tied to scroll (-18px to +18px)
+        const clampedDiff = Math.max(-1.5, Math.min(1.5, diffFromCenter));
+        const translateY = clampedDiff * 18;
+        video.style.transform = `scale(1.08) translate3d(0, ${translateY.toFixed(1)}px, 0)`;
+
+        if (video.paused && !document.hidden) {
+          const p = video.play();
           if (p && typeof p.catch === 'function') p.catch(() => {});
         }
-      } catch(e){}
-    }, { passive: true });
+      } else {
+        if (!video.paused) {
+          try { video.pause(); } catch(e) {}
+        }
+      }
+    });
+    ticking = false;
   };
-  attachSubMsLoop(vidA);
-  attachSubMsLoop(vidB);
 
-  if (bookingCinematicTimer) clearInterval(bookingCinematicTimer);
+  const onScroll = () => {
+    if (!ticking) {
+      requestAnimationFrame(updateScrollParallax);
+      ticking = true;
+    }
+  };
 
-  let activeIsA = true;
-  vidA.classList.add('active');
-  vidB.classList.remove('active');
-  const p0 = vidA.play();
-  if (p0 && typeof p0.catch === 'function') p0.catch(() => {});
+  if (!bookingScreen._inCardScrollAttached) {
+    bookingScreen._inCardScrollAttached = true;
+    bookingScreen.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
 
-  bookingCinematicTimer = setInterval(() => {
-    bookingCinematicIndex = (bookingCinematicIndex + 1) % BOOKING_CINEMATIC_VIDEOS.length;
-    const nextSrc = BOOKING_CINEMATIC_VIDEOS[bookingCinematicIndex];
-
-    const currentVid = activeIsA ? vidA : vidB;
-    const nextVid = activeIsA ? vidB : vidA;
-
-    nextVid.src = nextSrc;
-    nextVid.currentTime = 0;
-    const p = nextVid.play();
-    if (p && typeof p.catch === 'function') p.catch(() => {});
-
-    nextVid.classList.add('active');
-    currentVid.classList.remove('active');
-
-    activeIsA = !activeIsA;
-  }, 7000);
+  // Initial calculation
+  updateScrollParallax();
 }
-window.startBookingCinematicBgEngine = startBookingCinematicBgEngine;
+window.setupInCardVideoScrollEngine = setupInCardVideoScrollEngine;
 
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing

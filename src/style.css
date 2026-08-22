@@ -7512,72 +7512,91 @@ body.flag-selection-mode .portal-center-hint {
   box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Section Cards - Ultra-Refined Luxury Translucent Glass Card with In-Card Video */
-.wizard-section-card {
+/* Section Cards & Summary Cards - Ultra-Refined Luxury Translucent Glass Card with In-Card Video */
+.wizard-section-card,
+.wizard-summary-card {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.93) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
   border-radius: 24px;
-  padding: 32px;
   box-shadow: 
-    0 20px 45px -10px rgba(15, 23, 42, 0.12),
+    0 20px 45px -10px rgba(15, 23, 42, 0.10),
     0 0 1px 1px rgba(255, 255, 255, 0.95),
-    0 10px 25px -5px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  margin-bottom: 24px;
+    0 10px 25px -5px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   z-index: 10;
+}
+
+.wizard-section-card {
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.wizard-summary-card {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .wizard-card-video-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
-  border-radius: 24px;
+  border-radius: inherit;
 }
 
 .wizard-card-video-bg video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  transform: translate(-50%, -50%);
+  top: -12%;
+  left: 0;
+  width: 100%;
+  height: 124%;
   object-fit: cover;
   opacity: 0.32;
-  filter: saturate(1.2) contrast(1.1) brightness(1.05);
+  filter: saturate(1.25) contrast(1.1) brightness(1.02);
+  will-change: transform;
+  transform: scale(1.08) translate3d(0, 0, 0);
+  transition: opacity 0.4s ease, transform 0.12s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.wizard-section-card:hover .wizard-card-video-bg video,
+.wizard-summary-card:hover .wizard-card-video-bg video {
+  opacity: 0.45;
 }
 
 .wizard-card-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.72) 50%, rgba(255, 255, 255, 0.88) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 50%, rgba(255, 255, 255, 0.90) 100%);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: 1;
 }
 
-.wizard-section-card > *:not(.wizard-card-video-bg) {
+.wizard-section-card > *:not(.wizard-card-video-bg),
+.wizard-summary-card > *:not(.wizard-card-video-bg) {
   position: relative;
   z-index: 2;
 }
-.wizard-section-card:hover {
+
+.wizard-section-card:hover,
+.wizard-summary-card:hover {
   border-color: #cbd5e1;
   box-shadow: 
-    0 25px 55px -12px rgba(15, 23, 42, 0.12),
+    0 25px 55px -12px rgba(15, 23, 42, 0.14),
     0 0 1px 1px rgba(203, 213, 225, 0.9),
     0 12px 30px -5px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
 }
+
 .wizard-section-card:focus-within {
   border-color: #0284c7;
   box-shadow: 
