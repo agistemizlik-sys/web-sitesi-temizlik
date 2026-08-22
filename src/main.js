@@ -665,6 +665,31 @@ function applyPageMetaTranslations(dict, lang) {
               }
             }
           ]
+        },
+        {
+          "@type": "HowTo",
+          "name": isPl ? "Jak zamówić profesjonalne sprzątanie w 3 krokach na RELAXAX?" : "RELAXAX ile 3 Adımda Kolayca Temizlik Siparişi Nasıl Verilir?",
+          "description": isPl ? "Prosty proces rezerwacji sprzątania mieszkania lub biura online." : "Dakikalar içinde canlı fiyat hesaplayıp rezervasyon oluşturma adımları.",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "position": 1,
+              "name": isPl ? "Krok 1: Wybierz parametry lokalu" : "Adım 1: Mekan Bilgileri ve Oda Sayısı",
+              "text": isPl ? "Wybierz rodzaj sprzątania, liczbę pokoi, łazienek i metraż." : "Hizmet türünü (Standart, Detaylı, Taşınma), oda ve banyo sayısını seçin."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 2,
+              "name": isPl ? "Krok 2: Dobierz usługi dodatkowe i zapach" : "Adım 2: Ekstra Hizmetler ve Özel Oda Kokusu",
+              "text": isPl ? "Dodaj mycie piekarnika, okien, lodówki lub prasowanie oraz wybierz zapach." : "Fırın, buzdolabı, cam veya koltuk yıkama gibi ek hizmetleri ekleyip imza oda kokunuzu belirleyin."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 3,
+              "name": isPl ? "Krok 3: Wpisz adres, datę i potwierdź zamówienie" : "Adım 3: Adres, Tarih Seçimi ve Güvenli Onay",
+              "text": isPl ? "Podaj adres, wybierz dogodny termin i sfinalizuj rezerwację z rabatem." : "Adresinizi girin, randevu tarihinizi belirleyin ve siparişinizi %5 havale/FAST avantajıyla tamamlayın."
+            }
+          ]
         }
       ]
     };
