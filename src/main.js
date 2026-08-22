@@ -2926,7 +2926,10 @@ function skipPortalDirectToCity(city) {
   ];
   const matchedPlCity = plCities.find(c => c.toLowerCase() === city.toLowerCase());
   
-  const trCities = ['Izmir', 'Sakarya', 'Istanbul', 'Kocaeli', 'Samsun', 'Balikesir'];
+  const trCities = [
+    'Istanbul', 'Izmir', 'Ankara', 'Antalya', 'Bursa', 'Kocaeli', 'Sakarya', 'Balikesir', 'Samsun',
+    'Adana', 'Gaziantep', 'Konya', 'Eskisehir', 'Trabzon', 'Mersin', 'Kayseri', 'Diyarbakir', 'Bodrum'
+  ];
   const matchedTrCity = trCities.find(c => c.toLowerCase() === city.toLowerCase());
 
   let targetCity = '';
