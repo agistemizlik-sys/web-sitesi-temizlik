@@ -3666,6 +3666,10 @@ function initApp() {
   window.applyLanguage = applyLanguage;
   window.openPortalGateway = openPortalGateway;
   window.selectServiceGlobal = selectServiceGlobal;
+  window.openBookingScreen = openBookingScreen;
+  window.closeBookingScreen = closeBookingScreen;
+  window.selectCountryGlobal = selectCountryGlobal;
+  window.proceedWithIvyTransition = proceedWithIvyTransition;
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
   setupPortalIntroClick();
@@ -4566,12 +4570,13 @@ function setupPortalGateway() {
       portalStageEl.style.background = '#f8fafc';
     }
 
-    if (csoOverlay) {
-      csoOverlay.classList.add('cso-hidden');
-      csoOverlay.style.display = 'none';
-      csoOverlay.style.visibility = 'hidden';
-      csoOverlay.style.pointerEvents = 'none';
-      csoOverlay.style.opacity = '0';
+    const csoOverlayEl = document.getElementById('country-selector-overlay') || document.querySelector('.country-selector-overlay');
+    if (csoOverlayEl) {
+      csoOverlayEl.classList.add('cso-hidden');
+      csoOverlayEl.style.display = 'none';
+      csoOverlayEl.style.visibility = 'hidden';
+      csoOverlayEl.style.pointerEvents = 'none';
+      csoOverlayEl.style.opacity = '0';
       const earthVideo = document.getElementById('csoEarthVideo');
       if (earthVideo && !earthVideo.paused) {
         try { earthVideo.pause(); } catch(err) {}
@@ -4580,10 +4585,12 @@ function setupPortalGateway() {
 
     document.body.classList.add('flag-selection-mode');
 
-    if (mapSelectorStage) {
-      mapSelectorStage.style.display = 'block';
-      mapSelectorStage.style.pointerEvents = 'all';
-      mapSelectorStage.style.opacity = '1';
+    const mapStageEl = document.querySelector('.portal-map-selector-stage');
+    if (mapStageEl) {
+      mapStageEl.style.display = 'block';
+      mapStageEl.style.visibility = 'visible';
+      mapStageEl.style.pointerEvents = 'all';
+      mapStageEl.style.opacity = '1';
       setTimeout(() => {
         if (window.turkeyMapInstance) window.turkeyMapInstance.invalidateSize();
         if (window.polandMapInstance) window.polandMapInstance.invalidateSize();
