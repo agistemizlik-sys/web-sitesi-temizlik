@@ -1538,13 +1538,6 @@ function applyBookingTranslations(dict, lang) {
     const floatingCtaTxt = document.getElementById('floatingCtaTxt');
     if (floatingCtaTxt) floatingCtaTxt.textContent = lang === 'en' ? 'Book Now ➔' : (lang === 'pl' ? 'Zamów Teraz ➔' : (lang === 'uk' ? 'Замовити Зараз ➔' : 'Hemen Sipariş Ver ➔'));
 
-    const labels = bookingForm.querySelectorAll('label');
-    if (labels.length >= 4) {
-      labels[0].textContent = dict.bookingLabelName;
-      labels[1].textContent = dict.bookingLabelPhone;
-      labels[2].textContent = dict.bookingLabelCity;
-      labels[3].textContent = dict.bookingLabelType;
-    }
     const lblDate = document.getElementById('lblBookingLabelDate');
     const lblPrice = document.getElementById('lblBookingLabelPrice');
     if (lblDate && dict.bookingLabelDate) {
@@ -7266,6 +7259,16 @@ function openBookingScreen() {
       setTimeout(window.updateRoseVineProgress, 150);
     }
 
+    // 📊 Ads & Conversion Tracking: Initiate Checkout
+    try {
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'InitiateCheckout', { content_name: 'Cleaning Booking Wizard' });
+      }
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'begin_checkout', { event_category: 'ecommerce', event_label: 'booking_wizard' });
+      }
+    } catch (e) {}
+
     // Initialize In-Card Scroll Parallax Video Engine & Sub-Ms Loop Registration
     if (typeof window.setupInCardVideoScrollEngine === 'function') {
       window.setupInCardVideoScrollEngine();
@@ -10014,6 +10017,39 @@ function setupBookingReveal() {
       trackConversion('generate_lead', { city: city, service: serviceText, lang: STATE.language, user: { name: name, phone: phone } });
     } catch (trackErr) {
       console.warn("[TRACKING] Hata oluştu:", trackErr);
+    }
+
+    // 📊 Google Ads & Facebook Pixel Conversion Events for Live Ad Campaigns
+    try {
+      const orderVal = parseFloat(STATE.finalPrice) || 0;
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'conversion', {
+          send_to: 'AW-XXXXXXXXXX/booking_conversion',
+          value: orderVal,
+          currency: isPl ? 'PLN' : 'TRY',
+          transaction_id: resCode
+        });
+        window.gtag('event', 'purchase', {
+          transaction_id: resCode,
+          value: orderVal,
+          currency: isPl ? 'PLN' : 'TRY',
+          items: [{ item_name: serviceText || 'cleaning_service' }]
+        });
+      }
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Purchase', {
+          value: orderVal,
+          currency: isPl ? 'PLN' : 'TRY',
+          content_name: serviceText || 'cleaning_service',
+          order_id: resCode
+        });
+        window.fbq('track', 'Lead', {
+          content_name: serviceText || 'cleaning_service',
+          currency: isPl ? 'PLN' : 'TRY'
+        });
+      }
+    } catch (adErr) {
+      console.warn("[ADS TRACKING] Conversion dispatch error:", adErr);
     }
 
     // 🌹 Trigger Rose Vine Grand Blossom & Fluttering Petals Celebration 🌹
