@@ -9,6 +9,7 @@ import { playTickSound, playSuccessChime, toggleSound, isSoundEnabled } from './
 import { openModal, closeModal } from './js/modules/modalManager.js';
 import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from './js/modules/pricingEngine.js';
 import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngine.js';
+import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,52 +22,14 @@ window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
 window.initLoopEngineering = initLoopEngineering;
 window.attachSubMsVideoLoop = attachSubMsVideoLoop;
+window.toggleDiagnosticsHUD = toggleDiagnosticsHUD;
+window.runPerformanceBenchmark = runPerformanceBenchmark;
+window.exportDebugReport = exportDebugReport;
+window.logDebug = logDebug;
+window.logErrorDebug = logErrorDebug;
 
-// Styled Developer Debugging System (triggered via URL '#debug' or localStorage)
-let DEBUG = window.location.hash.includes('debug') || localStorage.getItem('relaxax_debug') === 'true' || localStorage.getItem('tworose_debug') === 'true';
-function logDebug(...args) {
-  if (DEBUG) {
-    console.log('%c[RELAXAX Debug]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 3px 6px; border-radius: 4px; border: 1px solid #00e5ff;', ...args);
-  }
-}
-function logErrorDebug(...args) {
-  if (DEBUG) {
-    console.error('%c[RELAXAX Error]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 3px 6px; border-radius: 4px; border: 1px solid #ff3366;', ...args);
-  } else {
-    console.error(...args);
-  }
-}
-
-// Global window exception tracker writing directly to our visual screen logger when in debug mode
-window.onerror = function(message, source, lineno, colno, error) {
-  if (DEBUG) {
-    let debugHUD = document.getElementById('cinemaDebugHUD');
-    if (!debugHUD && document.body) {
-      debugHUD = document.createElement('div');
-      debugHUD.id = 'cinemaDebugHUD';
-      debugHUD.style.cssText = 'position:fixed;bottom:20px;left:20px;z-index:999999;background:rgba(15,23,42,0.92);color:#ff3366;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:12px;border:1px solid #ff3366;pointer-events:none;';
-      document.body.appendChild(debugHUD);
-    }
-    if (debugHUD) {
-      debugHUD.innerHTML = `<span style="color:#ff3366;font-weight:bold;">ERR: ${escapeHTML(message)}</span><br>at ${escapeHTML(source)}:${escapeHTML(lineno)}`;
-      debugHUD.style.opacity = '1';
-    }
-  }
-};
-
-// Dynamic debug toggling via hashchange event
-window.addEventListener('hashchange', () => {
-  const isDebug = window.location.hash.includes('debug');
-  DEBUG = isDebug;
-  if (isDebug) {
-    localStorage.setItem('relaxax_debug', 'true');
-    console.log('%c[RELAXAX Debug Enabled]', 'color: #00e5ff; font-weight: bold; background: #071018; padding: 4px; border-radius: 4px; border: 1px solid #00e5ff;');
-  } else {
-    localStorage.removeItem('relaxax_debug');
-    localStorage.removeItem('tworose_debug');
-    console.log('%c[RELAXAX Debug Disabled]', 'color: #ff3366; font-weight: bold; background: #1a050b; padding: 4px; border-radius: 4px; border: 1px solid #ff3366;');
-  }
-});
+// Initialize Debug Hardening Suite immediately
+initDebugHardening();
 
 // Global cached window dimensions to prevent layout recalculations in mousemove events
 let cachedWindowWidth = window.innerWidth;
