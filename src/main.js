@@ -9598,13 +9598,102 @@ function setupBookingReveal() {
     if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
   };
 
+  const updateSlotAvailability = async (selectedDate) => {
+    try {
+      const city = document.getElementById('cCity')?.value || STATE.city || 'Istanbul';
+      const lang = STATE.language || 'tr';
+      const resp = await fetch(`/api/availability?city=${encodeURIComponent(city)}&date=${encodeURIComponent(selectedDate)}&lang=${encodeURIComponent(lang)}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.success && Array.isArray(data.slots)) {
+          data.slots.forEach(slot => {
+            const chip = document.querySelector(`.time-shortcut-chip[data-time="${slot.time}"]`);
+            if (chip) {
+              let hintSpan = chip.querySelector('.slot-hint');
+              if (!hintSpan) {
+                hintSpan = document.createElement('span');
+                hintSpan.className = 'slot-hint';
+                chip.appendChild(hintSpan);
+              }
+              if (slot.available) {
+                chip.style.opacity = '1';
+                chip.style.pointerEvents = 'auto';
+                hintSpan.textContent = lang === 'pl' ? '• Dostępny' : '• Müsait';
+                hintSpan.style.color = '#16a34a';
+              } else {
+                chip.style.opacity = '0.45';
+                hintSpan.textContent = lang === 'pl' ? '• Zajęty' : '• Dolu';
+                hintSpan.style.color = '#dc2626';
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      logDebug('Availability check fallback:', e);
+    }
+  };
+
+  // Live Reviews Badge Dynamic Updater
+  let reviewsQuotes = [];
+  let reviewQuoteIdx = 0;
+  let reviewInterval = null;
+
+  const initLiveReviewsBadge = async () => {
+    const quoteEl = document.getElementById('revRecentQuote');
+    const badgeTextEl = document.getElementById('revVerifiedText');
+    if (!quoteEl || !badgeTextEl) return;
+
+    const isPl = STATE.language === 'pl';
+    const country = isPl ? 'PL' : 'TR';
+
+    badgeTextEl.textContent = isPl ? '🛡️ 1.480+ Zweryfikowanych Klientów' : '🛡️ 1.480+ Doğrulanmış Müşteri';
+
+    try {
+      const resp = await fetch(`/api/reviews?country=${country}&limit=6`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.success && Array.isArray(data.reviews) && data.reviews.length > 0) {
+          reviewsQuotes = data.reviews.map(r => `"${r.text.substring(0, 48)}..." — ${r.author}`);
+          if (reviewsQuotes.length > 0) {
+            quoteEl.textContent = reviewsQuotes[0];
+            if (reviewInterval) clearInterval(reviewInterval);
+            reviewInterval = setInterval(() => {
+              reviewQuoteIdx = (reviewQuoteIdx + 1) % reviewsQuotes.length;
+              if (typeof gsap !== 'undefined') {
+                gsap.to(quoteEl, { opacity: 0, duration: 0.25, onComplete: () => {
+                  quoteEl.textContent = reviewsQuotes[reviewQuoteIdx];
+                  gsap.to(quoteEl, { opacity: 1, duration: 0.25 });
+                }});
+              } else {
+                quoteEl.textContent = reviewsQuotes[reviewQuoteIdx];
+              }
+            }, 5500);
+          }
+        }
+      }
+    } catch(e) {}
+  };
+  window.initLiveReviewsBadge = initLiveReviewsBadge;
+  initLiveReviewsBadge();
+
+  if (dateInput) {
+    dateInput.addEventListener('change', () => {
+      updateSlotAvailability(dateInput.value);
+    });
+  }
+
   setBookingDate(1);
+  setTimeout(() => {
+    if (dateInput?.value) updateSlotAvailability(dateInput.value);
+  }, 500);
 
   if (dateTodayBtn) {
     dateTodayBtn.addEventListener('click', () => {
       document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
       dateTodayBtn.classList.add('active');
       setBookingDate(0);
+      if (dateInput?.value) updateSlotAvailability(dateInput.value);
       if (typeof window.playTickSound === 'function') window.playTickSound();
     });
   }
@@ -9613,6 +9702,7 @@ function setupBookingReveal() {
       document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
       dateTomorrowBtn.classList.add('active');
       setBookingDate(1);
+      if (dateInput?.value) updateSlotAvailability(dateInput.value);
       if (typeof window.playTickSound === 'function') window.playTickSound();
     });
   }
@@ -9624,6 +9714,7 @@ function setupBookingReveal() {
       const day = d.getDay();
       const diff = day === 6 ? 1 : (6 - day);
       setBookingDate(diff);
+      if (dateInput?.value) updateSlotAvailability(dateInput.value);
       if (typeof window.playTickSound === 'function') window.playTickSound();
     });
   }
@@ -9633,6 +9724,7 @@ function setupBookingReveal() {
       document.querySelectorAll('.date-shortcut-chip').forEach(c => c.classList.remove('active'));
       dateNextWeekBtn.classList.add('active');
       setBookingDate(7);
+      if (dateInput?.value) updateSlotAvailability(dateInput.value);
       if (typeof window.playTickSound === 'function') window.playTickSound();
     });
   }
