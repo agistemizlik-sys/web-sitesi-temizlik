@@ -4208,13 +4208,6 @@ function setupPortalGateway() {
           targetCity = 'Warszawa';
         }
 
-        if (typeof selectCityGlobal === 'function') {
-          selectCityGlobal(targetCity);
-        } else if (typeof triggerSelectionFn === 'function') {
-          const rect = mini.getBoundingClientRect();
-          triggerSelectionFn(targetCity, rect.left + rect.width / 2, rect.top + rect.height / 2, mini);
-        }
-
         if (country === 'pl') {
           if (typeof showCityPreviewFn === 'function') {
             showCityPreviewFn('Warszawa', mini);
@@ -5246,11 +5239,29 @@ function setupPortalGateway() {
     mini.addEventListener('click', (e) => {
       e.stopPropagation();
       e.preventDefault();
-      if (typeof selectCityGlobal === 'function') {
-        selectCityGlobal(city);
-      } else if (typeof triggerSelectionFn === 'function') {
-        const rect = mini.getBoundingClientRect();
-        triggerSelectionFn(city, rect.left + rect.width / 2, rect.top + rect.height / 2, mini);
+      popularMiniCards.forEach(c => c.classList.remove('is-active'));
+      mini.classList.add('is-active');
+
+      if (typeof showCityPreviewFn === 'function') {
+        showCityPreviewFn(city, mini);
+      }
+
+      if (window.turkeyMapInstance && STATE.language !== 'pl') {
+        const CITY_COORDS = {
+          Istanbul: [41.0082, 28.9784],
+          Izmir: [38.4237, 27.1428],
+          Ankara: [39.9334, 32.8597],
+          Antalya: [36.8969, 30.7133],
+          Bursa: [40.1885, 29.0610],
+          Kocaeli: [40.7654, 29.9408],
+          Sakarya: [40.7560, 30.3784],
+          Balikesir: [39.6484, 27.8904],
+          Samsun: [41.2867, 36.3300]
+        };
+        const coords = CITY_COORDS[city];
+        if (coords) {
+          window.turkeyMapInstance.flyTo(coords, 9, { duration: 1.0 });
+        }
       }
     });
   });
