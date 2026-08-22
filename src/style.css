@@ -1613,8 +1613,8 @@ html.bypassing-gateway #portal-stage {
   opacity: 1 !important;
   pointer-events: auto !important;
   padding: 80px 20px 80px;
-  background: radial-gradient(ellipse at 50% 15%, #faf8f5 0%, #f4f0e8 45%, #e9e5dc 100%) !important;
-  color: #1e293b !important;
+  background: radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%) !important;
+  color: #f8fafc !important;
 }
 
 /* 🎬 Cinematic Character Video Stage Behind Booking Cards 🎬 */
@@ -7488,7 +7488,8 @@ body.flag-selection-mode .portal-center-hint {
 /* 1. Toggle Tabs */
 .wizard-toggle-tabs {
   display: flex;
-  background: #e2e8f0;
+  background: rgba(10, 17, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   padding: 6px;
   border-radius: 16px;
   gap: 6px;
@@ -7499,7 +7500,7 @@ body.flag-selection-mode .portal-center-hint {
   padding: 16px 24px;
   border: none;
   background: transparent;
-  color: #334155;
+  color: #94a3b8;
   font-weight: 800;
   font-size: 1.08rem;
   border-radius: 12px;
@@ -7517,15 +7518,18 @@ body.flag-selection-mode .portal-center-hint {
 .wizard-summary-card {
   position: relative;
   overflow: hidden;
-  background: #ffffff !important;
-  border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
+  background: rgba(13, 22, 44, 0.88) !important;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 24px;
   box-shadow: 
-    0 15px 40px -10px rgba(15, 23, 42, 0.07),
-    0 0 1px 1px rgba(226, 232, 240, 0.8),
-    0 4px 12px -2px rgba(0, 0, 0, 0.02);
+    0 20px 50px -10px rgba(0, 0, 0, 0.6),
+    0 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 4px 12px -2px rgba(0, 0, 0, 0.4);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   z-index: 10;
+  color: #f8fafc;
 }
 
 .wizard-section-card {
@@ -7579,7 +7583,7 @@ body.flag-selection-mode .portal-center-hint {
 .wizard-card-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 40%, rgba(255, 255, 255, 0.35) 75%, transparent 100%);
+  background: linear-gradient(90deg, #0d162c 0%, rgba(13, 22, 44, 0.95) 40%, rgba(13, 22, 44, 0.25) 75%, transparent 100%);
   z-index: 2;
   pointer-events: none;
 }
@@ -7592,20 +7596,20 @@ body.flag-selection-mode .portal-center-hint {
 
 .wizard-section-card:hover,
 .wizard-summary-card:hover {
-  border-color: #cbd5e1;
+  border-color: #38bdf8 !important;
   box-shadow: 
-    0 25px 55px -12px rgba(15, 23, 42, 0.14),
-    0 0 1px 1px rgba(203, 213, 225, 0.9),
-    0 12px 30px -5px rgba(0, 0, 0, 0.05);
+    0 25px 60px -12px rgba(2, 132, 199, 0.25),
+    0 0 0 2px rgba(2, 132, 199, 0.2),
+    0 12px 30px -5px rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
 }
 
 .wizard-section-card:focus-within {
-  border-color: #0284c7;
+  border-color: #38bdf8;
   box-shadow: 
-    0 25px 60px -12px rgba(2, 132, 199, 0.14),
-    0 0 0 3px rgba(2, 132, 199, 0.18),
-    0 10px 25px -5px rgba(0, 0, 0, 0.04);
+    0 25px 60px -12px rgba(2, 132, 199, 0.25),
+    0 0 0 3px rgba(2, 132, 199, 0.25),
+    0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
 .wizard-card-header {
@@ -7618,33 +7622,33 @@ body.flag-selection-mode .portal-center-hint {
   font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  color: #0f172a;
+  color: #f8fafc;
   margin: 0;
   text-transform: uppercase;
 }
 .wizard-sec-title-center {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #f8fafc;
   text-align: center;
   margin: 0 0 6px;
 }
 .wizard-sec-sub-center {
   font-size: 0.88rem;
-  color: #64748b;
+  color: #94a3b8;
   text-align: center;
   margin: 0 0 20px;
 }
-.blue-txt { color: #0284c7; }
+.blue-txt { color: #38bdf8; }
 
 .wizard-help-link {
   font-size: 0.85rem;
-  color: #0284c7;
+  color: #38bdf8;
   text-decoration: none;
   cursor: pointer;
   font-weight: 600;
 }
-.wizard-help-link:hover { color: #0369a1; text-decoration: underline; }
+.wizard-help-link:hover { color: #7dd3fc; text-decoration: underline; }
 
 /* Counters Row */
 .wizard-counters-row {
@@ -7657,8 +7661,8 @@ body.flag-selection-mode .portal-center-hint {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 12px 20px;
 }
@@ -7666,23 +7670,23 @@ body.flag-selection-mode .portal-center-hint {
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  border: 1.5px solid #cbd5e1;
-  background: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 41, 69, 0.9);
   font-size: 1.6rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
 .counter-btn:hover {
   background: #0284c7;
   color: #ffffff;
-  border-color: #0284c7;
-  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+  border-color: #38bdf8;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
   transform: scale(1.06);
 }
 .counter-val-wrap {
@@ -7691,18 +7695,18 @@ body.flag-selection-mode .portal-center-hint {
 .counter-num {
   font-size: 1.45rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
   margin-right: 4px;
 }
 .counter-lbl {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #475569;
+  color: #94a3b8;
 }
 
 .wizard-helper-note {
   font-size: 0.82rem;
-  color: #64748b;
+  color: #94a3b8;
   margin: 4px 0 16px;
 }
 
@@ -7712,10 +7716,10 @@ body.flag-selection-mode .portal-center-hint {
   align-items: center;
   gap: 14px;
   margin-bottom: 12px;
-  background: #f8fafc;
+  background: rgba(19, 31, 60, 0.7);
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .wizard-check-item {
   display: flex;
@@ -7723,20 +7727,20 @@ body.flag-selection-mode .portal-center-hint {
   gap: 8px;
   cursor: pointer;
   font-weight: 600;
-  color: #1e293b;
+  color: #f1f5f9;
   font-size: 0.95rem;
 }
 .wizard-discount-badge, .wizard-multiplier-badge {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 700;
 }
 .or-divider {
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.85rem;
   margin: 0 4px;
 }
@@ -7748,8 +7752,8 @@ body.flag-selection-mode .portal-center-hint {
   gap: 14px;
 }
 .wizard-freq-card {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 22px 16px;
   min-height: 124px;
@@ -7764,25 +7768,25 @@ body.flag-selection-mode .portal-center-hint {
 }
 .wizard-freq-card:hover {
   border-color: #38bdf8;
-  background: #ffffff;
+  background: rgba(2, 132, 199, 0.15);
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.25);
 }
 .wizard-freq-card.active {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.2);
+  border-color: #38bdf8;
+  background: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
 }
 .wizard-freq-card.active .freq-name {
-  color: #0369a1 !important;
+  color: #38bdf8 !important;
 }
 .wizard-freq-card.active .freq-price {
-  color: #0284c7 !important;
+  color: #38bdf8 !important;
 }
 .freq-badge-gold {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
   font-weight: 800;
   font-size: 0.88rem;
   padding: 4px 12px;
@@ -7792,7 +7796,7 @@ body.flag-selection-mode .portal-center-hint {
 .wizard-freq-card.active .freq-badge-gold {
   background: #0284c7;
   color: #ffffff;
-  border-color: #0284c7;
+  border-color: #38bdf8;
 }
 .freq-emoji {
   font-size: 2.2rem;
@@ -7801,13 +7805,13 @@ body.flag-selection-mode .portal-center-hint {
 .freq-name {
   font-size: 1.02rem;
   font-weight: 800;
-  color: #334155;
+  color: #f1f5f9;
   margin-bottom: 6px;
 }
 .freq-price {
   font-size: 1.18rem;
   font-weight: 800;
-  color: #0284c7;
+  color: #38bdf8;
 }
 
 /* Extras Grid Cards */
@@ -7818,8 +7822,8 @@ body.flag-selection-mode .portal-center-hint {
   margin-bottom: 20px;
 }
 .wizard-extra-card {
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 22px 14px;
   min-height: 140px;
@@ -7832,15 +7836,15 @@ body.flag-selection-mode .portal-center-hint {
   justify-content: space-between;
 }
 .wizard-extra-card:hover {
-  background: #ffffff;
+  background: rgba(2, 132, 199, 0.15);
   border-color: #38bdf8;
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.25);
 }
 .wizard-extra-card.active {
-  background: #f0f9ff;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2), 0 4px 14px rgba(2, 132, 199, 0.12);
+  background: rgba(2, 132, 199, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3), 0 4px 14px rgba(2, 132, 199, 0.25);
 }
 .w-extra-icon {
   font-size: 1.8rem;
@@ -7849,14 +7853,14 @@ body.flag-selection-mode .portal-center-hint {
 .w-extra-name {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #f1f5f9;
   margin-bottom: 10px;
   line-height: 1.3;
 }
 .w-extra-badge {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+  background: rgba(2, 132, 199, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
   font-weight: 800;
   font-size: 0.78rem;
   padding: 4px 8px;
@@ -7865,7 +7869,7 @@ body.flag-selection-mode .portal-center-hint {
   box-sizing: border-box;
 }
 .w-old-price {
-  color: #94a3b8;
+  color: #64748b;
   text-decoration: line-through;
   font-weight: 500;
   font-size: 0.72rem;
@@ -7873,8 +7877,8 @@ body.flag-selection-mode .portal-center-hint {
 }
 
 .wizard-vacuum-banner {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   padding: 16px;
   display: flex;
@@ -7886,7 +7890,7 @@ body.flag-selection-mode .portal-center-hint {
   flex-direction: column;
   gap: 2px;
   font-size: 0.88rem;
-  color: #334155;
+  color: #cbd5e1;
 }
 .v-icon { font-size: 1.5rem; margin-right: 6px; }
 
@@ -7902,10 +7906,10 @@ body.flag-selection-mode .portal-center-hint {
 .wizard-city-select {
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(10, 17, 34, 0.85);
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff;
   font-size: 0.95rem;
 }
 .wizard-fields-grid {
@@ -7931,27 +7935,27 @@ body.flag-selection-mode .portal-center-hint {
 .w-field label {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #334155;
+  color: #cbd5e1;
 }
 .w-field input, .w-field select, .w-field textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 12px 14px;
-  border: 1.5px solid #cbd5e1;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   font-size: 0.95rem;
-  background: #ffffff;
-  color: #0f172a;
+  background: rgba(10, 17, 34, 0.85);
+  color: #ffffff;
   transition: all 0.25s ease;
 }
 .w-field input::placeholder, .w-field textarea::placeholder {
-  color: #94a3b8;
+  color: #64748b;
 }
 .w-field input:focus, .w-field select:focus, .w-field textarea:focus {
   outline: none;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3.5px rgba(2, 132, 199, 0.15);
-  background: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3.5px rgba(56, 189, 248, 0.2);
+  background: rgba(15, 25, 50, 0.95);
 }
 
 /* ==========================================================================
@@ -7960,9 +7964,9 @@ body.flag-selection-mode .portal-center-hint {
 .wizard-ssl-badge {
   font-size: 0.72rem;
   font-weight: 800;
-  color: #16a34a;
-  background: #dcfce7;
-  border: 1px solid #bbf7d0;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
   padding: 4px 10px;
   border-radius: 99px;
   letter-spacing: 0.05em;
@@ -7991,8 +7995,8 @@ body.flag-selection-mode .portal-center-hint {
   display: flex;
   align-items: center;
   gap: 20px;
-  background: #f8fafc;
-  border: 1.5px solid #cbd5e1;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
   padding: 24px 28px;
   cursor: pointer;
@@ -8001,16 +8005,16 @@ body.flag-selection-mode .portal-center-hint {
 }
 
 .wizard-service-preset-card:hover {
-  background: #ffffff;
-  border-color: #0284c7;
+  background: rgba(2, 132, 199, 0.15);
+  border-color: #38bdf8;
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(2, 132, 199, 0.15);
+  box-shadow: 0 12px 28px rgba(2, 132, 199, 0.25);
 }
 
 .wizard-service-preset-card.active {
-  background: #f0f9ff;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.28), 0 14px 32px rgba(2, 132, 199, 0.18);
+  background: rgba(2, 132, 199, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.28), 0 14px 32px rgba(2, 132, 199, 0.25);
 }
 
 .s-preset-icon {
@@ -8022,14 +8026,14 @@ body.flag-selection-mode .portal-center-hint {
   display: block;
   font-size: 1.2rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
   margin-bottom: 4px;
 }
 
 .s-preset-info span {
   display: block;
   font-size: 0.92rem;
-  color: #475569;
+  color: #94a3b8;
   line-height: 1.4;
 }
 
@@ -8037,7 +8041,7 @@ body.flag-selection-mode .portal-center-hint {
   margin-left: auto;
   font-size: 1.25rem;
   font-weight: 900;
-  color: #0284c7;
+  color: #38bdf8;
   opacity: 0;
   transform: scale(0.6);
   transition: all 0.2s ease;
@@ -8055,46 +8059,45 @@ body.flag-selection-mode .portal-center-hint {
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 20px;
-  background: #f8fafc;
+  background: rgba(19, 31, 60, 0.7);
   padding: 14px 18px;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .area-chips-label {
   font-size: 1rem;
   font-weight: 800;
-  color: #334155;
+  color: #cbd5e1;
   margin-right: 8px;
 }
 
 .area-chip {
-  background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  color: #1e293b;
+  background: rgba(30, 41, 69, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   font-size: 1.05rem;
   font-weight: 800;
   padding: 14px 24px;
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .area-chip:hover {
-  background: #f0f9ff;
-  border-color: #0284c7;
-  color: #0284c7;
+  background: rgba(2, 132, 199, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.18);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
 }
 
 .area-chip.active {
   background: #0284c7;
-  border-color: #0284c7;
+  border-color: #38bdf8;
   color: #ffffff;
   box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
-  transform: translateY(-2px);
 }
 
 /* 3. Property Addons Grid */
@@ -8106,21 +8109,21 @@ body.flag-selection-mode .portal-center-hint {
 }
 
 .duplex-check-item, .villa-check-item {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 /* 4. Supply Choice Row */
 .wizard-supply-choice-row {
   margin-top: 14px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 12px;
   padding: 12px 16px;
 }
@@ -8138,7 +8141,7 @@ body.flag-selection-mode .portal-center-hint {
 .supply-choice-header .s-info strong {
   display: block;
   font-size: 0.84rem;
-  color: #166534;
+  color: #34d399;
   margin-bottom: 2px;
 }
 
@@ -8157,7 +8160,7 @@ body.flag-selection-mode .portal-center-hint {
   display: block;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #334155;
+  color: #cbd5e1;
   margin-bottom: 8px;
 }
 
@@ -8169,14 +8172,14 @@ body.flag-selection-mode .portal-center-hint {
 
 .key-opt-card {
   position: relative;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   padding: 10px 8px;
+  color: #f1f5f9;
   text-align: center;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #334155;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -8186,16 +8189,16 @@ body.flag-selection-mode .portal-center-hint {
 }
 
 .key-opt-card:hover {
+  background: rgba(2, 132, 199, 0.15);
   border-color: #38bdf8;
-  background: #ffffff;
-  color: #0284c7;
+  color: #38bdf8;
 }
 
 .key-opt-card.active {
-  background: #f0f9ff;
-  border-color: #0284c7;
-  color: #0369a1;
-  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.15);
+  background: rgba(2, 132, 199, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.3);
 }
 
 /* 6. Payment Tabs (2 Tabs: Transfer & Cash) */
