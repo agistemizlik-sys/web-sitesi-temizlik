@@ -1530,6 +1530,10 @@ function applyBookingTranslations(dict, lang) {
         : 'Merhaba RELAXAX, siteden sipariş hesaplama hakkında bilgi almak istiyorum.';
       whatsappHelpBtn.href = `https://wa.me/905466479004?text=${encodeURIComponent(helpMsg)}`;
     }
+
+    if (typeof window.refreshBankSelector === 'function') {
+      window.refreshBankSelector();
+    }
   }
 
   const cCitySelect = document.getElementById('cCity');
@@ -9058,7 +9062,7 @@ function setupBookingReveal() {
   });
 
   // ==========================================
-  // TURKISH BANKS DATA & BANK TRANSFER SUITE
+  // TURKISH & POLISH BANKS DATA & BANK TRANSFER SUITE
   // ==========================================
   const TURKISH_BANKS = {
     garanti: {
@@ -9111,7 +9115,57 @@ function setupBookingReveal() {
     }
   };
 
-  const bankPills = document.querySelectorAll('.bank-pill-btn');
+  const POLISH_BANKS = {
+    blik: {
+      name: 'BLIK / Płatność Telefonem',
+      holder: 'RELAXAX POLSKA SP. Z O.O.',
+      iban: '+48 546 647 900 (BLIK Telefon)',
+      rawIban: '+48546647900',
+      fastEmail: 'faktury@relaxax.com',
+      branch: 'Warszawa Centrum / Natychmiastowy Przelew BLIK'
+    },
+    pko: {
+      name: 'PKO Bank Polski',
+      holder: 'RELAXAX POLSKA SP. Z O.O.',
+      iban: 'PL 42 1020 1013 0000 0002 0001 2345',
+      rawIban: 'PL42102010130000000200012345',
+      fastEmail: 'faktury@relaxax.com',
+      branch: 'Oddział 1 w Warszawie (Śródmieście)'
+    },
+    mbank: {
+      name: 'mBank',
+      holder: 'RELAXAX POLSKA SP. Z O.O.',
+      iban: 'PL 11 1140 1010 0000 0001 2345 6789',
+      rawIban: 'PL11114010100000000123456789',
+      fastEmail: 'faktury@relaxax.com',
+      branch: 'Centrum Korporacyjne Warszawa'
+    },
+    santander: {
+      name: 'Santander Bank Polska',
+      holder: 'RELAXAX POLSKA SP. Z O.O.',
+      iban: 'PL 88 1090 1014 0000 0001 2345 6789',
+      rawIban: 'PL88109010140000000123456789',
+      fastEmail: 'faktury@relaxax.com',
+      branch: 'Oddział Warszawa Mokotów'
+    },
+    ing: {
+      name: 'ING Bank Śląski',
+      holder: 'RELAXAX POLSKA SP. Z O.O.',
+      iban: 'PL 22 1050 1012 1000 0022 1234 5678',
+      rawIban: 'PL22105010121000002212345678',
+      fastEmail: 'faktury@relaxax.com',
+      branch: 'Warszawa Wola'
+    },
+    millennium: {
+      name: 'Bank Millennium',
+      holder: 'RELAXAX POLSKA SP. Z O.O.',
+      iban: 'PL 55 1160 2202 0000 0002 1234 5678',
+      rawIban: 'PL55116022020000000212345678',
+      fastEmail: 'faktury@relaxax.com',
+      branch: 'Warszawa Ursynów'
+    }
+  };
+
   const bActiveBankName = document.getElementById('bActiveBankName');
   const bAccountHolder = document.getElementById('bAccountHolder');
   const bIbanDisplay = document.getElementById('bIbanDisplay');
@@ -9123,7 +9177,10 @@ function setupBookingReveal() {
   let currentSelectedBank = 'garanti';
 
   const updateSelectedBankDisplay = (bankKey) => {
-    const bank = TURKISH_BANKS[bankKey] || TURKISH_BANKS.garanti;
+    const isPl = currentLanguage === 'pl' || (selectedCity && selectedCity.toLowerCase().includes('warsz'));
+    const bankSet = isPl ? POLISH_BANKS : TURKISH_BANKS;
+    const defaultKey = isPl ? 'blik' : 'garanti';
+    const bank = bankSet[bankKey] || bankSet[defaultKey] || TURKISH_BANKS.garanti;
     currentSelectedBank = bankKey;
     if (bActiveBankName) bActiveBankName.textContent = bank.name;
     if (bAccountHolder) bAccountHolder.textContent = bank.holder;
@@ -9133,15 +9190,47 @@ function setupBookingReveal() {
     if (btnCopyIbanMain) btnCopyIbanMain.dataset.iban = bank.rawIban;
   };
 
-  bankPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      bankPills.forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      const bankKey = pill.dataset.bank || 'garanti';
-      updateSelectedBankDisplay(bankKey);
-      if (typeof window.playTickSound === 'function') window.playTickSound();
+  const bindBankPills = () => {
+    const bankTabsContainer = document.querySelector('.bank-selector-tabs');
+    if (!bankTabsContainer) return;
+    const isPl = currentLanguage === 'pl' || (selectedCity && selectedCity.toLowerCase().includes('warsz'));
+
+    if (isPl) {
+      bankTabsContainer.innerHTML = `
+        <button type="button" class="bank-pill-btn active" data-bank="blik">⚡ BLIK / Tel</button>
+        <button type="button" class="bank-pill-btn" data-bank="pko">PKO Bank Polski</button>
+        <button type="button" class="bank-pill-btn" data-bank="mbank">mBank</button>
+        <button type="button" class="bank-pill-btn" data-bank="santander">Santander</button>
+        <button type="button" class="bank-pill-btn" data-bank="ing">ING Bank</button>
+        <button type="button" class="bank-pill-btn" data-bank="millennium">Millennium</button>
+      `;
+      updateSelectedBankDisplay('blik');
+    } else {
+      bankTabsContainer.innerHTML = `
+        <button type="button" class="bank-pill-btn active" data-bank="garanti">Garanti BBVA</button>
+        <button type="button" class="bank-pill-btn" data-bank="isbank">İş Bankası</button>
+        <button type="button" class="bank-pill-btn" data-bank="yapikredi">Yapı Kredi</button>
+        <button type="button" class="bank-pill-btn" data-bank="akbank">Akbank</button>
+        <button type="button" class="bank-pill-btn" data-bank="ziraat">Ziraat Bankası</button>
+        <button type="button" class="bank-pill-btn" data-bank="qnb">QNB Finansbank</button>
+      `;
+      updateSelectedBankDisplay('garanti');
+    }
+
+    const pills = bankTabsContainer.querySelectorAll('.bank-pill-btn');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const bankKey = pill.dataset.bank || (isPl ? 'blik' : 'garanti');
+        updateSelectedBankDisplay(bankKey);
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+      });
     });
-  });
+  };
+
+  bindBankPills();
+  window.refreshBankSelector = bindBankPills;
 
   if (btnCopyIbanMain) {
     btnCopyIbanMain.addEventListener('click', (e) => {
