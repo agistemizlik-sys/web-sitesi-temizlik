@@ -153,6 +153,9 @@ function destroyLeafletMap(country) {
   }
   if (country === 'turkey' && turkeyMapInstance) {
     try {
+      turkeyMapInstance.eachLayer(layer => {
+        try { turkeyMapInstance.removeLayer(layer); } catch(e) {}
+      });
       turkeyMapInstance.stop();
       turkeyMapInstance.off();
       turkeyMapInstance.remove();
@@ -162,6 +165,9 @@ function destroyLeafletMap(country) {
     if (trEl && trEl._leaflet_id) trEl._leaflet_id = null;
   } else if (country === 'poland' && polandMapInstance) {
     try {
+      polandMapInstance.eachLayer(layer => {
+        try { polandMapInstance.removeLayer(layer); } catch(e) {}
+      });
       polandMapInstance.stop();
       polandMapInstance.off();
       polandMapInstance.remove();
@@ -4250,15 +4256,18 @@ async function initLeafletMap(country) {
     });
 
     const updateZoomClass = () => {
-      const zoom = polandMapInstance.getZoom();
-      const mapEl = document.getElementById('portalNeonMapPoland');
-      if (mapEl) {
-        if (zoom < 11.5) {
-          mapEl.classList.add('map-zoom-low');
-        } else {
-          mapEl.classList.remove('map-zoom-low');
+      if (!polandMapInstance) return;
+      try {
+        const zoom = polandMapInstance.getZoom();
+        const mapEl = document.getElementById('portalNeonMapPoland');
+        if (mapEl) {
+          if (zoom < 11.5) {
+            mapEl.classList.add('map-zoom-low');
+          } else {
+            mapEl.classList.remove('map-zoom-low');
+          }
         }
-      }
+      } catch(e) {}
       updateCachedHotspotCoords();
     };
     polandMapInstance.on('zoomend', updateZoomClass);
