@@ -157,6 +157,28 @@ let portalMutationObserver = null;
 let portalHUDMoveHandler = null;
 let portalHUDLeaveHandler = null;
 
+// Safe Early Global Exposure
+window.selectCountryGlobal = function(code) {
+  if (typeof selectCountryGlobal === 'function') {
+    selectCountryGlobal(code);
+  }
+};
+window.selectCityGlobal = function(city) {
+  if (typeof selectCityGlobal === 'function') {
+    selectCityGlobal(city);
+  }
+};
+window.returnToCountrySelector = function() {
+  if (typeof returnToCountrySelector === 'function') {
+    returnToCountrySelector();
+  }
+};
+window.returnToCityMap = function() {
+  if (typeof returnToCityMap === 'function') {
+    returnToCityMap();
+  }
+};
+
 let canvasAnimationId = null;
 let resizeCanvasHandler = null;
 let portalMouseMoveHandler = null;
