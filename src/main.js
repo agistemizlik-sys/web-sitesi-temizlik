@@ -8893,16 +8893,41 @@ function setupBookingReveal() {
 
   // 0. Interactive Step Progress Indicator & Navigation Buttons
   const stepIndicators = document.querySelectorAll('.w-step-item');
+  const updateActiveStepIndicator = (targetStepId) => {
+    let stepNum = 1;
+    if (targetStepId === 'wizardStep2Section') stepNum = 2;
+    if (targetStepId === 'wizardStep3Section') stepNum = 3;
+    if (targetStepId === 'wizardStep4Section') stepNum = 4;
+
+    stepIndicators.forEach((btn, idx) => {
+      if (idx + 1 === stepNum) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  };
+
+  const smoothScrollToStep = (targetEl, targetId) => {
+    if (!targetEl) return;
+    const bookingReveal = document.getElementById('bookingReveal');
+    if (bookingReveal) {
+      const topOffset = targetEl.offsetTop - 80;
+      bookingReveal.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
+    } else {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    if (targetId) updateActiveStepIndicator(targetId);
+    if (typeof window.playTickSound === 'function') window.playTickSound();
+  };
+
   stepIndicators.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       const targetId = btn.dataset.stepTarget;
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
-        stepIndicators.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (typeof window.playTickSound === 'function') window.playTickSound();
+        smoothScrollToStep(targetEl, targetId);
       }
     });
   });
@@ -8915,10 +8940,12 @@ function setupBookingReveal() {
       const targetId = btn.dataset.stepTarget;
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (typeof window.playTickSound === 'function') window.playTickSound();
-        if (typeof window.updateRoseVineProgress === 'function') {
-          setTimeout(window.updateRoseVineProgress, 350);
+        smoothScrollToStep(targetEl, targetId);
+        if (targetId === 'wizardStep3Section') {
+          setTimeout(() => {
+            const nameInp = document.getElementById('cName');
+            if (nameInp && !nameInp.value.trim()) nameInp.focus();
+          }, 350);
         }
       }
     });
@@ -10188,9 +10215,15 @@ function setupBookingReveal() {
     const highlightInvalidField = (el, msg) => {
       if (!el) return;
       el.style.border = '2px solid #ef4444';
-      el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.25)';
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.focus();
+      el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.35)';
+      const bookingReveal = document.getElementById('bookingReveal');
+      if (bookingReveal) {
+        const topOffset = el.offsetTop - 140;
+        bookingReveal.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      setTimeout(() => { try { el.focus(); } catch(e){} }, 200);
       if (typeof gsap !== 'undefined') {
         gsap.fromTo(el, { x: -8 }, { x: 8, duration: 0.06, repeat: 5, yoyo: true, onComplete: () => { el.style.transform = ''; } });
       }
@@ -10219,7 +10252,8 @@ function setupBookingReveal() {
     }
 
     const isVilla = document.getElementById('chkVilla')?.checked || false;
-    if (!isVilla && !aptNum) {
+    const isBusiness = document.getElementById('tabBusinessBtn')?.classList.contains('active') || document.getElementById('businessFieldsBlock')?.style.display === 'block';
+    if (!isVilla && !isBusiness && !aptNum) {
       highlightInvalidField(aptNumEl, isPl ? 'Proszę wpisać numer mieszkania.' : 'Lütfen geçerli bir Daire Numarası giriniz.');
       return;
     }
