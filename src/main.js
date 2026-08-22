@@ -9050,10 +9050,12 @@ function setupBookingReveal() {
     });
   });
 
-  // 2. Quick Area Size Chips
+  // 2. Quick Area Size Chips (Tactile Micro-Interactions)
   const areaChips = document.querySelectorAll('.area-chip');
   const roomValEl = document.getElementById('roomVal');
   const bathValEl = document.getElementById('bathVal');
+  const chkDuplexEl = document.getElementById('chkDuplex');
+  const chkVillaEl = document.getElementById('chkVilla');
 
   areaChips.forEach(chip => {
     chip.addEventListener('click', () => {
@@ -9061,19 +9063,34 @@ function setupBookingReveal() {
       chip.classList.add('active');
       const rooms = parseInt(chip.dataset.rooms || '1', 10);
       const baths = parseInt(chip.dataset.baths || '1', 10);
-      if (roomValEl) roomValEl.textContent = rooms;
-      if (bathValEl) bathValEl.textContent = baths;
+
+      if (roomValEl) {
+        roomValEl.textContent = rooms;
+        gsap.fromTo(roomValEl, { scale: 1.4, color: '#38bdf8' }, { scale: 1, color: '#ffffff', duration: 0.3, ease: 'back.out(2)' });
+      }
+      if (bathValEl) {
+        bathValEl.textContent = baths;
+        gsap.fromTo(bathValEl, { scale: 1.4, color: '#38bdf8' }, { scale: 1, color: '#ffffff', duration: 0.3, ease: 'back.out(2)' });
+      }
+
+      // Smart preset flags (Dubleks & Villa)
+      const chipText = chip.textContent.toLowerCase();
+      if (chkDuplexEl) chkDuplexEl.checked = chipText.includes('dubleks');
+      if (chkVillaEl) chkVillaEl.checked = chipText.includes('villa');
+
       if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     });
   });
 
-  // 3. Counter Controls (Plus / Minus Rooms & Baths)
+  // 3. Counter Controls (Plus / Minus Rooms & Baths with Smooth GSAP Pop)
   document.getElementById('btnMinusRoom')?.addEventListener('click', () => {
     let current = parseInt(roomValEl?.textContent || '1') || 1;
     if (current > 1) {
       roomValEl.textContent = current - 1;
+      gsap.fromTo(roomValEl, { scale: 1.3, color: '#38bdf8' }, { scale: 1, color: '#ffffff', duration: 0.25, ease: 'back.out(1.7)' });
       areaChips.forEach(c => c.classList.remove('active'));
+      if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     }
   });
@@ -9082,7 +9099,9 @@ function setupBookingReveal() {
     let current = parseInt(roomValEl?.textContent || '1') || 1;
     if (current < 10) {
       roomValEl.textContent = current + 1;
+      gsap.fromTo(roomValEl, { scale: 1.3, color: '#38bdf8' }, { scale: 1, color: '#ffffff', duration: 0.25, ease: 'back.out(1.7)' });
       areaChips.forEach(c => c.classList.remove('active'));
+      if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     }
   });
@@ -9091,7 +9110,9 @@ function setupBookingReveal() {
     let current = parseInt(bathValEl?.textContent || '1') || 1;
     if (current > 1) {
       bathValEl.textContent = current - 1;
+      gsap.fromTo(bathValEl, { scale: 1.3, color: '#38bdf8' }, { scale: 1, color: '#ffffff', duration: 0.25, ease: 'back.out(1.7)' });
       areaChips.forEach(c => c.classList.remove('active'));
+      if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     }
   });
@@ -9100,7 +9121,9 @@ function setupBookingReveal() {
     let current = parseInt(bathValEl?.textContent || '1') || 1;
     if (current < 5) {
       bathValEl.textContent = current + 1;
+      gsap.fromTo(bathValEl, { scale: 1.3, color: '#38bdf8' }, { scale: 1, color: '#ffffff', duration: 0.25, ease: 'back.out(1.7)' });
       areaChips.forEach(c => c.classList.remove('active'));
+      if (typeof window.playTickSound === 'function') window.playTickSound();
       updatePriceSliderDisplay();
     }
   });
