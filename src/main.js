@@ -4318,6 +4318,19 @@ function setupPortalGateway() {
         }
       });
     });
+
+    const seeAllLink = document.querySelector('.tms-see-all-link');
+    if (seeAllLink && !seeAllLink._bound) {
+      seeAllLink._bound = true;
+      seeAllLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const searchInput = document.getElementById('citySearchInput');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    }
   }
 
   // ── COUNTRY SELECTOR HANDLERS ──────────────────────────────────────────
