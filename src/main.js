@@ -2844,9 +2844,9 @@ function setCityState(city, shouldReset = true) {
   document.documentElement.style.setProperty('--clr-accent', theme.accent);
   document.documentElement.style.setProperty('--clr-accent-rgb', theme.rgb);
 
-  // Get localized city data
+  // Get localized city data with bulletproof fallback
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.tr;
-  const cityData = dict.cities[city] || { name: city.toUpperCase(), sub: '' };
+  const cityData = (dict && dict.cities && dict.cities[city]) || (TRANSLATIONS.tr && TRANSLATIONS.tr.cities && TRANSLATIONS.tr.cities[city]) || { name: city.toUpperCase(), sub: '' };
 
   // Update UI labels
   const label = document.getElementById('currentCityLabel');

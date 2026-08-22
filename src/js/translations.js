@@ -99,7 +99,17 @@ export const TRANSLATIONS = {
     csoPolandComingSoonToast: "Poland services launching soon!",
     contactPhone: "+90 (546) 647 90 04",
     contactPhoneValue: "+905466479004",
-    contactEmail: "info@relaxax.com"
+    contactEmail: "info@relaxax.com",
+    cities: {
+      Istanbul: { name: "Istanbul", sub: "City of Seven Hills", market: "Marmara", coords: "41.01° N, 28.98° E" },
+      Kocaeli: { name: "Kocaeli", sub: "Industrial Hub", market: "Marmara", coords: "40.77° N, 29.94° E" },
+      Sakarya: { name: "Sakarya", sub: "Heart of Nature", market: "Marmara", coords: "40.76° N, 30.38° E" },
+      Izmir: { name: "Izmir", sub: "Pearl of the Aegean", market: "Aegean", coords: "38.42° N, 27.14° E" },
+      Balikesir: { name: "Balikesir", sub: "Olive Country", market: "Aegean", coords: "39.65° N, 27.89° E" },
+      Samsun: { name: "Samsun", sub: "Gate to Black Sea", market: "Black Sea", coords: "41.29° N, 36.33° E" },
+      Antalya: { name: "Antalya", sub: "Pearl of the Mediterranean", market: "Mediterranean", coords: "36.90° N, 30.71° E" },
+      Warszawa: { name: "Warsaw", sub: "Capital of Poland", market: "Mazovia", coords: "52.23° N, 21.01° E" }
+    }
   },
   tr: {
     title: "RELAXAX | Sinematik İnteraktif Temizlik Deneyimi",
