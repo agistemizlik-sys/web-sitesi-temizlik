@@ -12292,7 +12292,8 @@ iframe[title*="Message preview"] {
    37. 🌹 DYNAMIC BOTANICAL ROSE GARDEN SCATTERED BLOOM ENGINE 🌹
    ========================================================================== */
 #bookingReveal {
-  background: radial-gradient(ellipse at 50% 0%, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%) !important;
+  background: radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%) !important;
+  color: #ffffff !important;
   position: fixed;
   inset: 0;
   width: 100vw;
