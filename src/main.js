@@ -3381,9 +3381,13 @@ function setupPortalIntroClick() {
       try { window.playWarpSound(); } catch(e) {}
     }
 
-    // Execute Three.js WebGL Liquify Screen Wipe Shader Transition
-    if (typeof runLiquifyScreenWipe === 'function') {
-      runLiquifyScreenWipe(introStage, introVideo, clickCoords, () => {
+    // Instant, ultra-smooth GPU fade transition guaranteeing 0ms click latency
+    gsap.to(introStage, {
+      opacity: 0,
+      scale: 1.04,
+      duration: 0.35,
+      ease: 'power2.out',
+      onComplete: () => {
         if (introVideo && !introVideo.paused) {
           try { introVideo.pause(); } catch(err) {}
         }
@@ -3394,13 +3398,8 @@ function setupPortalIntroClick() {
         if (STATE.lenisInstance) {
           STATE.lenisInstance.stop();
         }
-      });
-    } else {
-      if (introStage) {
-        introStage.style.display = 'none';
-        introStage.remove();
       }
-    }
+    });
   }
 
   // 3. Attach listeners

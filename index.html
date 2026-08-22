@@ -382,8 +382,8 @@
   <!-- Top-level Global Ambient Dust & Atmospheric Particles Canvas -->
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
-  <div id="portal-intro-stage" class="portal-intro-stage" aria-label="Giriş Ekranı" role="button" tabindex="0" onclick="if(typeof window.dismissIntroScreen==='function'){window.dismissIntroScreen();}else{this.style.display='none';document.body.classList.remove('portal-intro-mode');}">
-    <video id="portalIntroVideo" class="portal-intro-video" autoplay muted loop playsinline webkit-playsinline preload="auto" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
+  <div id="portal-intro-stage" class="portal-intro-stage" aria-label="Giriş Ekranı" role="button" tabindex="0" onclick="if(typeof window.dismissIntroScreen==='function'){window.dismissIntroScreen(event);}else{this.style.pointerEvents='none';this.style.opacity='0';setTimeout(()=>this.remove(),350);document.body.classList.remove('portal-intro-mode');document.body.classList.add('flag-selection-mode');var cso=document.getElementById('country-selector-overlay');if(cso){cso.classList.remove('cso-hidden');cso.style.display='flex';cso.style.opacity='1';cso.style.pointerEvents='all';}}">
+    <video id="portalIntroVideo" class="portal-intro-video" autoplay muted loop playsinline webkit-playsinline preload="auto" style="pointer-events: none;" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
     <script>
       (function(){
         function attachSeamlessLoop(video) {
