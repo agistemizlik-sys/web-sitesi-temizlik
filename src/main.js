@@ -1195,6 +1195,144 @@ function applyBookingTranslations(dict, lang) {
 
   const bookingForm = document.getElementById('bookingForm');
   if (bookingForm) {
+    // Wizard Header & Tabs Translations
+    const topBadges = document.querySelectorAll('.b-badge, .wizard-top-badge, .cinema-modal-badge');
+    topBadges.forEach(b => {
+      b.textContent = lang === 'en' ? 'FAST ORDER CHECKOUT' : (lang === 'pl' ? 'SZYBKA REZERWACJA' : (lang === 'uk' ? 'ШВИДКЕ ОФОРМЛЕННЯ' : 'HIZLI SİPARİŞİ OLUŞTURUN'));
+    });
+
+    const mainBookingTitles = document.querySelectorAll('.b-sec-main-title, .wizard-main-title, .cinema-modal-title');
+    mainBookingTitles.forEach(t => {
+      t.textContent = lang === 'en' ? 'CLEANING ESTIMATE & BOOKING FOR YOUR HOME' : (lang === 'pl' ? 'KALKULATOR SPRZĄTANIA DLA TWOJEGO DOMU' : (lang === 'uk' ? 'КАЛЬКУЛЯТОР ПРИБИРАННЯ ДЛЯ ВАШОГО ДОМУ' : 'EVİNİZ / DAİRENİZ İÇİN TEMİZLİK HESAPLAYICI'));
+    });
+
+    const mainBookingSubs = document.querySelectorAll('.b-sec-main-sub, .wizard-main-sub, .cinema-modal-subtitle');
+    mainBookingSubs.forEach(s => {
+      s.textContent = lang === 'en' ? 'Flawless hygiene, expert equipment. Calculate your live price and book online in minutes.' : (lang === 'pl' ? 'Nienaganna higiena, profesjonalny sprzęt. Oblicz cenę na żywo i zarezerwuj w kilka minut.' : (lang === 'uk' ? 'Бездоганна гігієна, професійне обладнання. Розрахуйте ціну онлайн та забронюйте за лічені хвилини.' : 'Kusursuz hijyen, profesyonel ekipman. RELAXAX ile dakikalar içinde canlı fiyat hesaplayın ve rezervasyon yapın.'));
+    });
+
+    const soundTexts = document.querySelectorAll('.sound-text, #bookingSoundToggleBtn .sound-text, #wizardSoundToggleBtn .sound-text');
+    soundTexts.forEach(st => {
+      st.textContent = lang === 'en' ? 'Sound: On' : (lang === 'pl' ? 'Dźwięk: Włączony' : (lang === 'uk' ? 'Звук: Увімкнено' : 'Ses: Açık'));
+    });
+
+    const step1Text = document.querySelector('#stepIndicator1 .w-step-text, #stepTab1 .w-step-text');
+    const step2Text = document.querySelector('#stepIndicator2 .w-step-text, #stepTab2 .w-step-text');
+    const step3Text = document.querySelector('#stepIndicator3 .w-step-text, #stepTab3 .w-step-text');
+    if (step1Text) step1Text.textContent = lang === 'en' ? 'Apartment & Frequency' : (lang === 'pl' ? 'Mieszkanie i Częstotliwość' : (lang === 'uk' ? 'Квартира та Періодичність' : 'Daire & Sıklık'));
+    if (step2Text) step2Text.textContent = lang === 'en' ? 'Extra Services' : (lang === 'pl' ? 'Usługi Dodatkowe' : (lang === 'uk' ? 'Додаткові Послуги' : 'Ek Hizmetler'));
+    if (step3Text) step3Text.textContent = lang === 'en' ? 'Address & Appointment' : (lang === 'pl' ? 'Adres i Termin' : (lang === 'uk' ? 'Адреса та Дата' : 'Adres & Randevu'));
+
+    const tabPersonBtn = document.getElementById('tabPersonBtn');
+    const tabBusinessBtn = document.getElementById('tabBusinessBtn');
+    if (tabPersonBtn) tabPersonBtn.textContent = lang === 'en' ? '👤 Individual Customer' : (lang === 'pl' ? '👤 Klient Indywidualny' : (lang === 'uk' ? '👤 Фізична Особа' : '👤 Bireysel Müşteri'));
+    if (tabBusinessBtn) tabBusinessBtn.textContent = lang === 'en' ? '🏢 Corporate / Business' : (lang === 'pl' ? '🏢 Firma / Przedsiębiorstwo' : (lang === 'uk' ? '🏢 Юридична Особа' : '🏢 Kurumsal / İşletme'));
+
+    // Section 1: Service Presets
+    const s1Title = document.querySelector('#wizardStep1Section .wizard-sec-title');
+    const s1Badge = document.querySelector('#wizardStep1Section .wizard-badge-soft');
+    if (s1Title) s1Title.textContent = lang === 'en' ? '✨ SELECT SERVICE TYPE' : (lang === 'pl' ? '✨ WYBIERZ RODZAJ USŁUGI' : (lang === 'uk' ? '✨ ОБЕРІТЬ ТИП ПОСЛУГИ' : '✨ HİZMET TÜRÜNÜZÜ SEÇİN'));
+    if (s1Badge) s1Badge.textContent = lang === 'en' ? 'EXPERT STAFF' : (lang === 'pl' ? 'ZESPÓŁ EKSPERTÓW' : (lang === 'uk' ? 'КОМАНДА ЕКСПЕРТІВ' : 'UZMAN EKİP KADROSU'));
+
+    const presetCards = {
+      standart: {
+        en: ['Standard Home Cleaning', 'Routine periodic hygiene & surface care'],
+        pl: ['Standardowe Sprzątanie Mieszkania', 'Rutynowe okresowe sprzątanie i pielęgnacja'],
+        uk: ['Стандартне Прибирання Квартири', 'Регулярна періодична гігієна поверхонь'],
+        tr: ['Standart Ev Temizliği', 'Rutin periyodik hijyen & yüzey bakımı']
+      },
+      detayli: {
+        en: ['Deep / Spring Cleaning', 'Deep steam purification & corner detailing'],
+        pl: ['Głębokie / Wiosenne Sprzątanie', 'Głębokie oczyszczanie parowe i zakamarki'],
+        uk: ['Генеральне / Весняне Прибирання', 'Глибока парова дезінфекція та важкодоступні місця'],
+        tr: ['Detaylı / Bahar Temizliği', 'Dip köşe derinlemesine buharlı arındırma']
+      },
+      tasinma: {
+        en: ['Move-in / Move-out Cleaning', 'Turnkey spotless pre/post move hygiene'],
+        pl: ['Sprzątanie po/przed Przeprowadzką', 'Kompleksowa higiena przed lub po wyprowadzce'],
+        uk: ['Прибирання до/після Переїзду', 'Комплексна підготовка житла до або після переїзду'],
+        tr: ['Taşınma / Boş Ev Temizliği', 'Anahtar teslim taşınma öncesi/sonrası hijyen']
+      },
+      insaat: {
+        en: ['Post-Construction / Renovation', 'Fine dust, plaster, paint & debris removal'],
+        pl: ['Sprzątanie po Remoncie / Budowie', 'Usuwanie pyłu budowlanego, farby i gipsu'],
+        uk: ['Прибирання після Ремонту / Будівництва', 'Видалення будівельного пилу, фарби та залишків розчину'],
+        tr: ['İnşaat / Tadilat Sonrası', 'Boya, alçı, harç ve ince toz giderme']
+      }
+    };
+
+    Object.entries(presetCards).forEach(([presetKey, texts]) => {
+      const card = document.querySelector(`.wizard-service-preset-card[data-service-preset="${presetKey}"]`);
+      if (card) {
+        const str = card.querySelector('strong');
+        const sp = card.querySelector('span');
+        const t = texts[lang] || texts.tr;
+        if (str) str.textContent = t[0];
+        if (sp) sp.textContent = t[1];
+      }
+    });
+
+    const aptSecTitle = document.getElementById('wizardApartmentSecTitle');
+    const helpModalBtn = document.getElementById('btnHelpModalOpen');
+    if (aptSecTitle) aptSecTitle.textContent = lang === 'en' ? '🏡 SPACE DETAILS & ROOM COUNT' : (lang === 'pl' ? '🏡 SZCZEGÓŁY LOKALU I LICZBA POKOI' : (lang === 'uk' ? '🏡 ІНФОРМАЦІЯ ПРО ПРИМІЩЕННЯ' : '🏡 MEKAN BİLGİLERİ VE ODA SAYISI'));
+    if (helpModalBtn) helpModalBtn.textContent = lang === 'en' ? '❓ What is included in cleaning?' : (lang === 'pl' ? '❓ Co obejmuje sprzątanie?' : (lang === 'uk' ? '❓ Що входить у прибирання?' : '❓ Temizliğe neler dahildir?'));
+
+    // Section 2
+    const s2Title = document.querySelector('#wizardStep2Section .wizard-sec-title');
+    const s2Badge = document.querySelector('#wizardStep2Section .wizard-badge-soft');
+    if (s2Title) s2Title.textContent = lang === 'en' ? '✨ EXTRA HYGIENE & SPECIAL SERVICES' : (lang === 'pl' ? '✨ DODATKOWA HIGIENA I USŁUGI SPECJALNE' : (lang === 'uk' ? '✨ ДОДАТКОВА ГІГІЄНА ТА СПЕЦІАЛЬНІ ПОСЛУГИ' : '✨ EKSTRA HİJYEN VE ÖZEL HİZMETLER'));
+    if (s2Badge) s2Badge.textContent = lang === 'en' ? 'DEEP CORNER CARE' : (lang === 'pl' ? 'GŁĘBOKA PIELĘGNACJA' : (lang === 'uk' ? 'ГЛИБОКЕ ОЧИЩЕННЯ' : 'DİP KÖŞE DERİN BAKIM'));
+
+    // Section 3
+    const s3Title = document.querySelector('#wizardStep3Section .wizard-sec-title');
+    const s3Badge = document.querySelector('#wizardStep3Section .wizard-badge-soft');
+    if (s3Title) s3Title.textContent = lang === 'en' ? '📍 ADDRESS, APPOINTMENT & CONTACT DETAILS' : (lang === 'pl' ? '📍 ADRES, TERMIN I DANE KONTAKTOWE' : (lang === 'uk' ? '📍 АДРЕСА, ДАТА ТА КОНТАКТНІ ДАНІ' : '📍 ADRES, RANDEVU VE İLETİŞİM BİLGİLERİ'));
+    if (s3Badge) s3Badge.textContent = lang === 'en' ? 'SECURE CONTACT' : (lang === 'pl' ? 'BEZPIECZNY KONTAKT' : (lang === 'uk' ? 'НАДІЙНИЙ ЗВ\'ЯЗОК' : 'GÜVENLİ İLETİŞİM'));
+
+    // Sticky Checkout Bar
+    const stickyPayLabel = document.querySelector('.sticky-checkout-price-info .sticky-pay-label, .wizard-price-checkout-box .p-label');
+    const stickyOrderBtn = document.querySelector('#stickyCompleteOrderBtn, .sticky-checkout-btn');
+    if (stickyPayLabel) stickyPayLabel.textContent = lang === 'en' ? 'Total to Pay:' : (lang === 'pl' ? 'Do zapłaty:' : (lang === 'uk' ? 'До сплати:' : 'Ödenecek Tutar:'));
+    if (stickyOrderBtn) {
+      stickyOrderBtn.innerHTML = `<span>${lang === 'en' ? 'Complete Order ➔' : (lang === 'pl' ? 'Złóż Zamówienie ➔' : (lang === 'uk' ? 'Завершити Замовлення ➔' : 'Siparişi Tamamla ➔'))}</span>`;
+    }
+
+    const mStickyLbl = document.querySelector('#mobileStickyBar .m-sticky-lbl');
+    const mStickyBtn = document.querySelector('#mobileStickyBar .m-sticky-btn span');
+    if (mStickyLbl) mStickyLbl.textContent = lang === 'en' ? 'Total to Pay:' : (lang === 'pl' ? 'Do zapłaty:' : (lang === 'uk' ? 'До сплати:' : 'Ödenecek Tutar:'));
+    if (mStickyBtn) mStickyBtn.textContent = lang === 'en' ? 'Complete Order ➔' : (lang === 'pl' ? 'Złóż Zamówienie ➔' : (lang === 'uk' ? 'Завершити Замовлення ➔' : 'Siparişi Tamamla ➔'));
+
+    const btnSubmitBookingSpan = document.querySelector('#btnSubmitBooking span');
+    if (btnSubmitBookingSpan) btnSubmitBookingSpan.textContent = lang === 'en' ? 'Complete Order ➔' : (lang === 'pl' ? 'Złóż Zamówienie ➔' : (lang === 'uk' ? 'Завершити Замовлення ➔' : 'Siparişi Tamamla ➔'));
+
+    const bookingSoundBtns = document.querySelectorAll('.sound-text');
+    bookingSoundBtns.forEach(sBtn => {
+      sBtn.textContent = lang === 'en' ? 'Sound: On' : (lang === 'pl' ? 'Dźwięk: Włączony' : (lang === 'uk' ? 'Звук: Увімкнено' : 'Ses: Açık'));
+    });
+
+    const quickPresetsLbl = document.querySelector('.wizard-quick-presets-row span, .quick-presets-label');
+    if (quickPresetsLbl) quickPresetsLbl.textContent = lang === 'en' ? 'Quick Presets:' : (lang === 'pl' ? 'Szybki wybór:' : (lang === 'uk' ? 'Швидкий вибір:' : 'Hızlı Seçim:'));
+
+    const vipGuarTitle = document.getElementById('lblVipGuarTitle');
+    const vipGuarSub = document.getElementById('lblVipGuarSub');
+    const vipEcoTitle = document.getElementById('lblVipEcoTitle');
+    const vipEcoSub = document.getElementById('lblVipEcoSub');
+    if (vipGuarTitle) vipGuarTitle.textContent = lang === 'en' ? '100% Satisfaction Guarantee' : (lang === 'pl' ? '100% Gwarancja Satysfakcji' : (lang === 'uk' ? '100% Гарантія Задоволення' : '%100 Memnuniyet Garantisi'));
+    if (vipGuarSub) vipGuarSub.textContent = lang === 'en' ? 'Spotless hygiene or free redo' : (lang === 'pl' ? 'Nienaganna higiena lub bezpłatna poprawka' : (lang === 'uk' ? 'Бездоганна чистота або безкоштовне перероблення' : 'Kusursuz hijyen veya ücretsiz telafi'));
+    if (vipEcoTitle) vipEcoTitle.textContent = lang === 'en' ? '100% Eco & Vegan Cleaning' : (lang === 'pl' ? '100% Ekologiczne i Wegańskie' : (lang === 'uk' ? '100% Екологічні та Веганські' : '%100 Ekolojik & Vegan Hijyen'));
+    if (vipEcoSub) vipEcoSub.textContent = lang === 'en' ? 'Allergen-free professional products' : (lang === 'pl' ? 'Hipoalergiczne profesjonalne środki' : (lang === 'uk' ? 'Гіпоалергенні професійні засоби' : 'Alerjen içermeyen profesyonel solüsyonlar'));
+
+    const radarFleetTitle = document.getElementById('radarFleetTitle');
+    const radarFleetEta = document.getElementById('radarFleetEta');
+    if (radarFleetTitle) radarFleetTitle.textContent = lang === 'en' ? '4 Specialist Teams on Duty in Your Area' : (lang === 'pl' ? '4 Zespoły Ekspertów na Służbie w Twojej Okolicy' : (lang === 'uk' ? '4 Бригади Експертів на Чергуванні у Вашому Районі' : 'Bölgenizde 4 Uzman Ekip Görevde'));
+    if (radarFleetEta) radarFleetEta.textContent = lang === 'en' ? 'Estimated arrival: ~35 mins' : (lang === 'pl' ? 'Szacowany czas przybycia: ~35 min' : (lang === 'uk' ? 'Орієнтовний час прибуття: ~35 хв' : 'Ortalama varış süresi: ~35 dakika'));
+
+    const inspectReportBtn = document.querySelector('#btnOpenQualityReportModal span:nth-child(2)');
+    if (inspectReportBtn) inspectReportBtn.textContent = lang === 'en' ? 'Inspect 48-Point Digital Hygiene Checklist' : (lang === 'pl' ? 'Sprawdź 48-Punktowy Raport Higieniczny' : (lang === 'uk' ? 'Переглянути 48-Пунктовий Звіт Гігієни' : '48 Nokta Dijital Hijyen Raporunu İncele'));
+
+    const floatingCtaTxt = document.getElementById('floatingCtaTxt');
+    if (floatingCtaTxt) floatingCtaTxt.textContent = lang === 'en' ? 'Book Now ➔' : (lang === 'pl' ? 'Zamów Teraz ➔' : (lang === 'uk' ? 'Замовити Зараз ➔' : 'Hemen Sipariş Ver ➔'));
+
     const labels = bookingForm.querySelectorAll('label');
     if (labels.length >= 4) {
       labels[0].textContent = dict.bookingLabelName;
@@ -1663,21 +1801,23 @@ function applyCountrySelectorTranslations(dict, lang) {
   const csoCurrentLangText = document.getElementById('csoCurrentLangText');
 
   if (csoEyebrow) {
-    csoEyebrow.textContent = lang === 'uk' ? 'Ласкаво просимо!' : (lang === 'pl' ? 'Witamy!' : 'Hoş geldiniz!');
+    csoEyebrow.textContent = lang === 'en' ? 'Welcome!' : (lang === 'uk' ? 'Ласкаво просимо!' : (lang === 'pl' ? 'Witamy!' : 'Hoş geldiniz!'));
   }
   if (csoMainHeadline) {
-    csoMainHeadline.textContent = lang === 'uk' ? 'Де ви перебуваєте?' : (lang === 'pl' ? 'Gdzie na świecie jesteś?' : 'Dünyanın neresindesiniz?');
+    csoMainHeadline.textContent = lang === 'en' ? 'Where in the world are you?' : (lang === 'uk' ? 'Де ви перебуваєте?' : (lang === 'pl' ? 'Gdzie na świecie jesteś?' : 'Dünyanın neresindesiniz?'));
   }
   if (csoMainSub) {
-    csoMainSub.textContent = lang === 'uk' 
-      ? 'Оберіть вашу країну, щоб ми запропонували вам найкращий сервіс.'
-      : (lang === 'pl' 
-        ? 'Wybierz swój kraj, abyśmy mogli zaoferować Ci najlepsze doświadczenie.'
-        : 'Size en uygun deneyimi sunabilmemiz için bulunduğunuz ülkeyi seçin.');
+    csoMainSub.textContent = lang === 'en'
+      ? 'Select your country to get the best tailored cleaning experience.'
+      : (lang === 'uk' 
+        ? 'Оберіть вашу країну, щоб ми запропонували вам найкращий сервіс.'
+        : (lang === 'pl' 
+          ? 'Wybierz swój kraj, abyśmy mogli zaoferować Ci najlepsze doświadczenie.'
+          : 'Size en uygun deneyimi sunabilmemiz için bulunduğunuz ülkeyi seçin.'));
   }
 
   if (csoCurrentLangText) {
-    csoCurrentLangText.textContent = lang === 'uk' ? 'Українська' : (lang === 'pl' ? 'Polski' : 'Türkçe');
+    csoCurrentLangText.textContent = lang === 'en' ? 'English' : (lang === 'uk' ? 'Українська' : (lang === 'pl' ? 'Polski' : 'Türkçe'));
   }
 
   // Update active state in dropdown
@@ -1693,23 +1833,27 @@ function applyCountrySelectorTranslations(dict, lang) {
   const csoTurkeyTitle = document.querySelector('#csoBtnTurkey .cso-capsule-title');
   const csoTurkeyDesc = document.querySelector('#csoBtnTurkey .cso-capsule-desc');
   if (csoTurkeyTitle) {
-    csoTurkeyTitle.textContent = lang === 'uk' ? 'Туреччина' : (lang === 'pl' ? 'Turcja' : 'Türkiye');
+    csoTurkeyTitle.textContent = lang === 'en' ? 'Turkey' : (lang === 'uk' ? 'Туреччина' : (lang === 'pl' ? 'Turcja' : 'Türkiye'));
   }
   if (csoTurkeyDesc) {
-    csoTurkeyDesc.textContent = lang === 'uk'
-      ? 'Відкрийте для себе персоналізовані послуги в Туреччині.'
-      : (lang === 'pl' ? 'Odkryj spersonalizowane usługi i treści dla Turcji.' : 'Size özel hizmet ve içerikleri keşfedin.');
+    csoTurkeyDesc.textContent = lang === 'en'
+      ? 'Discover bespoke services & offerings in Turkey.'
+      : (lang === 'uk'
+        ? 'Відкрийте для себе персоналізовані послуги в Туреччині.'
+        : (lang === 'pl' ? 'Odkryj spersonalizowane usługi i treści dla Turcji.' : 'Size özel hizmet ve içerikleri keşfedin.'));
   }
 
   const csoPolandTitle = document.querySelector('#csoBtnPoland .cso-capsule-title');
   const csoPolandDesc = document.querySelector('#csoBtnPoland .cso-capsule-desc');
   if (csoPolandTitle) {
-    csoPolandTitle.textContent = lang === 'uk' ? 'Польща' : 'Polska';
+    csoPolandTitle.textContent = lang === 'en' ? 'Poland' : (lang === 'uk' ? 'Польща' : 'Polska');
   }
   if (csoPolandDesc) {
-    csoPolandDesc.textContent = lang === 'uk'
-      ? 'Відкрийте для себе послуги та пропозиції у Варшаві.'
-      : 'Odkryj usługi i treści dostosowane do Ciebie.';
+    csoPolandDesc.textContent = lang === 'en'
+      ? 'Explore tailored cleaning solutions in Warsaw.'
+      : (lang === 'uk'
+        ? 'Відкрийте для себе послуги та пропозиції у Варшаві.'
+        : 'Odkryj usługi i treści dostosowane do Ciebie.');
   }
 
   // Bottom trust bar
@@ -1717,23 +1861,23 @@ function applyCountrySelectorTranslations(dict, lang) {
   if (trustCells.length >= 4) {
     const h0 = trustCells[0].querySelector('.cso-trust-heading');
     const p0 = trustCells[0].querySelector('.cso-trust-caption');
-    if (h0) h0.textContent = lang === 'uk' ? 'Безпечно та Конфіденційно' : (lang === 'pl' ? 'Bezpiecznie i Prywatnie' : 'Güvenli ve Kişisel');
-    if (p0) p0.textContent = lang === 'uk' ? 'Ваші дані надійно захищені' : (lang === 'pl' ? 'Twoje dane są bezpieczne' : 'Verileriniz güvende');
+    if (h0) h0.textContent = lang === 'en' ? 'Secure & Private' : (lang === 'uk' ? 'Безпечно та Конфіденційно' : (lang === 'pl' ? 'Bezpiecznie i Prywatnie' : 'Güvenli ve Kişisel'));
+    if (p0) p0.textContent = lang === 'en' ? 'Your data is completely safe' : (lang === 'uk' ? 'Ваші дані надійно захищені' : (lang === 'pl' ? 'Twoje dane są bezpieczne' : 'Verileriniz güvende'));
 
     const h1 = trustCells[1].querySelector('.cso-trust-heading');
     const p1 = trustCells[1].querySelector('.cso-trust-caption');
-    if (h1) h1.textContent = lang === 'uk' ? 'Локалізований Досвід' : (lang === 'pl' ? 'Lokalne Doświadczenie' : 'Yerelleştirilmiş Deneyim');
-    if (p1) p1.textContent = lang === 'uk' ? 'Вміст для вашої країни' : (lang === 'pl' ? 'Treści dla Twojego kraju' : 'Ülkenize özel içerik');
+    if (h1) h1.textContent = lang === 'en' ? 'Localized Experience' : (lang === 'uk' ? 'Локалізований Досвід' : (lang === 'pl' ? 'Lokalne Doświadczenie' : 'Yerelleştirilmiş Deneyim'));
+    if (p1) p1.textContent = lang === 'en' ? 'Tailored content for your region' : (lang === 'uk' ? 'Вміст для вашої країни' : (lang === 'pl' ? 'Treści dla Twojego kraju' : 'Ülkenize özel içerik'));
 
     const h2 = trustCells[2].querySelector('.cso-trust-heading');
     const p2 = trustCells[2].querySelector('.cso-trust-caption');
-    if (h2) h2.textContent = lang === 'uk' ? 'Підтримка 24/7' : (lang === 'pl' ? 'Wsparcie 24/7' : '7/24 Destek');
-    if (p2) p2.textContent = lang === 'uk' ? 'Завжди на зв\'язку' : (lang === 'pl' ? 'Zawsze do Twojej dyspozycji' : 'Her zaman yanınızdayız');
+    if (h2) h2.textContent = lang === 'en' ? '24/7 Support' : (lang === 'uk' ? 'Підтримка 24/7' : (lang === 'pl' ? 'Wsparcie 24/7' : '7/24 Destek'));
+    if (p2) p2.textContent = lang === 'en' ? 'Always here for your requests' : (lang === 'uk' ? 'Завжди на зв\'язку' : (lang === 'pl' ? 'Zawsze do Twojej dyspozycji' : 'Her zaman yanınızdayız'));
 
     const h3 = trustCells[3].querySelector('.cso-trust-heading');
     const p3 = trustCells[3].querySelector('.cso-trust-caption');
-    if (h3) h3.textContent = lang === 'uk' ? 'Висока Якість' : (lang === 'pl' ? 'Jakość Usług' : 'Kaliteli Hizmet');
-    if (p3) p3.textContent = lang === 'uk' ? 'Працюємо для вашого комфорту' : (lang === 'pl' ? 'Dbamy o najwyższe standardy' : 'En iyi deneyim için çalışıyoruz');
+    if (h3) h3.textContent = lang === 'en' ? 'Quality Service' : (lang === 'uk' ? 'Висока Якість' : (lang === 'pl' ? 'Jakość Usług' : 'Kaliteli Hizmet'));
+    if (p3) p3.textContent = lang === 'en' ? 'Committed to highest standards' : (lang === 'uk' ? 'Працюємо для вашого комфорту' : (lang === 'pl' ? 'Dbamy o najwyższe standardy' : 'En iyi deneyim için çalışıyoruz'));
   }
 }
 
@@ -1916,7 +2060,68 @@ function applyServiceSelectTranslations(lang) {
 
   const continueLabel = document.querySelector('#servicesContinueBtn span');
   if (continueLabel) {
-    continueLabel.textContent = lang === 'pl' ? 'Kontynuuj' : 'Devam Et';
+    continueLabel.textContent = lang === 'en' ? 'Continue ➔' : (lang === 'pl' ? 'Kontynuuj ➔' : (lang === 'uk' ? 'Продовжити ➔' : 'Devam Et ➔'));
+  }
+}
+
+function applyMapSelectorTranslations(dict, lang) {
+  const backBtn = document.getElementById('tmsBackCountryBtn');
+  if (backBtn) {
+    backBtn.innerHTML = `<span>←</span> <span>${lang === 'en' ? 'Change Country' : (lang === 'pl' ? 'Zmień kraj' : (lang === 'uk' ? 'Змінити країну' : 'Ülke Değiştir'))}</span>`;
+  }
+
+  const logoGroup = document.querySelector('.tms-logo-group span');
+  if (logoGroup) {
+    logoGroup.textContent = lang === 'en' ? 'PROFESSIONAL CLEANING SERVICES' : (lang === 'pl' ? 'PROFESJONALNE USŁUGI SPRZĄTANIA' : (lang === 'uk' ? 'ПРОФЕСІЙНІ ПОСЛУГИ ПРИБИРАННЯ' : 'PROFESYONEL TEMİZLİK HİZMETLERİ'));
+  }
+
+  const topPill = document.querySelector('.tms-top-center-pill');
+  if (topPill) {
+    topPill.textContent = lang === 'en' ? '📍 SELECT YOUR NEAREST CITY' : (lang === 'pl' ? '📍 WYBIERZ NAJBLIŻSZE MIASTO' : (lang === 'uk' ? '📍 ОБЕРІТЬ НАЙБЛИЖЧЕ МІСТО' : '📍 BİZE EN YAKIN ŞEHRİ SEÇİN'));
+  }
+
+  const helpText = document.querySelector('.tms-help-text');
+  if (helpText) {
+    helpText.textContent = lang === 'en' ? 'Help Center' : (lang === 'pl' ? 'Centrum Pomocy' : (lang === 'uk' ? 'Центр Допомоги' : 'Yardım Merkezi'));
+  }
+
+  const guaranteePill = document.querySelector('.tms-guarantee-pill');
+  if (guaranteePill) {
+    guaranteePill.innerHTML = `<span>🛡️</span> ${lang === 'en' ? 'Safe & Trusted' : (lang === 'pl' ? 'Bezpieczna usługa' : (lang === 'uk' ? 'Надійний сервіс' : 'Güvenli Hizmet'))}`;
+  }
+
+  const mainHeading = document.querySelector('.tms-main-heading');
+  if (mainHeading) {
+    mainHeading.textContent = lang === 'en' ? 'Select your city' : (lang === 'pl' ? 'Wybierz swoje miasto' : (lang === 'uk' ? 'Оберіть своє місто' : 'Şehrinizi seçin'));
+  }
+
+  const mainSub = document.querySelector('.tms-main-sub');
+  if (mainSub) {
+    mainSub.textContent = lang === 'en'
+      ? 'Choose your city or district to view service points and book an appointment.'
+      : (lang === 'pl'
+        ? 'Wybierz miasto lub dzielnicę, aby zobaczyć najbliższe punkty usług i zarezerwować termin.'
+        : (lang === 'uk'
+          ? 'Оберіть місто або район, щоб переглянути доступні послуги та оформити замовлення.'
+          : 'Size en yakın hizmet noktalarımızı görmek ve randevu oluşturmak için şehrinizi seçin.'));
+  }
+
+  const searchInput = document.getElementById('tmsCitySearchInput');
+  if (searchInput) {
+    searchInput.placeholder = lang === 'en' ? 'Search city or district...' : (lang === 'pl' ? 'Szukaj dzielnicy lub miasta...' : (lang === 'uk' ? 'Пошук району або міста...' : 'Şehir ara veya seç...'));
+  }
+
+  const gpsBtn = document.getElementById('tmsUseGpsBtn');
+  if (gpsBtn) {
+    gpsBtn.innerHTML = `<span>🎯</span> ${lang === 'en' ? 'Use my location' : (lang === 'pl' ? 'Użyj mojej lokalizacji' : (lang === 'uk' ? 'Використати моє місцезнаходження' : 'Konumumu kullan'))}`;
+  }
+
+  const filterBtns = document.querySelectorAll('.tms-filters-row .tms-filter-btn');
+  if (filterBtns.length >= 4) {
+    filterBtns[0].textContent = lang === 'en' ? '🎛️ All' : (lang === 'pl' ? '🎛️ Wszystkie' : (lang === 'uk' ? '🎛️ Всі' : '🎛️ Tüm'));
+    filterBtns[1].textContent = lang === 'en' ? '🟢 Active Service' : (lang === 'pl' ? '🟢 Dostępne' : (lang === 'uk' ? '🟢 Доступно' : '🟢 Hizmet Veriliyor'));
+    filterBtns[2].textContent = lang === 'en' ? '🟡 Coming Soon' : (lang === 'pl' ? '🟡 Wkrótce' : (lang === 'uk' ? '🟡 Незабаром' : '🟡 Yakında'));
+    filterBtns[3].textContent = lang === 'en' ? '⚪ Not Available' : (lang === 'pl' ? '⚪ Niedostępne' : (lang === 'uk' ? '⚪ Недоступно' : '⚪ Hizmet Verilmiyor'));
   }
 }
 
@@ -1952,6 +2157,7 @@ function applyLanguage(lang) {
   applyServicesModalTranslations(dict, lang);
   applyCountrySelectorTranslations(dict, lang);
   applyServiceSelectTranslations(lang);
+  applyMapSelectorTranslations(dict, lang);
 
   if (typeof updatePriceSliderDisplay === 'function') {
     updatePriceSliderDisplay();
@@ -3228,17 +3434,11 @@ function initApp() {
   let detectedLang = 'en';
   if (savedLang && TRANSLATIONS[savedLang]) {
     detectedLang = savedLang;
-  } else if (hasPolishLang || isPolandLocation) {
-    detectedLang = 'pl';
-  } else if (hasUkrainianLang || isUkraineLocation) {
-    detectedLang = 'uk';
-  } else if (hasTurkishLang || isTurkeyLocation) {
-    detectedLang = 'tr';
   } else {
     detectedLang = 'en';
   }
 
-  const defaultLang = savedLang && TRANSLATIONS[savedLang] ? savedLang : 'en';
+  const defaultLang = detectedLang;
   applyLanguage(defaultLang);
 
   // Initialize selected service states & texts
