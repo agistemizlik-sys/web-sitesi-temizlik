@@ -10458,9 +10458,9 @@ function setupBookingReveal() {
 
     const paymentMeta = {
       method: selectedPayMethod,
-      bank: selectedPayMethod === 'transfer' ? (TURKISH_BANKS[currentSelectedBank]?.name || 'Garanti BBVA') : null,
-      iban: selectedPayMethod === 'transfer' ? (TURKISH_BANKS[currentSelectedBank]?.iban || null) : null,
-      gateway: selectedPayMethod === 'transfer' ? 'bank_transfer_fast' : 'cash_on_delivery',
+      bank: selectedPayMethod === 'transfer' ? (isPl ? (POLISH_BANKS[currentSelectedBank]?.name || 'BLIK / Przelew') : (TURKISH_BANKS[currentSelectedBank]?.name || 'Garanti BBVA')) : null,
+      iban: selectedPayMethod === 'transfer' ? (isPl ? (POLISH_BANKS[currentSelectedBank]?.account || null) : (TURKISH_BANKS[currentSelectedBank]?.iban || null)) : null,
+      gateway: selectedPayMethod === 'transfer' ? (isPl ? 'blik_polish_transfer' : 'bank_transfer_fast') : 'cash_on_delivery',
       authStatus: selectedPayMethod === 'transfer' ? 'AWAITING_TRANSFER_RECEIPT' : 'PAY_ON_COMPLETION',
       amount: STATE.calculator.price,
       currency: STATE.currency
