@@ -154,29 +154,85 @@ async function sendWebhookAlert(env, payload, waitUntil) {
   else await p;
 }
 
+// In-Memory sliding-window rate limiting map per Edge isolate
+const RATE_LIMIT_MAP = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_LEADS_PER_MIN = 10;
+
+function checkRateLimit(ip) {
+  if (!ip) return false;
+  const now = Date.now();
+  const entry = RATE_LIMIT_MAP.get(ip) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+
+  if (now > entry.resetAt) {
+    entry.count = 1;
+    entry.resetAt = now + RATE_LIMIT_WINDOW_MS;
+    RATE_LIMIT_MAP.set(ip, entry);
+    return false;
+  }
+
+  entry.count++;
+  RATE_LIMIT_MAP.set(ip, entry);
+
+  if (RATE_LIMIT_MAP.size > 2000) {
+    for (const [k, v] of RATE_LIMIT_MAP.entries()) {
+      if (now > v.resetAt) RATE_LIMIT_MAP.delete(k);
+    }
+  }
+
+  return entry.count > MAX_LEADS_PER_MIN;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
   const traceId = `lead-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
 
   try {
+    const clientIp = request.headers.get('CF-Connecting-IP') || request.headers.get('x-real-ip') || '';
+
+    // 1. Anti-DDoS / Rate Limiting Protection
+    if (checkRateLimit(clientIp)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Too many requests. Please wait a minute before submitting again.",
+        traceId
+      }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Retry-After": "60",
+          "X-RELAXAX-Trace-ID": traceId,
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      });
+    }
+
+    // 2. Payload size guard
     const rawBody = await request.text();
-    if (rawBody.length > 30000) {
+    if (rawBody.length > 25000) {
       return new Response(JSON.stringify({ success: false, error: "Payload too large", traceId }), {
         status: 413,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "X-Content-Type-Options": "nosniff"
+        }
       });
     }
 
     let leadData = {};
     try {
       leadData = JSON.parse(rawBody);
+      // Prototype pollution defense
+      if (leadData && (leadData.__proto__ || leadData.constructor?.prototype)) {
+        delete leadData.__proto__;
+      }
     } catch (e) {
       leadData = {};
     }
 
     const cf = request.cf || {};
-    const clientIp = request.headers.get('CF-Connecting-IP') || request.headers.get('x-real-ip') || '';
     const clientCountry = request.headers.get('CF-IPCountry') || cf.country || 'TR';
     const clientCity = request.headers.get('CF-IPCity') || cf.city || '';
     const clientContinent = request.headers.get('CF-IPContinent') || cf.continent || '';

@@ -82,8 +82,38 @@ const MESSAGES = {
   }
 };
 
+// In-Memory sliding-window rate limiting map per Edge isolate (Anti Brute-Force)
+const PROMO_RATE_MAP = new Map();
+const PROMO_RATE_WINDOW_MS = 60 * 1000;
+const MAX_PROMO_PER_MIN = 25;
+
+function checkPromoRateLimit(ip) {
+  if (!ip) return false;
+  const now = Date.now();
+  const entry = PROMO_RATE_MAP.get(ip) || { count: 0, resetAt: now + PROMO_RATE_WINDOW_MS };
+
+  if (now > entry.resetAt) {
+    entry.count = 1;
+    entry.resetAt = now + PROMO_RATE_WINDOW_MS;
+    PROMO_RATE_MAP.set(ip, entry);
+    return false;
+  }
+
+  entry.count++;
+  PROMO_RATE_MAP.set(ip, entry);
+
+  if (PROMO_RATE_MAP.size > 2000) {
+    for (const [k, v] of PROMO_RATE_MAP.entries()) {
+      if (now > v.resetAt) PROMO_RATE_MAP.delete(k);
+    }
+  }
+
+  return entry.count > MAX_PROMO_PER_MIN;
+}
+
 export async function onRequestPost(context) {
   const { request } = context;
+  const clientIp = request.headers.get('CF-Connecting-IP') || request.headers.get('x-real-ip') || '';
   const origin = request.headers.get('Origin') || '*';
   const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
     ? origin
@@ -94,10 +124,23 @@ export async function onRequestPost(context) {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
-    "X-Content-Type-Options": "nosniff"
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN"
   };
 
   const traceId = `prm-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+
+  // 1. Anti Brute-Force Rate Limiting
+  if (checkPromoRateLimit(clientIp)) {
+    return new Response(JSON.stringify({
+      valid: false,
+      error: "Too many coupon validation attempts. Please wait a minute.",
+      traceId
+    }), {
+      status: 429,
+      headers: { ...headers, "Retry-After": "60" }
+    });
+  }
 
   try {
     const raw = await request.text();
@@ -109,7 +152,12 @@ export async function onRequestPost(context) {
     }
 
     let body = {};
-    try { body = JSON.parse(raw); } catch(e){}
+    try {
+      body = JSON.parse(raw);
+      if (body && (body.__proto__ || body.constructor?.prototype)) {
+        delete body.__proto__;
+      }
+    } catch(e){}
 
     const rawCode = (body.code || body.promoCode || '').trim();
     const code = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
