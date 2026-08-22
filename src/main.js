@@ -10787,57 +10787,130 @@ function setupCinemaAmbientLight() {
 // ==========================================
 // 15. SEAMLESS VIDEO LOOP ENGINEERING DRIVER
 // ==========================================
+// ==========================================
+// 15. SEAMLESS VIDEO LOOP ENGINEERING DRIVER (FRAME-ACCURATE ZERO-LATENCY)
+// ==========================================
 function setupVideoLoopEngineering() {
+  const isVideoSupported = typeof document !== 'undefined' && document.createElement('video').canPlayType;
+  if (!isVideoSupported) return;
+
+  // Global one-time touch / pointer unlocker for strict mobile autoplay policies
+  let autoplayUnlocked = false;
+  const unlockAllAutoplayVideos = () => {
+    if (autoplayUnlocked) return;
+    autoplayUnlocked = true;
+    document.querySelectorAll('video[loop], .wizard-card-video-bg video, .intro-video').forEach(v => {
+      if (v.paused && v.dataset.userPaused !== 'true' && !v.closest('.cso-hidden, [style*="display: none"]')) {
+        const p = v.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+    });
+    window.removeEventListener('pointerdown', unlockAllAutoplayVideos);
+    window.removeEventListener('touchstart', unlockAllAutoplayVideos);
+    window.removeEventListener('keydown', unlockAllAutoplayVideos);
+  };
+  window.addEventListener('pointerdown', unlockAllAutoplayVideos, { passive: true, once: true });
+  window.addEventListener('touchstart', unlockAllAutoplayVideos, { passive: true, once: true });
+  window.addEventListener('keydown', unlockAllAutoplayVideos, { passive: true, once: true });
+
   const attachLoopGuards = (root = document) => {
-    const loopingVideos = root.querySelectorAll('video[loop]');
+    const loopingVideos = root.querySelectorAll('video[loop], .wizard-card-video-bg video');
     loopingVideos.forEach(video => {
       if (video.dataset.loopEngineered === 'true') return;
       video.dataset.loopEngineered = 'true';
 
       video.playbackRate = 1.0;
       video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.setAttribute('disablepictureinpicture', '');
+      video.setAttribute('disableremoteplayback', '');
       video.muted = true;
+      video.defaultMuted = true;
+      video.preload = 'auto';
 
-      // 1. High-precision sub-millisecond loop wrap (fastSeek / requestVideoFrameCallback)
+      let isWrapping = false;
+
+      // 1. High-Precision Frame-Accurate Loop Wrapper (requestVideoFrameCallback -> 60fps frame level)
+      const setupFrameAccurateLoop = () => {
+        if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && typeof video.requestVideoFrameCallback === 'function') {
+          const onFrame = (now, metadata) => {
+            if (video.duration > 0.5 && metadata.mediaTime >= (video.duration - 0.04)) {
+              if (!isWrapping) {
+                isWrapping = true;
+                if (typeof video.fastSeek === 'function') {
+                  try { video.fastSeek(0); } catch(e) { video.currentTime = 0; }
+                } else {
+                  video.currentTime = 0;
+                }
+                if (video.paused && !document.hidden) {
+                  video.play().catch(() => {});
+                }
+                setTimeout(() => { isWrapping = false; }, 30);
+              }
+            }
+            if (!video.paused && !video.ended) {
+              video.requestVideoFrameCallback(onFrame);
+            }
+          };
+          video.addEventListener('play', () => {
+            video.requestVideoFrameCallback(onFrame);
+          });
+        }
+      };
+
+      setupFrameAccurateLoop();
+
+      // 2. Fallback timeupdate sub-millisecond loop wrap
       const handleSeamlessWrap = () => {
-        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.05)) {
-          if (typeof video.fastSeek === 'function') {
-            try { video.fastSeek(0); } catch(e) { video.currentTime = 0; }
-          } else {
-            video.currentTime = 0;
-          }
-          if (video.paused && !document.hidden) {
-            const p = video.play();
-            if (p && typeof p.catch === 'function') p.catch(() => {});
+        if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.045)) {
+          if (!isWrapping) {
+            isWrapping = true;
+            if (typeof video.fastSeek === 'function') {
+              try { video.fastSeek(0); } catch(e) { video.currentTime = 0; }
+            } else {
+              video.currentTime = 0;
+            }
+            if (video.paused && !document.hidden) {
+              const p = video.play();
+              if (p && typeof p.catch === 'function') p.catch(() => {});
+            }
+            setTimeout(() => { isWrapping = false; }, 40);
           }
         }
       };
 
       video.addEventListener('timeupdate', handleSeamlessWrap, { passive: true });
 
-      // 2. Hardware / OS ended event instant wrap fallback
+      // 3. Hardware / OS ended event instant wrap fallback
       video.addEventListener('ended', () => {
         video.currentTime = 0;
         const p = video.play();
         if (p && typeof p.catch === 'function') p.catch(() => {});
       });
 
-      // 3. Auto-recovery from network or buffer glitches
+      // 4. Stream stall & buffer auto-recovery
+      video.addEventListener('stalled', () => {
+        if (!video.paused && video.readyState < 3) {
+          video.load();
+          video.play().catch(() => {});
+        }
+      });
+
       video.addEventListener('error', () => {
-        logDebug('Video media glitch detected, auto-recovering stream:', video.id || video.src);
         setTimeout(() => {
           try {
             video.load();
             video.play().catch(() => {});
           } catch(e) {}
-        }, 250);
+        }, 200);
       });
 
-      // 4. Prevent low-power / battery saver freeze on active videos
+      // 5. Battery saver / low-power freeze guard
       video.addEventListener('pause', () => {
         if (video.hasAttribute('loop') && !document.hidden && video.dataset.userPaused !== 'true') {
           const rect = video.getBoundingClientRect();
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
+          if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0) {
             const p = video.play();
             if (p && typeof p.catch === 'function') p.catch(() => {});
           }
@@ -10848,10 +10921,31 @@ function setupVideoLoopEngineering() {
 
   attachLoopGuards();
 
+  // IntersectionObserver to pause offscreen looping videos for battery & GPU savings, and resume on view
+  if ('IntersectionObserver' in window) {
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const v = entry.target;
+        if (entry.isIntersecting) {
+          if (v.paused && v.dataset.userPaused !== 'true' && !document.hidden) {
+            v.play().catch(() => {});
+          }
+        } else {
+          // Offscreen: can pause to save resources unless actively in transition
+          if (!v.paused && !v.classList.contains('intro-video')) {
+            v.pause();
+          }
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.wizard-card-video-bg video').forEach(v => videoObserver.observe(v));
+  }
+
   // Tab visibility resume handler for seamless infinite background loops
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      document.querySelectorAll('video[loop]').forEach(v => {
+      document.querySelectorAll('video[loop], .wizard-card-video-bg video').forEach(v => {
         const rect = v.getBoundingClientRect();
         if (rect.top < window.innerHeight && rect.bottom > 0 && v.dataset.userPaused !== 'true') {
           v.play().catch(() => {});
