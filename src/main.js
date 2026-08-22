@@ -7301,10 +7301,14 @@ function setupCinemaEngine() {
     const ivyVideo = document.getElementById('servicesIvyVideo');
     const selectedCard = document.querySelector(`.service-select-item[data-service="${currentService}"]`);
 
+    const isPl = STATE.language === 'pl';
+    const confirmingText = isPl ? 'Zatwierdzanie wyboru...' : 'Seçiminiz Onaylanıyor...';
+    const continueLabel = isPl ? 'Dalej' : 'Devam Et';
+
     // 1. Enter Confirming / Active 2-second pause state
     if (continueBtn) {
       continueBtn.classList.add('loading');
-      continueBtn.innerHTML = `<span style="font-size:1.1rem; display:inline-block;">🌿</span> <span>Seçiminiz Onaylanıyor...</span>`;
+      continueBtn.innerHTML = `<span style="font-size:1.1rem; display:inline-block;">🌿</span> <span>${confirmingText}</span>`;
     }
 
     // Update Stepper to completed state (Step 1 complete, line glow, Step 2 active)
@@ -7372,7 +7376,7 @@ function setupCinemaEngine() {
               }
               if (continueBtn) {
                 continueBtn.classList.remove('loading');
-                continueBtn.innerHTML = `<span>Devam Et</span> <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+                continueBtn.innerHTML = `<span>${continueLabel}</span> <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
               }
               isIvyTransitioning = false;
             }, 400);
