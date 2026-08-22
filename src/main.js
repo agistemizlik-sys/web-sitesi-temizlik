@@ -9995,51 +9995,36 @@ function setupBookingReveal() {
     }
 
     if (targetFormEl) {
-      gsap.to(targetFormEl, {
-        opacity: 0,
-        duration: 0.25,
-        onComplete: () => {
-          targetFormEl.style.display = 'none';
-          targetFormEl.style.opacity = '1';
-          
-          if (targetSuccessEl) {
-            targetSuccessEl.removeAttribute('hidden');
-            targetSuccessEl.style.display = 'flex';
-            targetSuccessEl.style.opacity = '1';
-            const revealScreen = document.getElementById('bookingReveal');
-            if (revealScreen) {
-              revealScreen.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            targetSuccessEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            gsap.fromTo(targetSuccessEl,
-              { scale: 0.9, opacity: 0 },
-              { scale: 1, opacity: 1, duration: 0.4, ease: 'power2.out', onComplete: () => {
-                const check = targetSuccessEl.querySelector('.success-check');
-                if (check && typeof window.triggerDust === 'function') {
-                  const rect = check.getBoundingClientRect();
-                  const cx = rect.left + rect.width / 2;
-                  const cy = rect.top + rect.height / 2;
-                  window.triggerDust(cx, cy);
-                  setTimeout(() => window.triggerDust(cx, cy), 150);
-                }
-                // Auto-open WhatsApp confirmation after 1.2 second delay
-                setTimeout(() => {
-                  try { window.open(waFullUrl, '_blank', 'noopener,noreferrer'); } catch (e) { /* blocked popup fallback */ }
-                }, 1200);
-              }}
-            );
-          }
-        }
-      });
-    } else if (targetSuccessEl) {
+      targetFormEl.style.display = 'none';
+    }
+
+    if (targetSuccessEl) {
       targetSuccessEl.removeAttribute('hidden');
       targetSuccessEl.style.display = 'flex';
+      targetSuccessEl.style.opacity = '1';
       const revealScreen = document.getElementById('bookingReveal');
       if (revealScreen) {
         revealScreen.scrollTo({ top: 0, behavior: 'smooth' });
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       targetSuccessEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      gsap.fromTo(targetSuccessEl,
+        { scale: 0.9, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.35, ease: 'power2.out', onComplete: () => {
+          const check = targetSuccessEl.querySelector('.success-check');
+          if (check && typeof window.triggerDust === 'function') {
+            const rect = check.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            window.triggerDust(cx, cy);
+            setTimeout(() => window.triggerDust(cx, cy), 150);
+          }
+          // Auto-open WhatsApp confirmation after 1.2 second delay
+          setTimeout(() => {
+            try { window.open(waFullUrl, '_blank', 'noopener,noreferrer'); } catch (e) { /* blocked popup fallback */ }
+          }, 1200);
+        }}
+      );
     }
   };
 
