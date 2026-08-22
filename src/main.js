@@ -3672,8 +3672,6 @@ function initApp() {
   window.selectServiceGlobal = selectServiceGlobal;
   window.openBookingScreen = openBookingScreen;
   window.closeBookingScreen = closeBookingScreen;
-  window.selectCountryGlobal = selectCountryGlobal;
-  window.proceedWithIvyTransition = proceedWithIvyTransition;
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
   setupPortalIntroClick();
