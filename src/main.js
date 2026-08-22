@@ -181,6 +181,7 @@ function destroyLeafletMap(country) {
 // Module-level variables for gateway interactive components
 let cardHoverListeners = [];
 let portalHotspotListeners = [];
+let leafletInitToken = 0;
 let turkeyMapInstance = null;
 let polandMapInstance = null;
 let showCityPreviewFn = null;
@@ -4101,15 +4102,17 @@ function ensureLeafletLoaded() {
 }
 
 async function initLeafletMap(country) {
+  const currentToken = ++leafletInitToken;
   try {
     await ensureLeafletLoaded();
   } catch (err) {
     logErrorDebug('Leaflet map cannot be initialized: dynamic assets failed to load.', err);
     return;
   }
+  if (currentToken !== leafletInitToken) return;
   if (country === 'turkey') {
     if (turkeyMapInstance) {
-      turkeyMapInstance.invalidateSize();
+      try { turkeyMapInstance.invalidateSize(); } catch(e){}
       return;
     }
     turkeyMapInstance = L.map('portalNeonMap', {
