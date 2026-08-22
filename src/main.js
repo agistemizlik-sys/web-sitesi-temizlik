@@ -9678,11 +9678,11 @@ function setupBookingReveal() {
   // Interactive click on step indicators to jump smoothly
   stepSections.forEach(sec => {
     if (sec.indicator) {
-      sec.indicator.addEventListener('click', () => {
+      sec.indicator.addEventListener('click', (e) => {
+        e.preventDefault();
         const targetEl = document.getElementById(sec.id);
         if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          if (typeof window.playTickSound === 'function') window.playTickSound();
+          smoothScrollToStep(targetEl, sec.id);
         }
       });
     }
@@ -9740,25 +9740,21 @@ function setupBookingReveal() {
     const submitBtn = document.getElementById('btnSubmitBooking');
     
     const scrollPos = bookingScreen.scrollTop + 220;
-    const s2Top = step2 ? (step2.offsetTop - bookingScreen.offsetTop) : 9999;
-    const s3Top = step3 ? (step3.offsetTop - bookingScreen.offsetTop) : 9999;
+    const s2Top = step2 ? step2.offsetTop : 9999;
+    const s3Top = step3 ? step3.offsetTop : 9999;
 
     if (scrollPos < s2Top) {
-      if (step2) step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (typeof window.playTickSound === 'function') window.playTickSound();
+      if (step2) smoothScrollToStep(step2, 'wizardStep2Section');
     } else if (scrollPos < s3Top) {
       if (step3) {
-        step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        smoothScrollToStep(step3, 'wizardStep3Section');
         if (nameInput) setTimeout(() => { try { nameInput.focus(); } catch(e){} }, 400);
       }
-      if (typeof window.playTickSound === 'function') window.playTickSound();
     } else {
       if (nameInput && !nameInput.value.trim()) {
-        nameInput.focus();
-        nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        highlightInvalidField(nameInput, STATE.language === 'pl' ? 'Proszę wpisać imię i nazwisko.' : 'Lütfen Ad Soyad giriniz.');
       } else if (phoneInput && !phoneInput.value.trim()) {
-        phoneInput.focus();
-        phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        highlightInvalidField(phoneInput, STATE.language === 'pl' ? 'Proszę wpisać numer telefonu.' : 'Lütfen Telefon Numarası giriniz.');
       } else if (submitBtn) {
         submitBtn.click();
       }
