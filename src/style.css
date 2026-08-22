@@ -7512,20 +7512,18 @@ body.flag-selection-mode .portal-center-hint {
   box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Section Cards & Summary Cards - Ultra-Refined Luxury Translucent Glass Card with In-Card Video */
+/* Section Cards & Summary Cards - Ultra-Refined Luxury Translucent Glass Card with HD Character Stage */
 .wizard-section-card,
 .wizard-summary-card {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.94) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  background: #ffffff !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
   border-radius: 24px;
   box-shadow: 
-    0 20px 45px -10px rgba(15, 23, 42, 0.10),
-    0 0 1px 1px rgba(255, 255, 255, 0.95),
-    0 10px 25px -5px rgba(0, 0, 0, 0.03);
+    0 15px 40px -10px rgba(15, 23, 42, 0.07),
+    0 0 1px 1px rgba(226, 232, 240, 0.8),
+    0 4px 12px -2px rgba(0, 0, 0, 0.02);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   z-index: 10;
 }
@@ -7542,6 +7540,7 @@ body.flag-selection-mode .portal-center-hint {
   gap: 16px;
 }
 
+/* High-Definition Character Video Stage Inside Cards */
 .wizard-card-video-bg {
   position: absolute;
   inset: 0;
@@ -7549,42 +7548,46 @@ body.flag-selection-mode .portal-center-hint {
   height: 100%;
   overflow: hidden;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
   border-radius: inherit;
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.08) 30%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0.95) 90%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.08) 30%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0.95) 90%);
 }
 
 .wizard-card-video-bg video {
   position: absolute;
-  top: -12%;
-  left: 0;
-  width: 100%;
-  height: 124%;
+  top: -10%;
+  right: -5%;
+  width: 65%;
+  height: 120%;
+  min-width: 380px;
   object-fit: cover;
-  opacity: 0.32;
-  filter: saturate(1.25) contrast(1.1) brightness(1.02);
+  object-position: center top;
+  opacity: 0.88;
+  filter: contrast(1.08) saturate(1.18) brightness(1.02);
   will-change: transform;
-  transform: scale(1.08) translate3d(0, 0, 0);
-  transition: opacity 0.4s ease, transform 0.12s cubic-bezier(0, 0, 0.2, 1);
+  transform: translate3d(0, 0, 0);
+  transition: opacity 0.4s ease, transform 0.3s ease, filter 0.3s ease;
 }
 
 .wizard-section-card:hover .wizard-card-video-bg video,
 .wizard-summary-card:hover .wizard-card-video-bg video {
-  opacity: 0.45;
+  opacity: 0.98;
+  filter: contrast(1.10) saturate(1.22) brightness(1.04);
 }
 
 .wizard-card-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 50%, rgba(255, 255, 255, 0.90) 100%);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  z-index: 1;
+  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 40%, rgba(255, 255, 255, 0.35) 75%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .wizard-section-card > *:not(.wizard-card-video-bg),
 .wizard-summary-card > *:not(.wizard-card-video-bg) {
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .wizard-section-card:hover,
@@ -12782,7 +12785,6 @@ iframe[title*="Message preview"] {
   .cso-capsule-media {
     height: 95px !important;
   }
-
   .cso-circle-flag-wrap {
     width: 32px !important;
     height: 32px !important;
@@ -12799,6 +12801,64 @@ iframe[title*="Message preview"] {
 
   .cso-capsule-desc {
     font-size: 0.65rem !important;
+  }
+
+  /* Booking Wizard Modal Mobile Scroll Spacing */
+  #cinemaModalBooking .cinema-modal-scroll-body,
+  .booking-reveal-screen,
+  .cinema-modal-container {
+    padding-bottom: 140px !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+  }
+
+  /* Smooth Country Selector Overlay on Small Screens */
+  .country-selector-overlay {
+    padding: max(16px, env(safe-area-inset-top, 16px)) 12px max(24px, env(safe-area-inset-bottom, 24px)) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .cso-capsule-card {
+    min-height: 80px !important;
+    padding: 14px 16px !important;
+  }
+
+  /* City mini-cards mobile touch feedback */
+  .tms-city-mini-card:active {
+    transform: scale(0.97) !important;
+  }
+
+  /* Step Indicator Progress Bar on Mobile */
+  .wizard-step-progress-bar {
+    gap: 4px !important;
+    padding: 6px !important;
+    border-radius: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .w-step-item {
+    padding: 8px 10px !important;
+    font-size: 0.76rem !important;
+  }
+
+  .w-step-num {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Card video background on mobile: vibrant top-right character spotlight */
+  .wizard-card-video-bg {
+    mask-image: radial-gradient(circle at 92% 18%, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 45%, transparent 75%) !important;
+    -webkit-mask-image: radial-gradient(circle at 92% 18%, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 45%, transparent 75%) !important;
+  }
+  .wizard-card-video-bg video {
+    opacity: 0.85 !important;
+    width: 75% !important;
+    min-width: 260px !important;
+    right: -10% !important;
+    top: -5% !important;
   }
 
   /* 4.5. Turkey & Poland Interactive Map Stage on Mobile */
@@ -14085,49 +14145,8 @@ iframe[title*="Message preview"] {
   .cinema-modal-container {
     padding-bottom: 140px !important;
     -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-y: contain !important;
   }
 
-  /* Smooth Country Selector Overlay on Small Screens */
-  .country-selector-overlay {
-    padding: max(16px, env(safe-area-inset-top, 16px)) 12px max(24px, env(safe-area-inset-bottom, 24px)) !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-
-  .cso-capsule-card {
-    min-height: 80px !important;
-    padding: 14px 16px !important;
-  }
-
-  /* City mini-cards mobile touch feedback */
-  .tms-city-mini-card:active {
-    transform: scale(0.97) !important;
-  }
-
-  /* Step Indicator Progress Bar on Mobile */
-  .wizard-step-progress-bar {
-    gap: 4px !important;
-    padding: 6px !important;
-    border-radius: 16px !important;
-    margin-bottom: 16px !important;
-  }
-
-  .w-step-item {
-    padding: 8px 10px !important;
-    font-size: 0.76rem !important;
-  }
-
-  .w-step-num {
-    width: 20px !important;
-    height: 20px !important;
-    font-size: 0.72rem !important;
-  }
-
-  /* Card video background opacity on mobile for readability */
-  .wizard-card-video-bg video {
-    opacity: 0.28 !important;
-  }
 }
 
 /* Horizontal overflow killer */
