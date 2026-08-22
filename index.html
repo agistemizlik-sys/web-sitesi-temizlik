@@ -36,8 +36,10 @@
   <meta name="twitter:image:alt" content="RELAXAX — premium temizlik hizmetleri">
 
   <!-- Multilingual Indexing Guidance -->
+  <link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
   <link rel="alternate" hreflang="tr" href="https://relaxax.com/" />
   <link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+  <link rel="alternate" hreflang="uk" href="https://relaxax.com/?lang=uk" />
   <link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
   <link rel="canonical" href="https://relaxax.com/" />
 
@@ -45,7 +47,7 @@
   <script>
     (function () {
       var l = new URLSearchParams(location.search).get('lang');
-      if (l === 'pl') {
+      if (l && ['pl', 'en', 'uk', 'tr'].indexOf(l) !== -1) {
         var c = document.querySelector('link[rel="canonical"]');
         if (c) c.setAttribute('href', 'https://relaxax.com/?lang=' + l);
       }
@@ -69,13 +71,20 @@
           "height": 96
         },
         "image": "https://relaxax.com/images/og-image.png",
-        "description": "İzmir, İstanbul, Sakarya, Kocaeli, Samsun, Balıkesir ve Antalya'da premium temizlik. Standart, detaylı, inşaat sonrası, taşınma ve kurumsal temizlik ile ilaçlama & dezenfeksiyon hizmetleri.",
+        "description": "Premium cinematic residential, commercial, deep, moving-in/out and post-construction cleaning services in Turkey (Istanbul, Izmir, Antalya, Kocaeli, Sakarya, Samsun, Balıkesir) and Poland (Warszawa).",
         "telephone": "+905466479004",
         "email": "info@relaxax.com",
         "priceRange": "$$",
         "address": {
           "@type": "PostalAddress",
           "addressCountry": "TR"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.98",
+          "reviewCount": "1840",
+          "bestRating": "5",
+          "worstRating": "1"
         },
         "areaServed": [
           {"@type": "City", "name": "İstanbul", "address": {"@type": "PostalAddress", "addressCountry": "TR"}},
@@ -117,7 +126,7 @@
         "@id": "https://relaxax.com/#website",
         "url": "https://relaxax.com/",
         "name": "RELAXAX",
-        "inLanguage": ["tr", "pl"],
+        "inLanguage": ["en", "tr", "pl", "uk"],
         "publisher": {"@id": "https://relaxax.com/#business"}
       },
       {
