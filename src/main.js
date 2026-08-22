@@ -152,11 +152,23 @@ function destroyLeafletMap(country) {
     portalHotspotListeners = [];
   }
   if (country === 'turkey' && turkeyMapInstance) {
-    try { turkeyMapInstance.remove(); } catch (e) {}
+    try {
+      turkeyMapInstance.stop();
+      turkeyMapInstance.off();
+      turkeyMapInstance.remove();
+    } catch (e) {}
     turkeyMapInstance = null;
+    const trEl = document.getElementById('portalNeonMap');
+    if (trEl && trEl._leaflet_id) trEl._leaflet_id = null;
   } else if (country === 'poland' && polandMapInstance) {
-    try { polandMapInstance.remove(); } catch (e) {}
+    try {
+      polandMapInstance.stop();
+      polandMapInstance.off();
+      polandMapInstance.remove();
+    } catch (e) {}
     polandMapInstance = null;
+    const plEl = document.getElementById('portalNeonMapPoland');
+    if (plEl && plEl._leaflet_id) plEl._leaflet_id = null;
   }
 }
 
