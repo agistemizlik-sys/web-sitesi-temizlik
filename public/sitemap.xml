@@ -7,9 +7,9 @@
     <lastmod>2026-08-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/" />
     <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
     <xhtml:link rel="alternate" hreflang="uk" href="https://relaxax.com/?lang=uk" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
     <image:image>
@@ -17,41 +17,45 @@
       <image:title>RELAXAX Cinematic Cleaning Service</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://relaxax.com/images/istanbul_landmark.png</image:loc>
-      <image:title>İstanbul Temizlik Hizmetleri</image:title>
+      <image:loc>https://relaxax.com/images/istanbul_day_landmark.jpg</image:loc>
+      <image:title>İstanbul Premium Temizlik Hizmetleri</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://relaxax.com/images/warszawa_landmark.png</image:loc>
-      <image:title>Warszawa Usługi Sprzątania</image:title>
+      <image:loc>https://relaxax.com/images/warszawa_day_landmark.jpg</image:loc>
+      <image:title>Warszawa Profesjonalne Sprzątanie</image:title>
     </image:image>
     <image:image>
       <image:loc>https://relaxax.com/images/izmir_landmark.png</image:loc>
-      <image:title>İzmir Temizlik Hizmetleri</image:title>
+      <image:title>İzmir Ev ve Ofis Temizliği</image:title>
     </image:image>
     <image:image>
       <image:loc>https://relaxax.com/images/antalya_landmark.png</image:loc>
-      <image:title>Antalya Temizlik Hizmetleri</image:title>
+      <image:title>Antalya Temizlik Şirketi</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://relaxax.com/?lang=pl</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="uk" href="https://relaxax.com/?lang=uk" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
+    <image:image>
+      <image:loc>https://relaxax.com/images/warszawa_day_landmark.jpg</image:loc>
+      <image:title>Sprzątanie Mieszkań i Biur Warszawa</image:title>
     </image:image>
   </url>
   <url>
     <loc>https://relaxax.com/?lang=en</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
+    <priority>0.90</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/" />
     <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
-    <xhtml:link rel="alternate" hreflang="uk" href="https://relaxax.com/?lang=uk" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
-  </url>
-  <url>
-    <loc>https://relaxax.com/?lang=pl</loc>
-    <lastmod>2026-08-22</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
-    <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/" />
-    <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
     <xhtml:link rel="alternate" hreflang="uk" href="https://relaxax.com/?lang=uk" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
   </url>
@@ -59,10 +63,10 @@
     <loc>https://relaxax.com/?lang=uk</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
+    <priority>0.85</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://relaxax.com/" />
     <xhtml:link rel="alternate" hreflang="pl" href="https://relaxax.com/?lang=pl" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://relaxax.com/?lang=en" />
     <xhtml:link rel="alternate" hreflang="uk" href="https://relaxax.com/?lang=uk" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://relaxax.com/" />
   </url>
