@@ -161,6 +161,7 @@ function destroyLeafletMap(country) {
       turkeyMapInstance.remove();
     } catch (e) {}
     turkeyMapInstance = null;
+    window.turkeyMapInstance = null;
     const trEl = document.getElementById('portalNeonMap');
     if (trEl && trEl._leaflet_id) trEl._leaflet_id = null;
   } else if (country === 'poland' && polandMapInstance) {
@@ -173,6 +174,7 @@ function destroyLeafletMap(country) {
       polandMapInstance.remove();
     } catch (e) {}
     polandMapInstance = null;
+    window.polandMapInstance = null;
     const plEl = document.getElementById('portalNeonMapPoland');
     if (plEl && plEl._leaflet_id) plEl._leaflet_id = null;
   }
@@ -2994,259 +2996,6 @@ function skipPortalDirectToCity(city) {
 
 window.THREE = THREE;
 
-/**
- * Three.js WebGL Liquify Screen Wipe Transition
- * Performs a liquid distortion shader wipe over the entrance video.
- */
-function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  const aspect = width / height;
-
-  const canvas = document.createElement('canvas');
-  canvas.id = 'liquify-wipe-canvas';
-  canvas.className = 'liquify-wipe-canvas';
-  canvas.style.position = 'fixed';
-  canvas.style.top = '0';
-  canvas.style.left = '0';
-  canvas.style.width = '100vw';
-  canvas.style.height = '100vh';
-  canvas.style.height = '100dvh';
-  canvas.style.zIndex = '10000002';
-  canvas.style.pointerEvents = 'none';
-  introStage.appendChild(canvas);
-
-  let renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance'
-    });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  } catch (err) {
-    logErrorDebug('WebGL init for liquify wipe failed:', err);
-    if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
-    gsap.to(introStage, {
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        if (onComplete) onComplete();
-      }
-    });
-    return;
-  }
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10, 10);
-  camera.position.z = 1;
-
-  // Snapshot canvas texture for rock-solid frame capturing on all screen ratios
-  const snapCanvas = document.createElement('canvas');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  snapCanvas.width = Math.min(width * dpr, 1920);
-  snapCanvas.height = Math.min(height * dpr, 1920);
-  const sCtx = snapCanvas.getContext('2d');
-  if (introVideo && introVideo.readyState >= 2 && introVideo.videoWidth && introVideo.videoHeight) {
-    try {
-      const vW = introVideo.videoWidth;
-      const vH = introVideo.videoHeight;
-      const cW = snapCanvas.width;
-      const cH = snapCanvas.height;
-      const vRatio = vW / vH;
-      const cRatio = cW / cH;
-      let sWidth, sHeight, sx, sy;
-      if (cRatio > vRatio) {
-        sWidth = vW;
-        sHeight = vW / cRatio;
-        sx = 0;
-        sy = (vH - sHeight) / 2;
-      } else {
-        sHeight = vH;
-        sWidth = vH * cRatio;
-        sx = (vW - sWidth) / 2;
-        sy = 0;
-      }
-      sCtx.drawImage(introVideo, sx, sy, sWidth, sHeight, 0, 0, cW, cH);
-    } catch(e) {
-      try { sCtx.drawImage(introVideo, 0, 0, snapCanvas.width, snapCanvas.height); } catch(err) {}
-    }
-  } else {
-    sCtx.fillStyle = '#0f172a';
-    sCtx.fillRect(0, 0, snapCanvas.width, snapCanvas.height);
-  }
-  const texture = new THREE.CanvasTexture(snapCanvas);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-
-  const clickX = clickCoords && typeof clickCoords.x === 'number' ? clickCoords.x / width : 0.5;
-  const clickY = clickCoords && typeof clickCoords.y === 'number' ? 1.0 - (clickCoords.y / height) : 0.75;
-
-  const vertexShader = `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = vec4(position, 1.0);
-    }
-  `;
-
-  const fragmentShader = `
-    uniform sampler2D u_texture;
-    uniform float u_progress;
-    uniform float u_time;
-    uniform vec2 u_clickPoint;
-    uniform float u_aspect;
-    varying vec2 vUv;
-
-    // Simplex Noise 2D
-    vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-    float snoise(vec2 v){
-      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-      vec2 i  = floor(v + dot(v, C.yy) );
-      vec2 x0 = v - i + dot(i, C.xx);
-      vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-      vec4 x12 = x0.xyxy + C.xxzz;
-      x12.xy -= i1;
-      i = mod(i, 289.0);
-      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
-      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-      m = m*m; m = m*m;
-      vec3 x = 2.0 * fract(p * 0.0243902439) - 1.0;
-      vec3 h = abs(x) - 0.5;
-      vec3 ox = floor(x + 0.5);
-      vec3 a0 = x - ox;
-      m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-      vec3 g;
-      g.x  = a0.x  * x0.x  + h.x  * x0.y;
-      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-      return 130.0 * dot(m, g);
-    }
-
-    float fbm(vec2 p) {
-      float v = 0.0;
-      float a = 0.5;
-      for (int i = 0; i < 4; i++) {
-        v += a * snoise(p);
-        p *= 2.06;
-        a *= 0.48;
-      }
-      return v;
-    }
-
-    void main() {
-      vec2 uv = vUv;
-      vec2 aspectVec = vec2(u_aspect, 1.0);
-      vec2 diff = (uv - u_clickPoint) * aspectVec;
-      float dist = length(diff);
-
-      // Liquid turbulence vectors
-      vec2 flow = vec2(
-        snoise(uv * 3.8 + vec2(u_time * 0.45, u_progress * 2.4)),
-        snoise(uv * 3.8 + vec2(u_progress * 2.4, u_time * 0.45))
-      );
-
-      float liquidNoise = fbm(uv * 4.2 + flow * 0.45 + vec2(0.0, -u_time * 0.3));
-      float waveRipple = sin(dist * 18.0 - u_progress * 15.0) * exp(-dist * 1.8);
-
-      // Refractive liquid displacement
-      float displaceMag = sin(u_progress * 3.14159) * 0.24;
-      vec2 displacedUv = uv + flow * displaceMag + (diff / (dist + 0.001)) * waveRipple * displaceMag * 0.55;
-
-      // Chromatic liquid dispersion (RGB shift)
-      float rDisp = displaceMag * 0.024;
-      float gDisp = displaceMag * 0.012;
-      vec4 texR = texture2D(u_texture, clamp(displacedUv + flow * rDisp, 0.0, 1.0));
-      vec4 texG = texture2D(u_texture, clamp(displacedUv + flow * gDisp, 0.0, 1.0));
-      vec4 texB = texture2D(u_texture, clamp(displacedUv, 0.0, 1.0));
-      vec4 tex = vec4(texR.r, texG.g, texB.b, 1.0);
-
-      // Organic Liquid Wipe Coordinate
-      float wipeCoord = (1.0 - uv.y) * 0.4 + (dist * 0.5) + liquidNoise * 0.3 + waveRipple * 0.1;
-      float threshold = u_progress * 1.4 - 0.2;
-      float edgeWidth = 0.15;
-      float alpha = smoothstep(threshold - edgeWidth, threshold + edgeWidth, wipeCoord);
-      alpha = clamp(alpha, 0.0, 1.0) * (1.0 - pow(u_progress, 4.0));
-
-      // Specular liquid crest highlight along melting wave front
-      float crest = 1.0 - abs(alpha - 0.5) * 2.0;
-      crest = pow(clamp(crest, 0.0, 1.0), 3.0);
-      vec3 waterSheen = vec3(0.45, 0.9, 1.0) * 1.4;
-
-      vec3 finalColor = tex.rgb + waterSheen * crest * (1.0 - u_progress) * 0.9;
-      gl_FragColor = vec4(finalColor, alpha);
-    }
-  `;
-
-  const uniforms = {
-    u_texture: { value: texture },
-    u_progress: { value: 0.0 },
-    u_time: { value: 0.0 },
-    u_clickPoint: { value: new THREE.Vector2(clickX, clickY) },
-    u_aspect: { value: aspect }
-  };
-
-  const material = new THREE.ShaderMaterial({
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader,
-    uniforms: uniforms,
-    transparent: true,
-    depthTest: false,
-    depthWrite: false
-  });
-
-  const geometry = new THREE.PlaneGeometry(2, 2);
-  const mesh = new THREE.Mesh(geometry, material);
-  scene.add(mesh);
-
-  let animFrameId;
-  const startTime = performance.now();
-
-  const renderLoop = () => {
-    uniforms.u_time.value = (performance.now() - startTime) * 0.001;
-    if (introVideo && !introVideo.paused && introVideo.readyState >= 2) {
-      try {
-        sCtx.drawImage(introVideo, 0, 0, snapCanvas.width, snapCanvas.height);
-        texture.needsUpdate = true;
-      } catch(e) {}
-    }
-    renderer.render(scene, camera);
-    animFrameId = requestAnimationFrame(renderLoop);
-  };
-  renderLoop();
-
-  // Safety watchdog fallback: guarantee onComplete is called within 1400ms
-  let completed = false;
-  const safeComplete = () => {
-    if (completed) return;
-    completed = true;
-    try { cancelAnimationFrame(animFrameId); } catch(e){}
-    try { geometry.dispose(); material.dispose(); texture.dispose(); renderer.dispose(); } catch(e){}
-    if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
-    if (onComplete) onComplete();
-  };
-  const watchdogTimer = setTimeout(safeComplete, 1400);
-
-  // Hide the HTML video after first WebGL render frame
-  requestAnimationFrame(() => {
-    if (introVideo) {
-      introVideo.style.opacity = '0';
-    }
-  });
-
-  gsap.to(uniforms.u_progress, {
-    value: 1.0,
-    duration: 1.0,
-    ease: 'power2.inOut',
-    onComplete: () => {
-      clearTimeout(watchdogTimer);
-      safeComplete();
-    }
-  });
-}
-
 function setupPortalIntroClick() {
   const introStage = document.getElementById('portal-intro-stage');
   const introVideo = document.getElementById('portalIntroVideo');
@@ -4138,6 +3887,7 @@ async function initLeafletMap(country) {
       zoomSnap: 0.1,
       zoomDelta: 0.5
     }).setView([39.0, 35.0], 6);
+    window.turkeyMapInstance = turkeyMapInstance;
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(turkeyMapInstance);
