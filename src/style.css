@@ -9082,8 +9082,8 @@ body.flag-selection-mode .portal-center-hint {
 
 /* Itemized Price Breakdown Details Box */
 .wizard-price-breakdown-details {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(19, 31, 60, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 12px 16px;
   margin: 14px 0 16px;
@@ -9095,19 +9095,21 @@ body.flag-selection-mode .portal-center-hint {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.8rem;
-  color: #475569;
+  font-size: 0.82rem;
+  color: #cbd5e1;
 }
 .breakdown-row .b-lbl {
   font-weight: 600;
+  color: #cbd5e1;
 }
 .breakdown-row .b-val {
   font-weight: 700;
-  color: #f1f5f9;
+  color: #ffffff;
 }
 .breakdown-row.discount-row {
   color: #4ade80;
 }
+.breakdown-row.discount-row .b-lbl,
 .breakdown-row.discount-row .b-val {
   color: #4ade80;
 }
@@ -14372,21 +14374,21 @@ body,
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(19, 31, 60, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
   padding: 10px 14px;
   margin-top: 12px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   transition: all 0.25s ease;
 }
 
 .wizard-reviews-trust-badge:hover {
-  border-color: rgba(37, 99, 235, 0.4);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.08);
+  border-color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
 }
 
 .rev-trust-left {
@@ -14394,7 +14396,7 @@ body,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid rgba(226, 232, 240, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
   padding-right: 12px;
 }
 
@@ -14405,7 +14407,7 @@ body,
 
 .rev-score {
   font-size: 0.82rem;
-  color: #475569;
+  color: #cbd5e1;
 }
 
 .rev-trust-right {
@@ -14415,14 +14417,14 @@ body,
 }
 
 .rev-verified-text {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .rev-recent-quote {
   font-size: 0.74rem;
-  color: #64748b;
+  color: #94a3b8;
   font-style: italic;
   white-space: nowrap;
   overflow: hidden;
