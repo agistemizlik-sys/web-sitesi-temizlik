@@ -3294,6 +3294,10 @@ function setupPortalIntroClick() {
     if (triggered) return;
     triggered = true;
 
+    if (introStage) {
+      introStage.style.pointerEvents = 'none';
+    }
+
     cleanupIntroListeners();
 
     if (window.playTickSound) {

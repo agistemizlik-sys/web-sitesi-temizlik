@@ -6712,16 +6712,6 @@ video::-webkit-media-controls-overlay-play-button {
    30. COUNTRY SELECTOR OVERLAY (AIRPORT / WORLD TRAVEL AESTHETIC)
    ========================================================================== */
 
-#portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-logo-container,
-#portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-center-hint,
-#portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-audio-toggle,
-#portal-stage:has(#country-selector-overlay:not(.cso-hidden)) .portal-map-selector-stage {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
 .country-selector-overlay {
   position: fixed !important;
   inset: 0 !important;
