@@ -10649,13 +10649,13 @@ function setupVideoLoopEngineering() {
 // 🎬 CINEMATIC CHARACTER BACKGROUND VIDEO ENGINE FOR BOOKING FORM CARDS 🎬
 const BOOKING_CINEMATIC_VIDEOS = [
   '/videos/monalisa.mp4',
+  '/videos/astronaut.mp4',
   '/videos/sumo.mp4',
   '/videos/samurai.mp4',
-  '/videos/astronaut.mp4',
+  '/videos/gandalf.mp4',
   '/videos/viking.mp4',
   '/videos/knight.mp4',
   '/videos/cowboy.mp4',
-  '/videos/gandalf.mp4',
   '/videos/roman.mp4',
   '/videos/victorian.mp4',
   '/videos/monk.mp4',

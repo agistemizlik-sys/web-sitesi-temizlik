@@ -1646,15 +1646,15 @@ html.bypassing-gateway #portal-stage {
 }
 
 .booking-bg-video.active {
-  opacity: 0.38;
+  opacity: 0.55;
 }
 
 .booking-bg-video-overlay {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(circle at 50% 30%, rgba(248, 250, 252, 0.4) 0%, rgba(241, 245, 249, 0.75) 60%, rgba(226, 232, 240, 0.92) 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(248, 250, 252, 0.4) 50%, rgba(241, 245, 249, 0.8) 100%);
+    radial-gradient(circle at 50% 30%, rgba(248, 250, 252, 0.25) 0%, rgba(241, 245, 249, 0.55) 60%, rgba(226, 232, 240, 0.75) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(248, 250, 252, 0.25) 50%, rgba(241, 245, 249, 0.6) 100%);
   z-index: 1;
 }
 
@@ -7521,16 +7521,18 @@ body.flag-selection-mode .portal-center-hint {
   box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Section Cards - Ultra-Refined Luxury White Card */
+/* Section Cards - Ultra-Refined Luxury Translucent Glass Card */
 .wizard-section-card {
-  background: #ffffff !important;
-  border: 1.5px solid rgba(226, 232, 240, 0.95);
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
   border-radius: 24px;
   padding: 32px;
   box-shadow: 
-    0 20px 45px -10px rgba(15, 23, 42, 0.08),
-    0 0 1px 1px rgba(226, 232, 240, 0.8),
-    0 10px 25px -5px rgba(0, 0, 0, 0.03);
+    0 20px 45px -10px rgba(15, 23, 42, 0.12),
+    0 0 1px 1px rgba(255, 255, 255, 0.95),
+    0 10px 25px -5px rgba(0, 0, 0, 0.04);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   z-index: 10;
