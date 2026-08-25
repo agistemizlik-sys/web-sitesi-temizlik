@@ -3529,6 +3529,15 @@
         </button>
       </div>
 
+      <!-- Quick 1-Click Fast Login Demo Bar -->
+      <div class="auth-fast-demo-bar" id="authFastDemoBar">
+        <span class="afb-lbl">⚡ Hızlı Giriş Yap:</span>
+        <button type="button" class="afb-chip customer" onclick="window.fastAuthFill('customer')">👤 Müşteri (Zeynep K.)</button>
+        <button type="button" class="afb-chip staff" onclick="window.fastAuthFill('staff')">🧹 Temizlik Uzmanı (Ayşe K.)</button>
+        <button type="button" class="afb-chip staff2" onclick="window.fastAuthFill('staff2')">🧽 Hijyen Şefi (Mehmet D.)</button>
+        <button type="button" class="afb-chip admin" onclick="window.fastAuthFill('admin')">👑 Yönetici (Admin)</button>
+      </div>
+
       <!-- Auth Navigation Tabs -->
       <div class="auth-tabs-nav">
         <!-- Customer Tabs -->
@@ -4083,9 +4092,10 @@
                 <span>Hesaba Aktarılacak Net Tutar (%70)</span>
                 <h3 id="staffNetPayout">5.145 TL</h3>
               </div>
-              <div class="seh-item">
-                <span>Sonraki Ödeme Tarihi</span>
-                <h3 style="color: #34d399;">Bu Cuma (17:00)</h3>
+              <div class="seh-item" style="display:flex; flex-direction:column; justify-content:center;">
+                <button type="button" class="btn-staff-withdraw-fast" id="btnStaffWithdrawFast" onclick="window.openStaffWithdrawalModal?.()">
+                  <span>💸 FAST ile Hesabıma Çek</span>
+                </button>
               </div>
             </div>
 

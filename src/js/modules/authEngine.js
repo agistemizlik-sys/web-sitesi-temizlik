@@ -326,11 +326,33 @@ const INITIAL_DEMO_JOBS = [
 ];
 
 // Customers storage
+const DEFAULT_REGISTERED_USERS = [
+  {
+    id: 'usr_zeynep_01',
+    role: 'customer',
+    name: 'Zeynep Kaya',
+    email: 'zeynep@relaxax.com',
+    phone: '0533 123 45 67',
+    password: '123456',
+    city: 'Istanbul',
+    district: 'Kadıköy',
+    street: 'Moda Cad. No:14 D:6 Palmiye Apt.',
+    createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
+    vipScore: 240,
+    activePromo: 'HOSGELDIN15'
+  }
+];
+
 function getRegisteredUsers() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_USERS_KEY) || '[]');
+    const raw = localStorage.getItem(STORAGE_USERS_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(DEFAULT_REGISTERED_USERS));
+      return DEFAULT_REGISTERED_USERS;
+    }
+    return JSON.parse(raw);
   } catch (e) {
-    return [];
+    return DEFAULT_REGISTERED_USERS;
   }
 }
 
@@ -2168,6 +2190,26 @@ export function initAuthEngine() {
     switchAuthTab('admin_login');
   });
 
+  // Role Selector Pills in Modal Top
+  document.querySelectorAll('.auth-role-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.auth-role-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const role = pill.dataset.role;
+      const user = getCurrentUser();
+      if (role === 'customer') {
+        if (user && user.role === 'customer') switchAuthTab('profile');
+        else switchAuthTab('login');
+      } else if (role === 'staff') {
+        if (user && user.role === 'staff') switchAuthTab('staff_dashboard');
+        else switchAuthTab('staff_login');
+      } else if (role === 'admin') {
+        if (user && user.role === 'admin') switchAuthTab('admin_dashboard');
+        else switchAuthTab('admin_login');
+      }
+    });
+  });
+
   // Password visibility toggles
   document.querySelectorAll('.btn-toggle-pwd-visibility').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2184,6 +2226,88 @@ export function initAuthEngine() {
     });
   });
 }
+
+// Fast 1-Click Auth Switch for Testing
+window.fastAuthFill = async function(type) {
+  if (type === 'customer') {
+    switchAuthTab('login');
+    const emailInput = document.getElementById('loginEmail');
+    const passInput = document.getElementById('loginPassword');
+    if (emailInput) emailInput.value = 'zeynep@relaxax.com';
+    if (passInput) passInput.value = '123456';
+    const res = await loginUser('zeynep@relaxax.com', '123456', true, 'customer');
+    if (res.success) {
+      switchAuthTab('profile');
+      showAuthFeedback('paneAuthProfile', '✓ Zeynep Kaya (Müşteri) hesabına başarıyla giriş yapıldı.', 'success');
+    }
+  } else if (type === 'staff') {
+    switchAuthTab('staff_login');
+    const emailInput = document.getElementById('staffLoginEmail');
+    const passInput = document.getElementById('staffLoginPassword');
+    if (emailInput) emailInput.value = 'uzman@relaxax.com';
+    if (passInput) passInput.value = '123456';
+    const res = await loginUser('uzman@relaxax.com', '123456', true, 'staff');
+    if (res.success) {
+      switchAuthTab('staff_dashboard');
+      showAuthFeedback('paneAuthStaffDashboard', '✓ Ayşe K. (Kıdemli Temizlik Uzmanı) görev masası yüklendi.', 'success');
+    }
+  } else if (type === 'staff2') {
+    switchAuthTab('staff_login');
+    const emailInput = document.getElementById('staffLoginEmail');
+    const passInput = document.getElementById('staffLoginPassword');
+    if (emailInput) emailInput.value = 'mehmet.uzman@relaxax.com';
+    if (passInput) passInput.value = '123456';
+    const res = await loginUser('mehmet.uzman@relaxax.com', '123456', true, 'staff');
+    if (res.success) {
+      switchAuthTab('staff_dashboard');
+      showAuthFeedback('paneAuthStaffDashboard', '✓ Mehmet D. (Hijyen Şefi) görev masası yüklendi.', 'success');
+    }
+  } else if (type === 'admin') {
+    switchAuthTab('admin_login');
+    const emailInput = document.getElementById('adminLoginEmail');
+    const passInput = document.getElementById('adminLoginPassword');
+    if (emailInput) emailInput.value = 'admin@relaxax.com';
+    if (passInput) passInput.value = '123456';
+    const res = await loginUser('admin@relaxax.com', '123456', true, 'admin');
+    if (res.success) {
+      switchAuthTab('admin_dashboard');
+      showAuthFeedback('paneAuthAdminDashboard', '✓ Sistem Yöneticisi (Admin) Masası aktif edildi.', 'success');
+    }
+  }
+};
+
+// Staff FAST Withdrawal Handler
+window.openStaffWithdrawalModal = function() {
+  const staff = getCurrentUser();
+  if (!staff || staff.role !== 'staff') return;
+  const currentEarnings = staff.todayEarnings || 2450;
+  const netCommission = Math.round(currentEarnings * 0.70);
+
+  if (netCommission <= 0) {
+    alert('Şu anda çekilebilir hak ediş bakiyeniz bulunmamaktadır.');
+    return;
+  }
+
+  const iban = prompt(`💰 RELAXAX Temizlik Uzmanı FAST Hak Ediş Çekimi\n\nÇekilebilir Net Hak Ediş: ${netCommission.toLocaleString('tr-TR')} TL\nLütfen TR ile başlayan 26 haneli banka IBAN numaranızı giriniz:`, staff.iban || 'TR12 0006 2000 0001 2345 6789 01');
+
+  if (iban && iban.trim().length >= 10) {
+    staff.iban = iban.trim();
+    const withdrawAmount = netCommission;
+    staff.todayEarnings = 0;
+    
+    // Save staff state
+    const allStaff = getRegisteredStaff();
+    const sIdx = allStaff.findIndex(s => s.id === staff.id || s.email === staff.email);
+    if (sIdx !== -1) {
+      allStaff[sIdx] = { ...allStaff[sIdx], ...staff };
+      saveRegisteredStaff(allStaff);
+    }
+    localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(staff));
+    renderStaffDashboard();
+
+    alert(`✅ FAST Para Çekme Talebiniz Onaylandı!\n\nÇekilen Tutar: ${withdrawAmount.toLocaleString('tr-TR')} TL\nHesap Sahibi: ${staff.name}\nIBAN: ${staff.iban}\n\nÖdemeniz Garanti BBVA / FAST altyapısıyla 15 dakika içinde banka hesabınıza aktarılacaktır.`);
+  }
+};
 
 // Global public attachments
 window.openAuthModal = openAuthModal;
