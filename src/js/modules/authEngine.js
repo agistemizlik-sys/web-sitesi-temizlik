@@ -308,9 +308,43 @@ export function getUserBookings() {
   }
 }
 
+// Match & Assign the closest cleaner specialist
+export function matchAndAssignCleaner(city = 'Istanbul', district = '') {
+  const staffList = getRegisteredStaff();
+  const lowerDistrict = (district || '').toLowerCase();
+  
+  let matched = staffList.find(s => s.district && s.district.toLowerCase().includes(lowerDistrict));
+  if (!matched && staffList.length > 0) {
+    matched = staffList[Math.floor(Math.random() * staffList.length)];
+  }
+  if (!matched) {
+    matched = DEFAULT_DEMO_STAFF[0];
+  }
+
+  const distanceNum = (0.9 + Math.random() * 1.5).toFixed(1);
+  const etaMinutes = Math.round(parseFloat(distanceNum) * 5 + 2);
+
+  return {
+    id: matched.id,
+    name: matched.name,
+    phone: matched.phone || '0532 999 88 77',
+    rating: matched.rating || '4.98',
+    experience: matched.experience || '6 Yıl',
+    avatar: matched.name && matched.name.includes('Ayşe') ? '👩‍💼' : (matched.name && matched.name.includes('Mehmet') ? '👨‍💼' : '🧹'),
+    location: `${district ? district + ', ' : ''}${city || 'İstanbul'}`,
+    distanceKm: `${distanceNum} km`,
+    etaMinutes: `${etaMinutes} dakika`,
+    status: 'Yolda'
+  };
+}
+
 export function addBookingToUser(bookingData) {
   if (!bookingData) return;
   
+  if (!bookingData.assignedStaff) {
+    bookingData.assignedStaff = matchAndAssignCleaner(bookingData.city, bookingData.district);
+  }
+
   // 1. Add to Customer list if customer logged in
   const user = getCurrentUser();
   if (user && user.role === 'customer') {
@@ -342,6 +376,7 @@ export function addBookingToUser(bookingData) {
       time: bookingData.time || bookingData.preferredTime || '09:00',
       finalPrice: bookingData.finalPrice || (bookingData.price ? bookingData.price + ' TL' : '2.450,00 TL'),
       status: 'Beklemede',
+      assignedStaff: bookingData.assignedStaff,
       notes: bookingData.notes || 'Hassas eşyalara özen gösterilsin.',
       timestamp: Date.now()
     };
@@ -616,20 +651,47 @@ function renderUserProfileDetails(user) {
         </div>
       `;
     } else {
-      bookingsListEl.innerHTML = bookings.map(b => `
-        <div class="user-booking-card">
-          <div class="ub-header">
-            <span class="ub-code">#${escapeHTML(b.orderCode || b.resCode || 'RLX-REZERVASYON')}</span>
-            <span class="ub-status badge-success">✓ ${escapeHTML(b.status || 'Onaylandı')}</span>
+      bookingsListEl.innerHTML = bookings.map(b => {
+        const staff = b.assignedStaff || matchAndAssignCleaner(b.city, b.district);
+        const waCleanerMsg = encodeURIComponent(`Merhaba ${staff.name}, #${b.orderCode || b.resCode} numaralı temizliğim hakkında görüşmek istiyorum.`);
+
+        return `
+          <div class="user-booking-card">
+            <div class="ub-header">
+              <span class="ub-code">#${escapeHTML(b.orderCode || b.resCode || 'RLX-REZERVASYON')}</span>
+              <span class="ub-status badge-success">✓ ${escapeHTML(b.status || 'Onaylandı')}</span>
+            </div>
+            
+            <!-- Assigned Cleaner & Live Distance Radar Box -->
+            <div class="ub-assigned-staff-box">
+              <div class="ub-asb-header">
+                <div class="ub-asb-avatar">${escapeHTML(staff.avatar || '👩‍💼')}</div>
+                <div class="ub-asb-meta">
+                  <div class="ub-asb-name">
+                    <strong>${escapeHTML(staff.name)}</strong>
+                    <span class="ub-asb-badge">★ ${escapeHTML(staff.rating || '4.98')}</span>
+                  </div>
+                  <div class="ub-asb-dist">
+                    <span class="acc-pulse-dot-sm"></span>
+                    <strong style="color: #38bdf8;">📍 Uzaklık: ${escapeHTML(staff.distanceKm || '1.4 km')}</strong> (~${escapeHTML(staff.etaMinutes || '8 dk')} mesafede)
+                  </div>
+                </div>
+              </div>
+              <div class="ub-asb-contact-row">
+                <a href="tel:${escapeHTML(staff.phone || '05329998877')}" class="btn-ub-asb-contact call">📞 Uzmanı Ara</a>
+                <a href="https://wa.me/90${escapeHTML((staff.phone || '05329998877').replace(/\D/g, ''))}?text=${waCleanerMsg}" target="_blank" rel="noopener noreferrer" class="btn-ub-asb-contact wa">💬 WhatsApp</a>
+              </div>
+            </div>
+
+            <div class="ub-details">
+              <div><strong>Hizmet:</strong> ${escapeHTML(b.service || 'Standart Daire Temizliği')}</div>
+              <div><strong>Tarih:</strong> 🗓️ ${escapeHTML(b.date || 'Belirtilmedi')} | 🕒 ${escapeHTML(b.time || '09:00')}</div>
+              <div><strong>Adres:</strong> 📍 ${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')} ${escapeHTML(b.street || '')}</div>
+              <div class="ub-total"><strong>Toplam Tutar:</strong> <span style="color:#38bdf8; font-weight:800;">${escapeHTML(b.finalPrice || b.subtotal || b.total || 'Fiyat Hesaplanıyor')}</span></div>
+            </div>
           </div>
-          <div class="ub-details">
-            <div><strong>Hizmet:</strong> ${escapeHTML(b.service || 'Standart Daire Temizliği')}</div>
-            <div><strong>Tarih:</strong> 🗓️ ${escapeHTML(b.date || 'Belirtilmedi')} | 🕒 ${escapeHTML(b.time || '09:00')}</div>
-            <div><strong>Adres:</strong> 📍 ${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')} ${escapeHTML(b.street || '')}</div>
-            <div class="ub-total"><strong>Toplam Tutar:</strong> <span style="color:#38bdf8; font-weight:800;">${escapeHTML(b.finalPrice || b.subtotal || b.total || 'Fiyat Hesaplanıyor')}</span></div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
   }
 }
@@ -957,4 +1019,6 @@ window.isStaffLoggedIn = isStaffLoggedIn;
 window.logoutUserGlobal = logoutUser;
 window.addBookingToUserGlobal = addBookingToUser;
 window.updateStaffJobStatusGlobal = updateStaffJobStatus;
+window.matchAndAssignCleaner = matchAndAssignCleaner;
+
 

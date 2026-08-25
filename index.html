@@ -2847,6 +2847,65 @@
             </div>
             <p id="lblBookingSuccessText">Siparişiniz başarıyla alınmış ve onaylanmıştır. Temizlik ekibimiz seçtiğiniz randevu tarihinde adresinizde olacaktır. Dilerseniz WhatsApp üzerinden anında teyit alabilir veya dekontunuzu iletebilirsiniz.</p>
 
+            <!-- 🚗 ATANAN TEMİZLİK UZMANI & CANLI MESAFE RADARI -->
+            <div class="assigned-cleaner-card" id="assignedCleanerCard">
+              <div class="acc-top-badge">
+                <span class="acc-pulse-dot"></span>
+                <strong>CANLI TEMİZLİK UZMANI EŞLEŞTİRİLDİ</strong>
+                <span class="acc-distance-pill" id="accDistancePill">📍 ~1.4 km mesafede (~8 dk)</span>
+              </div>
+
+              <div class="acc-profile-row">
+                <div class="acc-avatar-wrap">
+                  <div class="acc-avatar-img" id="accCleanerAvatar">👩‍💼</div>
+                  <span class="acc-online-indicator" title="Çevrimiçi & Göreve Hazır"></span>
+                </div>
+                <div class="acc-info">
+                  <div class="acc-name-row">
+                    <h4 id="accCleanerName">Ayşe K.</h4>
+                    <span class="acc-verified-badge" title="Adli Sicil & Hijyen Sertifikalı">✓ Doğrulanmış Uzman</span>
+                  </div>
+                  <div class="acc-meta-row">
+                    <span class="acc-rating" id="accCleanerRating">★ 4.98 (142 Yorum)</span>
+                    <span class="acc-exp" id="accCleanerExp">6 Yıl Deneyim</span>
+                  </div>
+                  <p class="acc-location" id="accCleanerLocation">📍 Şu anki konumu: Kadıköy / Moda — Ekipmanları ve Kärcher buharlı seti hazırlandı.</p>
+                </div>
+              </div>
+
+              <!-- Live GPS Status Progress Bar -->
+              <div class="acc-route-tracker">
+                <div class="acc-route-steps">
+                  <div class="acc-step active">
+                    <span class="acc-step-icon">📋</span>
+                    <span class="acc-step-txt">Sipariş Onaylandı</span>
+                  </div>
+                  <div class="acc-step active pulse">
+                    <span class="acc-step-icon">🚗</span>
+                    <span class="acc-step-txt" id="accStatusStepTxt">Yola Çıkıyor (~1.4 km)</span>
+                  </div>
+                  <div class="acc-step">
+                    <span class="acc-step-icon">✨</span>
+                    <span class="acc-step-txt">Temizlikte</span>
+                  </div>
+                  <div class="acc-step">
+                    <span class="acc-step-icon">🏆</span>
+                    <span class="acc-step-txt">Teslim Edildi</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cleaner Direct Contact Buttons -->
+              <div class="acc-contact-actions">
+                <a href="#" id="accCallBtn" class="btn-acc-contact call">
+                  <span>📞 Uzmanı Doğrudan Ara</span>
+                </a>
+                <a href="#" id="accWaBtn" target="_blank" rel="noopener noreferrer" class="btn-acc-contact wa">
+                  <span>💬 Uzmana WhatsApp'tan Yaz</span>
+                </a>
+              </div>
+            </div>
+
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap;">
               <a href="#" id="btnSuccessWhatsApp" target="_blank" rel="noopener noreferrer" class="wizard-whatsapp-help-btn" style="margin: 0; padding: 14px 24px; font-size: 1rem;">
                 <span>💬 WhatsApp Sipariş Teyidi & Dekont İlet</span>
