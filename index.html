@@ -3578,28 +3578,174 @@
              3. MÜŞTERİ PROFİLİM & SİPARİŞLERİM PANE
              ========================================== -->
         <div class="auth-pane" id="paneAuthProfile" style="display:none;">
+          <!-- Customer Meta Header -->
           <div class="user-profile-header">
             <div class="uph-avatar">👤</div>
             <div class="uph-meta">
-              <h4 id="userProfileName">Müşteri</h4>
+              <div class="uph-name-row">
+                <h4 id="userProfileName">Müşteri</h4>
+                <span class="badge-vip" id="userVipScore">⭐ VIP Üye (100 Puan)</span>
+              </div>
               <span id="userProfileEmail" class="uph-email">email@example.com</span>
-              <div class="uph-badges">
-                <span class="badge-vip" id="userVipScore">100 Puan (VIP Üye)</span>
-                <span class="badge-discount-active">🎉 %15 İndirim Aktif: HOSGELDIN15</span>
+              <div class="uph-sub-details">
+                <span id="userProfilePhone" class="uph-phone">📱 05XX XXX XX XX</span>
+                <span id="userProfileCity" class="uph-city">📍 İstanbul</span>
               </div>
             </div>
-            <button type="button" class="btn-logout-user" id="btnLogoutUser">Çıkış Yap</button>
+            <div class="uph-actions">
+              <button type="button" class="btn-new-booking-quick" onclick="if(typeof openBookingScreen==='function'){closeAuthModal(); openBookingScreen();}">
+                <span>✨ Yeni Temizlik İste</span>
+              </button>
+              <button type="button" class="btn-logout-user" id="btnLogoutUser">Çıkış</button>
+            </div>
           </div>
 
-          <div class="user-profile-sections">
-            <div class="ups-box">
-              <div class="ups-box-header">
-                <h5>📋 Temizlik Siparişlerim & Randevularım</h5>
+          <!-- Customer Sub Tabs Navigation -->
+          <div class="portal-subnav">
+            <button type="button" class="portal-subnav-btn active" data-target="custSubTabOrders">
+              <span>📋 Siparişlerim</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="custSubTabAddresses">
+              <span>📍 Kayıtlı Adreslerim</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="custSubTabRewards">
+              <span>🎁 Puan & Kuponlar</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="custSubTabSecurity">
+              <span>⚙️ Hesap & Şifre</span>
+            </button>
+          </div>
+
+          <!-- Sub Tab 1: Orders -->
+          <div class="portal-subtab-pane active" id="custSubTabOrders">
+            <div class="portal-subtab-header">
+              <h5>📋 Temizlik Siparişlerim & Canlı Durum</h5>
+              <span class="psh-desc">Verdiğiniz tüm temizlik hizmetlerini ve atanan temizlik uzmanını canlı takip edin.</span>
+            </div>
+            <div class="user-bookings-list" id="userBookingsList">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+          </div>
+
+          <!-- Sub Tab 2: Saved Addresses -->
+          <div class="portal-subtab-pane" id="custSubTabAddresses" style="display:none;">
+            <div class="portal-subtab-header">
+              <h5>📍 Kayıtlı Temizlik Adreslerim</h5>
+              <span class="psh-desc">Ev, ofis veya yazlık adreslerinizi kaydedin; rezervasyon sırasında tek tıkla kullanın.</span>
+            </div>
+            <div class="saved-addresses-grid" id="savedAddressesList">
+              <!-- Dynamically populated -->
+            </div>
+            <div class="add-address-box">
+              <h6>➕ Yeni Adres Ekle</h6>
+              <form id="formAddNewAddress" onsubmit="return false;" class="subform-grid">
+                <div class="auth-field-group">
+                  <label for="addrTitle">Adres Başlığı *</label>
+                  <input type="text" id="addrTitle" placeholder="Örn: Evim, Kadıköy Dairem, Ofis" required />
+                </div>
+                <div class="auth-field-group">
+                  <label for="addrCity">Şehir *</label>
+                  <select id="addrCity" class="auth-select">
+                    <option value="Istanbul">İstanbul</option>
+                    <option value="Izmir">İzmir</option>
+                    <option value="Ankara">Ankara</option>
+                    <option value="Antalya">Antalya</option>
+                    <option value="Bursa">Bursa</option>
+                    <option value="Kocaeli">Kocaeli</option>
+                    <option value="Warszawa">Warszawa</option>
+                  </select>
+                </div>
+                <div class="auth-field-group">
+                  <label for="addrDistrict">İlçe / Semt *</label>
+                  <input type="text" id="addrDistrict" placeholder="Örn: Kadıköy / Moda" required />
+                </div>
+                <div class="auth-field-group full-width">
+                  <label for="addrFull">Açık Adres (Cadde, Sokak, Bina No, Daire, Kat) *</label>
+                  <textarea id="addrFull" rows="2" placeholder="Örn: Moda Cad. Palmiye Apt. No:14 D:6 Kat:3" required></textarea>
+                </div>
+                <button type="submit" class="btn-save-address" id="btnSaveAddress">
+                  <span>💾 Adresi Kaydet</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Sub Tab 3: Rewards & Coupons -->
+          <div class="portal-subtab-pane" id="custSubTabRewards" style="display:none;">
+            <div class="rewards-hero-card">
+              <div class="rhc-left">
+                <span class="rhc-badge">👑 RELAXAX VIP KULÜBÜ</span>
+                <h4 class="rhc-title">Mevcut Bakiyeniz: <strong id="rewardsPointDisplay">100 Puan</strong></h4>
+                <p class="rhc-desc">Her temizlik siparişinizde %10 puan kazanın. 100 Puan = 100 TL indirim olarak kullanılır.</p>
               </div>
-              <div class="user-bookings-list" id="userBookingsList">
-                <!-- Dynamically populated via authEngine.js -->
+              <div class="rhc-right">
+                <div class="rhc-points-circle">
+                  <span class="rpc-num" id="rewardsPointCircle">100</span>
+                  <span class="rpc-lbl">PUAN</span>
+                </div>
               </div>
             </div>
+
+            <div class="active-coupons-box">
+              <h6>🎟️ Tanımlı İndirim Kuponlarınız</h6>
+              <div class="coupons-grid">
+                <div class="coupon-item">
+                  <div class="ci-left">
+                    <span class="ci-code">HOSGELDIN15</span>
+                    <span class="ci-val">%15 İNDİRİM</span>
+                  </div>
+                  <div class="ci-right">
+                    <p>İlk temizlik siparişinize özel %15 anında sepet indirimi.</p>
+                    <button type="button" class="btn-copy-coupon" onclick="navigator.clipboard?.writeText('HOSGELDIN15'); alert('HOSGELDIN15 kupon kodu kopyalandı!');">
+                      <span>📋 Kopyala</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="coupon-item vip">
+                  <div class="ci-left">
+                    <span class="ci-code">RELAXAXVIP</span>
+                    <span class="ci-val">100 TL NAKİT</span>
+                  </div>
+                  <div class="ci-right">
+                    <p>VIP üyelere özel ekstra 100 TL temizlik indirimi.</p>
+                    <button type="button" class="btn-copy-coupon" onclick="navigator.clipboard?.writeText('RELAXAXVIP'); alert('RELAXAXVIP kupon kodu kopyalandı!');">
+                      <span>📋 Kopyala</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sub Tab 4: Security & Profile Settings -->
+          <div class="portal-subtab-pane" id="custSubTabSecurity" style="display:none;">
+            <div class="portal-subtab-header">
+              <h5>⚙️ Profil Bilgileri & Şifre Değiştirme</h5>
+              <span class="psh-desc">Kişisel bilgilerinizi güncelleyin ve hesap güvenliğinizi sağlayın.</span>
+            </div>
+            <form id="formUpdateCustomerProfile" onsubmit="return false;" class="subform-grid">
+              <div id="custProfileFeedback" class="auth-feedback" style="display:none;"></div>
+              <div class="auth-field-group">
+                <label for="custEditName">Ad Soyad</label>
+                <input type="text" id="custEditName" required />
+              </div>
+              <div class="auth-field-group">
+                <label for="custEditPhone">Telefon</label>
+                <input type="tel" id="custEditPhone" required />
+              </div>
+              <div class="auth-field-group">
+                <label for="custEditPassword">Yeni Şifre (Değiştirmek istemiyorsanız boş bırakın)</label>
+                <input type="password" id="custEditPassword" placeholder="••••••••" />
+              </div>
+              <div class="auth-field-group">
+                <label for="custEditPasswordConfirm">Yeni Şifre Tekrar</label>
+                <input type="password" id="custEditPasswordConfirm" placeholder="••••••••" />
+              </div>
+              <button type="submit" class="btn-save-address" id="btnUpdateCustomerProfile">
+                <span>💾 Bilgilerimi Güncelle</span>
+              </button>
+            </form>
           </div>
         </div>
 
@@ -3743,15 +3889,21 @@
              6. 📋 ÇALIŞAN GÖREV & KAZANÇ DASHBOARD PANE
              ========================================== -->
         <div class="auth-pane" id="paneAuthStaffDashboard" style="display:none;">
+          <!-- Staff Header -->
           <div class="staff-dashboard-header">
             <div class="sdh-top">
               <div class="sdh-avatar">🧹</div>
               <div class="sdh-meta">
-                <h4 id="staffProfileName">Ayşe K. (Kıdemli Temizlik Uzmanı)</h4>
-                <span id="staffProfileEmail" class="sdh-sub">uzman@relaxax.com | 📍 İstanbul (Kadıköy, Beşiktaş)</span>
-                <div class="sdh-badges">
+                <div class="sdh-name-row">
+                  <h4 id="staffProfileName">Ayşe K. (Kıdemli Temizlik Uzmanı)</h4>
                   <span class="badge-staff-rating" id="staffRatingBadge">★ 4.98 (142 Başarılı Görev)</span>
-                  <span class="badge-staff-status-online">🟢 Göreve Hazır (Müsait)</span>
+                </div>
+                <span id="staffProfileEmail" class="sdh-sub">uzman@relaxax.com | 📍 İstanbul (Kadıköy, Beşiktaş)</span>
+                <div class="sdh-status-picker">
+                  <span class="sdh-status-lbl">Çalışma Durumu:</span>
+                  <button type="button" class="btn-status-toggle active" id="btnStaffStatusToggle" onclick="window.toggleStaffAvailability?.()">
+                    <span id="staffStatusIndicator">🟢 Göreve Hazır (Müsait)</span>
+                  </button>
                 </div>
               </div>
               <button type="button" class="btn-logout-user" id="btnLogoutStaff">Çıkış</button>
@@ -3768,18 +3920,69 @@
                 <strong class="ssc-val" id="staffJobsCount" style="color: #fbbf24;">2 Görev</strong>
               </div>
               <div class="staff-stat-card">
-                <span class="ssc-lbl">🛡️ Sigorta & Güvence</span>
-                <strong class="ssc-val" style="color: #34d399;">%100 Aktif</strong>
+                <span class="ssc-lbl">🏦 Düzenli Ödeme</span>
+                <strong class="ssc-val" style="color: #34d399;">Her Cuma (FAST)</strong>
               </div>
             </div>
           </div>
 
-          <div class="staff-dashboard-body">
+          <!-- Staff Sub Tabs Navigation -->
+          <div class="portal-subnav staff-subnav">
+            <button type="button" class="portal-subnav-btn active" data-target="staffSubTabJobs">
+              <span>📍 Canlı Görev Masası</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="staffSubTabEarnings">
+              <span>💰 Hak Ediş Kasası</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="staffSubTabHistory">
+              <span>🏆 Tamamlanan İşler</span>
+            </button>
+          </div>
+
+          <!-- Staff Sub Tab 1: Live Jobs -->
+          <div class="portal-subtab-pane active" id="staffSubTabJobs">
             <div class="sd-section-header">
               <h5>📍 Bölgenize Atanan Canlı Temizlik Görevleri</h5>
+              <span class="psh-desc">Size atanan işlerin durumunu güncelleyin; harita üzerinden adrese rota oluşturun.</span>
             </div>
             <div class="staff-jobs-list" id="staffJobsList">
-              <!-- Dynamically populated with interactive jobs -->
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+          </div>
+
+          <!-- Staff Sub Tab 2: Earnings Ledger -->
+          <div class="portal-subtab-pane" id="staffSubTabEarnings" style="display:none;">
+            <div class="staff-earnings-hero">
+              <div class="seh-item">
+                <span>Bu Haftaki Toplam Hak Ediş</span>
+                <h3 id="staffWeeklyEarnings">7.350 TL</h3>
+              </div>
+              <div class="seh-item highlight">
+                <span>Hesaba Aktarılacak Net Tutar (%70)</span>
+                <h3 id="staffNetPayout">5.145 TL</h3>
+              </div>
+              <div class="seh-item">
+                <span>Sonraki Ödeme Tarihi</span>
+                <h3 style="color: #34d399;">Bu Cuma (17:00)</h3>
+              </div>
+            </div>
+
+            <div class="earnings-breakdown-box">
+              <h6>📊 Son Yapılan Temizliklerden Hak Ediş Dökümü</h6>
+              <div class="earnings-table-wrap" id="staffEarningsLedger">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Staff Sub Tab 3: Completed History -->
+          <div class="portal-subtab-pane" id="staffSubTabHistory" style="display:none;">
+            <div class="sd-section-header">
+              <h5>🏆 Başarıyla Teslim Edilen Temizlikler</h5>
+              <span class="psh-desc">Tamamladığınız ve müşteri memnuniyeti onaylanan geçmiş temizlikler.</span>
+            </div>
+            <div class="staff-history-list" id="staffHistoryList">
+              <!-- Dynamically populated -->
             </div>
           </div>
         </div>

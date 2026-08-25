@@ -711,38 +711,85 @@ export function switchAuthTab(tabName) {
   }
 }
 
+// Saved Addresses Storage Key
+const STORAGE_ADDRESSES_PREFIX = 'relaxax_user_addresses_';
+
+export function getCustomerSavedAddresses(email) {
+  if (!email) return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_ADDRESSES_PREFIX + email);
+    if (!raw) {
+      const defaultAddrs = [
+        { id: 'addr_1', title: 'Evim', city: 'Istanbul', district: 'Kadıköy / Moda', fullAddress: 'Moda Cad. Palmiye Apt. No:14 D:6 Kat:3' }
+      ];
+      localStorage.setItem(STORAGE_ADDRESSES_PREFIX + email, JSON.stringify(defaultAddrs));
+      return defaultAddrs;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+}
+
+export function saveCustomerSavedAddresses(email, addrs) {
+  if (!email) return;
+  try {
+    localStorage.setItem(STORAGE_ADDRESSES_PREFIX + email, JSON.stringify(addrs));
+  } catch (e) {}
+}
+
 function renderUserProfileDetails(user) {
   const nameEl = document.getElementById('userProfileName');
   const emailEl = document.getElementById('userProfileEmail');
   const phoneEl = document.getElementById('userProfilePhone');
+  const cityEl = document.getElementById('userProfileCity');
   const vipScoreEl = document.getElementById('userVipScore');
+  const pointDisplay = document.getElementById('rewardsPointDisplay');
+  const pointCircle = document.getElementById('rewardsPointCircle');
   const bookingsListEl = document.getElementById('userBookingsList');
 
+  const pts = user.vipScore || 100;
   if (nameEl) nameEl.textContent = user.name || 'Değerli Müşterimiz';
   if (emailEl) emailEl.textContent = user.email || '';
-  if (phoneEl) phoneEl.textContent = user.phone || 'Telefon Kayıtlı Değil';
-  if (vipScoreEl) vipScoreEl.textContent = (user.vipScore || 100) + ' Puan (VIP Üye)';
+  if (phoneEl) phoneEl.textContent = `📱 ${user.phone || 'Telefon Kayıtlı Değil'}`;
+  if (cityEl) cityEl.textContent = `📍 ${user.city || 'İstanbul'}`;
+  if (vipScoreEl) vipScoreEl.textContent = `⭐ VIP Gold (${pts} Puan)`;
+  if (pointDisplay) pointDisplay.textContent = `${pts} Puan (${pts} TL İndirim)`;
+  if (pointCircle) pointCircle.textContent = pts;
 
+  // Prefill Edit Profile Form
+  const editName = document.getElementById('custEditName');
+  const editPhone = document.getElementById('custEditPhone');
+  if (editName) editName.value = user.name || '';
+  if (editPhone) editPhone.value = user.phone || '';
+
+  // Render Saved Addresses
+  renderCustomerAddresses(user.email);
+
+  // Render Bookings
   if (bookingsListEl) {
     const bookings = getUserBookings();
     if (bookings.length === 0) {
       bookingsListEl.innerHTML = `
         <div class="user-empty-bookings">
-          <span style="font-size: 2rem; margin-bottom: 6px; display: block;">🧹</span>
-          <strong>Henüz kayıtlı bir temizlik siparişiniz yok.</strong>
-          <p>İlk siparişinize özel %15 indirim kuponunuz: <code style="color: #fbbf24; font-weight: bold;">HOSGELDIN15</code></p>
+          <span style="font-size: 2.2rem; margin-bottom: 8px; display: block;">🧹</span>
+          <strong style="font-size: 1.05rem; color: #fff;">Henüz kayıtlı bir temizlik siparişiniz bulunmuyor.</strong>
+          <p style="color: #94a3b8; font-size: 0.88rem; margin: 8px 0 16px;">İlk siparişinize özel %15 indirim kuponunuz: <code style="color: #fbbf24; font-weight: 800; background: rgba(251,191,36,0.15); padding: 3px 8px; border-radius: 6px;">HOSGELDIN15</code></p>
           <button type="button" class="btn-user-book-now" onclick="if(typeof openBookingScreen==='function'){closeAuthModal(); openBookingScreen();}">✨ Hemen Fiyat Hesapla & Randevu Al</button>
         </div>
       `;
     } else {
       bookingsListEl.innerHTML = bookings.map(b => {
         const staff = b.assignedStaff || matchAndAssignCleaner(b.city, b.district);
-        const waCleanerMsg = encodeURIComponent(`Merhaba ${staff.name}, #${b.orderCode || b.resCode} numaralı temizliğim hakkında görüşmek istiyorum.`);
+        const waCleanerMsg = encodeURIComponent(`Merhaba ${staff.name}, #${b.orderCode || b.resCode} numaralı temizliğim hakkında bilgi almak istiyorum.`);
 
         return `
           <div class="user-booking-card">
             <div class="ub-header">
-              <span class="ub-code">#${escapeHTML(b.orderCode || b.resCode || 'RLX-REZERVASYON')}</span>
+              <div class="ub-header-left">
+                <span class="ub-code">#${escapeHTML(b.orderCode || b.resCode || 'RLX-REZERVASYON')}</span>
+                <span class="ub-date-tag">🗓️ ${escapeHTML(b.date || 'Bugün')} - ${escapeHTML(b.time || '09:30')}</span>
+              </div>
               <span class="ub-status badge-success">✓ ${escapeHTML(b.status || 'Onaylandı')}</span>
             </div>
             
@@ -754,6 +801,7 @@ function renderUserProfileDetails(user) {
                   <div class="ub-asb-name">
                     <strong>${escapeHTML(staff.name)}</strong>
                     <span class="ub-asb-badge">★ ${escapeHTML(staff.rating || '4.98')}</span>
+                    <span class="ub-asb-verif">🛡️ Adli Sicil & Hijyen Onaylı</span>
                   </div>
                   <div class="ub-asb-dist">
                     <span class="acc-pulse-dot-sm"></span>
@@ -767,11 +815,32 @@ function renderUserProfileDetails(user) {
               </div>
             </div>
 
-            <div class="ub-details">
-              <div><strong>Hizmet:</strong> ${escapeHTML(b.service || 'Standart Daire Temizliği')}</div>
-              <div><strong>Tarih:</strong> 🗓️ ${escapeHTML(b.date || 'Belirtilmedi')} | 🕒 ${escapeHTML(b.time || '09:00')}</div>
-              <div><strong>Adres:</strong> 📍 ${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')} ${escapeHTML(b.street || '')}</div>
-              <div class="ub-total"><strong>Toplam Tutar:</strong> <span style="color:#38bdf8; font-weight:800;">${escapeHTML(b.finalPrice || b.subtotal || b.total || 'Fiyat Hesaplanıyor')}</span></div>
+            <div class="ub-details-grid">
+              <div class="ub-detail-item">
+                <span class="ubd-lbl">🧹 Hizmet Kapsamı:</span>
+                <strong>${escapeHTML(b.service || 'Detaylı Ev Temizliği')}</strong>
+              </div>
+              <div class="ub-detail-item">
+                <span class="ubd-lbl">📍 Temizlik Adresi:</span>
+                <span>${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')} ${escapeHTML(b.street || '')}</span>
+              </div>
+              <div class="ub-detail-item">
+                <span class="ubd-lbl">💳 Ödeme Durumu:</span>
+                <span style="color: #34d399; font-weight:700;">✓ Güvenli Rezervasyon / Kapıda Ödeme</span>
+              </div>
+              <div class="ub-detail-item">
+                <span class="ubd-lbl">💰 Toplam Tutar:</span>
+                <strong style="color:#38bdf8; font-size:1.15rem;">${escapeHTML(b.finalPrice || b.subtotal || b.total || '2.450,00 TL')}</strong>
+              </div>
+            </div>
+
+            <div class="ub-actions-row">
+              <button type="button" class="btn-reorder-booking" onclick="if(typeof openBookingScreen==='function'){closeAuthModal(); openBookingScreen();}">
+                <span>🔄 Aynı Temizliği Tekrar İste</span>
+              </button>
+              <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20#${encodeURIComponent(b.orderCode || b.resCode || '')}%20numarali%20siparisim%20hakkinda%20destek%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-order-support">
+                <span>🎧 7/24 Müşteri Desteği</span>
+              </a>
             </div>
           </div>
         `;
@@ -779,6 +848,78 @@ function renderUserProfileDetails(user) {
     }
   }
 }
+
+function renderCustomerAddresses(email) {
+  const listEl = document.getElementById('savedAddressesList');
+  if (!listEl || !email) return;
+
+  const addrs = getCustomerSavedAddresses(email);
+  if (addrs.length === 0) {
+    listEl.innerHTML = '<div class="empty-sub-item">Henüz kayıtlı bir adresiniz yok. Aşağıdan yeni adres ekleyebilirsiniz.</div>';
+    return;
+  }
+
+  listEl.innerHTML = addrs.map((a, idx) => `
+    <div class="saved-address-card">
+      <div class="sac-top">
+        <span class="sac-icon">📍</span>
+        <strong class="sac-title">${escapeHTML(a.title)}</strong>
+        <span class="sac-city-tag">${escapeHTML(a.city)} / ${escapeHTML(a.district)}</span>
+      </div>
+      <p class="sac-full">${escapeHTML(a.fullAddress)}</p>
+      <div class="sac-actions">
+        <button type="button" class="btn-use-address" onclick="window.useSavedAddressInWizard('${escapeHTML(a.city)}', '${escapeHTML(a.district)}', '${escapeHTML(a.fullAddress)}')">
+          <span>✨ Bu Adrese Temizlik İste</span>
+        </button>
+        <button type="button" class="btn-del-address" onclick="window.deleteSavedAddress(${idx})">🗑️ Sil</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.deleteSavedAddress = function(idx) {
+  const user = getCurrentUser();
+  if (!user) return;
+  const addrs = getCustomerSavedAddresses(user.email);
+  addrs.splice(idx, 1);
+  saveCustomerSavedAddresses(user.email, addrs);
+  renderCustomerAddresses(user.email);
+};
+
+window.useSavedAddressInWizard = function(city, district, full) {
+  closeAuthModal();
+  if (typeof openBookingScreen === 'function') openBookingScreen();
+  setTimeout(() => {
+    const cityEl = document.getElementById('cCity');
+    const distEl = document.getElementById('cDistrict');
+    const streetEl = document.getElementById('cStreet');
+    if (cityEl) { cityEl.value = city; cityEl.dispatchEvent(new Event('change', { bubbles: true })); }
+    setTimeout(() => {
+      if (distEl) distEl.value = district;
+      if (streetEl) streetEl.value = full;
+    }, 100);
+  }, 400);
+};
+
+let staffAvailabilityMode = 'online'; // 'online', 'break', 'busy'
+
+window.toggleStaffAvailability = function() {
+  const indicator = document.getElementById('staffStatusIndicator');
+  const btn = document.getElementById('btnStaffStatusToggle');
+  if (staffAvailabilityMode === 'online') {
+    staffAvailabilityMode = 'break';
+    if (indicator) indicator.textContent = '🟡 Molada (Geçici Kapalı)';
+    if (btn) btn.className = 'btn-status-toggle break';
+  } else if (staffAvailabilityMode === 'break') {
+    staffAvailabilityMode = 'busy';
+    if (indicator) indicator.textContent = '🔴 Meşgul (Temizlikte)';
+    if (btn) btn.className = 'btn-status-toggle busy';
+  } else {
+    staffAvailabilityMode = 'online';
+    if (indicator) indicator.textContent = '🟢 Göreve Hazır (Müsait)';
+    if (btn) btn.className = 'btn-status-toggle active';
+  }
+};
 
 function renderStaffDashboard() {
   const staff = getCurrentUser();
@@ -790,27 +931,40 @@ function renderStaffDashboard() {
   const earningsEl = document.getElementById('staffTodayEarnings');
   const jobsCountEl = document.getElementById('staffJobsCount');
   const jobsListEl = document.getElementById('staffJobsList');
+  const weeklyEarningsEl = document.getElementById('staffWeeklyEarnings');
+  const netPayoutEl = document.getElementById('staffNetPayout');
+  const ledgerEl = document.getElementById('staffEarningsLedger');
+  const historyListEl = document.getElementById('staffHistoryList');
+
+  const todayEarn = staff.todayEarnings || 2450;
+  const weeklyEarn = Math.round(todayEarn * 3.2);
+  const netPayout = Math.round(weeklyEarn * 0.70);
 
   if (nameEl) nameEl.textContent = staff.name || 'Temizlik Uzmanı';
   if (emailEl) emailEl.textContent = `${staff.email} | 📍 ${staff.city} (${staff.district || 'Tüm İlçeler'})`;
   if (ratingEl) ratingEl.textContent = `★ ${staff.rating || '4.98'} (${staff.completedJobs || 142} Başarılı Görev)`;
-  if (earningsEl) earningsEl.textContent = `${(staff.todayEarnings || 2450).toLocaleString('tr-TR')} TL`;
+  if (earningsEl) earningsEl.textContent = `${todayEarn.toLocaleString('tr-TR')} TL`;
+  if (weeklyEarningsEl) weeklyEarningsEl.textContent = `${weeklyEarn.toLocaleString('tr-TR')} TL`;
+  if (netPayoutEl) netPayoutEl.textContent = `${netPayout.toLocaleString('tr-TR')} TL`;
 
   const jobs = getLiveStaffJobs();
-  if (jobsCountEl) jobsCountEl.textContent = `${jobs.length} Aktif Görev`;
+  const activeJobs = jobs.filter(j => j.status !== 'Tamamlandı');
+  const completedJobs = jobs.filter(j => j.status === 'Tamamlandı');
 
+  if (jobsCountEl) jobsCountEl.textContent = `${activeJobs.length} Aktif Görev`;
+
+  // Render Live Jobs
   if (jobsListEl) {
-    if (jobs.length === 0) {
-      jobsListEl.innerHTML = '<div class="user-empty-bookings"><strong>Şu anda bölgenizde bekleyen yeni görev bulunmuyor.</strong></div>';
+    if (activeJobs.length === 0) {
+      jobsListEl.innerHTML = '<div class="user-empty-bookings"><strong>🎉 Bölgenizde bekleyen aktif görev bulunmuyor. Yeni işler geldiğinde anında burada listelenecektir.</strong></div>';
     } else {
-      jobsListEl.innerHTML = jobs.map(j => {
+      jobsListEl.innerHTML = activeJobs.map(j => {
         let statusBadge = `<span class="ub-status badge-pending">⏳ ${escapeHTML(j.status || 'Beklemede')}</span>`;
         if (j.status === 'Yolda') statusBadge = `<span class="ub-status badge-enroute">🚗 Yolda</span>`;
         if (j.status === 'Temizlik Başladı') statusBadge = `<span class="ub-status badge-progress">⚡ Temizlik Yapılıyor</span>`;
-        if (j.status === 'Tamamlandı') statusBadge = `<span class="ub-status badge-success">✓ Tamamlandı</span>`;
 
         const mapsQuery = encodeURIComponent(`${j.customerAddress}, ${j.city}`);
-        const waText = encodeURIComponent(`Merhaba ${j.customerName}, RELAXAX Temizlik ekibinizden yazıyorum. Randevunuz hakkında bilgi vermek istedim.`);
+        const waText = encodeURIComponent(`Merhaba ${j.customerName}, RELAXAX Temizlik ekibinizden yazıyorum. Temizlik randevunuz için yola çıktım.`);
 
         return `
           <div class="staff-job-card">
@@ -840,6 +994,10 @@ function renderStaffDashboard() {
                 <span class="sjc-lbl">💰 Hizmet Bedeli:</span>
                 <strong style="color:#38bdf8; font-size:1.05rem;">${escapeHTML(j.finalPrice)}</strong>
               </div>
+              <div class="sjc-item">
+                <span class="sjc-lbl">💵 Sizin Hak Edişiniz (%70):</span>
+                <strong style="color:#34d399; font-size:1.05rem;">${Math.round((parseFloat(String(j.finalPrice).replace(/[^0-9.,]/g, '').replace(',', '.')) || 2000) * 0.70).toLocaleString('tr-TR')} TL</strong>
+              </div>
             </div>
 
             <div class="sjc-actions-bar">
@@ -859,6 +1017,57 @@ function renderStaffDashboard() {
         `;
       }).join('');
     }
+  }
+
+  // Render Completed History
+  if (historyListEl) {
+    if (completedJobs.length === 0) {
+      historyListEl.innerHTML = '<div class="empty-sub-item">Henüz tamamlanan görev arşiviniz bulunmuyor.</div>';
+    } else {
+      historyListEl.innerHTML = completedJobs.map(j => `
+        <div class="history-item-card">
+          <div class="hic-left">
+            <span class="hic-code">#${escapeHTML(j.orderCode || j.id)}</span>
+            <strong>${escapeHTML(j.service)}</strong>
+            <span>👤 ${escapeHTML(j.customerName)} | 📍 ${escapeHTML(j.customerAddress)}</span>
+          </div>
+          <div class="hic-right">
+            <span class="badge-success">✓ Teslim Edildi</span>
+            <strong class="hic-earn">+${Math.round((parseFloat(String(j.finalPrice).replace(/[^0-9.,]/g, '').replace(',', '.')) || 2000) * 0.70).toLocaleString('tr-TR')} TL</strong>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Render Earnings Ledger
+  if (ledgerEl) {
+    ledgerEl.innerHTML = `
+      <table class="staff-ledger-table">
+        <thead>
+          <tr>
+            <th>İşlem Kodu</th>
+            <th>Müşteri</th>
+            <th>Hizmet</th>
+            <th>Tutar</th>
+            <th>Hak Ediş (%70)</th>
+            <th>Durum</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${jobs.map(j => `
+            <tr>
+              <td><code>#${escapeHTML(j.orderCode || j.id)}</code></td>
+              <td>${escapeHTML(j.customerName)}</td>
+              <td>${escapeHTML(j.service)}</td>
+              <td>${escapeHTML(j.finalPrice)}</td>
+              <td style="color:#34d399; font-weight:800;">+${Math.round((parseFloat(String(j.finalPrice).replace(/[^0-9.,]/g, '').replace(',', '.')) || 2000) * 0.70).toLocaleString('tr-TR')} TL</td>
+              <td><span class="badge-tag ${j.status === 'Tamamlandı' ? 'paid' : 'pending'}">${j.status === 'Tamamlandı' ? '✓ Hak Edildi' : '⏳ İşlemde'}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
   }
 }
 
@@ -902,6 +1111,97 @@ export function initAuthEngine() {
   document.getElementById('tabAuthStaffLoginBtn')?.addEventListener('click', () => switchAuthTab('staff_login'));
   document.getElementById('tabAuthStaffApplyBtn')?.addEventListener('click', () => switchAuthTab('staff_apply'));
   document.getElementById('tabAuthStaffDashBtn')?.addEventListener('click', () => switchAuthTab('staff_dashboard'));
+
+  // Sub-Navigation Tabs Switching (Customer & Staff)
+  document.querySelectorAll('.portal-subnav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      if (!targetId) return;
+
+      const parentModal = btn.closest('.auth-pane');
+      if (parentModal) {
+        parentModal.querySelectorAll('.portal-subnav-btn').forEach(b => b.classList.remove('active'));
+        parentModal.querySelectorAll('.portal-subtab-pane').forEach(p => p.style.display = 'none');
+        btn.classList.add('active');
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) targetPane.style.display = 'block';
+      }
+    });
+  });
+
+  // Form: Add New Customer Address
+  const formAddAddress = document.getElementById('formAddNewAddress');
+  if (formAddAddress) {
+    formAddAddress.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const title = document.getElementById('addrTitle')?.value;
+      const city = document.getElementById('addrCity')?.value || 'Istanbul';
+      const district = document.getElementById('addrDistrict')?.value || '';
+      const full = document.getElementById('addrFull')?.value || '';
+
+      if (!title || !full) return;
+
+      const addrs = getCustomerSavedAddresses(user.email);
+      addrs.push({
+        id: 'addr_' + Date.now(),
+        title,
+        city,
+        district,
+        fullAddress: full
+      });
+      saveCustomerSavedAddresses(user.email, addrs);
+      renderCustomerAddresses(user.email);
+      formAddAddress.reset();
+      alert('✓ Yeni temizlik adresiniz başarıyla kaydedildi!');
+    });
+  }
+
+  // Form: Update Customer Profile & Security
+  const formUpdateProfile = document.getElementById('formUpdateCustomerProfile');
+  const custProfileFeedback = document.getElementById('custProfileFeedback');
+  if (formUpdateProfile) {
+    formUpdateProfile.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const newName = document.getElementById('custEditName')?.value?.trim();
+      const newPhone = document.getElementById('custEditPhone')?.value?.trim();
+      const newPass = document.getElementById('custEditPassword')?.value?.trim();
+      const newPassConfirm = document.getElementById('custEditPasswordConfirm')?.value?.trim();
+
+      if (newPass && newPass !== newPassConfirm) {
+        if (custProfileFeedback) {
+          custProfileFeedback.style.display = 'block';
+          custProfileFeedback.className = 'auth-feedback error';
+          custProfileFeedback.textContent = '⚠️ Yeni şifreler birbiriyle eşleşmiyor.';
+        }
+        return;
+      }
+
+      const users = getRegisteredUsers();
+      const target = users.find(u => u.id === user.id || u.email === user.email);
+      if (target) {
+        if (newName) target.name = newName;
+        if (newPhone) target.phone = newPhone;
+        if (newPass && newPass.length >= 6) target.password = newPass;
+        saveRegisteredUsers(users);
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(target));
+        updateAuthUI();
+        renderUserProfileDetails(target);
+
+        if (custProfileFeedback) {
+          custProfileFeedback.style.display = 'block';
+          custProfileFeedback.className = 'auth-feedback success';
+          custProfileFeedback.textContent = '✓ Profil bilgileriniz başarıyla güncellendi!';
+          setTimeout(() => { if (custProfileFeedback) custProfileFeedback.style.display = 'none'; }, 2000);
+        }
+      }
+    });
+  }
 
   // Switch shortcuts
   document.getElementById('linkGoToRegister')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('register'); });
