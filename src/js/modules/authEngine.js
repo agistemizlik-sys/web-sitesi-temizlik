@@ -13,7 +13,7 @@ const STORAGE_BOOKINGS_PREFIX = 'relaxax_user_bookings_';
 const STORAGE_JOBS_KEY = 'relaxax_staff_live_jobs';
 const STORAGE_CATALOG_KEY = 'relaxax_catalog_products';
 
-// Default Product & Extra Services Catalog
+// Default Product & Extra Services Catalog (Residential & Corporate)
 const DEFAULT_CATALOG_ITEMS = [
   {
     id: 'butik_hediye_kutusu',
@@ -24,10 +24,140 @@ const DEFAULT_CATALOG_ITEMS = [
     priceTR: 490,
     oldPriceTR: 650,
     pricePL: 59,
-    status: 'in_stock', // 'in_stock' | 'out_of_stock'
+    status: 'in_stock',
     image: '/images/product_rose_gift_box.webp',
     icon: '🌹',
     desc: '5 Parça Özel Tasarım Set, pencereli beyaz lüks hediye kutusu ve altın varak işleme.'
+  },
+  {
+    id: 'cephe_cam',
+    key: 'cephe_cam',
+    title: 'Dış Cephe & Yüksek Cam Silimi (Teleskopik/Sepetli)',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Plaza',
+    priceTR: 1400,
+    oldPriceTR: 1800,
+    pricePL: 169,
+    status: 'in_stock',
+    icon: '🏢',
+    desc: 'Yüksek katlı plaza ve iş merkezleri için teleskopik ve sepetli dış cephe cam temizliği.'
+  },
+  {
+    id: 'server_it',
+    key: 'server_it',
+    title: 'Sunucu Odası & IT / PC Antistatik Temizlik',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / IT',
+    priceTR: 850,
+    oldPriceTR: 1100,
+    pricePL: 99,
+    status: 'in_stock',
+    icon: '🖥️',
+    desc: 'Statik elektrik arındırıcı ve ESD uyumlu ekipmanlarla sunucu kabinleri ve ofis PC temizliği.'
+  },
+  {
+    id: 'ulv_dezenfeksiyon',
+    key: 'ulv_dezenfeksiyon',
+    title: 'Tıbbi Seviye ULV Sisleme & Ozon Ortam Dezenfeksiyonu',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Sağlık',
+    priceTR: 950,
+    oldPriceTR: 1300,
+    pricePL: 119,
+    status: 'in_stock',
+    icon: '🦠',
+    desc: 'Soğuk sisleme ULV cihazlarıyla bakteri ve virüslere karşı %99.9 tam ortam sterilizasyonu.'
+  },
+  {
+    id: 'ofis_mutfak',
+    key: 'ofis_mutfak',
+    title: 'Endüstriyel Kahve & Çay Makineleri Hijyen Kürü',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Ofis',
+    priceTR: 600,
+    oldPriceTR: 800,
+    pricePL: 75,
+    status: 'in_stock',
+    icon: '☕',
+    desc: 'Ofis tipi espresso ve çay kazanlarının kireçten arındırılması ve gıda güvenli hijyen bakımı.'
+  },
+  {
+    id: 'ofis_koltuk',
+    key: 'ofis_koltuk',
+    title: 'Makam & Toplantı Koltukları Buharlı Yıkama',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Ofis',
+    priceTR: 800,
+    oldPriceTR: 1100,
+    pricePL: 99,
+    status: 'in_stock',
+    icon: '🪑',
+    desc: 'Yönetici makam koltukları ve toplantı masası sandalyelerinin derin ekstraksiyon yıkaması.'
+  },
+  {
+    id: 'ofis_hali',
+    key: 'ofis_hali',
+    title: 'Endüstriyel Karo Halı Döner Fırçalı Şampuanlama',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Plaza',
+    priceTR: 1200,
+    oldPriceTR: 1600,
+    pricePL: 149,
+    status: 'in_stock',
+    icon: '🧽',
+    desc: 'Ağır ofis trafiğine maruz kalan karo halıların yerinde döner fırçalı derin yıkaması.'
+  },
+  {
+    id: 'jaluzi_seperator',
+    key: 'jaluzi_seperator',
+    title: 'Ofis Akustik Panel, Seperatör & Jaluzi Temizliği',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Ofis',
+    priceTR: 550,
+    oldPriceTR: 750,
+    pricePL: 69,
+    status: 'in_stock',
+    icon: '🚪',
+    desc: 'Masa seperatörleri, akustik keçe paneller ve alüminyum/ahşap jaluzilerin tozsuzlaştırılması.'
+  },
+  {
+    id: 'zemin_cila',
+    key: 'zemin_cila',
+    title: 'Mermer / Epoksi Zemin Cila & Kristalize Parlatma',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Plaza',
+    priceTR: 1600,
+    oldPriceTR: 2200,
+    pricePL: 199,
+    status: 'in_stock',
+    icon: '🪵',
+    desc: 'Yüksek devirli cila makinesi ile kristalize mermer ve epoksi zemin parlatma.'
+  },
+  {
+    id: 'arsiv_temizlik',
+    key: 'arsiv_temizlik',
+    title: 'Gizlilik Protokollü Arşiv & Dosya Alanı Temizliği',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Ofis',
+    priceTR: 750,
+    oldPriceTR: 950,
+    pricePL: 89,
+    status: 'in_stock',
+    icon: '🗑️',
+    desc: 'Gizlilik sözleşmeli personel ile evrak imha sonrası ve dosya arşiv odası detaylı temizliği.'
+  },
+  {
+    id: 'wc_asidik',
+    key: 'wc_asidik',
+    title: 'Çoklu Personel W/C Asidik Kireç & Bakteri Kürü',
+    category: 'corporate',
+    categoryLabel: '🏢 Kurumsal / Ofis',
+    priceTR: 700,
+    oldPriceTR: 950,
+    pricePL: 85,
+    status: 'in_stock',
+    icon: '🚽',
+    desc: 'Yoğun kullanılan kurumsal tuvalet ve lavaboların profesyonel asidik bakteri arındırma kürü.'
   },
   {
     id: 'firin',
@@ -87,9 +217,9 @@ const DEFAULT_CATALOG_ITEMS = [
     title: 'Koltuk & Kanepe Buharlı Yıkama',
     category: 'vip_care',
     categoryLabel: '💎 VIP Hizmet',
-    priceTR: 650,
-    oldPriceTR: 800,
-    pricePL: 89,
+    priceTR: 850,
+    oldPriceTR: 1100,
+    pricePL: 119,
     status: 'in_stock',
     icon: '🛋️',
     desc: 'Vakum ekstraksiyon ve buhar teknolojisiyle kumaş içi leke ve akar arındırma.'

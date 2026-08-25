@@ -7741,6 +7741,9 @@ function selectServiceGlobal(service, clickEvent) {
 
   updateBookingSummaryBox();
 
+  const isBusinessTab = document.getElementById('tabBusinessBtn')?.classList.contains('active');
+  updateWizardExtrasForService(service, isBusinessTab ? 'business' : 'person');
+
   if (typeof updatePriceSliderDisplay === 'function') {
     updatePriceSliderDisplay();
   }
@@ -7750,6 +7753,40 @@ function selectServiceGlobal(service, clickEvent) {
   }
 }
 window.selectServiceGlobal = selectServiceGlobal;
+
+export function updateWizardExtrasForService(serviceType, customerType) {
+  const isBusiness = customerType === 'business' || serviceType === 'kurumsal' || serviceType === 'ofis';
+  const residentialGrid = document.getElementById('residentialExtrasGrid');
+  const corporateGrid = document.getElementById('corporateExtrasGrid');
+  const titleEl = document.getElementById('wizardExtrasSecTitle');
+  const badgeEl = document.getElementById('wizardExtrasSecBadge');
+  const isPl = (STATE.language || 'tr') === 'pl';
+
+  if (isBusiness) {
+    if (residentialGrid) {
+      residentialGrid.style.display = 'none';
+      residentialGrid.querySelectorAll('.wizard-extra-card.active').forEach(c => c.classList.remove('active'));
+    }
+    if (corporateGrid) {
+      corporateGrid.style.display = 'grid';
+      gsap.fromTo(corporateGrid, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+    }
+    if (titleEl) titleEl.textContent = isPl ? '🏢 OPCJE DODATKOWE DLA BIUR I FIRM' : '🏢 KURUMSAL & İŞ YERİ EKSTRA HİZMETLERİ';
+    if (badgeEl) badgeEl.textContent = isPl ? 'PROTOKÓŁ B2B I PLAZA' : 'B2B PLAZA & OFİS PROTOKOLÜ';
+  } else {
+    if (corporateGrid) {
+      corporateGrid.style.display = 'none';
+      corporateGrid.querySelectorAll('.wizard-extra-card.active').forEach(c => c.classList.remove('active'));
+    }
+    if (residentialGrid) {
+      residentialGrid.style.display = 'grid';
+      gsap.fromTo(residentialGrid, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+    }
+    if (titleEl) titleEl.textContent = isPl ? '✨ OPCJE DODATKOWE I GŁĘBOKIE CZYSZCZENIE' : '✨ EKSTRA HİJYEN VE ÖZEL HİZMETLER';
+    if (badgeEl) badgeEl.textContent = isPl ? 'KOMPLEKSOWA HIGIENA' : 'DİP KÖŞE DERİN BAKIM';
+  }
+}
+window.updateWizardExtrasForService = updateWizardExtrasForService;
 
 function getServiceLabelTranslated(service, dict) {
   const labels = {

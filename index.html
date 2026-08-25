@@ -2206,11 +2206,12 @@
                   <div class="wizard-card-video-overlay"></div>
                 </div>
                 <div class="wizard-card-header">
-                  <h3 class="wizard-sec-title">✨ EKSTRA HİJYEN VE ÖZEL HİZMETLER</h3>
-                  <span class="wizard-badge-soft">DİP KÖŞE DERİN BAKIM</span>
+                  <h3 class="wizard-sec-title" id="wizardExtrasSecTitle">✨ EKSTRA HİJYEN VE ÖZEL HİZMETLER</h3>
+                  <span class="wizard-badge-soft" id="wizardExtrasSecBadge">DİP KÖŞE DERİN BAKIM</span>
                 </div>
 
-                <div class="wizard-extras-grid">
+                <!-- 4.A. BİREYSEL / EV TEMİZLİĞİ EKSTRA HİZMETLERİ -->
+                <div class="wizard-extras-grid residential-extras-grid" id="residentialExtrasGrid">
 
                   <!-- 💎 ÖZEL BUTİK ÜRÜN (Rose Elegance Butik Hediye Kutusu) -->
                   <div class="wizard-extra-card extra-btn has-counter wizard-product-highlight-card" data-extra="butik_hediye_kutusu" data-price-tr="490" data-price-old-tr="650" data-price-pl="59" data-price-old-pl="79">
@@ -2368,6 +2369,125 @@
                     <div class="extra-counter-bar">
                       <button type="button" class="ec-btn minus-ec-btn">-</button>
                       <span class="ec-val" id="cntEkSaat">1</span> saat
+                      <button type="button" class="ec-btn plus-ec-btn">+</button>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- 4.B. KURUMSAL / OFİS & İŞ YERİ EKSTRA HİZMETLERİ GRID -->
+                <div class="wizard-extras-grid corporate-extras-grid" id="corporateExtrasGrid" style="display:none;">
+
+                  <!-- 💎 VIP KURUMSAL BUTİK HEDİYE KUTUSU -->
+                  <div class="wizard-extra-card extra-btn has-counter wizard-product-highlight-card" data-extra="butik_hediye_kutusu" data-price-tr="490" data-price-old-tr="650" data-price-pl="59" data-price-old-pl="79">
+                    <div class="w-product-thumb-wrap">
+                      <img src="/images/product_rose_gift_box.webp" alt="RELAXAX Rose Elegance" class="w-product-thumb" />
+                      <span class="w-product-badge">💎 OFİS / VIP HEDİYE</span>
+                    </div>
+                    <div class="w-extra-name">Rose Elegance Butik VIP Karşılama & Hediye Kutusu</div>
+                    <div class="w-extra-badge">490 TL <span class="w-old-price">650 TL</span></div>
+                    <div class="extra-counter-bar">
+                      <button type="button" class="ec-btn minus-ec-btn">-</button>
+                      <span class="ec-val" id="cntCorpButikHediye">1</span> kutu
+                      <button type="button" class="ec-btn plus-ec-btn">+</button>
+                    </div>
+                  </div>
+
+                  <!-- 🏢 Dış Cephe & Yüksek Cam Silimi -->
+                  <div class="wizard-extra-card extra-btn has-counter" data-extra="cephe_cam" data-price-tr="1400" data-price-old-tr="1800" data-price-pl="169" data-price-old-pl="220">
+                    <div class="w-extra-icon">🏢</div>
+                    <div class="w-extra-name">Dış Cephe & Yüksek Cam Silimi (Teleskopik/Sepetli)</div>
+                    <div class="w-extra-badge">1.400 TL <span class="w-old-price">1.800 TL</span></div>
+                    <div class="extra-counter-bar">
+                      <button type="button" class="ec-btn minus-ec-btn">-</button>
+                      <span class="ec-val" id="cntCepheCam">1</span> cephe
+                      <button type="button" class="ec-btn plus-ec-btn">+</button>
+                    </div>
+                  </div>
+
+                  <!-- 🖥️ Sunucu Odası & IT / PC Antistatik Tozsuzlaştırma -->
+                  <div class="wizard-extra-card extra-btn" data-extra="server_it" data-price-tr="850" data-price-old-tr="1100" data-price-pl="99" data-price-old-pl="130">
+                    <div class="w-extra-icon">🖥️</div>
+                    <div class="w-extra-name">Sunucu Odası & IT / PC Antistatik Temizlik</div>
+                    <div class="w-extra-badge">850 TL <span class="w-old-price">1.100 TL</span></div>
+                  </div>
+
+                  <!-- 🦠 Tıbbi Seviye ULV Sisleme / Ozon Dezenfeksiyonu -->
+                  <div class="wizard-extra-card extra-btn" data-extra="ulv_dezenfeksiyon" data-price-tr="950" data-price-old-tr="1300" data-price-pl="119" data-price-old-pl="160">
+                    <div class="w-extra-icon">🦠</div>
+                    <div class="w-extra-name">Tıbbi Seviye ULV Sisleme & Ozon Dezenfeksiyonu</div>
+                    <div class="w-extra-badge">950 TL <span class="w-old-price">1.300 TL</span></div>
+                  </div>
+
+                  <!-- ☕ Endüstriyel Kahve / Çay Makineleri & Mutfak Hijyeni -->
+                  <div class="wizard-extra-card extra-btn" data-extra="ofis_mutfak" data-price-tr="600" data-price-old-tr="800" data-price-pl="75" data-price-old-pl="100">
+                    <div class="w-extra-icon">☕</div>
+                    <div class="w-extra-name">Endüstriyel Kahve & Çay Makineleri Hijyen Kürü</div>
+                    <div class="w-extra-badge">600 TL <span class="w-old-price">800 TL</span></div>
+                  </div>
+
+                  <!-- 🪑 Toplantı Odası & Makam Koltukları Buharlı Yıkama -->
+                  <div class="wizard-extra-card extra-btn has-counter" data-extra="ofis_koltuk" data-price-tr="800" data-price-old-tr="1100" data-price-pl="99" data-price-old-pl="135">
+                    <div class="w-extra-icon">🪑</div>
+                    <div class="w-extra-name">Makam & Toplantı Koltukları Buharlı Yıkama</div>
+                    <div class="w-extra-badge">800 TL <span class="w-old-price">1.100 TL</span></div>
+                    <div class="extra-counter-bar">
+                      <button type="button" class="ec-btn minus-ec-btn">-</button>
+                      <span class="ec-val" id="cntOfisKoltuk">1</span> adet
+                      <button type="button" class="ec-btn plus-ec-btn">+</button>
+                    </div>
+                  </div>
+
+                  <!-- 🧽 Endüstriyel Karo Halı Döner Fırçalı Yıkama -->
+                  <div class="wizard-extra-card extra-btn" data-extra="ofis_hali" data-price-tr="1200" data-price-old-tr="1600" data-price-pl="149" data-price-old-pl="200">
+                    <div class="w-extra-icon">🧽</div>
+                    <div class="w-extra-name">Endüstriyel Karo Halı Döner Fırçalı Şampuanlama</div>
+                    <div class="w-extra-badge">1.200 TL <span class="w-old-price">1.600 TL</span></div>
+                  </div>
+
+                  <!-- 🚪 Ofis Akustik Panel, Seperatör & Jaluzi Arındırma -->
+                  <div class="wizard-extra-card extra-btn" data-extra="jaluzi_seperator" data-price-tr="550" data-price-old-tr="750" data-price-pl="69" data-price-old-pl="95">
+                    <div class="w-extra-icon">🚪</div>
+                    <div class="w-extra-name">Ofis Akustik Panel, Seperatör & Jaluzi Temizliği</div>
+                    <div class="w-extra-badge">550 TL <span class="w-old-price">750 TL</span></div>
+                  </div>
+
+                  <!-- 🪵 Mermer / Epoksi Zemin Cila & Kristalize Parlatma -->
+                  <div class="wizard-extra-card extra-btn" data-extra="zemin_cila" data-price-tr="1600" data-price-old-tr="2200" data-price-pl="199" data-price-old-pl="270">
+                    <div class="w-extra-icon">🪵</div>
+                    <div class="w-extra-name">Mermer / Epoksi Zemin Cila & Kristalize Parlatma</div>
+                    <div class="w-extra-badge">1.600 TL <span class="w-old-price">2.200 TL</span></div>
+                  </div>
+
+                  <!-- 🗑️ Gizlilik Protokollü Arşiv & Evrak İmha Sonrası Temizlik -->
+                  <div class="wizard-extra-card extra-btn" data-extra="arsiv_temizlik" data-price-tr="750" data-price-old-tr="950" data-price-pl="89" data-price-old-pl="120">
+                    <div class="w-extra-icon">🗑️</div>
+                    <div class="w-extra-name">Gizlilik Protokollü Arşiv & Dosya Alanı Temizliği</div>
+                    <div class="w-extra-badge">750 TL <span class="w-old-price">950 TL</span></div>
+                  </div>
+
+                  <!-- 🚽 Çoklu Personel W/C Asidik Kireç & Bakteri Kürü -->
+                  <div class="wizard-extra-card extra-btn" data-extra="wc_asidik" data-price-tr="700" data-price-old-tr="950" data-price-pl="85" data-price-old-pl="115">
+                    <div class="w-extra-icon">🚽</div>
+                    <div class="w-extra-name">Çoklu Personel W/C Asidik Kireç & Bakteri Kürü</div>
+                    <div class="w-extra-badge">700 TL <span class="w-old-price">950 TL</span></div>
+                  </div>
+
+                  <!-- 📹 Kameralı Güvence (Vücut Kamerası Kaydı) -->
+                  <div class="wizard-extra-card extra-btn" data-extra="kamerali_temizlik" data-price-tr="550" data-price-old-tr="700" data-price-pl="69" data-price-old-pl="90">
+                    <div class="w-extra-icon">📹</div>
+                    <div class="w-extra-name">Kameralı Güvence (Vücut Kamerası Kaydı)</div>
+                    <div class="w-extra-badge">550 TL <span class="w-old-price">700 TL</span></div>
+                  </div>
+
+                  <!-- ⏱️ İlave Çalışma Süresi (Ek Saat) -->
+                  <div class="wizard-extra-card extra-btn has-counter" data-extra="ek_saat" data-price-tr="500" data-price-old-tr="650" data-price-pl="59" data-price-old-pl="79">
+                    <div class="w-extra-icon">⏱️</div>
+                    <div class="w-extra-name">İlave Çalışma Süresi (Ek Saat)</div>
+                    <div class="w-extra-badge">500 TL/saat <span class="w-old-price">650 TL</span></div>
+                    <div class="extra-counter-bar">
+                      <button type="button" class="ec-btn minus-ec-btn">-</button>
+                      <span class="ec-val" id="cntCorpEkSaat">1</span> saat
                       <button type="button" class="ec-btn plus-ec-btn">+</button>
                     </div>
                   </div>
