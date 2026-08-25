@@ -1447,13 +1447,19 @@
           <span class="c-nav-btn-text" id="cNavCalcText">Fiyat Hesapla</span>
         </button>
 
-        <!-- 6. WhatsApp Direct Primary Action (Vibrant Green Capsule) -->
+        <!-- 6. User Account (Giriş / Kayıt / Profilim) Capsule -->
+        <button type="button" class="c-nav-pill-btn c-nav-auth-btn" id="cNavAuthBtn" title="Giriş Yap / Hesap Aç">
+          <span class="c-nav-btn-icon" id="cNavAuthIcon">👤</span>
+          <span class="c-nav-btn-text" id="cNavAuthText">Giriş / Kayıt</span>
+        </button>
+
+        <!-- 7. WhatsApp Direct Primary Action (Vibrant Green Capsule) -->
         <a href="https://wa.me/905466479004?text=Merhaba,%20RELAXAX%20hakk%C4%B1nda%20sipari%C5%9F%20vermek%20istiyorum." target="_blank" rel="noopener noreferrer" class="c-nav-whatsapp-pill-btn" id="cNavWhatsappBtn" title="WhatsApp Canlı Sipariş Hattı">
           <span class="c-nav-btn-icon">💬</span>
           <span class="c-nav-btn-text" id="cNavWhatsappText">WhatsApp Sipariş</span>
         </a>
 
-        <!-- 7. Mobile Menu Hamburger Toggle Button -->
+        <!-- 8. Mobile Menu Hamburger Toggle Button -->
         <button type="button" class="mobile-menu-toggle c-nav-pill-btn" id="mobileMenuToggle" aria-label="Menüyü Aç" aria-expanded="false" title="Menü">
           <span class="c-nav-btn-icon" style="font-size: 1.15rem; line-height: 1;">☰</span>
         </button>
@@ -3002,6 +3008,7 @@
         <button type="button" class="drawer-close-btn" id="closeMobileDrawerBtn" aria-label="Kapat">&times;</button>
       </div>
       <div class="drawer-links">
+        <a href="#" class="drawer-link-item drawer-auth-link" id="drawerAuthItem" style="font-weight: 800; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border-radius: 8px;">👤 Giriş Yap / Hesap Aç</a>
         <a href="#" class="drawer-link-item active" data-target="home">🏠 ANA SAYFA</a>
         <a href="#" class="drawer-link-item" data-target="services">🧹 HİZMETLERİMİZ</a>
         <a href="#" class="drawer-link-item" data-target="contact">📋 REZERVASYON & FİYAT</a>
@@ -3242,6 +3249,192 @@
           <span class="sig-name">M. Kemal A. - Kalite Denetim Şefi ✓</span>
         </div>
         <button type="button" class="qr-ok-btn" id="btnQualityReportOk">Harika, Anladım</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 👤 0. HESAP AÇMA / GİRİŞ YAP / PROFİLİM MODALI -->
+  <div class="rx-corporate-modal-overlay rx-auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" style="display:none;">
+    <div class="rx-corporate-modal-card rx-auth-modal-card">
+      <div class="rx-cmodal-header">
+        <div class="rx-cmodal-header-left">
+          <div class="rx-cmodal-badge">✨ RELAXAX ÜYELİK MERKEZİ</div>
+          <h3 id="authModalTitle">Müşteri Hesabı & Rezervasyonlarım</h3>
+          <p class="rx-cmodal-subtitle">Rezervasyonlarınızı canlı takip edin, adreslerinizi kaydedin ve VIP indirimler kazanın.</p>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" id="btnCloseAuthModal" aria-label="Kapat">✕</button>
+      </div>
+
+      <!-- Auth Navigation Tabs -->
+      <div class="auth-tabs-nav">
+        <button type="button" class="auth-tab-btn active" id="tabAuthLoginBtn">
+          <span>🔑 Giriş Yap</span>
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabAuthRegisterBtn">
+          <span>✨ Hesap Aç (%15 İndirim)</span>
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabAuthProfileBtn" style="display:none;">
+          <span>👤 Profilim & Siparişlerim</span>
+        </button>
+      </div>
+
+      <div class="rx-cmodal-body auth-modal-body">
+
+        <!-- 1. GİRİŞ YAP PANE -->
+        <div class="auth-pane active" id="paneAuthLogin">
+          <form id="authLoginForm" class="auth-form" onsubmit="return false;">
+            <div id="authLoginFeedback" class="auth-feedback" style="display:none;"></div>
+            
+            <div class="auth-field-group">
+              <label for="loginEmail">E-posta Adresi *</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">✉️</span>
+                <input type="email" id="loginEmail" placeholder="ornek@email.com" required autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <div class="auth-label-row">
+                <label for="loginPassword">Şifre *</label>
+              </div>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password" />
+                <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
+              </div>
+            </div>
+
+            <div class="auth-options-row">
+              <label class="auth-check-wrap">
+                <input type="checkbox" id="loginRememberMe" checked />
+                <span>Beni Hatırla</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn-auth-submit" id="btnSubmitLogin">
+              <span>Giriş Yap ➔</span>
+            </button>
+
+            <div class="auth-switch-hint">
+              Henüz bir hesabınız yok mu? <a href="#" id="linkGoToRegister"><strong>Hemen Ücretsiz Hesap Açın (%15 İndirim)</strong></a>
+            </div>
+          </form>
+        </div>
+
+        <!-- 2. HESAP AÇ (REGISTER) PANE -->
+        <div class="auth-pane" id="paneAuthRegister" style="display:none;">
+          <form id="authRegisterForm" class="auth-form" onsubmit="return false;">
+            <div id="authRegisterFeedback" class="auth-feedback" style="display:none;"></div>
+
+            <div class="auth-welcome-banner">
+              <span class="aw-icon">🎁</span>
+              <div class="aw-text">
+                <strong>İlk Siparişinize Özel %15 İndirim!</strong>
+                <span>Hesap açtığınız anda <code>HOSGELDIN15</code> kuponunuz otomatik aktifleşir.</span>
+              </div>
+            </div>
+
+            <div class="auth-fields-grid">
+              <div class="auth-field-group">
+                <label for="regName">Ad Soyad *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">👤</span>
+                  <input type="text" id="regName" placeholder="Örn: Ahmet Yılmaz" required autocomplete="name" />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="regEmail">E-posta Adresi *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">✉️</span>
+                  <input type="email" id="regEmail" placeholder="ahmet@example.com" required autocomplete="email" />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="regPhone">Telefon Numarası *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">📱</span>
+                  <input type="tel" id="regPhone" placeholder="05XX XXX XX XX" required autocomplete="tel" />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="regCity">Varsayılan Şehir</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">📍</span>
+                  <select id="regCity" class="auth-select">
+                    <option value="Istanbul">İstanbul</option>
+                    <option value="Izmir">İzmir</option>
+                    <option value="Ankara">Ankara</option>
+                    <option value="Antalya">Antalya</option>
+                    <option value="Bursa">Bursa</option>
+                    <option value="Kocaeli">Kocaeli</option>
+                    <option value="Sakarya">Sakarya</option>
+                    <option value="Balikesir">Balıkesir</option>
+                    <option value="Samsun">Samsun</option>
+                    <option value="Mugla">Muğla (Bodrum / Fethiye)</option>
+                    <option value="Warszawa">Warszawa (Varşova)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="regPassword">Şifre Belirleyin (En az 6 karakter) *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">🔒</span>
+                  <input type="password" id="regPassword" placeholder="••••••••" required autocomplete="new-password" />
+                  <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="regPasswordConfirm">Şifre Tekrar *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">🔒</span>
+                  <input type="password" id="regPasswordConfirm" placeholder="••••••••" required autocomplete="new-password" />
+                  <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-auth-submit" id="btnSubmitRegister">
+              <span>Hesabımı Oluştur & Giriş Yap ➔</span>
+            </button>
+
+            <div class="auth-switch-hint">
+              Zaten bir hesabınız var mı? <a href="#" id="linkGoToLogin"><strong>Giriş Yapın</strong></a>
+            </div>
+          </form>
+        </div>
+
+        <!-- 3. PROFİLİM & SİPARİŞLERİM PANE -->
+        <div class="auth-pane" id="paneAuthProfile" style="display:none;">
+          <div class="user-profile-header">
+            <div class="uph-avatar">👤</div>
+            <div class="uph-meta">
+              <h4 id="userProfileName">Müşteri</h4>
+              <span id="userProfileEmail" class="uph-email">email@example.com</span>
+              <div class="uph-badges">
+                <span class="badge-vip" id="userVipScore">100 Puan (VIP Üye)</span>
+                <span class="badge-discount-active">🎉 %15 İndirim Aktif: HOSGELDIN15</span>
+              </div>
+            </div>
+            <button type="button" class="btn-logout-user" id="btnLogoutUser">Çıkış Yap</button>
+          </div>
+
+          <div class="user-profile-sections">
+            <div class="ups-box">
+              <div class="ups-box-header">
+                <h5>📋 Temizlik Siparişlerim & Randevularım</h5>
+              </div>
+              <div class="user-bookings-list" id="userBookingsList">
+                <!-- Dynamically populated via authEngine.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

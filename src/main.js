@@ -8,6 +8,7 @@ import { escapeHTML, sanitizeInputVal, debounce, throttle, formatCurrency } from
 import { playTickSound, playSuccessChime, toggleSound, isSoundEnabled } from './js/modules/soundEngine.js';
 import { openModal, closeModal } from './js/modules/modalManager.js';
 import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from './js/modules/pricingEngine.js';
+import { initAuthEngine, prefillBookingWizardWithUser } from './js/modules/authEngine.js';
 import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngine.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
@@ -3702,6 +3703,7 @@ function initApp() {
   setupQualityReportModal();
   setupCorporateModals();
   setupHelpCenterButtons();
+  initAuthEngine();
 
   // Initialize interactive visual effects (Custom cursor on desktop, ambient glow globally)
   setupCustomCursor();
@@ -7526,6 +7528,7 @@ function openBookingScreen() {
     if (typeof window.updateRoseVineProgress === 'function') {
       setTimeout(window.updateRoseVineProgress, 150);
     }
+    prefillBookingWizardWithUser();
 
     // 📊 Ads & Conversion Tracking: Initiate Checkout
     try {
@@ -10275,6 +10278,9 @@ function setupBookingReveal() {
     });
 
     saveLeadOffline(leadPayload);
+    if (typeof window.addBookingToUserGlobal === 'function') {
+      window.addBookingToUserGlobal(leadPayload);
+    }
 
     // Tracking Event Triggers
     try {
