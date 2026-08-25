@@ -44,6 +44,34 @@ const DEFAULT_CATALOG_ITEMS = [
     desc: 'Pembe silindir şapka kutusunda el yapımı şakayık & gül aranjmanı, saten kurdeleli özel tebrik/doğum günü sunumu.'
   },
   {
+    id: 'sprey_akdeniz',
+    key: 'sprey_akdeniz',
+    title: 'Akdeniz İnciri & Beyaz Çay İmza Oda Spreyi (250ml)',
+    category: 'boutique',
+    categoryLabel: '🛍️ Butik Hediyelik',
+    priceTR: 350,
+    oldPriceTR: 450,
+    pricePL: 45,
+    status: 'in_stock',
+    image: '/images/product_rose_gift_box.webp',
+    icon: '🌿',
+    desc: '5 yıldızlı otel kalitesinde doğal ferahlık veren botanik ortam spreyi.'
+  },
+  {
+    id: 'mum_sedir',
+    key: 'mum_sedir',
+    title: 'İskandinav Sediri & Amber Doğal Soya Mumu (220g)',
+    category: 'boutique',
+    categoryLabel: '🛍️ Butik Hediyelik',
+    priceTR: 420,
+    oldPriceTR: 520,
+    pricePL: 49,
+    status: 'in_stock',
+    image: '/images/product_rose_gift_box.webp',
+    icon: '🌲',
+    desc: 'Şömine çıtırtılı ahşap fitil ve lüks ahşap kapaklı cam kavanoz.'
+  },
+  {
     id: 'cephe_cam',
     key: 'cephe_cam',
     title: 'Dış Cephe & Yüksek Cam Silimi (Teleskopik/Sepetli)',
@@ -659,7 +687,21 @@ export function getCatalogProducts() {
       localStorage.setItem(STORAGE_CATALOG_KEY, JSON.stringify(DEFAULT_CATALOG_ITEMS));
       return DEFAULT_CATALOG_ITEMS;
     }
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      let updated = false;
+      DEFAULT_CATALOG_ITEMS.forEach(defaultItem => {
+        if (!parsed.some(item => item.key === defaultItem.key || item.id === defaultItem.id)) {
+          parsed.unshift(defaultItem);
+          updated = true;
+        }
+      });
+      if (updated) {
+        localStorage.setItem(STORAGE_CATALOG_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
+    }
+    return DEFAULT_CATALOG_ITEMS;
   } catch (e) {
     return DEFAULT_CATALOG_ITEMS;
   }

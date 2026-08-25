@@ -5875,16 +5875,37 @@ function setupNavScroll() {
     });
   }
 
+  window.openBoutiqueProductsCatalog = function() {
+    const drawer = document.getElementById('boutiqueCatalogDrawer');
+    if (drawer) {
+      drawer.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      return;
+    }
+    const pModal = document.getElementById('productsModal');
+    if (pModal && typeof window.openCorporateModal === 'function') {
+      window.openCorporateModal(pModal);
+    } else if (pModal) {
+      pModal.style.display = 'flex';
+    }
+  };
+
   const cNavProductsBtn = document.getElementById('cNavProductsBtn') || document.getElementById('cNavBeforeAfterBtn');
   if (cNavProductsBtn) {
     cNavProductsBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      const pModal = document.getElementById('productsModal');
-      if (pModal && typeof window.openCorporateModal === 'function') {
-        window.openCorporateModal(pModal);
-      } else if (pModal) {
-        pModal.style.display = 'flex';
-      }
+      window.openBoutiqueProductsCatalog();
+    });
+  }
+
+  const drawerProductsItem = document.getElementById('drawerProductsItem');
+  if (drawerProductsItem) {
+    drawerProductsItem.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mobileDrawer = document.getElementById('mobile-menu-drawer');
+      if (mobileDrawer) mobileDrawer.hidden = true;
+      window.openBoutiqueProductsCatalog();
     });
   }
 
