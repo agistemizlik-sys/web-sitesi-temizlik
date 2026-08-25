@@ -30,6 +30,20 @@ const DEFAULT_CATALOG_ITEMS = [
     desc: '5 Parça Özel Tasarım Set, pencereli beyaz lüks hediye kutusu ve altın varak işleme.'
   },
   {
+    id: 'sakayik_buket_kutusu',
+    key: 'sakayik_buket_kutusu',
+    title: 'Peony Deluxe Şakayık & Hediye Buket Kutusu',
+    category: 'boutique',
+    categoryLabel: '🛍️ Butik Hediyelik',
+    priceTR: 590,
+    oldPriceTR: 750,
+    pricePL: 69,
+    status: 'in_stock',
+    image: '/images/product_peony_bouquet_box.webp',
+    icon: '🌸',
+    desc: 'Pembe silindir şapka kutusunda el yapımı şakayık & gül aranjmanı, saten kurdeleli özel tebrik/doğum günü sunumu.'
+  },
+  {
     id: 'cephe_cam',
     key: 'cephe_cam',
     title: 'Dış Cephe & Yüksek Cam Silimi (Teleskopik/Sepetli)',
@@ -754,6 +768,40 @@ export function syncCatalogToDom() {
         pmAddBtn.style.opacity = '1';
         pmAddBtn.style.pointerEvents = 'auto';
         pmAddBtn.innerHTML = `<span>✨ Temizlik Siparişine Ekle & Rezerve Et (${boutiqueItem.priceTR} TL)</span>`;
+      }
+    }
+  }
+
+  const peonyItem = items.find(i => i.key === 'sakayik_buket_kutusu');
+  const pmPeonyBadge = document.getElementById('pmPeonyStockStatusBadge');
+  const pmPeonyAddBtn = document.getElementById('btnPmAddPeonyBooking');
+  if (peonyItem) {
+    if (pmPeonyBadge) {
+      if (peonyItem.status === 'out_of_stock') {
+        pmPeonyBadge.className = 'rx-pm-stock-badge out-of-stock';
+        pmPeonyBadge.style.color = '#f87171';
+        pmPeonyBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        pmPeonyBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        pmPeonyBadge.textContent = '🔴 Tükendi (Stokta Yok)';
+      } else {
+        pmPeonyBadge.className = 'rx-pm-stock-badge in-stock';
+        pmPeonyBadge.style.color = '#4ade80';
+        pmPeonyBadge.style.background = 'rgba(74, 222, 128, 0.12)';
+        pmPeonyBadge.style.borderColor = 'rgba(74, 222, 128, 0.25)';
+        pmPeonyBadge.textContent = '🟢 Stokta Var (Hemen Teslim)';
+      }
+    }
+    if (pmPeonyAddBtn) {
+      if (peonyItem.status === 'out_of_stock') {
+        pmPeonyAddBtn.disabled = true;
+        pmPeonyAddBtn.style.opacity = '0.5';
+        pmPeonyAddBtn.style.pointerEvents = 'none';
+        pmPeonyAddBtn.innerHTML = '<span>⛔ Ürün Geçici Olarak Tükendi</span>';
+      } else {
+        pmPeonyAddBtn.disabled = false;
+        pmPeonyAddBtn.style.opacity = '1';
+        pmPeonyAddBtn.style.pointerEvents = 'auto';
+        pmPeonyAddBtn.innerHTML = `<span>🌸 Temizlik Siparişine Ekle & Rezerve Et (${peonyItem.priceTR} TL)</span>`;
       }
     }
   }

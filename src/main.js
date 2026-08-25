@@ -3575,6 +3575,25 @@ function setupCorporateModals() {
     });
   }
 
+  const btnPmAddPeonyBooking = document.getElementById('btnPmAddPeonyBooking');
+  if (btnPmAddPeonyBooking) {
+    btnPmAddPeonyBooking.addEventListener('click', (e) => {
+      e.preventDefault();
+      const pModal = document.getElementById('productsModal');
+      if (pModal) closeCorporateModal(pModal);
+      if (typeof openBookingScreen === 'function') {
+        openBookingScreen();
+        setTimeout(() => {
+          const card = document.querySelector('.wizard-extra-card[data-extra="sakayik_buket_kutusu"]');
+          if (card) {
+            if (!card.classList.contains('active')) card.click();
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 400);
+      }
+    });
+  }
+
   // Global escape key to close active corporate modal
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
