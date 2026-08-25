@@ -3253,34 +3253,58 @@
     </div>
   </div>
 
-  <!-- 👤 0. HESAP AÇMA / GİRİŞ YAP / PROFİLİM MODALI -->
+  <!-- 👤 0. HESAP AÇMA / GİRİŞ YAP / ÇALIŞAN & MÜŞTERİ MODALI -->
   <div class="rx-corporate-modal-overlay rx-auth-modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" style="display:none;">
     <div class="rx-corporate-modal-card rx-auth-modal-card">
       <div class="rx-cmodal-header">
         <div class="rx-cmodal-header-left">
-          <div class="rx-cmodal-badge">✨ RELAXAX ÜYELİK MERKEZİ</div>
-          <h3 id="authModalTitle">Müşteri Hesabı & Rezervasyonlarım</h3>
-          <p class="rx-cmodal-subtitle">Rezervasyonlarınızı canlı takip edin, adreslerinizi kaydedin ve VIP indirimler kazanın.</p>
+          <div class="rx-cmodal-badge" id="authModalBadge">✨ RELAXAX MÜŞTERİ & ÇALIŞAN MERKEZİ</div>
+          <h3 id="authModalTitle">Hesap & Görev Paneli</h3>
+          <p class="rx-cmodal-subtitle" id="authModalSubtitle">Müşteri rezervasyonları ve temizlik uzmanı görev dağıtım sistemi.</p>
         </div>
         <button type="button" class="rx-cmodal-close-btn" id="btnCloseAuthModal" aria-label="Kapat">✕</button>
       </div>
 
+      <!-- Multi-Role Switcher (Müşteri vs Çalışan) -->
+      <div class="auth-role-switcher-wrap">
+        <button type="button" class="btn-role-switch active" id="btnRoleSelectCustomer">
+          <span>👤 Müşteri Portalı</span>
+        </button>
+        <button type="button" class="btn-role-switch" id="btnRoleSelectStaff">
+          <span>🧹 Temizlik Uzmanı / Çalışan</span>
+        </button>
+      </div>
+
       <!-- Auth Navigation Tabs -->
       <div class="auth-tabs-nav">
-        <button type="button" class="auth-tab-btn active" id="tabAuthLoginBtn">
+        <!-- Customer Tabs -->
+        <button type="button" class="auth-tab-btn customer-only-tab active" id="tabAuthLoginBtn">
           <span>🔑 Giriş Yap</span>
         </button>
-        <button type="button" class="auth-tab-btn" id="tabAuthRegisterBtn">
+        <button type="button" class="auth-tab-btn customer-only-tab" id="tabAuthRegisterBtn">
           <span>✨ Hesap Aç (%15 İndirim)</span>
         </button>
-        <button type="button" class="auth-tab-btn" id="tabAuthProfileBtn" style="display:none;">
+        <button type="button" class="auth-tab-btn customer-only-tab" id="tabAuthProfileBtn" style="display:none;">
           <span>👤 Profilim & Siparişlerim</span>
+        </button>
+
+        <!-- Staff Tabs -->
+        <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffLoginBtn" style="display:none;">
+          <span>⚡ Uzman Girişi</span>
+        </button>
+        <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffApplyBtn" style="display:none;">
+          <span>📝 Ekibe Katıl / Başvuru</span>
+        </button>
+        <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffDashBtn" style="display:none;">
+          <span>📋 Görev & Kazanç Paneli</span>
         </button>
       </div>
 
       <div class="rx-cmodal-body auth-modal-body">
 
-        <!-- 1. GİRİŞ YAP PANE -->
+        <!-- ==========================================
+             1. MÜŞTERİ GİRİŞ PANE
+             ========================================== -->
         <div class="auth-pane active" id="paneAuthLogin">
           <form id="authLoginForm" class="auth-form" onsubmit="return false;">
             <div id="authLoginFeedback" class="auth-feedback" style="display:none;"></div>
@@ -3321,7 +3345,9 @@
           </form>
         </div>
 
-        <!-- 2. HESAP AÇ (REGISTER) PANE -->
+        <!-- ==========================================
+             2. MÜŞTERİ HESAP AÇ (REGISTER) PANE
+             ========================================== -->
         <div class="auth-pane" id="paneAuthRegister" style="display:none;">
           <form id="authRegisterForm" class="auth-form" onsubmit="return false;">
             <div id="authRegisterFeedback" class="auth-feedback" style="display:none;"></div>
@@ -3408,7 +3434,9 @@
           </form>
         </div>
 
-        <!-- 3. PROFİLİM & SİPARİŞLERİM PANE -->
+        <!-- ==========================================
+             3. MÜŞTERİ PROFİLİM & SİPARİŞLERİM PANE
+             ========================================== -->
         <div class="auth-pane" id="paneAuthProfile" style="display:none;">
           <div class="user-profile-header">
             <div class="uph-avatar">👤</div>
@@ -3431,6 +3459,200 @@
               <div class="user-bookings-list" id="userBookingsList">
                 <!-- Dynamically populated via authEngine.js -->
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================
+             4. 🧹 ÇALIŞAN / UZMAN GİRİŞ PANE
+             ========================================== -->
+        <div class="auth-pane" id="paneAuthStaffLogin" style="display:none;">
+          <form id="authStaffLoginForm" class="auth-form" onsubmit="return false;">
+            <div id="authStaffLoginFeedback" class="auth-feedback" style="display:none;"></div>
+
+            <!-- Demo Quick Test Presets -->
+            <div class="staff-quick-presets">
+              <span class="sqp-title">⚡ Hızlı Test / Demo Personel Girişi:</span>
+              <div class="sqp-buttons">
+                <button type="button" class="btn-quick-staff-demo" id="btnQuickStaffDemo1">
+                  <span>🧹 Ayşe K. (Kıdemli Uzman - Kadıköy)</span>
+                </button>
+                <button type="button" class="btn-quick-staff-demo" id="btnQuickStaffDemo2">
+                  <span>✨ Mehmet D. (Hijyen Şefi - Sarıyer)</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <label for="staffLoginEmail">Personel E-posta Adresi *</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">💼</span>
+                <input type="email" id="staffLoginEmail" placeholder="uzman@relaxax.com" required />
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <label for="staffLoginPassword">Personel Şifresi *</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" id="staffLoginPassword" placeholder="••••••••" required />
+                <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
+              </div>
+            </div>
+
+            <div class="auth-options-row">
+              <label class="auth-check-wrap">
+                <input type="checkbox" id="staffLoginRememberMe" checked />
+                <span>Oturumumu Açık Tut</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn-auth-submit btn-staff-submit" id="btnSubmitStaffLogin">
+              <span>Uzman Paneline Giriş Yap ➔</span>
+            </button>
+
+            <div class="auth-switch-hint">
+              Ekibimize katılmak ister misiniz? <a href="#" id="linkGoToStaffApply"><strong>Temizlik Uzmanı Başvurusu Yapın</strong></a>
+            </div>
+          </form>
+        </div>
+
+        <!-- ==========================================
+             5. 📝 ÇALIŞAN / UZMAN BAŞVURU (REGISTER) PANE
+             ========================================== -->
+        <div class="auth-pane" id="paneAuthStaffApply" style="display:none;">
+          <form id="authStaffApplyForm" class="auth-form" onsubmit="return false;">
+            <div id="authStaffApplyFeedback" class="auth-feedback" style="display:none;"></div>
+
+            <div class="auth-welcome-banner staff-banner">
+              <span class="aw-icon">🤝</span>
+              <div class="aw-text">
+                <strong>RELAXAX Uzman Kadrosuna Katılın!</strong>
+                <span>Yüksek prim, haftalık düzenli ödeme ve esnek çalışma saatleri.</span>
+              </div>
+            </div>
+
+            <div class="auth-fields-grid">
+              <div class="auth-field-group">
+                <label for="staffRegName">Ad Soyad *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">👤</span>
+                  <input type="text" id="staffRegName" placeholder="Örn: Fatma Demir" required />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegEmail">E-posta Adresi *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">✉️</span>
+                  <input type="email" id="staffRegEmail" placeholder="fatma@email.com" required />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegPhone">Telefon Numarası *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">📱</span>
+                  <input type="tel" id="staffRegPhone" placeholder="05XX XXX XX XX" required />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegCity">Hizmet Şehri</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">📍</span>
+                  <select id="staffRegCity" class="auth-select">
+                    <option value="Istanbul">İstanbul</option>
+                    <option value="Izmir">İzmir</option>
+                    <option value="Ankara">Ankara</option>
+                    <option value="Antalya">Antalya</option>
+                    <option value="Bursa">Bursa</option>
+                    <option value="Warszawa">Warszawa</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegDistrict">Hizmet İlçeleriniz</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">🏘️</span>
+                  <input type="text" id="staffRegDistrict" placeholder="Örn: Kadıköy, Üsküdar, Ataşehir" />
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegExp">Temizlik Deneyimi</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">⭐</span>
+                  <select id="staffRegExp" class="auth-select">
+                    <option value="1-2 Yıl">1 - 2 Yıl Deneyim</option>
+                    <option value="3-5 Yıl" selected>3 - 5 Yıl Deneyim</option>
+                    <option value="5+ Yıl">5 Yıldan Fazla (Usta Uzman)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="auth-field-group" style="grid-column: 1 / -1;">
+                <label for="staffRegPassword">Giriş Şifrenizi Belirleyin (En az 6 karakter) *</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">🔒</span>
+                  <input type="password" id="staffRegPassword" placeholder="••••••••" required />
+                  <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-auth-submit btn-staff-submit" id="btnSubmitStaffApply">
+              <span>Personel Kaydımı Tamamla & Başla ➔</span>
+            </button>
+
+            <div class="auth-switch-hint">
+              Zaten kayıtlı personel misiniz? <a href="#" id="linkGoToStaffLogin"><strong>Giriş Yapın</strong></a>
+            </div>
+          </form>
+        </div>
+
+        <!-- ==========================================
+             6. 📋 ÇALIŞAN GÖREV & KAZANÇ DASHBOARD PANE
+             ========================================== -->
+        <div class="auth-pane" id="paneAuthStaffDashboard" style="display:none;">
+          <div class="staff-dashboard-header">
+            <div class="sdh-top">
+              <div class="sdh-avatar">🧹</div>
+              <div class="sdh-meta">
+                <h4 id="staffProfileName">Ayşe K. (Kıdemli Temizlik Uzmanı)</h4>
+                <span id="staffProfileEmail" class="sdh-sub">uzman@relaxax.com | 📍 İstanbul (Kadıköy, Beşiktaş)</span>
+                <div class="sdh-badges">
+                  <span class="badge-staff-rating" id="staffRatingBadge">★ 4.98 (142 Başarılı Görev)</span>
+                  <span class="badge-staff-status-online">🟢 Göreve Hazır (Müsait)</span>
+                </div>
+              </div>
+              <button type="button" class="btn-logout-user" id="btnLogoutStaff">Çıkış</button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="staff-stats-grid">
+              <div class="staff-stat-card">
+                <span class="ssc-lbl">💰 Bugünkü Hak Ediş</span>
+                <strong class="ssc-val" id="staffTodayEarnings" style="color: #38bdf8;">2.450 TL</strong>
+              </div>
+              <div class="staff-stat-card">
+                <span class="ssc-lbl">📍 Bekleyen / Aktif İşler</span>
+                <strong class="ssc-val" id="staffJobsCount" style="color: #fbbf24;">2 Görev</strong>
+              </div>
+              <div class="staff-stat-card">
+                <span class="ssc-lbl">🛡️ Sigorta & Güvence</span>
+                <strong class="ssc-val" style="color: #34d399;">%100 Aktif</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="staff-dashboard-body">
+            <div class="sd-section-header">
+              <h5>📍 Bölgenize Atanan Canlı Temizlik Görevleri</h5>
+            </div>
+            <div class="staff-jobs-list" id="staffJobsList">
+              <!-- Dynamically populated with interactive jobs -->
             </div>
           </div>
         </div>
