@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RELAXAX Enterprise Cloudflare Pages Function for Product Catalog & Inventory Management API
  * GET /api/catalog
  * POST /api/catalog
@@ -107,8 +107,8 @@ export async function onRequestGet(context) {
   }), {
     status: 200,
     headers: {
-      Access-Control-Allow-Origin: *,
-      Content-Type: application/json; charset=utf-8
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json; charset=utf-8"
     }
   });
 }
@@ -116,10 +116,10 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   const { request } = context;
   const corsHeaders = {
-    Access-Control-Allow-Origin: *,
-    Access-Control-Allow-Methods: GET, POST, OPTIONS,
-    Access-Control-Allow-Headers: Content-Type, Authorization,
-    Content-Type: application/json; charset=utf-8
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Content-Type": "application/json; charset=utf-8"
   };
 
   try {
