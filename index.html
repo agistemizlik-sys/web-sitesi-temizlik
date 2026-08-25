@@ -3624,12 +3624,29 @@
           <form id="authRegisterForm" class="auth-form" onsubmit="return false;">
             <div id="authRegisterFeedback" class="auth-feedback" style="display:none;"></div>
 
-            <div class="auth-welcome-banner">
+            <!-- VIP Welcome Bonus Strip -->
+            <div class="auth-welcome-banner auth-vip-register-banner">
               <span class="aw-icon">🎁</span>
               <div class="aw-text">
-                <strong>İlk Siparişinize Özel %15 İndirim!</strong>
-                <span>Hesap açtığınız anda <code>HOSGELDIN15</code> kuponunuz otomatik aktifleşir.</span>
+                <strong>İlk Siparişinize Özel %15 İndirim & 100 Hoşgeldin Puanı!</strong>
+                <span>Kayıt olduğunuz an <code>HOSGELDIN15</code> kuponu ve 100 TL değerinde puan cüzdanınıza yüklenir.</span>
               </div>
+            </div>
+
+            <!-- 1-Click Fast Social Auth -->
+            <div class="auth-social-buttons-grid">
+              <button type="button" class="btn-social-auth google" id="btnSocialGoogleReg" onclick="window.handleSocialAuth?.('google')">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                <span>Google ile Hızlı Kayıt Ol</span>
+              </button>
+              <button type="button" class="btn-social-auth apple" id="btnSocialAppleReg" onclick="window.handleSocialAuth?.('apple')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.65-1.07 1.72-.94 2.74 1 .08 2.03-.49 2.65-1.24z"/></svg>
+                <span>Apple ID ile Kayıt Ol</span>
+              </button>
+            </div>
+
+            <div class="auth-or-divider">
+              <span>veya e-posta ile form doldurarak kaydolun</span>
             </div>
 
             <div class="auth-fields-grid">
@@ -3653,12 +3670,12 @@
                 <label for="regPhone">Telefon Numarası *</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">📱</span>
-                  <input type="tel" id="regPhone" placeholder="05XX XXX XX XX" required autocomplete="tel" />
+                  <input type="tel" id="regPhone" placeholder="0 (5XX) XXX XX XX" required autocomplete="tel" />
                 </div>
               </div>
 
               <div class="auth-field-group">
-                <label for="regCity">Varsayılan Şehir</label>
+                <label for="regCity">Hizmet Alınacak Şehir</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">📍</span>
                   <select id="regCity" class="auth-select">
@@ -3678,16 +3695,26 @@
               </div>
 
               <div class="auth-field-group">
-                <label for="regPassword">Şifre Belirleyin (En az 6 karakter) *</label>
+                <div class="auth-label-row">
+                  <label for="regPassword">Şifre Belirleyin *</label>
+                  <span class="pwd-strength-tag" id="regPwdStrengthTag">En az 6 karakter</span>
+                </div>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">🔒</span>
                   <input type="password" id="regPassword" placeholder="••••••••" required autocomplete="new-password" />
                   <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
                 </div>
+                <!-- Dynamic Strength Meter Bar -->
+                <div class="pwd-strength-bar-track">
+                  <div class="pwd-strength-bar-fill" id="regPwdStrengthBar"></div>
+                </div>
               </div>
 
               <div class="auth-field-group">
-                <label for="regPasswordConfirm">Şifre Tekrar *</label>
+                <div class="auth-label-row">
+                  <label for="regPasswordConfirm">Şifre Tekrar *</label>
+                  <span class="pwd-match-tag" id="regPwdMatchTag" style="display:none;"></span>
+                </div>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">🔒</span>
                   <input type="password" id="regPasswordConfirm" placeholder="••••••••" required autocomplete="new-password" />
@@ -3696,8 +3723,20 @@
               </div>
             </div>
 
+            <!-- Agreements & VIP Checks -->
+            <div class="auth-terms-box">
+              <label class="auth-check-wrap">
+                <input type="checkbox" id="regTermsConsent" checked required />
+                <span><a href="#" onclick="if(typeof openCorporateModal==='function')openCorporateModal(document.getElementById('faqModal')); return false;">Kullanıcı Sözleşmesi</a> ve <a href="#" onclick="return false;">KVKK Gizlilik Politikası</a>'nı okudum, onaylıyorum.</span>
+              </label>
+              <label class="auth-check-wrap">
+                <input type="checkbox" id="regMarketingConsent" checked />
+                <span>🎁 VIP temizlik indirimleri ve özel promosyonlar hakkında SMS / E-posta bilgilendirmesi almak istiyorum.</span>
+              </label>
+            </div>
+
             <button type="submit" class="btn-auth-submit" id="btnSubmitRegister">
-              <span>Hesabımı Oluştur & Giriş Yap ➔</span>
+              <span>Ücretsiz Kaydımı Tamamla & %15 İndirimi Al ➔</span>
             </button>
 
             <div class="auth-switch-hint">
@@ -3932,8 +3971,17 @@
             <div class="auth-welcome-banner staff-banner">
               <span class="aw-icon">🤝</span>
               <div class="aw-text">
-                <strong>RELAXAX Uzman Kadrosuna Katılın!</strong>
-                <span>Yüksek prim, haftalık düzenli ödeme ve esnek çalışma saatleri.</span>
+                <strong>RELAXAX Profesyonel Kadrosuna Katılın!</strong>
+                <span>Haftalık düzenli FAST ödeme, %70 net hak ediş ve esnek çalışma imkanı.</span>
+              </div>
+            </div>
+
+            <!-- Staff Earnings Simulator Pill -->
+            <div class="staff-earning-sim-pill">
+              <span class="ses-icon">💰</span>
+              <div class="ses-info">
+                <strong>Ortalama Aylık Hak Ediş: 48.000 TL - 75.000 TL</strong>
+                <span>Haftalık FAST ödeme + %100 doğrudan müşteri bahşişi sizin olur.</span>
               </div>
             </div>
 
@@ -3942,7 +3990,7 @@
                 <label for="staffRegName">Ad Soyad *</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">👤</span>
-                  <input type="text" id="staffRegName" placeholder="Örn: Fatma Demir" required />
+                  <input type="text" id="staffRegName" placeholder="Örn: Fatma Demir" required autocomplete="name" />
                 </div>
               </div>
 
@@ -3950,7 +3998,7 @@
                 <label for="staffRegEmail">E-posta Adresi *</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">✉️</span>
-                  <input type="email" id="staffRegEmail" placeholder="fatma@email.com" required />
+                  <input type="email" id="staffRegEmail" placeholder="fatma@email.com" required autocomplete="email" />
                 </div>
               </div>
 
@@ -3958,7 +4006,7 @@
                 <label for="staffRegPhone">Telefon Numarası *</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">📱</span>
-                  <input type="tel" id="staffRegPhone" placeholder="05XX XXX XX XX" required />
+                  <input type="tel" id="staffRegPhone" placeholder="0 (5XX) XXX XX XX" required autocomplete="tel" />
                 </div>
               </div>
 
@@ -3978,7 +4026,7 @@
               </div>
 
               <div class="auth-field-group">
-                <label for="staffRegDistrict">Hizmet İlçeleriniz</label>
+                <label for="staffRegDistrict">Hizmet Verebileceğiniz İlçeler</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">🏘️</span>
                   <input type="text" id="staffRegDistrict" placeholder="Örn: Kadıköy, Üsküdar, Ataşehir" />
@@ -3992,8 +4040,45 @@
                   <select id="staffRegExp" class="auth-select">
                     <option value="1-2 Yıl">1 - 2 Yıl Deneyim</option>
                     <option value="3-5 Yıl" selected>3 - 5 Yıl Deneyim</option>
-                    <option value="5+ Yıl">5 Yıldan Fazla (Usta Uzman)</option>
+                    <option value="5+ Yıl">5+ Yıl (Kıdemli Usta)</option>
                   </select>
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegWorkMode">Çalışma Şekli</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">⏱️</span>
+                  <select id="staffRegWorkMode" class="auth-select">
+                    <option value="full_time">Tam Zamanlı (Haftada 6 Gün)</option>
+                    <option value="part_time">Yarı Zamanlı / Hafta Sonu</option>
+                    <option value="flexible" selected>Esnek (Müsait Oldukça Görev Al)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="auth-field-group">
+                <label for="staffRegVehicle">Ulaşım / Araç Durumu</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">🚗</span>
+                  <select id="staffRegVehicle" class="auth-select">
+                    <option value="public" selected>🚌 Toplu Taşıma / Metro & Marmaray</option>
+                    <option value="car">🚗 Şahsi Otomobil</option>
+                    <option value="motor">🛵 Motosiklet</option>
+                    <option value="company_request">🏢 Şirket Aracı Talep Ediyorum</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Uzmanlık Alanları Multi-select -->
+              <div class="auth-field-group" style="grid-column: 1 / -1;">
+                <label>Uzmanlık Alanlarınız (Birden fazla seçebilirsiniz)</label>
+                <div class="staff-skills-chips-wrap">
+                  <label class="staff-skill-chip active"><input type="checkbox" name="staffSkill" value="ev_villa" checked /><span>🏡 Ev & Villa Temizliği</span></label>
+                  <label class="staff-skill-chip active"><input type="checkbox" name="staffSkill" value="ofis_plaza" checked /><span>🏢 Ofis & Kurumsal Hijyen</span></label>
+                  <label class="staff-skill-chip"><input type="checkbox" name="staffSkill" value="koltuk_hali" /><span>🛋️ Koltuk & Halı Yıkama</span></label>
+                  <label class="staff-skill-chip"><input type="checkbox" name="staffSkill" value="cam_silimi" /><span>🪟 Cam & Dış Cephe</span></label>
+                  <label class="staff-skill-chip"><input type="checkbox" name="staffSkill" value="insaat_sonrasi" /><span>🧱 İnşaat & Taşınma Sonrası</span></label>
                 </div>
               </div>
 
@@ -4001,14 +4086,21 @@
                 <label for="staffRegPassword">Giriş Şifrenizi Belirleyin (En az 6 karakter) *</label>
                 <div class="auth-input-wrap">
                   <span class="auth-input-icon">🔒</span>
-                  <input type="password" id="staffRegPassword" placeholder="••••••••" required />
+                  <input type="password" id="staffRegPassword" placeholder="••••••••" required autocomplete="new-password" />
                   <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
                 </div>
               </div>
             </div>
 
+            <div class="auth-terms-box">
+              <label class="auth-check-wrap">
+                <input type="checkbox" id="staffTermsConsent" checked required />
+                <span><a href="#" onclick="return false;">Hizmet Sağlayıcı Sözleşmesi</a> ve Adli Sicil / Güvenlik Kontrol Protokolü'nü onaylıyorum.</span>
+              </label>
+            </div>
+
             <button type="submit" class="btn-auth-submit btn-staff-submit" id="btnSubmitStaffApply">
-              <span>Personel Kaydımı Tamamla & Başla ➔</span>
+              <span>Uzman Başvurumu Tamamla & Hemen Başla ➔</span>
             </button>
 
             <div class="auth-switch-hint">

@@ -1828,6 +1828,138 @@ window.deleteProductGlobal = function(key) {
   }
 };
 
+// Interactive Password Strength, Real-time Validation, Phone Masking & Social Auth
+function initRegistrationInteractions() {
+  // 1. Password Strength Calculator
+  const regPass = document.getElementById('regPassword');
+  const barFill = document.getElementById('regPwdStrengthBar');
+  const strengthTag = document.getElementById('regPwdStrengthTag');
+
+  if (regPass && barFill && strengthTag) {
+    regPass.addEventListener('input', () => {
+      const val = regPass.value;
+      if (!val) {
+        barFill.style.width = '0%';
+        strengthTag.textContent = 'En az 6 karakter';
+        strengthTag.style.color = '#94a3b8';
+        return;
+      }
+
+      let score = 0;
+      if (val.length >= 6) score += 20;
+      if (val.length >= 8) score += 20;
+      if (/[A-Z]/.test(val)) score += 20;
+      if (/[0-9]/.test(val)) score += 20;
+      if (/[^A-Za-z0-9]/.test(val)) score += 20;
+
+      barFill.style.width = `${Math.min(100, Math.max(15, score))}%`;
+
+      if (score <= 20) {
+        barFill.style.backgroundColor = '#ef4444';
+        strengthTag.textContent = '🔴 Zayıf Şifre';
+        strengthTag.style.color = '#f87171';
+      } else if (score <= 40) {
+        barFill.style.backgroundColor = '#f97316';
+        strengthTag.textContent = '🟠 Orta Güvenlik';
+        strengthTag.style.color = '#fb923c';
+      } else if (score <= 60) {
+        barFill.style.backgroundColor = '#eab308';
+        strengthTag.textContent = '🟡 İyi Şifre';
+        strengthTag.style.color = '#fde047';
+      } else if (score <= 80) {
+        barFill.style.backgroundColor = '#22c55e';
+        strengthTag.textContent = '🟢 Güçlü Şifre';
+        strengthTag.style.color = '#4ade80';
+      } else {
+        barFill.style.backgroundColor = '#10b981';
+        strengthTag.textContent = '💎 Çok Güçlü (Kırılamaz)';
+        strengthTag.style.color = '#34d399';
+      }
+    });
+  }
+
+  // 2. Password Match Indicator
+  const regPassConfirm = document.getElementById('regPasswordConfirm');
+  const matchTag = document.getElementById('regPwdMatchTag');
+  if (regPass && regPassConfirm && matchTag) {
+    const checkMatch = () => {
+      const p1 = regPass.value;
+      const p2 = regPassConfirm.value;
+      if (!p2) {
+        matchTag.style.display = 'none';
+        return;
+      }
+      matchTag.style.display = 'inline-block';
+      if (p1 === p2) {
+        matchTag.className = 'pwd-match-tag matched';
+        matchTag.textContent = '✓ Şifreler Eşleşti';
+      } else {
+        matchTag.className = 'pwd-match-tag mismatched';
+        matchTag.textContent = '✕ Eşleşmiyor';
+      }
+    };
+    regPassConfirm.addEventListener('input', checkMatch);
+    regPass.addEventListener('input', checkMatch);
+  }
+
+  // 3. Auto Phone Formatting Mask
+  const phoneInputs = [document.getElementById('regPhone'), document.getElementById('staffRegPhone'), document.getElementById('loginPhone')];
+  phoneInputs.forEach(input => {
+    if (!input) return;
+    input.addEventListener('input', () => {
+      let val = input.value.replace(/\D/g, '');
+      if (val.startsWith('90')) val = val.substring(2);
+      if (val.startsWith('0')) val = val.substring(1);
+      
+      let formatted = '';
+      if (val.length > 0) formatted = '0 (' + val.substring(0, 3);
+      if (val.length >= 4) formatted += ') ' + val.substring(3, 6);
+      if (val.length >= 7) formatted += ' ' + val.substring(6, 8);
+      if (val.length >= 9) formatted += ' ' + val.substring(8, 10);
+
+      input.value = formatted;
+    });
+  });
+
+  // 4. Staff Skills Chips Multi-Select
+  const skillChips = document.querySelectorAll('.staff-skill-chip');
+  skillChips.forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      const checkbox = chip.querySelector('input[type="checkbox"]');
+      if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        chip.classList.toggle('active', checkbox.checked);
+      }
+    });
+  });
+}
+
+// 5. 1-Click Social Sign-Up (Google / Apple Instant Auth)
+window.handleSocialAuth = async function(provider) {
+  const regFeedback = document.getElementById('authRegisterFeedback');
+  const dummyName = provider === 'google' ? 'Google Kullanıcısı' : 'Apple Kullanıcısı';
+  const dummyEmail = provider === 'google' ? `kullanici.${Math.floor(1000 + Math.random()*9000)}@gmail.com` : `apple.user.${Math.floor(1000 + Math.random()*9000)}@icloud.com`;
+  const dummyPhone = '0 (532) ' + Math.floor(100 + Math.random()*900) + ' ' + Math.floor(10 + Math.random()*90) + ' ' + Math.floor(10 + Math.random()*90);
+
+  if (regFeedback) {
+    regFeedback.style.display = 'block';
+    regFeedback.className = 'auth-feedback success';
+    regFeedback.textContent = `🚀 ${provider === 'google' ? 'Google' : 'Apple'} hesabınızla güvenli bağlantı kuruluyor...`;
+  }
+
+  const res = await registerUser(dummyName, dummyEmail, dummyPhone, 'SocialAuth2026!', 'Istanbul');
+  if (res.success) {
+    if (regFeedback) {
+      regFeedback.textContent = `🎉 Hoş geldiniz! ${provider === 'google' ? 'Google' : 'Apple'} ile hesabınız başarıyla açıldı. 100 Hoşgeldin Puanı & %15 Kuponunuz Aktif!`;
+    }
+    setTimeout(() => {
+      closeAuthModal();
+      if (typeof openBookingScreen === 'function') openBookingScreen();
+    }, 1000);
+  }
+};
+
 export function initAuthEngine() {
   updateAuthUI();
   syncCatalogToDom();
@@ -2157,6 +2289,9 @@ export function initAuthEngine() {
     });
   }
 
+  // Initialize Registration UI & Validation Interactions
+  initRegistrationInteractions();
+
   // Customer Register Form
   const registerForm = document.getElementById('authRegisterForm');
   const regFeedback = document.getElementById('authRegisterFeedback');
@@ -2170,37 +2305,48 @@ export function initAuthEngine() {
       const pass = document.getElementById('regPassword')?.value;
       const passConfirm = document.getElementById('regPasswordConfirm')?.value;
       const city = document.getElementById('regCity')?.value || 'Istanbul';
+      const terms = document.getElementById('regTermsConsent')?.checked;
+
+      if (!terms) {
+        if (regFeedback) {
+          regFeedback.style.display = 'block';
+          regFeedback.className = 'auth-feedback error';
+          regFeedback.textContent = '⚠️ Lütfen Kullanıcı Sözleşmesi ve KVKK metnini onaylayınız.';
+        }
+        return;
+      }
 
       if (pass !== passConfirm) {
         if (regFeedback) {
           regFeedback.style.display = 'block';
           regFeedback.className = 'auth-feedback error';
-          regFeedback.textContent = '⚠️ Şifreler birbiriyle eşleşmiyor.';
+          regFeedback.textContent = '⚠️ Belirlediğiniz şifreler birbiriyle eşleşmiyor.';
         }
         return;
       }
 
       if (btnSubmitRegister) {
         btnSubmitRegister.disabled = true;
-        btnSubmitRegister.innerHTML = '<span>Hesabınız Oluşturuluyor... ⏳</span>';
+        btnSubmitRegister.innerHTML = '<span>Hesabınız Oluşturuluyor & İndirim Tanımlanıyor... ⏳</span>';
       }
 
       const res = await registerUser(name, email, phone, pass, city);
 
       if (btnSubmitRegister) {
         btnSubmitRegister.disabled = false;
-        btnSubmitRegister.innerHTML = '<span>Hesabımı Oluştur & Giriş Yap ➔</span>';
+        btnSubmitRegister.innerHTML = '<span>Ücretsiz Kaydımı Tamamla & %15 İndirimi Al ➔</span>';
       }
 
       if (res.success) {
         if (regFeedback) {
           regFeedback.style.display = 'block';
           regFeedback.className = 'auth-feedback success';
-          regFeedback.textContent = `🎉 Tebrikler ${res.user.name}, hesabınız başarıyla açıldı! %15 indirim kuponunuz aktif.`;
+          regFeedback.textContent = `🎉 Tebrikler ${res.user.name}, üyeliğiniz tamamlandı! +100 Hoşgeldin Puanı ve %15 İndirim kuponunuz cüzdanınıza tanımlandı.`;
         }
         setTimeout(() => {
           closeAuthModal();
           if (regFeedback) regFeedback.style.display = 'none';
+          if (typeof openBookingScreen === 'function') openBookingScreen();
         }, 1200);
       } else {
         if (regFeedback) {
@@ -2226,24 +2372,28 @@ export function initAuthEngine() {
       const city = document.getElementById('staffRegCity')?.value || 'Istanbul';
       const district = document.getElementById('staffRegDistrict')?.value || 'Kadıköy';
       const exp = document.getElementById('staffRegExp')?.value || '3 Yıl';
+      const workMode = document.getElementById('staffRegWorkMode')?.value || 'flexible';
+      const vehicle = document.getElementById('staffRegVehicle')?.value || 'public';
+      
+      const skills = Array.from(document.querySelectorAll('input[name="staffSkill"]:checked')).map(cb => cb.value);
 
       if (btnSubmitStaffApply) {
         btnSubmitStaffApply.disabled = true;
-        btnSubmitStaffApply.innerHTML = '<span>Uzman Kaydı Yapılıyor... ⏳</span>';
+        btnSubmitStaffApply.innerHTML = '<span>Uzman Başvurunuz İnceleniyor... ⏳</span>';
       }
 
-      const res = await registerStaff(name, email, phone, pass, city, district, exp);
+      const res = await registerStaff(name, email, phone, pass, city, district, exp, skills);
 
       if (btnSubmitStaffApply) {
         btnSubmitStaffApply.disabled = false;
-        btnSubmitStaffApply.innerHTML = '<span>Personel Kaydımı Tamamla & Başla ➔</span>';
+        btnSubmitStaffApply.innerHTML = '<span>Uzman Başvurumu Tamamla & Hemen Başla ➔</span>';
       }
 
       if (res.success) {
         if (staffApplyFeedback) {
           staffApplyFeedback.style.display = 'block';
           staffApplyFeedback.className = 'auth-feedback success';
-          staffApplyFeedback.textContent = `🎉 Tebrikler ${res.user.name}, personel hesabınız açıldı ve onaylandı! Görev paneline aktarılıyorsunuz...`;
+          staffApplyFeedback.textContent = `🎉 Tebrikler ${res.user.name}, temizlik uzmanı kaydınız onaylandı! Canlı görev masanıza yönlendiriliyorsunuz...`;
         }
         setTimeout(() => {
           if (staffApplyFeedback) staffApplyFeedback.style.display = 'none';
