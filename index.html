@@ -1321,6 +1321,72 @@
         </div>
       </footer>
 
+      <!-- 💎 7. RELAXAX BOUTIQUE & EXCLUSIVE GIFT SHOWCASE -->
+      <section class="rx-boutique-section" id="boutiqueShowcaseSection">
+        <div class="rx-boutique-container">
+          <div class="rx-boutique-header">
+            <span class="rx-boutique-badge">✨ RELAXAX LUXURY BOUTIQUE COLLECTION</span>
+            <h3 class="rx-boutique-title">Özel Üretim El Yapımı Butik Hediye & Çiçek Koleksiyonu</h3>
+            <p class="rx-boutique-subtitle">Doğal gül özleri, altın varaklı zanaatkar dokunuşlar ve seçkin hediye sunumuyla yaşam alanlarınıza zarafet katın.</p>
+          </div>
+
+          <div class="rx-boutique-card">
+            <div class="rx-bc-image-wrap">
+              <img src="/images/product_rose_gift_box.webp" alt="RELAXAX Rose Elegance Butik Hediye Kutusu" class="rx-bc-img" loading="lazy" />
+              <div class="rx-bc-img-badge">🌹 ÖZEL BUTİK SERİ</div>
+            </div>
+
+            <div class="rx-bc-content">
+              <div class="rx-bc-tag-row">
+                <span class="rx-bc-tag gold">★ %100 El Yapımı (Artisan Craft)</span>
+                <span class="rx-bc-tag rose">🌿 Doğal Botanik Esanslar</span>
+                <span class="rx-bc-tag">🎁 Özel Pencereli Lüks Kutu</span>
+              </div>
+
+              <h4 class="rx-bc-prod-title">Rose Elegance — Butik Çiçek & Aromaterapi Hediye Seti</h4>
+              <p class="rx-bc-desc">
+                Özel günlerde sevdiklerinize ya da evinize ferahlık ve şıklık katmak için tasarlanmış birinci sınıf el yapımı çiçek & aroma seti. Altın varak detaylı özel figürler ve pastel gül tonlarıyla lüks bir hediye deneyimi sunar.
+              </p>
+
+              <div class="rx-bc-specs-grid">
+                <div class="rx-bc-spec-item">
+                  <span class="spec-lbl">İçerik:</span>
+                  <strong>5 Parça Özel Tasarım Set</strong>
+                </div>
+                <div class="rx-bc-spec-item">
+                  <span class="spec-lbl">Sunum:</span>
+                  <strong>Pencereli Beyaz Lüks Hediye Kutusu</strong>
+                </div>
+                <div class="rx-bc-spec-item">
+                  <span class="spec-lbl">Özel Detay:</span>
+                  <strong>Altın Varak & Gül Tomurcuğu İşleme</strong>
+                </div>
+                <div class="rx-bc-spec-item">
+                  <span class="spec-lbl">Kullanım:</span>
+                  <strong>Hediyelik & Oda Parfümü / Dekorasyon</strong>
+                </div>
+              </div>
+
+              <div class="rx-bc-pricing-row">
+                <div class="rx-bc-price-box">
+                  <span class="rx-bc-old-price">650 TL</span>
+                  <span class="rx-bc-cur-price">490 TL</span>
+                  <span class="rx-bc-discount-pill">%25 İNDİRİM</span>
+                </div>
+
+                <div class="rx-bc-actions">
+                  <button type="button" class="btn-boutique-add-order" onclick="if(typeof openBookingScreen==='function'){openBookingScreen(); setTimeout(()=>{ const btn = document.querySelector('.wizard-extra-card[data-extra=\'butik_hediye_kutusu\']'); if(btn){ btn.click(); btn.scrollIntoView({behavior:'smooth'}); } }, 600);}">
+                    <span>✨ Temizlik Siparişine Ekle</span>
+                  </button>
+                  <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20Rose%20Elegance%20Butik%20Hediye%20Kutusundan%20siparis%20vermek%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-boutique-wa">
+                    <span>💬 WhatsApp ile Doğrudan Sipariş Ver</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- Mobile City Selector Buttons (Clean Layout for Mobile Viewports) -->
@@ -2145,6 +2211,21 @@
                 </div>
 
                 <div class="wizard-extras-grid">
+
+                  <!-- 💎 ÖZEL BUTİK ÜRÜN (Rose Elegance Butik Hediye Kutusu) -->
+                  <div class="wizard-extra-card extra-btn has-counter wizard-product-highlight-card" data-extra="butik_hediye_kutusu" data-price-tr="490" data-price-old-tr="650" data-price-pl="59" data-price-old-pl="79">
+                    <div class="w-product-thumb-wrap">
+                      <img src="/images/product_rose_gift_box.webp" alt="RELAXAX Rose Elegance" class="w-product-thumb" />
+                      <span class="w-product-badge">💎 YENİ BUTİK ÜRÜN</span>
+                    </div>
+                    <div class="w-extra-name">Rose Elegance Butik Çiçek & Hediye Kutusu</div>
+                    <div class="w-extra-badge">490 TL <span class="w-old-price">650 TL</span></div>
+                    <div class="extra-counter-bar">
+                      <button type="button" class="ec-btn minus-ec-btn">-</button>
+                      <span class="ec-val" id="cntButikHediye">1</span> kutu
+                      <button type="button" class="ec-btn plus-ec-btn">+</button>
+                    </div>
+                  </div>
 
                   <div class="wizard-extra-card extra-btn" data-extra="firin" data-price-tr="450" data-price-old-tr="550" data-price-pl="59" data-price-old-pl="75">
                     <div class="w-extra-icon">🍳</div>

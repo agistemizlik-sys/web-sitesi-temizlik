@@ -15783,5 +15783,324 @@ body,
   color: #0b1e13;
 }
 
+/* ==========================================================================
+   41. 💎 RELAXAX BOUTIQUE & PRODUCT SHOWCASE STYLES
+   ========================================================================== */
+.rx-boutique-section {
+  padding: 40px 20px 60px;
+  background: radial-gradient(circle at 50% 30%, rgba(30, 41, 69, 0.4) 0%, rgba(10, 18, 36, 0.95) 100%);
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rx-boutique-container {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.rx-boutique-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.rx-boutique-badge {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.2);
+}
+
+.rx-boutique-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.rx-boutique-subtitle {
+  font-size: 0.92rem;
+  color: #94a3b8;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.rx-boutique-card {
+  display: flex;
+  background: rgba(19, 31, 60, 0.85);
+  border: 1.5px solid rgba(251, 191, 36, 0.35);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(251, 191, 36, 0.15);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.rx-boutique-card:hover {
+  transform: translateY(-4px);
+  border-color: #fbbf24;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(251, 191, 36, 0.25);
+}
+
+@media (max-width: 860px) {
+  .rx-boutique-card {
+    flex-direction: column;
+  }
+}
+
+.rx-bc-image-wrap {
+  flex: 1.1;
+  position: relative;
+  min-height: 340px;
+  overflow: hidden;
+  background: #000;
+}
+
+.rx-bc-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rx-boutique-card:hover .rx-bc-img {
+  transform: scale(1.05);
+}
+
+.rx-bc-img-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(10, 18, 36, 0.85);
+  backdrop-filter: blur(8px);
+  color: #fbbf24;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.rx-bc-content {
+  flex: 1.4;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rx-bc-tag-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.rx-bc-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.rx-bc-tag.gold {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.rx-bc-tag.rose {
+  background: rgba(244, 114, 182, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(244, 114, 182, 0.3);
+}
+
+.rx-bc-prod-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px;
+}
+
+.rx-bc-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.rx-bc-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: rgba(10, 18, 36, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 500px) {
+  .rx-bc-specs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rx-bc-spec-item {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.spec-lbl {
+  display: block;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.rx-bc-pricing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rx-bc-price-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rx-bc-old-price {
+  font-size: 0.95rem;
+  color: #64748b;
+  text-decoration: line-through;
+}
+
+.rx-bc-cur-price {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #38bdf8;
+}
+
+.rx-bc-discount-pill {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.rx-bc-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-boutique-add-order {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-boutique-add-order:hover {
+  background: #0284c7;
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-boutique-wa {
+  background: rgba(37, 211, 102, 0.18);
+  border: 1.5px solid rgba(37, 211, 102, 0.4);
+  color: #25d366;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+}
+
+.btn-boutique-wa:hover {
+  background: #25d366;
+  color: #0b1e13;
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4);
+}
+
+/* Wizard Highlight Product Card */
+.wizard-product-highlight-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(30, 41, 69, 0.95) 0%, rgba(19, 31, 60, 0.95) 100%) !important;
+  border: 1.5px solid rgba(251, 191, 36, 0.4) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(251, 191, 36, 0.15) !important;
+  display: flex !important;
+  align-items: center !important;
+  text-align: left !important;
+  gap: 16px !important;
+  padding: 14px 18px !important;
+}
+
+@media (max-width: 600px) {
+  .wizard-product-highlight-card {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+}
+
+.w-product-thumb-wrap {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(251, 191, 36, 0.4);
+}
+
+.w-product-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.w-product-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(251, 191, 36, 0.9);
+  color: #0f172a;
+  font-size: 0.55rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 2px 0;
+}
+
+
 
 

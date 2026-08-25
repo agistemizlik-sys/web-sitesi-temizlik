@@ -1224,6 +1224,7 @@ function applyBookingTranslations(dict, lang) {
 
   // Extra service card titles & badges
   const extraCardMapPL = {
+    butik_hediye_kutusu: { name: 'Zestaw Prezentowy Rose Elegance', badge: '59,00 PLN' },
     firin: { name: 'Czyszczenie piekarnika', badge: '49,00 PLN' },
     davlumbaz: { name: 'Czyszczenie okapu kuchennego', badge: '39,00 PLN' },
     mutfak_dolabi: { name: 'Wnętrze szafek kuchennych', badge: '59,00 PLN' },
@@ -1247,6 +1248,7 @@ function applyBookingTranslations(dict, lang) {
   };
 
   const extraCardMapTR = {
+    butik_hediye_kutusu: { name: 'Rose Elegance Butik Çiçek & Hediye Kutusu', badge: '490 TL' },
     firin: { name: 'Fırın İçi Yağ Çözücü Temizlik', badge: '350 TL' },
     davlumbaz: { name: 'Davlumbaz & Filtre Yağ Arındırma', badge: '350 TL' },
     mutfak_dolabi: { name: 'Mutfak Dolapları İçi Temizlik', badge: '500 TL' },
