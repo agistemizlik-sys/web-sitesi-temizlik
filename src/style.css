@@ -17087,6 +17087,366 @@ body,
   gap: 4px;
 }
 
+/* ==========================================================================
+   44. RELAXAX BUTİK ÜRÜNLER & EL YAPIMI MUM MODALI
+   ========================================================================== */
+.rx-products-modal-card {
+  max-width: 900px !important;
+  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(244, 63, 94, 0.15) !important;
+}
+
+.rx-pm-featured-card {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  background: rgba(19, 31, 60, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rx-pm-featured-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(244, 63, 94, 0.1), transparent 60%);
+  pointer-events: none;
+}
+
+.rx-pm-media-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.rx-pm-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.rx-pm-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rx-pm-img-wrap:hover .rx-pm-main-img {
+  transform: scale(1.05);
+}
+
+.rx-pm-img-pill {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #f43f5e, #be123c);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+}
+
+.rx-pm-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.rx-pm-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rx-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rx-tag.gold {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fde047;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.rx-tag.rose {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.rx-pm-prod-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.rx-pm-prod-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.rx-pm-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  background: rgba(13, 22, 44, 0.6);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rx-pm-feat {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.76rem;
+}
+
+.rx-pm-feat .feat-ic {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.rx-pm-feat div {
+  display: flex;
+  flex-direction: column;
+}
+
+.rx-pm-feat strong {
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.rx-pm-feat span {
+  color: #94a3b8;
+  font-size: 0.7rem;
+}
+
+.rx-pm-price-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.rx-pm-price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.rx-pm-old-price {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-decoration: line-through;
+}
+
+.rx-pm-current-price {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.rx-pm-badge-discount {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.rx-pm-stock-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+.rx-pm-btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.btn-pm-add-booking {
+  flex: 1.2;
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  color: #ffffff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.35);
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.btn-pm-add-booking:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(56, 189, 248, 0.5);
+  background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+}
+
+.btn-pm-whatsapp {
+  flex: 1;
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.btn-pm-whatsapp:hover {
+  background: #22c55e;
+  color: #ffffff;
+  border-color: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+}
+
+.rx-pm-section-title h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin: 16px 0 10px;
+}
+
+.rx-pm-subgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.rx-pm-subcard {
+  background: rgba(19, 31, 60, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.rx-pm-subcard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.rx-subcard-icon {
+  font-size: 1.8rem;
+}
+
+.rx-subcard-info h5 {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.rx-subcard-info p {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.rx-subcard-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.rx-subcard-price .old-p {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-decoration: line-through;
+  margin-left: 4px;
+}
+
+.rx-subcard-btn {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: auto;
+  transition: all 0.2s ease;
+}
+
+.rx-subcard-btn:hover {
+  background: #38bdf8;
+  color: #0d162c;
+}
+
+@media (max-width: 768px) {
+  .rx-pm-featured-card {
+    grid-template-columns: 1fr;
+  }
+  .rx-pm-img-wrap {
+    min-height: 200px;
+    height: 200px;
+  }
+  .rx-pm-features-grid {
+    grid-template-columns: 1fr;
+  }
+  .rx-pm-btn-group {
+    flex-direction: column;
+  }
+  .rx-pm-subgrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 
 

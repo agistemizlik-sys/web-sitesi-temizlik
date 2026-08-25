@@ -3468,10 +3468,15 @@ function setupQualityReportModal() {
 }
 
 /**
- * 🏢 Corporate & Utility Modals (FAQ, Franchise, Countries, Mobile App)
+ * 🏢 Corporate & Utility Modals (Products, FAQ, Franchise, Countries, Mobile App)
  */
 function setupCorporateModals() {
   const modalConfigs = [
+    {
+      id: 'productsModal',
+      triggers: ['#cNavProductsBtn', '#btnOpenProductsModal', '#btnNavProductsModal'],
+      closeBtns: ['#btnCloseProductsModal']
+    },
     {
       id: 'faqModal',
       triggers: ['#btnOpenFaqModal', '#btnNavFaqModal'],
@@ -3549,6 +3554,26 @@ function setupCorporateModals() {
       }
     });
   });
+
+  // Direct Booking Handler from Products Modal
+  const btnPmAddBooking = document.getElementById('btnPmAddBooking');
+  if (btnPmAddBooking) {
+    btnPmAddBooking.addEventListener('click', (e) => {
+      e.preventDefault();
+      const pModal = document.getElementById('productsModal');
+      if (pModal) closeCorporateModal(pModal);
+      if (typeof openBookingScreen === 'function') {
+        openBookingScreen();
+        setTimeout(() => {
+          const card = document.querySelector('.wizard-extra-card[data-extra="butik_hediye_kutusu"]');
+          if (card) {
+            if (!card.classList.contains('active')) card.click();
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 400);
+      }
+    });
+  }
 
   // Global escape key to close active corporate modal
   window.addEventListener('keydown', (e) => {
@@ -5793,12 +5818,11 @@ function setupNavScroll() {
   if (cNavProductsBtn) {
     cNavProductsBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      // Go to products / detergent supplies / eco cleaning cinema scene
-      if (typeof window.goToCinemaStep === 'function') {
-        window.goToCinemaStep(3);
-      } else {
-        const suppliesSection = document.querySelector('.services-section') || document.getElementById('cinema-section');
-        if (suppliesSection) suppliesSection.scrollIntoView({ behavior: 'smooth' });
+      const pModal = document.getElementById('productsModal');
+      if (pModal && typeof window.openCorporateModal === 'function') {
+        window.openCorporateModal(pModal);
+      } else if (pModal) {
+        pModal.style.display = 'flex';
       }
     });
   }

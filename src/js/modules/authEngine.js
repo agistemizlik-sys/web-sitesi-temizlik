@@ -724,7 +724,41 @@ export function syncCatalogToDom() {
     }
   }
 
-  // 2. Sync Booking Wizard Extras Grid
+  // 2. Sync Products Modal (#productsModal)
+  const pmBadge = document.getElementById('pmStockStatusBadge');
+  const pmAddBtn = document.getElementById('btnPmAddBooking');
+  if (boutiqueItem) {
+    if (pmBadge) {
+      if (boutiqueItem.status === 'out_of_stock') {
+        pmBadge.className = 'rx-pm-stock-badge out-of-stock';
+        pmBadge.style.color = '#f87171';
+        pmBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        pmBadge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        pmBadge.textContent = '🔴 Tükendi (Stokta Yok)';
+      } else {
+        pmBadge.className = 'rx-pm-stock-badge in-stock';
+        pmBadge.style.color = '#4ade80';
+        pmBadge.style.background = 'rgba(74, 222, 128, 0.12)';
+        pmBadge.style.borderColor = 'rgba(74, 222, 128, 0.25)';
+        pmBadge.textContent = '🟢 Stokta Var (Hemen Teslim)';
+      }
+    }
+    if (pmAddBtn) {
+      if (boutiqueItem.status === 'out_of_stock') {
+        pmAddBtn.disabled = true;
+        pmAddBtn.style.opacity = '0.5';
+        pmAddBtn.style.pointerEvents = 'none';
+        pmAddBtn.innerHTML = '<span>⛔ Ürün Geçici Olarak Tükendi</span>';
+      } else {
+        pmAddBtn.disabled = false;
+        pmAddBtn.style.opacity = '1';
+        pmAddBtn.style.pointerEvents = 'auto';
+        pmAddBtn.innerHTML = `<span>✨ Temizlik Siparişine Ekle & Rezerve Et (${boutiqueItem.priceTR} TL)</span>`;
+      }
+    }
+  }
+
+  // 3. Sync Booking Wizard Extras Grid
   items.forEach(item => {
     const card = document.querySelector(`.wizard-extra-card[data-extra="${item.key}"]`);
     if (card) {

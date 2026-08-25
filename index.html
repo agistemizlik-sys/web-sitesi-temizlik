@@ -4298,6 +4298,109 @@
     </div>
   </div>
 
+  <!-- 🛍️ 0. BUTİK ÜRÜNLERİMİZ & EL YAPIMI MUM MODALI -->
+  <div class="rx-corporate-modal-overlay rx-products-modal-overlay" id="productsModal" role="dialog" aria-modal="true" aria-labelledby="productsModalTitle" style="display:none;">
+    <div class="rx-corporate-modal-card rx-products-modal-card">
+      <div class="rx-cmodal-header">
+        <div class="rx-cmodal-header-left">
+          <div class="rx-cmodal-badge">✨ RELAXAX BUTİK KOLEKSİYON</div>
+          <h3 id="productsModalTitle">🛍️ Özel Üretim Butik Ürünlerimiz</h3>
+          <p class="rx-cmodal-subtitle">Doğal soya mumu, organik gül esansı ve altın varaklı zanaatkar sunumları.</p>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" id="btnCloseProductsModal" aria-label="Kapat">✕</button>
+      </div>
+
+      <div class="rx-cmodal-body rx-products-modal-body">
+        
+        <!-- 💎 ÖNE ÇIKAN EL YAPIMI MUM & HEDİYE KUTUSU -->
+        <div class="rx-pm-featured-card">
+          <div class="rx-pm-media-col">
+            <div class="rx-pm-img-wrap">
+              <img src="/images/product_rose_gift_box.webp" alt="Rose Elegance El Yapımı Butik Mum ve Hediye Kutusu" class="rx-pm-main-img" />
+              <span class="rx-pm-img-pill">💎 YENİ SEZON & EL YAPIMI</span>
+            </div>
+          </div>
+
+          <div class="rx-pm-info-col">
+            <div class="rx-pm-tags">
+              <span class="rx-tag gold">★ %100 Doğal Soya Mumu</span>
+              <span class="rx-tag rose">🌹 Organik Isparta Gül Yağı</span>
+              <span class="rx-tag">🎁 Pencereli Lüks Kutu</span>
+            </div>
+
+            <h4 class="rx-pm-prod-name">Rose Elegance — El Yapımı Butik Mum & Hediye Kutusu</h4>
+            <p class="rx-pm-prod-desc">
+              Zanaatkar eller tarafından dökülen %100 doğal soya mumu, organik gül esansı ve altın varak işlemeli zarif figürlerle sevdiklerinize unutulmaz bir hediye deneyimi sunar. Pencereli şık beyaz kutusu ve pembe saten kurdelesiyle özenle paketlenir.
+            </p>
+
+            <div class="rx-pm-features-grid">
+              <div class="rx-pm-feat"><span class="feat-ic">🕯️</span> <div><strong>45+ Saat Yanma</strong><span>Temiz, issiz ve duman yapmayan soya fitili</span></div></div>
+              <div class="rx-pm-feat"><span class="feat-ic">🌿</span> <div><strong>Doğal Gül Esansı</strong><span>Sentetik içermeyen saf aromaterapi kürü</span></div></div>
+              <div class="rx-pm-feat"><span class="feat-ic">🎀</span> <div><strong>Lüks Hediye Sunumu</strong><span>Şeffaf pencereli kutu & altın varak kart</span></div></div>
+              <div class="rx-pm-feat"><span class="feat-ic">✨</span> <div><strong>Zanaatkar İşçilik</strong><span>Özel el dökümü sanatsal tasarım</span></div></div>
+            </div>
+
+            <div class="rx-pm-price-strip">
+              <div class="rx-pm-price-box">
+                <span class="rx-pm-old-price">650 TL</span>
+                <span class="rx-pm-current-price">490 TL</span>
+                <span class="rx-pm-badge-discount">%25 İNDİRİM</span>
+              </div>
+              <div class="rx-pm-stock-badge in-stock" id="pmStockStatusBadge">🟢 Stokta Var (Hemen Teslim)</div>
+            </div>
+
+            <div class="rx-pm-btn-group">
+              <button type="button" class="btn-pm-add-booking" id="btnPmAddBooking">
+                <span>✨ Temizlik Siparişine Ekle & Rezerve Et (490 TL)</span>
+              </button>
+              <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20Rose%20Elegance%20Butik%20Mum%20ve%20Hediye%20Kutusundan%20siparis%20vermek%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-pm-whatsapp">
+                <span>💬 WhatsApp ile Doğrudan Sipariş Ver</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🌿 DİĞER BUTİK ÜRÜNLER -->
+        <div class="rx-pm-section-title">
+          <h4>🌿 Diğer Butik Kokularımız & Özel Bakım Ürünleri</h4>
+        </div>
+
+        <div class="rx-pm-subgrid">
+          <div class="rx-pm-subcard">
+            <div class="rx-subcard-icon">🌿</div>
+            <div class="rx-subcard-info">
+              <h5>Akdeniz İnciri & Beyaz Çay İmza Oda Spreyi (250ml)</h5>
+              <p>Otel kalitesinde doğal ortam kokusu ve ferahlık.</p>
+              <div class="rx-subcard-price">350 TL <span class="old-p">450 TL</span></div>
+            </div>
+            <button type="button" class="rx-subcard-btn" onclick="if(typeof openBookingScreen==='function'){openBookingScreen(); document.getElementById('productsModal').style.display='none';}">Sepete Ekle</button>
+          </div>
+
+          <div class="rx-pm-subcard">
+            <div class="rx-subcard-icon">🌲</div>
+            <div class="rx-subcard-info">
+              <h5>İskandinav Sediri & Amber Doğal Soya Mumu (220g)</h5>
+              <p>Şömine çıtırtılı ahşap fitil ve lüks ahşap kapaklı cam kavanoz.</p>
+              <div class="rx-subcard-price">420 TL <span class="old-p">550 TL</span></div>
+            </div>
+            <button type="button" class="rx-subcard-btn" onclick="if(typeof openBookingScreen==='function'){openBookingScreen(); document.getElementById('productsModal').style.display='none';}">Sepete Ekle</button>
+          </div>
+
+          <div class="rx-pm-subcard">
+            <div class="rx-subcard-icon">🌸</div>
+            <div class="rx-subcard-info">
+              <h5>Provence Lavantası Doğal Kese & Gardırop Koruyucu</h5>
+              <p>Doğal kurutulmuş lavanta taneleriyle güve ve nem kovucu etki.</p>
+              <div class="rx-subcard-price">250 TL <span class="old-p">320 TL</span></div>
+            </div>
+            <button type="button" class="rx-subcard-btn" onclick="if(typeof openBookingScreen==='function'){openBookingScreen(); document.getElementById('productsModal').style.display='none';}">Sepete Ekle</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ❓ 1. SIKÇA SORULAN SORULAR (S.S.S.) MODALI -->
   <div class="rx-corporate-modal-overlay" id="faqModal" role="dialog" aria-modal="true" aria-labelledby="faqModalTitle" style="display:none;">
     <div class="rx-corporate-modal-card rx-faq-modal-card">
