@@ -8348,6 +8348,40 @@ function updatePriceSliderDisplay() {
     if (name) selectedExtraNames.push(count > 1 ? `${name} (${count})` : name);
   });
 
+  // Boutique Catalog Items from Side Drawer:
+  const selectedBcdCards = document.querySelectorAll('.bcd-product-card.is-selected');
+  let bcdTotal = 0;
+  let bcdCount = 0;
+  selectedBcdCards.forEach(card => {
+    const priceVal = isPl ? parseFloat(card.dataset.pricePl) : parseFloat(card.dataset.priceTr);
+    let qty = 1;
+    const qtyEl = card.querySelector('.bcd-qty-num');
+    if (qtyEl) {
+      qty = parseInt(qtyEl.textContent) || 1;
+    }
+    const itemTotal = (priceVal || 0) * qty;
+    extraSum += itemTotal;
+    bcdTotal += itemTotal;
+    bcdCount += qty;
+    const name = card.querySelector('.bcd-p-name')?.textContent || 'Butik Ürün';
+    selectedExtraNames.push(qty > 1 ? `🛍️ ${name} (${qty})` : `🛍️ ${name}`);
+  });
+
+  // Update Drawer Summary and Strip Badge:
+  const bcdSumVal = document.getElementById('bcdSummaryVal');
+  if (bcdSumVal) {
+    bcdSumVal.textContent = isPl ? `${bcdCount} Produkt (${bcdTotal.toFixed(2)} PLN)` : `${bcdCount} Ürün (+${bcdTotal.toLocaleString('tr-TR')} TL)`;
+  }
+  const wbcsSelectedBadge = document.getElementById('wbcsSelectedBadge');
+  if (wbcsSelectedBadge) {
+    if (bcdCount > 0) {
+      wbcsSelectedBadge.style.display = 'inline-flex';
+      wbcsSelectedBadge.textContent = isPl ? `🛍️ ${bcdCount} Butik Produkt (+${bcdTotal.toFixed(2)} PLN)` : `🛍️ ${bcdCount} Butik Ürün Eklendi (+${bcdTotal.toLocaleString('tr-TR')} TL)`;
+    } else {
+      wbcsSelectedBadge.style.display = 'none';
+    }
+  }
+
   // Vacuum cleaner option (+400 TL / +45 PLN)
   const vacuumChk = document.getElementById('chkVacuum');
   if (vacuumChk && vacuumChk.checked) {
@@ -9700,6 +9734,91 @@ function setupBookingReveal() {
       }
     });
   });
+
+  // 10. Wizard Boutique Catalog Strip & Side Drawer Integration
+  function initBoutiqueCatalogDrawer() {
+    const strip = document.getElementById('wizardBoutiqueCatalogStrip');
+    const btnOpen = document.getElementById('btnOpenBoutiqueCatalog');
+    const drawer = document.getElementById('boutiqueCatalogDrawer');
+    const btnClose = document.getElementById('btnCloseCatalogDrawer');
+    const backdrop = document.getElementById('bcdBackdrop');
+    const btnFinish = document.getElementById('btnBcdFinish');
+
+    function openDrawer() {
+      if (!drawer) return;
+      drawer.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    }
+
+    function closeDrawer() {
+      if (!drawer) return;
+      drawer.style.display = 'none';
+      document.body.style.overflow = '';
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    }
+
+    if (strip) strip.addEventListener('click', openDrawer);
+    if (btnOpen) btnOpen.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
+    if (btnClose) btnClose.addEventListener('click', closeDrawer);
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+    if (btnFinish) btnFinish.addEventListener('click', closeDrawer);
+
+    // Quantity controls (+ / -) in Drawer
+    const minusBtns = document.querySelectorAll('.bcd-qty-btn.bcd-minus');
+    minusBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const numEl = btn.nextElementSibling;
+        if (numEl) {
+          let val = parseInt(numEl.textContent || '1') || 1;
+          if (val > 1) {
+            numEl.textContent = val - 1;
+            updatePriceSliderDisplay();
+          }
+        }
+      });
+    });
+
+    const plusBtns = document.querySelectorAll('.bcd-qty-btn.bcd-plus');
+    plusBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const numEl = btn.previousElementSibling;
+        if (numEl) {
+          let val = parseInt(numEl.textContent || '1') || 1;
+          if (val < 10) {
+            numEl.textContent = val + 1;
+            updatePriceSliderDisplay();
+          }
+        }
+      });
+    });
+
+    // Toggle Add Product Buttons in Drawer
+    const toggleBtns = document.querySelectorAll('.btn-bcd-toggle-product');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const card = btn.closest('.bcd-product-card');
+        if (!card) return;
+        const isSelected = card.classList.toggle('is-selected');
+        btn.classList.toggle('is-added', isSelected);
+        const isPl = (STATE.language || 'tr') === 'pl';
+        const txtSpan = btn.querySelector('.btn-txt');
+
+        if (isSelected) {
+          if (txtSpan) txtSpan.textContent = isPl ? '✓ Dodano' : '✓ Temizliğe Eklendi';
+        } else {
+          if (txtSpan) txtSpan.textContent = isPl ? '+ Dodaj' : (btn.classList.contains('mini') ? '+ Ekle' : '✨ Temizliğe Ekle');
+        }
+
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+        updatePriceSliderDisplay();
+      });
+    });
+  }
+  initBoutiqueCatalogDrawer();
 
   // Phone Input Dynamic Formatting (TR: 05XX XXX XX XX / PL: XXX XXX XXX)
   const phoneInputEl = document.getElementById('cPhone');
