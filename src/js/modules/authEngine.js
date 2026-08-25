@@ -158,7 +158,7 @@ export function isStaffLoggedIn() {
 }
 
 // Customer Registration
-export function registerUser(name, email, phone, password, city = 'Istanbul', district = '', street = '') {
+export async function registerUser(name, email, phone, password, city = 'Istanbul', district = '', street = '') {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanName = (name || '').trim();
   const cleanPhone = (phone || '').trim();
@@ -171,9 +171,40 @@ export function registerUser(name, email, phone, password, city = 'Istanbul', di
 
   const users = getRegisteredUsers();
   if (users.some(u => u.email === cleanEmail)) {
-    return { success: false, message: 'Bu e-posta adresi ile kayıtlı bir müşteri hesabı zaten var.' };
+    return { success: false, message: 'Bu e-posta adresi ile kayıtlı bir müşteri hesabı zaten mevcut.' };
   }
 
+  // Attempt backend API sync
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'register',
+        role: 'customer',
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        password: cleanPass,
+        city: city,
+        district: district,
+        street: street
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success && data.user) {
+        users.push({ ...data.user, password: cleanPass, activePromo: 'HOSGELDIN15', vipScore: 100 });
+        saveRegisteredUsers(users);
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
+        updateAuthUI();
+        prefillBookingWizardWithUser();
+        return { success: true, user: data.user };
+      }
+    }
+  } catch (e) {}
+
+  // Edge / Local Fallback
   const newUser = {
     id: 'usr_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
     role: 'customer',
@@ -199,7 +230,7 @@ export function registerUser(name, email, phone, password, city = 'Istanbul', di
 }
 
 // Staff Registration / Application
-export function registerStaff(name, email, phone, password, city = 'Istanbul', district = 'Kadıköy', experience = '3 Yıl', specialties = []) {
+export async function registerStaff(name, email, phone, password, city = 'Istanbul', district = 'Kadıköy', experience = '3 Yıl', specialties = []) {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanName = (name || '').trim();
   const cleanPhone = (phone || '').trim();
@@ -214,6 +245,35 @@ export function registerStaff(name, email, phone, password, city = 'Istanbul', d
   if (staffList.some(s => s.email === cleanEmail)) {
     return { success: false, message: 'Bu e-posta adresi ile kayıtlı bir çalışan hesabı zaten var.' };
   }
+
+  // Attempt backend API sync
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'staff-register',
+        role: 'staff',
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        password: cleanPass,
+        city: city,
+        district: district,
+        experience: experience
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success && data.user) {
+        staffList.push({ ...data.user, password: cleanPass, todayEarnings: 0, completedJobs: 0 });
+        saveRegisteredStaff(staffList);
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
+        updateAuthUI();
+        return { success: true, user: data.user };
+      }
+    }
+  } catch (e) {}
 
   const newStaff = {
     id: 'staff_' + Date.now().toString(36),
@@ -242,7 +302,7 @@ export function registerStaff(name, email, phone, password, city = 'Istanbul', d
 }
 
 // Universal Login (Customer or Staff)
-export function loginUser(email, password, rememberMe = true, expectedRole = 'any') {
+export async function loginUser(email, password, rememberMe = true, expectedRole = 'any') {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
 
@@ -250,7 +310,7 @@ export function loginUser(email, password, rememberMe = true, expectedRole = 'an
     return { success: false, message: 'Lütfen e-posta ve şifrenizi giriniz.' };
   }
 
-  // Check Staff First if expectedRole is staff or any
+  // 1. Check Staff
   if (expectedRole === 'staff' || expectedRole === 'any') {
     const staffList = getRegisteredStaff();
     const foundStaff = staffList.find(s => s.email === cleanEmail && s.password === cleanPass);
@@ -262,7 +322,7 @@ export function loginUser(email, password, rememberMe = true, expectedRole = 'an
     }
   }
 
-  // Check Customers
+  // 2. Check Customers
   if (expectedRole === 'customer' || expectedRole === 'any') {
     const users = getRegisteredUsers();
     const foundUser = users.find(u => u.email === cleanEmail && u.password === cleanPass);
@@ -274,6 +334,30 @@ export function loginUser(email, password, rememberMe = true, expectedRole = 'an
       return { success: true, user: foundUser, role: 'customer' };
     }
   }
+
+  // 3. Attempt Server API Verification
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'login',
+        role: expectedRole,
+        email: cleanEmail,
+        password: cleanPass
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success && data.user) {
+        if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
+        else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
+        updateAuthUI();
+        if (data.user.role === 'customer') prefillBookingWizardWithUser();
+        return { success: true, user: data.user, role: data.user.role };
+      }
+    }
+  } catch (e) {}
 
   return { success: false, message: 'E-posta veya şifre hatalı. Lütfen kontrol ediniz.' };
 }
@@ -825,34 +909,29 @@ export function initAuthEngine() {
   document.getElementById('linkGoToStaffApply')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('staff_apply'); });
   document.getElementById('linkGoToStaffLogin')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('staff_login'); });
 
-  // Quick Staff Demo Login Preset Buttons
-  document.getElementById('btnQuickStaffDemo1')?.addEventListener('click', () => {
-    const emailEl = document.getElementById('staffLoginEmail');
-    const passEl = document.getElementById('staffLoginPassword');
-    if (emailEl) emailEl.value = 'uzman@relaxax.com';
-    if (passEl) passEl.value = '123456';
-    document.getElementById('btnSubmitStaffLogin')?.click();
-  });
-
-  document.getElementById('btnQuickStaffDemo2')?.addEventListener('click', () => {
-    const emailEl = document.getElementById('staffLoginEmail');
-    const passEl = document.getElementById('staffLoginPassword');
-    if (emailEl) emailEl.value = 'mehmet.uzman@relaxax.com';
-    if (passEl) passEl.value = '123456';
-    document.getElementById('btnSubmitStaffLogin')?.click();
-  });
-
   // Customer Login Form Submission
   const loginForm = document.getElementById('authLoginForm');
   const loginFeedback = document.getElementById('authLoginFeedback');
+  const btnSubmitLogin = document.getElementById('btnSubmitLogin');
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail')?.value;
       const pass = document.getElementById('loginPassword')?.value;
       const remember = document.getElementById('loginRememberMe')?.checked ?? true;
 
-      const res = loginUser(email, pass, remember, 'customer');
+      if (btnSubmitLogin) {
+        btnSubmitLogin.disabled = true;
+        btnSubmitLogin.innerHTML = '<span>Giriş yapılıyor... ⏳</span>';
+      }
+
+      const res = await loginUser(email, pass, remember, 'customer');
+
+      if (btnSubmitLogin) {
+        btnSubmitLogin.disabled = false;
+        btnSubmitLogin.innerHTML = '<span>Giriş Yap ➔</span>';
+      }
+
       if (res.success) {
         if (loginFeedback) {
           loginFeedback.style.display = 'block';
@@ -876,14 +955,26 @@ export function initAuthEngine() {
   // Staff Login Form Submission
   const staffLoginForm = document.getElementById('authStaffLoginForm');
   const staffLoginFeedback = document.getElementById('authStaffLoginFeedback');
+  const btnSubmitStaffLogin = document.getElementById('btnSubmitStaffLogin');
   if (staffLoginForm) {
-    staffLoginForm.addEventListener('submit', (e) => {
+    staffLoginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('staffLoginEmail')?.value;
       const pass = document.getElementById('staffLoginPassword')?.value;
       const remember = document.getElementById('staffLoginRememberMe')?.checked ?? true;
 
-      const res = loginUser(email, pass, remember, 'staff');
+      if (btnSubmitStaffLogin) {
+        btnSubmitStaffLogin.disabled = true;
+        btnSubmitStaffLogin.innerHTML = '<span>Uzman Paneli Doğrulanıyor... ⏳</span>';
+      }
+
+      const res = await loginUser(email, pass, remember, 'staff');
+
+      if (btnSubmitStaffLogin) {
+        btnSubmitStaffLogin.disabled = false;
+        btnSubmitStaffLogin.innerHTML = '<span>Uzman Paneline Giriş Yap ➔</span>';
+      }
+
       if (res.success) {
         if (staffLoginFeedback) {
           staffLoginFeedback.style.display = 'block';
@@ -907,8 +998,9 @@ export function initAuthEngine() {
   // Customer Register Form
   const registerForm = document.getElementById('authRegisterForm');
   const regFeedback = document.getElementById('authRegisterFeedback');
+  const btnSubmitRegister = document.getElementById('btnSubmitRegister');
   if (registerForm) {
-    registerForm.addEventListener('submit', (e) => {
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('regName')?.value;
       const email = document.getElementById('regEmail')?.value;
@@ -926,7 +1018,18 @@ export function initAuthEngine() {
         return;
       }
 
-      const res = registerUser(name, email, phone, pass, city);
+      if (btnSubmitRegister) {
+        btnSubmitRegister.disabled = true;
+        btnSubmitRegister.innerHTML = '<span>Hesabınız Oluşturuluyor... ⏳</span>';
+      }
+
+      const res = await registerUser(name, email, phone, pass, city);
+
+      if (btnSubmitRegister) {
+        btnSubmitRegister.disabled = false;
+        btnSubmitRegister.innerHTML = '<span>Hesabımı Oluştur & Giriş Yap ➔</span>';
+      }
+
       if (res.success) {
         if (regFeedback) {
           regFeedback.style.display = 'block';
@@ -950,8 +1053,9 @@ export function initAuthEngine() {
   // Staff Application / Register Form
   const staffApplyForm = document.getElementById('authStaffApplyForm');
   const staffApplyFeedback = document.getElementById('authStaffApplyFeedback');
+  const btnSubmitStaffApply = document.getElementById('btnSubmitStaffApply');
   if (staffApplyForm) {
-    staffApplyForm.addEventListener('submit', (e) => {
+    staffApplyForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('staffRegName')?.value;
       const email = document.getElementById('staffRegEmail')?.value;
@@ -961,7 +1065,18 @@ export function initAuthEngine() {
       const district = document.getElementById('staffRegDistrict')?.value || 'Kadıköy';
       const exp = document.getElementById('staffRegExp')?.value || '3 Yıl';
 
-      const res = registerStaff(name, email, phone, pass, city, district, exp);
+      if (btnSubmitStaffApply) {
+        btnSubmitStaffApply.disabled = true;
+        btnSubmitStaffApply.innerHTML = '<span>Uzman Kaydı Yapılıyor... ⏳</span>';
+      }
+
+      const res = await registerStaff(name, email, phone, pass, city, district, exp);
+
+      if (btnSubmitStaffApply) {
+        btnSubmitStaffApply.disabled = false;
+        btnSubmitStaffApply.innerHTML = '<span>Personel Kaydımı Tamamla & Başla ➔</span>';
+      }
+
       if (res.success) {
         if (staffApplyFeedback) {
           staffApplyFeedback.style.display = 'block';

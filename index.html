@@ -3610,24 +3610,11 @@
           <form id="authStaffLoginForm" class="auth-form" onsubmit="return false;">
             <div id="authStaffLoginFeedback" class="auth-feedback" style="display:none;"></div>
 
-            <!-- Demo Quick Test Presets -->
-            <div class="staff-quick-presets">
-              <span class="sqp-title">⚡ Hızlı Test / Demo Personel Girişi:</span>
-              <div class="sqp-buttons">
-                <button type="button" class="btn-quick-staff-demo" id="btnQuickStaffDemo1">
-                  <span>🧹 Ayşe K. (Kıdemli Uzman - Kadıköy)</span>
-                </button>
-                <button type="button" class="btn-quick-staff-demo" id="btnQuickStaffDemo2">
-                  <span>✨ Mehmet D. (Hijyen Şefi - Sarıyer)</span>
-                </button>
-              </div>
-            </div>
-
             <div class="auth-field-group">
               <label for="staffLoginEmail">Personel E-posta Adresi *</label>
               <div class="auth-input-wrap">
                 <span class="auth-input-icon">💼</span>
-                <input type="email" id="staffLoginEmail" placeholder="uzman@relaxax.com" required />
+                <input type="email" id="staffLoginEmail" placeholder="ornek@relaxax.com" required autocomplete="email" />
               </div>
             </div>
 
@@ -3635,7 +3622,7 @@
               <label for="staffLoginPassword">Personel Şifresi *</label>
               <div class="auth-input-wrap">
                 <span class="auth-input-icon">🔒</span>
-                <input type="password" id="staffLoginPassword" placeholder="••••••••" required />
+                <input type="password" id="staffLoginPassword" placeholder="••••••••" required autocomplete="current-password" />
                 <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
               </div>
             </div>
