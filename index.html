@@ -3405,13 +3405,16 @@
         <button type="button" class="rx-cmodal-close-btn" id="btnCloseAuthModal" aria-label="Kapat">✕</button>
       </div>
 
-      <!-- Multi-Role Switcher (Müşteri vs Çalışan) -->
+      <!-- Multi-Role Switcher (Müşteri vs Çalışan vs Yönetici) -->
       <div class="auth-role-switcher-wrap">
         <button type="button" class="btn-role-switch active" id="btnRoleSelectCustomer">
           <span>👤 Müşteri Portalı</span>
         </button>
         <button type="button" class="btn-role-switch" id="btnRoleSelectStaff">
-          <span>🧹 Temizlik Uzmanı / Çalışan</span>
+          <span>🧹 Temizlik Uzmanı</span>
+        </button>
+        <button type="button" class="btn-role-switch" id="btnRoleSelectAdmin">
+          <span>👑 Yönetici / Admin</span>
         </button>
       </div>
 
@@ -3437,6 +3440,14 @@
         </button>
         <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffDashBtn" style="display:none;">
           <span>📋 Görev & Kazanç Paneli</span>
+        </button>
+
+        <!-- Admin Tabs -->
+        <button type="button" class="auth-tab-btn admin-only-tab" id="tabAuthAdminLoginBtn" style="display:none;">
+          <span>👑 Yetkili Girişi</span>
+        </button>
+        <button type="button" class="auth-tab-btn admin-only-tab" id="tabAuthAdminDashBtn" style="display:none;">
+          <span>🛍️ Ürün & Katalog Paneli</span>
         </button>
       </div>
 
@@ -3982,6 +3993,182 @@
               <span class="psh-desc">Tamamladığınız ve müşteri memnuniyeti onaylanan geçmiş temizlikler.</span>
             </div>
             <div class="staff-history-list" id="staffHistoryList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================
+             7. 👑 YÖNETİCİ / ADMIN GİRİŞ PANE
+             ========================================== -->
+        <div class="auth-pane" id="paneAuthAdminLogin" style="display:none;">
+          <form id="authAdminLoginForm" class="auth-form" onsubmit="return false;">
+            <div id="authAdminLoginFeedback" class="auth-feedback" style="display:none;"></div>
+
+            <div class="auth-welcome-banner admin-banner">
+              <span class="aw-icon">👑</span>
+              <div class="aw-text">
+                <strong>RELAXAX Yönetim Paneli Girişi</strong>
+                <span>Ürün ve hizmet kataloğunu yönetin, stok durumunu belirleyin ve siparişleri takip edin.</span>
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <label for="adminLoginEmail">Yönetici E-posta Adresi *</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🛡️</span>
+                <input type="email" id="adminLoginEmail" placeholder="admin@relaxax.com" required autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="auth-field-group">
+              <label for="adminLoginPassword">Yönetici Şifresi *</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" id="adminLoginPassword" placeholder="••••••••" required autocomplete="current-password" />
+                <button type="button" class="btn-toggle-pwd-visibility" aria-label="Şifreyi Göster">👁️</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-auth-submit btn-admin-submit" id="btnSubmitAdminLogin">
+              <span>Yönetim Paneline Giriş Yap ➔</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- ==========================================
+             8. 👑 YÖNETİCİ / ADMIN ÜRÜN & KATALOG PANELİ
+             ========================================== -->
+        <div class="auth-pane" id="paneAuthAdminDashboard" style="display:none;">
+          <!-- Admin Header -->
+          <div class="admin-dashboard-header">
+            <div class="adh-top">
+              <div class="adh-avatar">👑</div>
+              <div class="adh-meta">
+                <div class="adh-name-row">
+                  <h4 id="adminProfileName">Sistem Yöneticisi</h4>
+                  <span class="badge-admin-role">YÖNETİCİ / FULL ACCESS</span>
+                </div>
+                <span id="adminProfileEmail" class="adh-sub">admin@relaxax.com | Yetkili Katalog Yönetim Masası</span>
+              </div>
+              <button type="button" class="btn-logout-user" id="btnLogoutAdmin">Çıkış</button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="admin-stats-grid">
+              <div class="admin-stat-card">
+                <span class="asc-lbl">📦 Toplam Ürün & Hizmet</span>
+                <strong class="asc-val" id="adminTotalProducts">12 Öğe</strong>
+              </div>
+              <div class="admin-stat-card">
+                <span class="asc-lbl">🟢 Satışta / Aktif</span>
+                <strong class="asc-val" id="adminInStockCount" style="color: #34d399;">11 Ürün</strong>
+              </div>
+              <div class="admin-stat-card">
+                <span class="asc-lbl">🔴 Tükendi (Stokta Yok)</span>
+                <strong class="asc-val" id="adminOutOfStockCount" style="color: #f87171;">1 Ürün</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Sub Tabs Navigation -->
+          <div class="portal-subnav admin-subnav">
+            <button type="button" class="portal-subnav-btn active" data-target="adminSubTabCatalog">
+              <span>🛍️ Ürün & Hizmet Kataloğu</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabAddProduct">
+              <span>➕ Yeni Ürün / Hizmet Ekle</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabAllOrders">
+              <span>📋 Canlı Sipariş Akışı</span>
+            </button>
+          </div>
+
+          <!-- Admin Sub Tab 1: Catalog List with Stock Toggles -->
+          <div class="portal-subtab-pane active" id="adminSubTabCatalog">
+            <div class="sd-section-header">
+              <h5>🛍️ Canlı Ürün & Hizmet Kataloğu Yönetimi</h5>
+              <span class="psh-desc">Sitede ve rezervasyon sihirbazında yer alan ürünlerin durumunu anında <strong>"Stokta Var / Stokta Yok"</strong> yapabilir, fiyatını düzenleyebilir veya silebilirsiniz.</span>
+            </div>
+            <div class="admin-catalog-table-wrap" id="adminCatalogTableWrap">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+          </div>
+
+          <!-- Admin Sub Tab 2: Add New Product / Service -->
+          <div class="portal-subtab-pane" id="adminSubTabAddProduct" style="display:none;">
+            <div class="sd-section-header">
+              <h5>➕ Yeni Ürün / Ek Hizmet Tanımla</h5>
+              <span class="psh-desc">Eklediğiniz yeni butik ürün veya temizlik hizmeti sitede ve rezervasyon formunda anında yayınlanır.</span>
+            </div>
+            <form id="formAdminAddProduct" onsubmit="return false;" class="subform-grid">
+              <div id="adminAddProductFeedback" class="auth-feedback" style="display:none;"></div>
+              
+              <div class="auth-field-group">
+                <label for="newProdKey">Benzersiz Ürün Kodu (ID) *</label>
+                <input type="text" id="newProdKey" placeholder="Örn: lavanta_hediye_seti" required />
+              </div>
+
+              <div class="auth-field-group">
+                <label for="newProdCategory">Kategori *</label>
+                <select id="newProdCategory" class="auth-select">
+                  <option value="boutique">🛍️ Butik Hediyelik Ürün</option>
+                  <option value="extra_cleaning">🧹 Ekstra Temizlik Hizmeti</option>
+                  <option value="vip_care">💎 VIP Derin Bakım</option>
+                </select>
+              </div>
+
+              <div class="auth-field-group full-width">
+                <label for="newProdTitle">Ürün / Hizmet Başlığı *</label>
+                <input type="text" id="newProdTitle" placeholder="Örn: Lavanta & Gül Doğal Aromaterapi Seti" required />
+              </div>
+
+              <div class="auth-field-group">
+                <label for="newProdPriceTR">Satış Fiyatı (TL) *</label>
+                <input type="number" id="newProdPriceTR" placeholder="490" required />
+              </div>
+
+              <div class="auth-field-group">
+                <label for="newProdOldPriceTR">İndirimsiz Eski Fiyat (TL)</label>
+                <input type="number" id="newProdOldPriceTR" placeholder="650" />
+              </div>
+
+              <div class="auth-field-group">
+                <label for="newProdPricePL">Satış Fiyatı (PLN - Polonya)</label>
+                <input type="number" id="newProdPricePL" placeholder="59" />
+              </div>
+
+              <div class="auth-field-group">
+                <label for="newProdStockStatus">Başlangıç Stok Durumu *</label>
+                <select id="newProdStockStatus" class="auth-select">
+                  <option value="in_stock">🟢 Stokta Var (Satışa Açık)</option>
+                  <option value="out_of_stock">🔴 Stokta Yok (Tükendi)</option>
+                </select>
+              </div>
+
+              <div class="auth-field-group full-width">
+                <label for="newProdImage">Görsel Yolu (URL / Path)</label>
+                <input type="text" id="newProdImage" placeholder="/images/product_rose_gift_box.webp" value="/images/product_rose_gift_box.webp" />
+              </div>
+
+              <div class="auth-field-group full-width">
+                <label for="newProdDesc">Kısa Açıklama / Özellikler</label>
+                <textarea id="newProdDesc" rows="2" placeholder="Özel tasarım el yapımı aromaterapi ve çiçek kutusu..."></textarea>
+              </div>
+
+              <button type="submit" class="btn-save-address" id="btnSubmitAddProduct">
+                <span>🚀 Ürünü Kaydet & Anında Yayına Al</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Admin Sub Tab 3: All Live Orders -->
+          <div class="portal-subtab-pane" id="adminSubTabAllOrders" style="display:none;">
+            <div class="sd-section-header">
+              <h5>📋 Tüm Canlı Müşteri Siparişleri & Durumları</h5>
+              <span class="psh-desc">Sistemdeki tüm rezervasyonlar, atanan personeller ve canlı lokasyon takibi.</span>
+            </div>
+            <div class="admin-orders-list" id="adminAllOrdersList">
               <!-- Dynamically populated -->
             </div>
           </div>

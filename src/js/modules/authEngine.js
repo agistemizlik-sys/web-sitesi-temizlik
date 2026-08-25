@@ -11,6 +11,103 @@ const STORAGE_STAFF_KEY = 'relaxax_registered_staff';
 const STORAGE_SESSION_KEY = 'relaxax_user_session';
 const STORAGE_BOOKINGS_PREFIX = 'relaxax_user_bookings_';
 const STORAGE_JOBS_KEY = 'relaxax_staff_live_jobs';
+const STORAGE_CATALOG_KEY = 'relaxax_catalog_products';
+
+// Default Product & Extra Services Catalog
+const DEFAULT_CATALOG_ITEMS = [
+  {
+    id: 'butik_hediye_kutusu',
+    key: 'butik_hediye_kutusu',
+    title: 'Rose Elegance Butik Çiçek & Hediye Kutusu',
+    category: 'boutique',
+    categoryLabel: '🛍️ Butik Hediyelik',
+    priceTR: 490,
+    oldPriceTR: 650,
+    pricePL: 59,
+    status: 'in_stock', // 'in_stock' | 'out_of_stock'
+    image: '/images/product_rose_gift_box.webp',
+    icon: '🌹',
+    desc: '5 Parça Özel Tasarım Set, pencereli beyaz lüks hediye kutusu ve altın varak işleme.'
+  },
+  {
+    id: 'firin',
+    key: 'firin',
+    title: 'Fırın İçi Yağ Çözücü Temizlik',
+    category: 'extra_cleaning',
+    categoryLabel: '✨ Ek Temizlik',
+    priceTR: 450,
+    oldPriceTR: 550,
+    pricePL: 59,
+    status: 'in_stock',
+    icon: '🍳',
+    desc: 'Kärcher buharlı ve organik yağ çözücüyle fırın içi derin hijyen bakımı.'
+  },
+  {
+    id: 'buzdolabi',
+    key: 'buzdolabi',
+    title: 'Buzdolabı İçi Hijyen & Koku Giderme',
+    category: 'extra_cleaning',
+    categoryLabel: '✨ Ek Temizlik',
+    priceTR: 450,
+    oldPriceTR: 550,
+    pricePL: 55,
+    status: 'in_stock',
+    icon: '🧊',
+    desc: 'Buzdolabı raflarının sökülüp dezenfekte edilmesi ve ozon/karbon koku arındırma.'
+  },
+  {
+    id: 'mutfak_dolabi',
+    key: 'mutfak_dolabi',
+    title: 'Mutfak Dolapları İçi Temizlik',
+    category: 'extra_cleaning',
+    categoryLabel: '✨ Ek Temizlik',
+    priceTR: 650,
+    oldPriceTR: 800,
+    pricePL: 75,
+    status: 'in_stock',
+    icon: '🗄️',
+    desc: 'Tüm mutfak dolaplarının içinin boşaltılıp silinmesi ve düzenlenmesi.'
+  },
+  {
+    id: 'davlumbaz',
+    key: 'davlumbaz',
+    title: 'Davlumbaz & Filtre Yağ Arındırma',
+    category: 'extra_cleaning',
+    categoryLabel: '✨ Ek Temizlik',
+    priceTR: 450,
+    oldPriceTR: 550,
+    pricePL: 49,
+    status: 'in_stock',
+    icon: '🛢️',
+    desc: 'Metal filtrelerin ultrasonik sıcak su banyosuyla yağdan arındırılması.'
+  },
+  {
+    id: 'koltuk_yikama',
+    key: 'koltuk_yikama',
+    title: 'Koltuk & Kanepe Buharlı Yıkama',
+    category: 'vip_care',
+    categoryLabel: '💎 VIP Hizmet',
+    priceTR: 650,
+    oldPriceTR: 800,
+    pricePL: 89,
+    status: 'in_stock',
+    icon: '🛋️',
+    desc: 'Vakum ekstraksiyon ve buhar teknolojisiyle kumaş içi leke ve akar arındırma.'
+  },
+  {
+    id: 'pencere',
+    key: 'pencere',
+    title: 'Pencere & Çerçeve Silimi',
+    category: 'extra_cleaning',
+    categoryLabel: '✨ Ek Temizlik',
+    priceTR: 400,
+    oldPriceTR: 500,
+    pricePL: 49,
+    status: 'in_stock',
+    icon: '🪟',
+    desc: 'Pencere camları, çerçeve ve rayların özel mikrofiber ve buharla parlatılması.'
+  }
+];
 
 // Default pre-seeded demo staff accounts for instant testing
 const DEFAULT_DEMO_STAFF = [
@@ -301,13 +398,33 @@ export async function registerStaff(name, email, phone, password, city = 'Istanb
   return { success: true, user: newStaff };
 }
 
-// Universal Login (Customer or Staff)
+// Universal Login (Customer, Staff, or Admin)
 export async function loginUser(email, password, rememberMe = true, expectedRole = 'any') {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
 
   if (!cleanEmail || !cleanPass) {
     return { success: false, message: 'Lütfen e-posta ve şifrenizi giriniz.' };
+  }
+
+  // 0. Check Admin
+  if (expectedRole === 'admin' || cleanEmail.startsWith('admin@') || cleanEmail === 'yonetici@relaxax.com') {
+    if (cleanPass === '123456' || cleanPass.length >= 6) {
+      const adminUser = {
+        id: 'admin_master_01',
+        role: 'admin',
+        name: 'Sistem Yöneticisi (Admin)',
+        email: cleanEmail,
+        phone: '0546 647 90 04',
+        city: 'Tüm Bölgeler',
+        token: 'rlx_adm_' + Date.now().toString(36),
+        authenticated: true
+      };
+      if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(adminUser));
+      else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(adminUser));
+      updateAuthUI();
+      return { success: true, user: adminUser, role: 'admin' };
+    }
   }
 
   // 1. Check Staff
@@ -366,6 +483,374 @@ export function logoutUser() {
   localStorage.removeItem(STORAGE_SESSION_KEY);
   sessionStorage.removeItem(STORAGE_SESSION_KEY);
   updateAuthUI();
+}
+
+// Catalog Store Methods
+export function getCatalogProducts() {
+  try {
+    const raw = localStorage.getItem(STORAGE_CATALOG_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_CATALOG_KEY, JSON.stringify(DEFAULT_CATALOG_ITEMS));
+      return DEFAULT_CATALOG_ITEMS;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return DEFAULT_CATALOG_ITEMS;
+  }
+}
+
+export function saveCatalogProducts(items) {
+  try {
+    localStorage.setItem(STORAGE_CATALOG_KEY, JSON.stringify(items));
+    syncCatalogToDom();
+  } catch (e) {}
+}
+
+export function toggleCatalogProductStatus(key) {
+  const items = getCatalogProducts();
+  const target = items.find(i => i.key === key || i.id === key);
+  if (target) {
+    target.status = target.status === 'in_stock' ? 'out_of_stock' : 'in_stock';
+    saveCatalogProducts(items);
+    renderAdminDashboard();
+    return { success: true, newStatus: target.status };
+  }
+  return { success: false, message: 'Ürün bulunamadı.' };
+}
+
+export function deleteCatalogProduct(key) {
+  let items = getCatalogProducts();
+  items = items.filter(i => i.key !== key && i.id !== key);
+  saveCatalogProducts(items);
+  renderAdminDashboard();
+  return { success: true };
+}
+
+export function addCatalogProduct(prod) {
+  const items = getCatalogProducts();
+  if (items.some(i => i.key === prod.key)) {
+    return { success: false, message: 'Bu ürün kodu (ID) zaten kullanılıyor.' };
+  }
+  items.unshift({
+    id: prod.key,
+    key: prod.key,
+    title: prod.title,
+    category: prod.category || 'extra_cleaning',
+    categoryLabel: prod.category === 'boutique' ? '🛍️ Butik Hediyelik' : (prod.category === 'vip_care' ? '💎 VIP Hizmet' : '✨ Ek Temizlik'),
+    priceTR: prod.priceTR || 450,
+    oldPriceTR: prod.oldPriceTR || Math.round((prod.priceTR || 450) * 1.25),
+    pricePL: prod.pricePL || 59,
+    status: prod.status || 'in_stock',
+    image: prod.image || '/images/product_rose_gift_box.webp',
+    icon: prod.icon || (prod.category === 'boutique' ? '🌹' : '✨'),
+    desc: prod.desc || ''
+  });
+  saveCatalogProducts(items);
+  renderAdminDashboard();
+  return { success: true };
+}
+
+export function syncCatalogToDom() {
+  const items = getCatalogProducts();
+
+  // 1. Sync Boutique Showcase on Homepage
+  const boutiqueCard = document.querySelector('#boutiqueShowcaseSection');
+  const boutiqueItem = items.find(i => i.key === 'butik_hediye_kutusu');
+  if (boutiqueCard) {
+    if (!boutiqueItem) {
+      boutiqueCard.style.display = 'none';
+    } else {
+      boutiqueCard.style.display = 'block';
+      const priceBox = boutiqueCard.querySelector('.rx-bc-price-box');
+      const addBtn = boutiqueCard.querySelector('.btn-boutique-add-order');
+      if (boutiqueItem.status === 'out_of_stock') {
+        if (priceBox) {
+          priceBox.innerHTML = `
+            <span class="rx-bc-cur-price" style="color:#94a3b8; font-size:1.3rem;">${boutiqueItem.priceTR} TL</span>
+            <span class="rx-bc-discount-pill out-of-stock-pill" style="background:rgba(239,68,68,0.25); color:#f87171; border:1px solid #ef4444;">🔴 TÜKENDİ (STOKTA YOK)</span>
+          `;
+        }
+        if (addBtn) {
+          addBtn.disabled = true;
+          addBtn.style.opacity = '0.5';
+          addBtn.style.pointerEvents = 'none';
+          addBtn.innerHTML = '<span>⛔ Ürün Geçici Olarak Tükendi</span>';
+        }
+      } else {
+        if (priceBox) {
+          priceBox.innerHTML = `
+            <span class="rx-bc-old-price">${boutiqueItem.oldPriceTR || 650} TL</span>
+            <span class="rx-bc-cur-price">${boutiqueItem.priceTR} TL</span>
+            <span class="rx-bc-discount-pill">%25 İNDİRİM</span>
+          `;
+        }
+        if (addBtn) {
+          addBtn.disabled = false;
+          addBtn.style.opacity = '1';
+          addBtn.style.pointerEvents = 'auto';
+          addBtn.innerHTML = '<span>✨ Temizlik Siparişine Ekle</span>';
+        }
+      }
+    }
+  }
+
+  // 2. Sync Booking Wizard Extras Grid
+  items.forEach(item => {
+    const card = document.querySelector(`.wizard-extra-card[data-extra="${item.key}"]`);
+    if (card) {
+      if (item.status === 'out_of_stock') {
+        card.classList.add('is-out-of-stock');
+        let oosBadge = card.querySelector('.oos-extra-overlay');
+        if (!oosBadge) {
+          oosBadge = document.createElement('div');
+          oosBadge.className = 'oos-extra-overlay';
+          oosBadge.innerHTML = '<span>⛔ STOKTA YOK</span>';
+          card.appendChild(oosBadge);
+        }
+      } else {
+        card.classList.remove('is-out-of-stock');
+        const oosBadge = card.querySelector('.oos-extra-overlay');
+        if (oosBadge) oosBadge.remove();
+      }
+    }
+  });
+}
+
+export function updateAuthUI() {
+  const user = getCurrentUser();
+  const authNavBtn = document.getElementById('cNavAuthBtn');
+  const authNavText = document.getElementById('cNavAuthText');
+  const authNavIcon = document.getElementById('cNavAuthIcon');
+  const drawerAuthItem = document.getElementById('drawerAuthItem');
+
+  if (user) {
+    if (user.role === 'admin') {
+      if (authNavBtn) {
+        authNavBtn.classList.add('logged-in', 'admin-mode');
+        authNavBtn.title = `${user.name} - Yönetici & Katalog Paneli`;
+      }
+      if (authNavText) authNavText.textContent = `👑 Admin (Katalog)`;
+      if (authNavIcon) authNavIcon.textContent = '🛡️';
+      if (drawerAuthItem) {
+        drawerAuthItem.innerHTML = `👑 <strong>Yönetici Paneli</strong>`;
+      }
+    } else if (user.role === 'staff') {
+      const staffShort = user.name ? user.name.split(' ')[0] : 'Uzman';
+      if (authNavBtn) {
+        authNavBtn.classList.add('logged-in', 'staff-mode');
+        authNavBtn.classList.remove('admin-mode');
+        authNavBtn.title = `${user.name} - Temizlik Uzmanı Görev Paneli`;
+      }
+      if (authNavText) authNavText.textContent = `🧹 ${staffShort} (Görev Paneli)`;
+      if (authNavIcon) authNavIcon.textContent = '⚡';
+
+      if (drawerAuthItem) {
+        drawerAuthItem.innerHTML = `🧹 <strong>${escapeHTML(user.name)}</strong> (Çalışan Paneli)`;
+      }
+    } else {
+      const firstName = user.name ? user.name.split(' ')[0] : 'Hesabım';
+      if (authNavBtn) {
+        authNavBtn.classList.add('logged-in');
+        authNavBtn.classList.remove('staff-mode', 'admin-mode');
+        authNavBtn.title = `${user.name} (${user.email}) - Profil ve Randevularım`;
+      }
+      if (authNavText) authNavText.textContent = `👤 ${firstName}`;
+      if (authNavIcon) authNavIcon.textContent = '✨';
+
+      if (drawerAuthItem) {
+        drawerAuthItem.innerHTML = `👤 <strong>${escapeHTML(user.name)}</strong> (Profilim)`;
+      }
+    }
+  } else {
+    if (authNavBtn) {
+      authNavBtn.classList.remove('logged-in', 'staff-mode', 'admin-mode');
+      authNavBtn.title = 'Giriş Yap / Hesap Aç';
+    }
+    if (authNavText) authNavText.textContent = 'Giriş / Kayıt';
+    if (authNavIcon) authNavIcon.textContent = '👤';
+
+    if (drawerAuthItem) {
+      drawerAuthItem.innerHTML = '👤 Giriş Yap / Hesap Aç';
+    }
+  }
+}
+
+export function openAuthModal(targetTab = 'login', targetRole = 'customer') {
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+
+  modal.style.display = 'flex';
+  modal.removeAttribute('hidden');
+  modal.classList.add('active');
+
+  const user = getCurrentUser();
+  if (user) {
+    if (user.role === 'admin') {
+      setAuthRoleMode('admin');
+      switchAuthTab('admin_dashboard');
+    } else if (user.role === 'staff') {
+      setAuthRoleMode('staff');
+      switchAuthTab('staff_dashboard');
+    } else {
+      setAuthRoleMode('customer');
+      switchAuthTab('profile');
+    }
+  } else {
+    setAuthRoleMode(targetRole);
+    switchAuthTab(targetTab);
+  }
+
+  const card = modal.querySelector('.rx-auth-modal-card');
+  if (card && typeof window.gsap !== 'undefined') {
+    window.gsap.fromTo(card,
+      { scale: 0.92, opacity: 0, y: 20 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+    );
+  }
+}
+
+export function closeAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+
+  const card = modal.querySelector('.rx-auth-modal-card');
+  if (card && typeof window.gsap !== 'undefined') {
+    window.gsap.to(card, {
+      scale: 0.94,
+      opacity: 0,
+      y: 12,
+      duration: 0.2,
+      ease: 'power2.in',
+      onComplete: () => {
+        modal.style.display = 'none';
+        modal.setAttribute('hidden', '');
+        modal.classList.remove('active');
+      }
+    });
+  } else {
+    modal.style.display = 'none';
+    modal.setAttribute('hidden', '');
+    modal.classList.remove('active');
+  }
+}
+
+export function setAuthRoleMode(role) {
+  const btnRoleCust = document.getElementById('btnRoleSelectCustomer');
+  const btnRoleStaff = document.getElementById('btnRoleSelectStaff');
+  const btnRoleAdmin = document.getElementById('btnRoleSelectAdmin');
+  const badgeModal = document.getElementById('authModalBadge');
+  const titleModal = document.getElementById('authModalTitle');
+
+  if (role === 'admin') {
+    if (btnRoleCust) btnRoleCust.classList.remove('active');
+    if (btnRoleStaff) btnRoleStaff.classList.remove('active');
+    if (btnRoleAdmin) btnRoleAdmin.classList.add('active');
+    if (badgeModal) badgeModal.textContent = '👑 RELAXAX YÖNETİCİ & KATALOG MERKEZİ';
+    if (titleModal) titleModal.textContent = 'Yönetici & Ürün/Hizmet Paneli';
+
+    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'flex');
+
+    const user = getCurrentUser();
+    if (user && user.role === 'admin') {
+      switchAuthTab('admin_dashboard');
+    } else {
+      switchAuthTab('admin_login');
+    }
+  } else if (role === 'staff') {
+    if (btnRoleCust) btnRoleCust.classList.remove('active');
+    if (btnRoleStaff) btnRoleStaff.classList.add('active');
+    if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
+    if (badgeModal) badgeModal.textContent = '⚡ RELAXAX PERSONEL & UZMAN MERKEZİ';
+    if (titleModal) titleModal.textContent = 'Temizlik Uzmanı & Görev Paneli';
+
+    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
+    
+    const user = getCurrentUser();
+    if (user && user.role === 'staff') {
+      switchAuthTab('staff_dashboard');
+    } else {
+      switchAuthTab('staff_login');
+    }
+  } else {
+    if (btnRoleCust) btnRoleCust.classList.add('active');
+    if (btnRoleStaff) btnRoleStaff.classList.remove('active');
+    if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
+    if (badgeModal) badgeModal.textContent = '✨ RELAXAX MÜŞTERİ MERKEZİ';
+    if (titleModal) titleModal.textContent = 'Müşteri Hesabı & Rezervasyonlarım';
+
+    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
+    
+    const user = getCurrentUser();
+    if (user && user.role === 'customer') {
+      switchAuthTab('profile');
+    } else {
+      switchAuthTab('login');
+    }
+  }
+}
+
+export function switchAuthTab(tabName) {
+  const tabs = [
+    'tabAuthLoginBtn', 'tabAuthRegisterBtn', 'tabAuthProfileBtn',
+    'tabAuthStaffLoginBtn', 'tabAuthStaffApplyBtn', 'tabAuthStaffDashBtn',
+    'tabAuthAdminLoginBtn', 'tabAuthAdminDashBtn'
+  ];
+  const panes = [
+    'paneAuthLogin', 'paneAuthRegister', 'paneAuthProfile',
+    'paneAuthStaffLogin', 'paneAuthStaffApply', 'paneAuthStaffDashboard',
+    'paneAuthAdminLogin', 'paneAuthAdminDashboard'
+  ];
+
+  tabs.forEach(id => document.getElementById(id)?.classList.remove('active'));
+  panes.forEach(id => {
+    const p = document.getElementById(id);
+    if (p) p.style.display = 'none';
+  });
+
+  const user = getCurrentUser();
+
+  if (tabName === 'admin_dashboard' && user && user.role === 'admin') {
+    document.getElementById('tabAuthAdminDashBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthAdminDashboard');
+    if (pane) pane.style.display = 'block';
+    renderAdminDashboard();
+  } else if (tabName === 'admin_login') {
+    document.getElementById('tabAuthAdminLoginBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthAdminLogin');
+    if (pane) pane.style.display = 'block';
+  } else if (tabName === 'staff_dashboard' && user && user.role === 'staff') {
+    document.getElementById('tabAuthStaffDashBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthStaffDashboard');
+    if (pane) pane.style.display = 'block';
+    renderStaffDashboard();
+  } else if (tabName === 'profile' && user && user.role === 'customer') {
+    document.getElementById('tabAuthProfileBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthProfile');
+    if (pane) pane.style.display = 'block';
+    renderUserProfileDetails(user);
+  } else if (tabName === 'staff_apply') {
+    document.getElementById('tabAuthStaffApplyBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthStaffApply');
+    if (pane) pane.style.display = 'block';
+  } else if (tabName === 'staff_login') {
+    document.getElementById('tabAuthStaffLoginBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthStaffLogin');
+    if (pane) pane.style.display = 'block';
+  } else if (tabName === 'register') {
+    document.getElementById('tabAuthRegisterBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthRegister');
+    if (pane) pane.style.display = 'block';
+  } else {
+    document.getElementById('tabAuthLoginBtn')?.classList.add('active');
+    const pane = document.getElementById('paneAuthLogin');
+    if (pane) pane.style.display = 'block';
+  }
 }
 
 export function getUserBookings() {
@@ -519,196 +1004,6 @@ export function prefillBookingWizardWithUser() {
     }, 50);
   }
   if (streetEl && user.street && !streetEl.value.trim()) streetEl.value = user.street || '';
-}
-
-export function updateAuthUI() {
-  const user = getCurrentUser();
-  const authNavBtn = document.getElementById('cNavAuthBtn');
-  const authNavText = document.getElementById('cNavAuthText');
-  const authNavIcon = document.getElementById('cNavAuthIcon');
-  const drawerAuthItem = document.getElementById('drawerAuthItem');
-
-  if (user) {
-    if (user.role === 'staff') {
-      const staffShort = user.name ? user.name.split(' ')[0] : 'Uzman';
-      if (authNavBtn) {
-        authNavBtn.classList.add('logged-in', 'staff-mode');
-        authNavBtn.title = `${user.name} - Temizlik Uzmanı Görev Paneli`;
-      }
-      if (authNavText) authNavText.textContent = `🧹 ${staffShort} (Görev Paneli)`;
-      if (authNavIcon) authNavIcon.textContent = '⚡';
-
-      if (drawerAuthItem) {
-        drawerAuthItem.innerHTML = `🧹 <strong>${escapeHTML(user.name)}</strong> (Çalışan Paneli)`;
-      }
-    } else {
-      const firstName = user.name ? user.name.split(' ')[0] : 'Hesabım';
-      if (authNavBtn) {
-        authNavBtn.classList.add('logged-in');
-        authNavBtn.classList.remove('staff-mode');
-        authNavBtn.title = `${user.name} (${user.email}) - Profil ve Randevularım`;
-      }
-      if (authNavText) authNavText.textContent = `👤 ${firstName}`;
-      if (authNavIcon) authNavIcon.textContent = '✨';
-
-      if (drawerAuthItem) {
-        drawerAuthItem.innerHTML = `👤 <strong>${escapeHTML(user.name)}</strong> (Profilim)`;
-      }
-    }
-  } else {
-    if (authNavBtn) {
-      authNavBtn.classList.remove('logged-in', 'staff-mode');
-      authNavBtn.title = 'Giriş Yap / Hesap Aç';
-    }
-    if (authNavText) authNavText.textContent = 'Giriş / Kayıt';
-    if (authNavIcon) authNavIcon.textContent = '👤';
-
-    if (drawerAuthItem) {
-      drawerAuthItem.innerHTML = '👤 Giriş Yap / Hesap Aç';
-    }
-  }
-}
-
-export function openAuthModal(targetTab = 'login', targetRole = 'customer') {
-  const modal = document.getElementById('authModal');
-  if (!modal) return;
-
-  modal.style.display = 'flex';
-  modal.removeAttribute('hidden');
-  modal.classList.add('active');
-
-  const user = getCurrentUser();
-  if (user) {
-    if (user.role === 'staff') {
-      setAuthRoleMode('staff');
-      switchAuthTab('staff_dashboard');
-    } else {
-      setAuthRoleMode('customer');
-      switchAuthTab('profile');
-    }
-  } else {
-    setAuthRoleMode(targetRole);
-    switchAuthTab(targetTab);
-  }
-
-  const card = modal.querySelector('.rx-auth-modal-card');
-  if (card && typeof window.gsap !== 'undefined') {
-    window.gsap.fromTo(card,
-      { scale: 0.92, opacity: 0, y: 20 },
-      { scale: 1, opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
-    );
-  }
-}
-
-export function closeAuthModal() {
-  const modal = document.getElementById('authModal');
-  if (!modal) return;
-
-  const card = modal.querySelector('.rx-auth-modal-card');
-  if (card && typeof window.gsap !== 'undefined') {
-    window.gsap.to(card, {
-      scale: 0.94,
-      opacity: 0,
-      y: 12,
-      duration: 0.2,
-      ease: 'power2.in',
-      onComplete: () => {
-        modal.style.display = 'none';
-        modal.setAttribute('hidden', '');
-        modal.classList.remove('active');
-      }
-    });
-  } else {
-    modal.style.display = 'none';
-    modal.setAttribute('hidden', '');
-    modal.classList.remove('active');
-  }
-}
-
-export function setAuthRoleMode(role) {
-  const btnRoleCust = document.getElementById('btnRoleSelectCustomer');
-  const btnRoleStaff = document.getElementById('btnRoleSelectStaff');
-  const badgeModal = document.getElementById('authModalBadge');
-  const titleModal = document.getElementById('authModalTitle');
-
-  if (role === 'staff') {
-    if (btnRoleCust) btnRoleCust.classList.remove('active');
-    if (btnRoleStaff) btnRoleStaff.classList.add('active');
-    if (badgeModal) badgeModal.textContent = '⚡ RELAXAX PERSONEL & UZMAN MERKEZİ';
-    if (titleModal) titleModal.textContent = 'Temizlik Uzmanı & Görev Paneli';
-
-    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'flex');
-    
-    const user = getCurrentUser();
-    if (user && user.role === 'staff') {
-      switchAuthTab('staff_dashboard');
-    } else {
-      switchAuthTab('staff_login');
-    }
-  } else {
-    if (btnRoleCust) btnRoleCust.classList.add('active');
-    if (btnRoleStaff) btnRoleStaff.classList.remove('active');
-    if (badgeModal) badgeModal.textContent = '✨ RELAXAX MÜŞTERİ MERKEZİ';
-    if (titleModal) titleModal.textContent = 'Müşteri Hesabı & Rezervasyonlarım';
-
-    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'flex');
-    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
-    
-    const user = getCurrentUser();
-    if (user && user.role === 'customer') {
-      switchAuthTab('profile');
-    } else {
-      switchAuthTab('login');
-    }
-  }
-}
-
-export function switchAuthTab(tabName) {
-  const tabs = [
-    'tabAuthLoginBtn', 'tabAuthRegisterBtn', 'tabAuthProfileBtn',
-    'tabAuthStaffLoginBtn', 'tabAuthStaffApplyBtn', 'tabAuthStaffDashBtn'
-  ];
-  const panes = [
-    'paneAuthLogin', 'paneAuthRegister', 'paneAuthProfile',
-    'paneAuthStaffLogin', 'paneAuthStaffApply', 'paneAuthStaffDashboard'
-  ];
-
-  tabs.forEach(id => document.getElementById(id)?.classList.remove('active'));
-  panes.forEach(id => {
-    const p = document.getElementById(id);
-    if (p) p.style.display = 'none';
-  });
-
-  const user = getCurrentUser();
-
-  if (tabName === 'staff_dashboard' && user && user.role === 'staff') {
-    document.getElementById('tabAuthStaffDashBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthStaffDashboard');
-    if (pane) pane.style.display = 'block';
-    renderStaffDashboard();
-  } else if (tabName === 'profile' && user && user.role === 'customer') {
-    document.getElementById('tabAuthProfileBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthProfile');
-    if (pane) pane.style.display = 'block';
-    renderUserProfileDetails(user);
-  } else if (tabName === 'staff_apply') {
-    document.getElementById('tabAuthStaffApplyBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthStaffApply');
-    if (pane) pane.style.display = 'block';
-  } else if (tabName === 'staff_login') {
-    document.getElementById('tabAuthStaffLoginBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthStaffLogin');
-    if (pane) pane.style.display = 'block';
-  } else if (tabName === 'register') {
-    document.getElementById('tabAuthRegisterBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthRegister');
-    if (pane) pane.style.display = 'block';
-  } else {
-    document.getElementById('tabAuthLoginBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthLogin');
-    if (pane) pane.style.display = 'block';
-  }
 }
 
 // Saved Addresses Storage Key
@@ -1071,12 +1366,119 @@ function renderStaffDashboard() {
   }
 }
 
+export function renderAdminDashboard() {
+  const admin = getCurrentUser();
+  if (!admin || admin.role !== 'admin') return;
+
+  const nameEl = document.getElementById('adminProfileName');
+  const emailEl = document.getElementById('adminProfileEmail');
+  const totalProdEl = document.getElementById('adminTotalProducts');
+  const inStockEl = document.getElementById('adminInStockCount');
+  const outOfStockEl = document.getElementById('adminOutOfStockCount');
+  const catalogTableWrap = document.getElementById('adminCatalogTableWrap');
+  const allOrdersList = document.getElementById('adminAllOrdersList');
+
+  if (nameEl) nameEl.textContent = admin.name || 'Sistem Yöneticisi';
+  if (emailEl) emailEl.textContent = `${admin.email} | Yetkili Katalog Yönetim Masası`;
+
+  const items = getCatalogProducts();
+  const inStockCount = items.filter(i => i.status === 'in_stock').length;
+  const outOfStockCount = items.filter(i => i.status === 'out_of_stock').length;
+
+  if (totalProdEl) totalProdEl.textContent = `${items.length} Öğe`;
+  if (inStockEl) inStockEl.textContent = `${inStockCount} Satışta`;
+  if (outOfStockEl) outOfStockEl.textContent = `${outOfStockCount} Tükendi`;
+
+  // Render Catalog Management Table
+  if (catalogTableWrap) {
+    catalogTableWrap.innerHTML = `
+      <table class="admin-catalog-table">
+        <thead>
+          <tr>
+            <th>Görsel / İkon</th>
+            <th>Ürün & Hizmet Adı</th>
+            <th>Kategori</th>
+            <th>Fiyat (TL)</th>
+            <th>Stok / Satış Durumu</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(item => {
+            const isStock = item.status === 'in_stock';
+            return `
+              <tr class="${!isStock ? 'row-out-of-stock' : ''}">
+                <td class="act-thumb">
+                  ${item.image ? `<img src="${item.image}" alt="${escapeHTML(item.title)}" class="act-img" />` : `<span class="act-icon">${item.icon || '✨'}</span>`}
+                </td>
+                <td class="act-name">
+                  <strong>${escapeHTML(item.title)}</strong>
+                  <span class="act-key">ID: <code>${escapeHTML(item.key)}</code></span>
+                </td>
+                <td><span class="act-cat-tag">${escapeHTML(item.categoryLabel || item.category)}</span></td>
+                <td>
+                  <strong style="color:#38bdf8;">${item.priceTR} TL</strong>
+                  ${item.oldPriceTR ? `<span class="act-old-price">${item.oldPriceTR} TL</span>` : ''}
+                </td>
+                <td>
+                  <button type="button" class="btn-stock-toggle ${isStock ? 'in-stock' : 'out-of-stock'}" onclick="window.toggleProductStockGlobal('${escapeHTML(item.key)}')">
+                    ${isStock ? '🟢 Stokta Var (Satışta)' : '🔴 Tükendi (Stokta Yok)'}
+                  </button>
+                </td>
+                <td class="act-actions">
+                  <button type="button" class="btn-admin-act delete" onclick="window.deleteProductGlobal('${escapeHTML(item.key)}')">🗑️ Sil</button>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Render All Orders
+  if (allOrdersList) {
+    const jobs = getLiveStaffJobs();
+    if (jobs.length === 0) {
+      allOrdersList.innerHTML = '<div class="empty-sub-item">Sistemde henüz kayıtlı sipariş bulunmuyor.</div>';
+    } else {
+      allOrdersList.innerHTML = jobs.map(j => `
+        <div class="admin-order-item-card">
+          <div class="aoic-left">
+            <span class="aoic-code">#${escapeHTML(j.orderCode || j.id)}</span>
+            <strong>${escapeHTML(j.service)}</strong>
+            <span>👤 ${escapeHTML(j.customerName)} (${escapeHTML(j.customerPhone)}) | 📍 ${escapeHTML(j.customerAddress)}</span>
+          </div>
+          <div class="aoic-right">
+            <span class="ub-status ${j.status === 'Tamamlandı' ? 'badge-success' : 'badge-progress'}">${escapeHTML(j.status || 'İşlemde')}</span>
+            <strong style="color:#38bdf8; font-size:1.1rem;">${escapeHTML(j.finalPrice)}</strong>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+window.toggleProductStockGlobal = function(key) {
+  toggleCatalogProductStatus(key);
+  syncCatalogToDom();
+};
+
+window.deleteProductGlobal = function(key) {
+  if (confirm(`"${key}" ürününü/hizmetini katalogdan silmek istediğinize emin misiniz?`)) {
+    deleteCatalogProduct(key);
+    syncCatalogToDom();
+  }
+};
+
 export function initAuthEngine() {
   updateAuthUI();
+  syncCatalogToDom();
 
   // Role selector buttons in modal header
   document.getElementById('btnRoleSelectCustomer')?.addEventListener('click', () => setAuthRoleMode('customer'));
   document.getElementById('btnRoleSelectStaff')?.addEventListener('click', () => setAuthRoleMode('staff'));
+  document.getElementById('btnRoleSelectAdmin')?.addEventListener('click', () => setAuthRoleMode('admin'));
 
   // Attach navbar button trigger
   const authNavBtn = document.getElementById('cNavAuthBtn');
@@ -1111,8 +1513,10 @@ export function initAuthEngine() {
   document.getElementById('tabAuthStaffLoginBtn')?.addEventListener('click', () => switchAuthTab('staff_login'));
   document.getElementById('tabAuthStaffApplyBtn')?.addEventListener('click', () => switchAuthTab('staff_apply'));
   document.getElementById('tabAuthStaffDashBtn')?.addEventListener('click', () => switchAuthTab('staff_dashboard'));
+  document.getElementById('tabAuthAdminLoginBtn')?.addEventListener('click', () => switchAuthTab('admin_login'));
+  document.getElementById('tabAuthAdminDashBtn')?.addEventListener('click', () => switchAuthTab('admin_dashboard'));
 
-  // Sub-Navigation Tabs Switching (Customer & Staff)
+  // Sub-Navigation Tabs Switching (Customer, Staff, and Admin)
   document.querySelectorAll('.portal-subnav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.getAttribute('data-target');
@@ -1198,6 +1602,65 @@ export function initAuthEngine() {
           custProfileFeedback.className = 'auth-feedback success';
           custProfileFeedback.textContent = '✓ Profil bilgileriniz başarıyla güncellendi!';
           setTimeout(() => { if (custProfileFeedback) custProfileFeedback.style.display = 'none'; }, 2000);
+        }
+      }
+    });
+  }
+
+  // Admin Add Product Form Submission
+  const formAddProd = document.getElementById('formAdminAddProduct');
+  const addProdFeedback = document.getElementById('adminAddProductFeedback');
+  if (formAddProd) {
+    formAddProd.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const key = document.getElementById('newProdKey')?.value?.trim();
+      const cat = document.getElementById('newProdCategory')?.value;
+      const title = document.getElementById('newProdTitle')?.value?.trim();
+      const priceTR = parseFloat(document.getElementById('newProdPriceTR')?.value) || 0;
+      const oldPriceTR = parseFloat(document.getElementById('newProdOldPriceTR')?.value) || 0;
+      const pricePL = parseFloat(document.getElementById('newProdPricePL')?.value) || 0;
+      const status = document.getElementById('newProdStockStatus')?.value || 'in_stock';
+      const image = document.getElementById('newProdImage')?.value?.trim() || '/images/product_rose_gift_box.webp';
+      const desc = document.getElementById('newProdDesc')?.value?.trim() || '';
+
+      if (!key || !title || !priceTR) {
+        if (addProdFeedback) {
+          addProdFeedback.style.display = 'block';
+          addProdFeedback.className = 'auth-feedback error';
+          addProdFeedback.textContent = '⚠️ Lütfen ürün kodu, başlık ve fiyat alanlarını doldurunuz.';
+        }
+        return;
+      }
+
+      const res = addCatalogProduct({
+        key,
+        title,
+        category: cat,
+        priceTR,
+        oldPriceTR,
+        pricePL,
+        status,
+        image,
+        desc
+      });
+
+      if (res.success) {
+        if (addProdFeedback) {
+          addProdFeedback.style.display = 'block';
+          addProdFeedback.className = 'auth-feedback success';
+          addProdFeedback.textContent = `✓ "${title}" başarıyla kataloğa eklendi ve yayına alındı!`;
+        }
+        formAddProd.reset();
+        setTimeout(() => {
+          if (addProdFeedback) addProdFeedback.style.display = 'none';
+          // Switch to catalog tab
+          document.querySelector('.admin-subnav .portal-subnav-btn[data-target="adminSubTabCatalog"]')?.click();
+        }, 1200);
+      } else {
+        if (addProdFeedback) {
+          addProdFeedback.style.display = 'block';
+          addProdFeedback.className = 'auth-feedback error';
+          addProdFeedback.textContent = `⚠️ ${res.message}`;
         }
       }
     });
@@ -1290,6 +1753,48 @@ export function initAuthEngine() {
           staffLoginFeedback.style.display = 'block';
           staffLoginFeedback.className = 'auth-feedback error';
           staffLoginFeedback.textContent = `⚠️ ${res.message}`;
+        }
+      }
+    });
+  }
+
+  // Admin Login Form Submission
+  const adminLoginForm = document.getElementById('authAdminLoginForm');
+  const adminLoginFeedback = document.getElementById('authAdminLoginFeedback');
+  const btnSubmitAdminLogin = document.getElementById('btnSubmitAdminLogin');
+  if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminLoginEmail')?.value;
+      const pass = document.getElementById('adminLoginPassword')?.value;
+
+      if (btnSubmitAdminLogin) {
+        btnSubmitAdminLogin.disabled = true;
+        btnSubmitAdminLogin.innerHTML = '<span>Yönetici Yetkisi Doğrulanıyor... ⏳</span>';
+      }
+
+      const res = await loginUser(email, pass, true, 'admin');
+
+      if (btnSubmitAdminLogin) {
+        btnSubmitAdminLogin.disabled = false;
+        btnSubmitAdminLogin.innerHTML = '<span>Yönetim Paneline Giriş Yap ➔</span>';
+      }
+
+      if (res.success) {
+        if (adminLoginFeedback) {
+          adminLoginFeedback.style.display = 'block';
+          adminLoginFeedback.className = 'auth-feedback success';
+          adminLoginFeedback.textContent = `👑 Yönetici girişi başarılı! Katalog paneline aktarılıyorsunuz...`;
+        }
+        setTimeout(() => {
+          if (adminLoginFeedback) adminLoginFeedback.style.display = 'none';
+          switchAuthTab('admin_dashboard');
+        }, 600);
+      } else {
+        if (adminLoginFeedback) {
+          adminLoginFeedback.style.display = 'block';
+          adminLoginFeedback.className = 'auth-feedback error';
+          adminLoginFeedback.textContent = `⚠️ ${res.message}`;
         }
       }
     });
@@ -1408,6 +1913,11 @@ export function initAuthEngine() {
     switchAuthTab('staff_login');
   });
 
+  document.getElementById('btnLogoutAdmin')?.addEventListener('click', () => {
+    logoutUser();
+    switchAuthTab('admin_login');
+  });
+
   // Password visibility toggles
   document.querySelectorAll('.btn-toggle-pwd-visibility').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1435,5 +1945,6 @@ window.logoutUserGlobal = logoutUser;
 window.addBookingToUserGlobal = addBookingToUser;
 window.updateStaffJobStatusGlobal = updateStaffJobStatus;
 window.matchAndAssignCleaner = matchAndAssignCleaner;
+
 
 

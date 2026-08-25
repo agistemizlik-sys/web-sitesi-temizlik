@@ -16760,6 +16760,334 @@ body,
   border-radius: 12px;
 }
 
+/* ==========================================================================
+   43. 👑 ADMIN & PRODUCT CATALOG MANAGEMENT ENGINE
+   ========================================================================== */
+.admin-banner {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.1) 100%);
+  border-color: rgba(234, 179, 8, 0.4);
+}
+
+.btn-admin-submit {
+  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+  border-color: rgba(253, 224, 71, 0.5);
+  color: #0f172a;
+}
+
+.btn-admin-submit:hover {
+  background: #facc15;
+  box-shadow: 0 6px 20px rgba(234, 179, 8, 0.4);
+}
+
+.c-nav-auth-btn.admin-mode {
+  border-color: rgba(234, 179, 8, 0.5);
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+.admin-dashboard-header {
+  background: linear-gradient(135deg, rgba(30, 41, 69, 0.95) 0%, rgba(19, 31, 60, 0.95) 100%);
+  border: 1.5px solid rgba(234, 179, 8, 0.35);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.adh-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.adh-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(234, 179, 8, 0.2);
+  border: 1.5px solid #eab308;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.adh-meta {
+  flex: 1;
+}
+
+.adh-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.adh-name-row h4 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.badge-admin-role {
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: rgba(234, 179, 8, 0.2);
+  color: #fde047;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.adh-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-stat-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.asc-lbl {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.asc-val {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.admin-subnav .portal-subnav-btn.active {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.25) 0%, rgba(202, 138, 4, 0.15) 100%);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #fde047;
+}
+
+/* Admin Catalog Table */
+.admin-catalog-table-wrap {
+  background: rgba(10, 18, 36, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.admin-catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.admin-catalog-table th {
+  background: rgba(10, 18, 36, 0.9);
+  color: #94a3b8;
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.admin-catalog-table td {
+  padding: 12px 10px;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.admin-catalog-table tr.row-out-of-stock {
+  opacity: 0.7;
+  background: rgba(239, 68, 68, 0.03);
+}
+
+.act-thumb {
+  width: 50px;
+  text-align: center;
+}
+
+.act-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.act-icon {
+  font-size: 1.4rem;
+  display: inline-block;
+}
+
+.act-name strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #ffffff;
+}
+
+.act-key {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.act-key code {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.act-cat-tag {
+  font-size: 0.68rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.act-old-price {
+  display: block;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+/* Stock Toggle Button */
+.btn-stock-toggle {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-stock-toggle.in-stock {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.btn-stock-toggle.in-stock:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.btn-stock-toggle.out-of-stock {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.btn-stock-toggle.out-of-stock:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.btn-admin-act {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-admin-act:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Out of stock overlays in Booking Wizard */
+.wizard-extra-card.is-out-of-stock {
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+  position: relative !important;
+  filter: grayscale(0.8) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+.oos-extra-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(239, 68, 68, 0.95);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Admin Orders */
+.admin-order-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(19, 31, 60, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+
+.aoic-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.aoic-code {
+  font-size: 0.68rem;
+  color: #fde047;
+  font-weight: 800;
+}
+
+.aoic-left strong {
+  font-size: 0.88rem;
+  color: #ffffff;
+}
+
+.aoic-left span {
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.aoic-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+
 
 
 
