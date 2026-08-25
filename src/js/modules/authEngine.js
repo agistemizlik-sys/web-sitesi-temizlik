@@ -826,6 +826,44 @@ export function syncCatalogToDom() {
       }
     }
   });
+
+  // 4. Sync Boutique Side Drawer Items (#boutiqueCatalogDrawer)
+  items.forEach(item => {
+    const bcdCard = document.querySelector(`.bcd-product-card[data-catalog-key="${item.key}"]`);
+    if (bcdCard) {
+      if (item.priceTR) {
+        bcdCard.dataset.priceTr = item.priceTR;
+        const curPriceEl = bcdCard.querySelector('.bcd-cur-p, .bcd-cur-price');
+        if (curPriceEl) curPriceEl.textContent = `${item.priceTR} TL`;
+      }
+      if (item.oldPriceTR) {
+        const oldPriceEl = bcdCard.querySelector('.bcd-old-p, .bcd-old-price');
+        if (oldPriceEl) oldPriceEl.textContent = `${item.oldPriceTR} TL`;
+      }
+      const toggleBtn = bcdCard.querySelector('.btn-bcd-toggle-product, .btn-bcd-toggle-item');
+      if (item.status === 'out_of_stock') {
+        bcdCard.classList.add('is-out-of-stock');
+        bcdCard.style.opacity = '0.55';
+        if (toggleBtn) {
+          toggleBtn.disabled = true;
+          toggleBtn.style.pointerEvents = 'none';
+          const txtEl = toggleBtn.querySelector('.btn-txt');
+          if (txtEl) txtEl.textContent = '⛔ Tükendi';
+        }
+      } else {
+        bcdCard.classList.remove('is-out-of-stock');
+        bcdCard.style.opacity = '1';
+        if (toggleBtn) {
+          toggleBtn.disabled = false;
+          toggleBtn.style.pointerEvents = 'auto';
+          if (!bcdCard.classList.contains('is-selected')) {
+            const txtEl = toggleBtn.querySelector('.btn-txt');
+            if (txtEl) txtEl.textContent = bcdCard.classList.contains('mini') ? '+ Ekle' : '✨ Temizliğe Ekle';
+          }
+        }
+      }
+    }
+  });
 }
 
 export function updateAuthUI() {

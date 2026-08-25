@@ -1564,6 +1564,27 @@ function applyBookingTranslations(dict, lang) {
     const lblExUtu = document.getElementById('lblExtraUtu');
     if (lblExUtu && dict.extraUtu) lblExUtu.textContent = dict.extraUtu;
 
+    // Boutique Catalog Strip & Drawer Translations
+    const wbcsBadge = document.querySelector('.wbcs-badge');
+    const wbcsTitle = document.querySelector('.wbcs-title');
+    const wbcsSubtitle = document.querySelector('.wbcs-subtitle');
+    const btnOpenBoutiqueCatalogSpan = document.querySelector('#btnOpenBoutiqueCatalog span');
+    const bcdBadge = document.querySelector('.bcd-badge');
+    const bcdTitle = document.getElementById('bcdTitle');
+    const bcdSubtitle = document.querySelector('.bcd-subtitle');
+    const bcdSumLabel = document.querySelector('.bcd-sum-label');
+    const btnBcdFinishSpan = document.querySelector('#btnBcdFinish span');
+
+    if (wbcsBadge) wbcsBadge.textContent = lang === 'pl' ? '✨ RELAXAX KOLEKCJA BUTIKOWA' : '✨ RELAXAX BUTİK KOLEKSİYON';
+    if (wbcsTitle) wbcsTitle.textContent = lang === 'pl' ? '🛋️ Zobacz nasze butikowe świece i akcesoria domowe' : '🛋️ Butik Ev Eşyalarımıza & Mum Koleksiyonumuza Göz Atın';
+    if (wbcsSubtitle) wbcsSubtitle.textContent = lang === 'pl' ? 'Dodaj ręcznie robione świece sojowe i bukiety piwonii do sprzątania.' : 'Temizlik hizmetinize özel el yapımı kokulu mumlar, şakayık buketleri ve aromaterapi setleri ekleyin.';
+    if (btnOpenBoutiqueCatalogSpan) btnOpenBoutiqueCatalogSpan.textContent = lang === 'pl' ? '🛍️ Zobacz Katalog Produktów ➔' : '🛍️ Ürün Kataloğuna Göz At ➔';
+    if (bcdBadge) bcdBadge.textContent = lang === 'pl' ? '✨ RELAXAX KOLEKCJA BUTIKOWA I PREZENTY' : '✨ RELAXAX BUTİK EV EŞYALARI & HEDİYELİK';
+    if (bcdTitle) bcdTitle.textContent = lang === 'pl' ? '🛍️ Butikowy Katalog Świec i Dodatków' : '🛍️ Butik Ev Eşyaları & Mum Kataloğu';
+    if (bcdSubtitle) bcdSubtitle.textContent = lang === 'pl' ? 'Dodaj unikalne produkty rzemieślnicze do swojego zamówienia jednym kliknięciem.' : 'Temizlik hizmetinize özel zanaatkar üretim ürünleri tek tıkla ekleyin.';
+    if (bcdSumLabel) bcdSumLabel.textContent = lang === 'pl' ? 'Wybrane produkty butikowe:' : 'Seçilen Butik Ürünler:';
+    if (btnBcdFinishSpan) btnBcdFinishSpan.textContent = lang === 'pl' ? '✓ Zapisz Wybór i Kontynuuj' : '✓ Seçimi Tamamla & Devam Et';
+
     // Translate frequency label & options
     const lblFrequency = document.getElementById('lblBookingLabelFrequency');
     if (lblFrequency && dict.bookingLabelFrequency) lblFrequency.textContent = dict.bookingLabelFrequency;
@@ -3565,11 +3586,19 @@ function setupCorporateModals() {
       if (typeof openBookingScreen === 'function') {
         openBookingScreen();
         setTimeout(() => {
-          const card = document.querySelector('.wizard-extra-card[data-extra="butik_hediye_kutusu"]');
-          if (card) {
-            if (!card.classList.contains('active')) card.click();
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const bcdCard = document.getElementById('bcdCard_butik_hediye_kutusu');
+          const toggleBtn = document.getElementById('btnToggleBcd_butik_hediye_kutusu');
+          if (bcdCard && !bcdCard.classList.contains('is-selected')) {
+            bcdCard.classList.add('is-selected');
+            if (toggleBtn) {
+              toggleBtn.classList.add('is-added');
+              const isPl = (STATE.language || 'tr') === 'pl';
+              toggleBtn.querySelector('.btn-txt').textContent = isPl ? '✓ Dodano' : '✓ Temizliğe Eklendi';
+            }
+            updatePriceSliderDisplay();
           }
+          const strip = document.getElementById('wizardBoutiqueCatalogStrip');
+          if (strip) strip.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 400);
       }
     });
@@ -3584,19 +3613,32 @@ function setupCorporateModals() {
       if (typeof openBookingScreen === 'function') {
         openBookingScreen();
         setTimeout(() => {
-          const card = document.querySelector('.wizard-extra-card[data-extra="sakayik_buket_kutusu"]');
-          if (card) {
-            if (!card.classList.contains('active')) card.click();
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const bcdCard = document.getElementById('bcdCard_sakayik_buket_kutusu');
+          const toggleBtn = document.getElementById('btnToggleBcd_sakayik_buket_kutusu');
+          if (bcdCard && !bcdCard.classList.contains('is-selected')) {
+            bcdCard.classList.add('is-selected');
+            if (toggleBtn) {
+              toggleBtn.classList.add('is-added');
+              const isPl = (STATE.language || 'tr') === 'pl';
+              toggleBtn.querySelector('.btn-txt').textContent = isPl ? '✓ Dodano' : '✓ Temizliğe Eklendi';
+            }
+            updatePriceSliderDisplay();
           }
+          const strip = document.getElementById('wizardBoutiqueCatalogStrip');
+          if (strip) strip.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 400);
       }
     });
   }
 
-  // Global escape key to close active corporate modal
+  // Global escape key to close active corporate modal & boutique catalog drawer
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      const bcd = document.getElementById('boutiqueCatalogDrawer');
+      if (bcd && bcd.style.display === 'flex') {
+        bcd.style.display = 'none';
+        document.body.style.overflow = '';
+      }
       modalConfigs.forEach(cfg => {
         const modalEl = document.getElementById(cfg.id);
         if (modalEl && modalEl.style.display === 'flex') {
@@ -10292,6 +10334,14 @@ function setupBookingReveal() {
       const countEl = card.querySelector('.ec-val');
       const count = countEl ? parseInt(countEl.textContent) || 1 : 1;
       if (name) selectedExtraNames.push(count > 1 ? `${name} (${count})` : name);
+    });
+
+    // Also collect selected items from the Boutique Catalog Drawer
+    document.querySelectorAll('.bcd-product-card.is-selected').forEach(card => {
+      const name = card.querySelector('.bcd-p-name')?.textContent || 'Butik Ürün';
+      const qtyEl = card.querySelector('.bcd-qty-num');
+      const qty = qtyEl ? parseInt(qtyEl.textContent) || 1 : 1;
+      selectedExtraNames.push(qty > 1 ? `🛍️ ${name} (${qty} Adet)` : `🛍️ ${name}`);
     });
 
     const isPl = STATE.language === 'pl';
