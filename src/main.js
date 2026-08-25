@@ -9777,7 +9777,7 @@ function setupBookingReveal() {
     });
   });
 
-  // 10. Wizard Boutique Catalog Strip & Side Drawer Integration
+  // 10. Wizard Boutique Catalog Strip & Side Drawer Integration (Delegated Event Architecture)
   function initBoutiqueCatalogDrawer() {
     const strip = document.getElementById('wizardBoutiqueCatalogStrip');
     const btnOpen = document.getElementById('btnOpenBoutiqueCatalog');
@@ -9806,59 +9806,57 @@ function setupBookingReveal() {
     if (backdrop) backdrop.addEventListener('click', closeDrawer);
     if (btnFinish) btnFinish.addEventListener('click', closeDrawer);
 
-    // Quantity controls (+ / -) in Drawer
-    const minusBtns = document.querySelectorAll('.bcd-qty-btn.bcd-minus');
-    minusBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const numEl = btn.nextElementSibling;
-        if (numEl) {
-          let val = parseInt(numEl.textContent || '1') || 1;
-          if (val > 1) {
-            numEl.textContent = val - 1;
-            updatePriceSliderDisplay();
+    if (drawer) {
+      drawer.addEventListener('click', (e) => {
+        const minusBtn = e.target.closest('.bcd-qty-btn.bcd-minus, .minus-bcd-qty');
+        if (minusBtn) {
+          e.stopPropagation();
+          const numEl = minusBtn.nextElementSibling || minusBtn.parentElement.querySelector('.bcd-qty-num, .bcd-qty-val');
+          if (numEl) {
+            let val = parseInt(numEl.textContent || '1') || 1;
+            if (val > 1) {
+              numEl.textContent = val - 1;
+              updatePriceSliderDisplay();
+            }
           }
+          return;
         }
-      });
-    });
 
-    const plusBtns = document.querySelectorAll('.bcd-qty-btn.bcd-plus');
-    plusBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const numEl = btn.previousElementSibling;
-        if (numEl) {
-          let val = parseInt(numEl.textContent || '1') || 1;
-          if (val < 10) {
-            numEl.textContent = val + 1;
-            updatePriceSliderDisplay();
+        const plusBtn = e.target.closest('.bcd-qty-btn.bcd-plus, .plus-bcd-qty');
+        if (plusBtn) {
+          e.stopPropagation();
+          const numEl = plusBtn.previousElementSibling || plusBtn.parentElement.querySelector('.bcd-qty-num, .bcd-qty-val');
+          if (numEl) {
+            let val = parseInt(numEl.textContent || '1') || 1;
+            if (val < 10) {
+              numEl.textContent = val + 1;
+              updatePriceSliderDisplay();
+            }
           }
-        }
-      });
-    });
-
-    // Toggle Add Product Buttons in Drawer
-    const toggleBtns = document.querySelectorAll('.btn-bcd-toggle-product');
-    toggleBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const card = btn.closest('.bcd-product-card');
-        if (!card) return;
-        const isSelected = card.classList.toggle('is-selected');
-        btn.classList.toggle('is-added', isSelected);
-        const isPl = (STATE.language || 'tr') === 'pl';
-        const txtSpan = btn.querySelector('.btn-txt');
-
-        if (isSelected) {
-          if (txtSpan) txtSpan.textContent = isPl ? '✓ Dodano' : '✓ Temizliğe Eklendi';
-        } else {
-          if (txtSpan) txtSpan.textContent = isPl ? '+ Dodaj' : (btn.classList.contains('mini') ? '+ Ekle' : '✨ Temizliğe Ekle');
+          return;
         }
 
-        if (typeof window.playTickSound === 'function') window.playTickSound();
-        updatePriceSliderDisplay();
+        const toggleBtn = e.target.closest('.btn-bcd-toggle-product, .btn-bcd-toggle-item');
+        if (toggleBtn) {
+          e.stopPropagation();
+          const card = toggleBtn.closest('.bcd-product-card');
+          if (!card) return;
+          const isSelected = card.classList.toggle('is-selected');
+          toggleBtn.classList.toggle('is-added', isSelected);
+          const isPl = (STATE.language || 'tr') === 'pl';
+          const txtSpan = toggleBtn.querySelector('.btn-txt');
+
+          if (isSelected) {
+            if (txtSpan) txtSpan.textContent = isPl ? '✓ Dodano' : '✓ Temizliğe Eklendi';
+          } else {
+            if (txtSpan) txtSpan.textContent = isPl ? '+ Dodaj' : (toggleBtn.classList.contains('mini') ? '+ Ekle' : '✨ Temizliğe Ekle');
+          }
+
+          if (typeof window.playTickSound === 'function') window.playTickSound();
+          updatePriceSliderDisplay();
+        }
       });
-    });
+    }
   }
   initBoutiqueCatalogDrawer();
 

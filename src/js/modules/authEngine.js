@@ -850,42 +850,85 @@ export function syncCatalogToDom() {
   });
 
   // 4. Sync Boutique Side Drawer Items (#boutiqueCatalogDrawer)
-  items.forEach(item => {
-    const bcdCard = document.querySelector(`.bcd-product-card[data-catalog-key="${item.key}"]`);
-    if (bcdCard) {
-      if (item.priceTR) {
+  const bcdBody = document.querySelector('#boutiqueCatalogDrawer .bcd-body');
+  if (bcdBody) {
+    items.forEach(item => {
+      let bcdCard = bcdBody.querySelector(`.bcd-product-card[data-catalog-key="${item.key}"]`);
+      if (!bcdCard && (item.category === 'boutique' || item.category === 'vip_care')) {
+        bcdCard = document.createElement('div');
+        bcdCard.className = 'bcd-product-card';
+        bcdCard.id = `bcdCard_${item.key}`;
+        bcdCard.dataset.catalogKey = item.key;
         bcdCard.dataset.priceTr = item.priceTR;
-        const curPriceEl = bcdCard.querySelector('.bcd-cur-p, .bcd-cur-price');
-        if (curPriceEl) curPriceEl.textContent = `${item.priceTR} TL`;
+        bcdCard.dataset.pricePl = item.pricePL || 59;
+        bcdCard.innerHTML = `
+          <div class="bcd-p-thumb-wrap">
+            <img src="${escapeHTML(item.image || '/images/product_rose_gift_box.webp')}" alt="${escapeHTML(item.title)}" class="bcd-p-img" />
+            <span class="bcd-p-pill rose">✨ ÖZEL ÜRÜN</span>
+          </div>
+          <div class="bcd-p-details">
+            <div class="bcd-p-tags">
+              <span class="bcd-tag gold">★ ${escapeHTML(item.icon || '🛍️')} Yeni</span>
+              <span class="bcd-tag rose">💎 Butik</span>
+            </div>
+            <h4 class="bcd-p-name">${escapeHTML(item.title)}</h4>
+            <p class="bcd-p-desc">${escapeHTML(item.desc || 'Zanaatkar el yapımı özel tasarım.')}</p>
+            <div class="bcd-p-bottom">
+              <div class="bcd-p-price">
+                <span class="bcd-old-p">${item.oldPriceTR || Math.round(item.priceTR * 1.25)} TL</span>
+                <span class="bcd-cur-p">${item.priceTR} TL</span>
+              </div>
+              <div class="bcd-p-controls">
+                <div class="bcd-qty-box">
+                  <button type="button" class="bcd-qty-btn bcd-minus" data-target="${item.key}">-</button>
+                  <span class="bcd-qty-num" id="bcdQty_${item.key}">1</span>
+                  <button type="button" class="bcd-qty-btn bcd-plus" data-target="${item.key}">+</button>
+                </div>
+                <button type="button" class="btn-bcd-toggle-product" data-product-key="${item.key}" id="btnToggleBcd_${item.key}">
+                  <span class="btn-txt">✨ Temizliğe Ekle</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        bcdBody.appendChild(bcdCard);
       }
-      if (item.oldPriceTR) {
-        const oldPriceEl = bcdCard.querySelector('.bcd-old-p, .bcd-old-price');
-        if (oldPriceEl) oldPriceEl.textContent = `${item.oldPriceTR} TL`;
-      }
-      const toggleBtn = bcdCard.querySelector('.btn-bcd-toggle-product, .btn-bcd-toggle-item');
-      if (item.status === 'out_of_stock') {
-        bcdCard.classList.add('is-out-of-stock');
-        bcdCard.style.opacity = '0.55';
-        if (toggleBtn) {
-          toggleBtn.disabled = true;
-          toggleBtn.style.pointerEvents = 'none';
-          const txtEl = toggleBtn.querySelector('.btn-txt');
-          if (txtEl) txtEl.textContent = '⛔ Tükendi';
+
+      if (bcdCard) {
+        if (item.priceTR) {
+          bcdCard.dataset.priceTr = item.priceTR;
+          const curPriceEl = bcdCard.querySelector('.bcd-cur-p, .bcd-cur-price');
+          if (curPriceEl) curPriceEl.textContent = `${item.priceTR} TL`;
         }
-      } else {
-        bcdCard.classList.remove('is-out-of-stock');
-        bcdCard.style.opacity = '1';
-        if (toggleBtn) {
-          toggleBtn.disabled = false;
-          toggleBtn.style.pointerEvents = 'auto';
-          if (!bcdCard.classList.contains('is-selected')) {
+        if (item.oldPriceTR) {
+          const oldPriceEl = bcdCard.querySelector('.bcd-old-p, .bcd-old-price');
+          if (oldPriceEl) oldPriceEl.textContent = `${item.oldPriceTR} TL`;
+        }
+        const toggleBtn = bcdCard.querySelector('.btn-bcd-toggle-product, .btn-bcd-toggle-item');
+        if (item.status === 'out_of_stock') {
+          bcdCard.classList.add('is-out-of-stock');
+          bcdCard.style.opacity = '0.55';
+          if (toggleBtn) {
+            toggleBtn.disabled = true;
+            toggleBtn.style.pointerEvents = 'none';
             const txtEl = toggleBtn.querySelector('.btn-txt');
-            if (txtEl) txtEl.textContent = bcdCard.classList.contains('mini') ? '+ Ekle' : '✨ Temizliğe Ekle';
+            if (txtEl) txtEl.textContent = '⛔ Tükendi';
+          }
+        } else {
+          bcdCard.classList.remove('is-out-of-stock');
+          bcdCard.style.opacity = '1';
+          if (toggleBtn) {
+            toggleBtn.disabled = false;
+            toggleBtn.style.pointerEvents = 'auto';
+            if (!bcdCard.classList.contains('is-selected')) {
+              const txtEl = toggleBtn.querySelector('.btn-txt');
+              if (txtEl) txtEl.textContent = bcdCard.classList.contains('mini') ? '+ Ekle' : '✨ Temizliğe Ekle';
+            }
           }
         }
       }
-    }
-  });
+    });
+  }
 }
 
 export function updateAuthUI() {
