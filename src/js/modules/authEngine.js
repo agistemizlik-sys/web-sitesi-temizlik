@@ -1502,7 +1502,7 @@ function renderUserProfileDetails(user) {
               <button type="button" class="btn-reorder-booking" onclick="if(typeof window.openHygieneCertificate==='function'){window.openHygieneCertificate({orderCode:'${escapeHTML(b.orderCode || b.resCode || '')}', service:'${escapeHTML(b.service || 'Detaylı Temizlik')}', customerName:'${escapeHTML(user.name || 'Değerli Müşterimiz')}', address:'${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')}', assignedStaff:{name:'${escapeHTML(staff.name || 'Ayşe K.')}'}});}">
                 <span style="color:#fbbf24;">🏆 48 Nokta Hijyen Sertifikası</span>
               </button>
-              <button type="button" class="btn-reorder-booking" onclick="if(typeof openBookingScreen==='function'){closeAuthModal(); openBookingScreen();}">
+              <button type="button" class="btn-reorder-booking" onclick="window.reorderBookingGlobal(${idx})">
                 <span>🔄 Tekrar İste</span>
               </button>
               <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20#${encodeURIComponent(b.orderCode || b.resCode || '')}%20numarali%20siparisim%20hakkinda%20destek%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-order-support">
@@ -1515,6 +1515,39 @@ function renderUserProfileDetails(user) {
     }
   }
 }
+
+window.reorderBookingGlobal = function(idx) {
+  const user = getCurrentUser();
+  if (!user) return;
+  const bookings = getCustomerBookings(user.email);
+  const b = bookings[idx];
+  if (!b) return;
+
+  closeAuthModal();
+  if (typeof openBookingScreen === 'function') openBookingScreen();
+
+  setTimeout(() => {
+    const nameEl = document.getElementById('cName');
+    const phoneEl = document.getElementById('cPhone');
+    const emailEl = document.getElementById('cEmail');
+    const cityEl = document.getElementById('cCity');
+    const distEl = document.getElementById('cDistrict');
+    const streetEl = document.getElementById('cStreet');
+
+    if (nameEl) nameEl.value = user.name || b.customerName || '';
+    if (phoneEl) phoneEl.value = user.phone || b.customerPhone || '';
+    if (emailEl) emailEl.value = user.email || b.customerEmail || '';
+    if (cityEl) { cityEl.value = b.city || 'Istanbul'; cityEl.dispatchEvent(new Event('change', { bubbles: true })); }
+
+    setTimeout(() => {
+      if (distEl) distEl.value = b.district || '';
+      if (streetEl) streetEl.value = b.street || b.customerAddress || '';
+    }, 100);
+
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    alert(`✓ #${b.orderCode || b.resCode || ''} numaralı "${b.service || 'Detaylı Temizlik'}" siparişinizin detayları yüklendi. Lütfen yeni randevu tarihinizi seçiniz.`);
+  }, 400);
+};
 
 function renderCustomerAddresses(email) {
   const listEl = document.getElementById('savedAddressesList');
