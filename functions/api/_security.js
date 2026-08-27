@@ -57,3 +57,29 @@ export function sanitizeKey(key) {
   if (typeof key !== 'string') return '';
   return key.replace(/[^a-zA-Z0-9_\-\.]/g, '').substring(0, 80);
 }
+
+/**
+ * Constant-time string comparison to prevent cryptographic timing side-channel attacks.
+ * @param {string} a - First string (e.g. expected HMAC)
+ * @param {string} b - Second string (e.g. provided HMAC)
+ * @returns {boolean} True if strings are equal
+ */
+export function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+/**
+ * Masks internal server errors to prevent information disclosure vulnerabilities.
+ * @param {Error|string} err - Original error
+ * @returns {string} Safe generic message for client
+ */
+export function maskErrorMessage(err) {
+  return "İşlem sırasında güvenli bir hata oluştu. Lütfen tekrar deneyiniz.";
+}
+
