@@ -2619,6 +2619,7 @@ export function initAuthEngine() {
       saveCustomerSavedAddresses(user.email, addrs);
       renderCustomerAddresses(user.email);
       formAddAddress.reset();
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
       alert('✓ Yeni temizlik adresiniz başarıyla kaydedildi!');
     });
   }
