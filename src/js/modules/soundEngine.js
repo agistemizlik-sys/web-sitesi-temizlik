@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @fileoverview Web Audio Synthesizer & Sound Engine (Clean Code Module)
  * Synthesizes subtle micro-ticks, harmonic success chimes, and rose petal sounds
  * without external asset loading dependencies.
@@ -25,9 +25,22 @@ export function getAudioContext() {
 }
 
 /**
- * Plays an ultra-subtle mechanical tick micro-interaction sound (800Hz gentle sine).
+ * Triggers subtle device haptic vibration on touch-enabled devices.
+ * @param {number|number[]} pattern - Vibration pattern in milliseconds.
+ */
+export function triggerHaptic(pattern = 12) {
+  try {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator && typeof navigator.vibrate === 'function') {
+      navigator.vibrate(pattern);
+    }
+  } catch (e) {}
+}
+
+/**
+ * Plays an ultra-subtle mechanical tick micro-interaction sound (800Hz gentle sine) + haptic pulse.
  */
 export function playTickSound() {
+  triggerHaptic(10);
   if (!soundEnabled) return;
   try {
     const ctx = getAudioContext();
@@ -47,9 +60,10 @@ export function playTickSound() {
 }
 
 /**
- * Plays a luxury harmonic success chime chord (C5 - E5 - G5 - C6).
+ * Plays a luxury harmonic success chime chord (C5 - E5 - G5 - C6) + celebratory haptic feedback.
  */
 export function playSuccessChime() {
+  triggerHaptic([20, 60, 25]);
   if (!soundEnabled) return;
   try {
     const ctx = getAudioContext();
