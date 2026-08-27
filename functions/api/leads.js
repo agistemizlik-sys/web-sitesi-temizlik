@@ -1,4 +1,4 @@
-import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { scanAllPayloadThreats, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function Relay for Lead API
@@ -233,10 +233,11 @@ export async function onRequestPost(context) {
       leadData = {};
     }
 
-    // SQL / NoSQL / Prompt Injection Threat Blocker & Honeypot Trap
-    if (scanPayloadForInjection(leadData)) {
-      dispatchSecurityTrapAlert(env, request, 'SQL/Lead Injection', rawBody.substring(0, 150), waitUntil);
-      return createSecurityTrapResponse(traceId, 'SQL/Lead Injection');
+    // Comprehensive Cyber Threat Scanner & Honeypot Trap (SQLi, XSS, RCE, Path Traversal, Prompt Injection)
+    const threat = scanAllPayloadThreats(leadData);
+    if (threat.isMalicious) {
+      dispatchSecurityTrapAlert(env, request, threat.attackType, threat.snippet || rawBody.substring(0, 150), waitUntil);
+      return createSecurityTrapResponse(traceId, threat.attackType);
     }
 
     const cf = request.cf || {};

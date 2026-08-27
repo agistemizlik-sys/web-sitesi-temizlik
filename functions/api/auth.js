@@ -1,4 +1,4 @@
-import { scanPayloadForInjection, sanitizeSafeString, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { scanAllPayloadThreats, sanitizeSafeString, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function for Authentication & Staff Portal API
@@ -107,10 +107,11 @@ export async function onRequestPost(context) {
       });
     }
 
-    // SQL / NoSQL / Prompt Injection Threat Blocker & Honeypot Trap
-    if (scanPayloadForInjection(body)) {
-      dispatchSecurityTrapAlert(env, request, 'SQL/Auth Injection', rawBody.substring(0, 150), waitUntil);
-      return createSecurityTrapResponse(Date.now().toString(36), 'SQL/Auth Injection');
+    // Comprehensive Cyber Threat Scanner & Honeypot Trap (SQLi, XSS, RCE, Path Traversal, Prompt Injection)
+    const threat = scanAllPayloadThreats(body);
+    if (threat.isMalicious) {
+      dispatchSecurityTrapAlert(env, request, threat.attackType, threat.snippet || rawBody.substring(0, 150), waitUntil);
+      return createSecurityTrapResponse(Date.now().toString(36), threat.attackType);
     }
 
     // Honeypot spam trap

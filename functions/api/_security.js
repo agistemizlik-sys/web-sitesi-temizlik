@@ -26,6 +26,26 @@ const PROMPT_INJECTION_PATTERNS = [
   /(\[SYSTEM\]|\[INST\]|<\|im_start\|>|<\|im_end\|>|<<SYS>>)/i
 ];
 
+const XSS_PATTERNS = [
+  /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+  /javascript\s*:/i,
+  /data\s*:\s*text\/html/i,
+  /on(load|error|click|mouseover|mouseenter|focus|blur|change|submit)\s*=/i,
+  /\b(eval|alert|prompt|confirm)\s*\(/i,
+  /document\s*\.\s*(cookie|location|domain|write)/i
+];
+
+const PATH_TRAVERSAL_PATTERNS = [
+  /(\.\.\/|\.\.\\)/,
+  /(\/etc\/(passwd|shadow|hosts|group)|\/proc\/self|\/var\/log)/i,
+  /(c:\\windows|boot\.ini|win\.ini)/i
+];
+
+const RCE_PATTERNS = [
+  /(\b(powershell|cmd\.exe|bin\/sh|bin\/bash|curl|wget|nc|netcat|nmap|whoami)\b)/i,
+  /(\||\;|\`|\$\()\s*(rm\s+-rf|del\s+\/f|shutdown|kill|reboot)/i
+];
+
 export function hasSqlInjection(value) {
   if (value === null || value === undefined) return false;
   if (typeof value === 'object') {
@@ -46,18 +66,65 @@ export function hasPromptInjection(value) {
   return PROMPT_INJECTION_PATTERNS.some(regex => regex.test(str));
 }
 
-export function scanPayloadForInjection(obj) {
-  if (!obj || typeof obj !== 'object') return false;
+export function hasXss(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'object') {
+    return Object.values(value).some(v => hasXss(v));
+  }
+  const str = String(value).trim();
+  if (!str) return false;
+  return XSS_PATTERNS.some(regex => regex.test(str));
+}
+
+export function hasPathTraversal(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'object') {
+    return Object.values(value).some(v => hasPathTraversal(v));
+  }
+  const str = String(value).trim();
+  if (!str) return false;
+  return PATH_TRAVERSAL_PATTERNS.some(regex => regex.test(str));
+}
+
+export function hasCommandInjection(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'object') {
+    return Object.values(value).some(v => hasCommandInjection(v));
+  }
+  const str = String(value).trim();
+  if (!str) return false;
+  return RCE_PATTERNS.some(regex => regex.test(str));
+}
+
+/**
+ * Scans payload across all 5 enterprise attack vectors: SQLi, Prompt Injection, XSS, Path Traversal, RCE.
+ */
+export function scanAllPayloadThreats(obj) {
+  if (!obj || typeof obj !== 'object') return { isMalicious: false };
   for (const key of Object.keys(obj)) {
-    if (hasSqlInjection(key) || hasPromptInjection(key)) return true;
+    if (hasSqlInjection(key)) return { isMalicious: true, attackType: 'SQL Injection (Key)', snippet: key };
+    if (hasPromptInjection(key)) return { isMalicious: true, attackType: 'Prompt Injection (Key)', snippet: key };
+    if (hasXss(key)) return { isMalicious: true, attackType: 'XSS Vector (Key)', snippet: key };
+    if (hasPathTraversal(key)) return { isMalicious: true, attackType: 'Path Traversal (Key)', snippet: key };
+    if (hasCommandInjection(key)) return { isMalicious: true, attackType: 'Command Injection (Key)', snippet: key };
+
     const val = obj[key];
-    if (typeof val === 'string' && (hasSqlInjection(val) || hasPromptInjection(val))) {
-      return true;
+    if (typeof val === 'string') {
+      if (hasSqlInjection(val)) return { isMalicious: true, attackType: 'SQL Injection', snippet: val };
+      if (hasPromptInjection(val)) return { isMalicious: true, attackType: 'Prompt Injection', snippet: val };
+      if (hasXss(val)) return { isMalicious: true, attackType: 'XSS Vector', snippet: val };
+      if (hasPathTraversal(val)) return { isMalicious: true, attackType: 'Path Traversal', snippet: val };
+      if (hasCommandInjection(val)) return { isMalicious: true, attackType: 'Command Injection', snippet: val };
     } else if (typeof val === 'object' && val !== null) {
-      if (scanPayloadForInjection(val)) return true;
+      const nested = scanAllPayloadThreats(val);
+      if (nested.isMalicious) return nested;
     }
   }
-  return false;
+  return { isMalicious: false };
+}
+
+export function scanPayloadForInjection(obj) {
+  return scanAllPayloadThreats(obj).isMalicious;
 }
 
 export function sanitizeSafeString(str, maxLen = 300) {
