@@ -1378,16 +1378,31 @@ export function prefillBookingWizardWithUser() {
   if (nameEl && !nameEl.value.trim()) nameEl.value = user.name || '';
   if (emailEl && !emailEl.value.trim()) emailEl.value = user.email || '';
   if (phoneEl && !phoneEl.value.trim()) phoneEl.value = user.phone || '';
-  if (cityEl && user.city) {
-    cityEl.value = user.city;
-    cityEl.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  if (districtEl && user.district) {
+
+  const addrs = getCustomerSavedAddresses(user.email);
+  const defaultAddr = addrs.find(a => a.isDefault) || addrs[0];
+
+  if (defaultAddr) {
+    if (cityEl) {
+      cityEl.value = defaultAddr.city || user.city || 'Istanbul';
+      cityEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     setTimeout(() => {
-      if (districtEl) districtEl.value = user.district;
+      if (districtEl && defaultAddr.district) districtEl.value = defaultAddr.district;
+      if (streetEl && defaultAddr.fullAddress && !streetEl.value.trim()) streetEl.value = defaultAddr.fullAddress;
     }, 50);
+  } else {
+    if (cityEl && user.city) {
+      cityEl.value = user.city;
+      cityEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (districtEl && user.district) {
+      setTimeout(() => {
+        if (districtEl) districtEl.value = user.district;
+      }, 50);
+    }
+    if (streetEl && user.street && !streetEl.value.trim()) streetEl.value = user.street || '';
   }
-  if (streetEl && user.street && !streetEl.value.trim()) streetEl.value = user.street || '';
 }
 
 // Saved Addresses Storage Key
