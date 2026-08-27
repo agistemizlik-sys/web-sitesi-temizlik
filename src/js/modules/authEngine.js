@@ -1771,6 +1771,7 @@ function renderStaffDashboard() {
                 <a href="https://maps.google.com/?q=${mapsQuery}" target="_blank" rel="noopener noreferrer" class="btn-sjc-action maps">🗺️ Harita Yol Tarifi</a>
                 <a href="tel:${escapeHTML(j.customerPhone)}" class="btn-sjc-action call">📞 Ara</a>
                 <a href="https://wa.me/90${escapeHTML(j.customerPhone.replace(/\D/g, ''))}?text=${waText}" target="_blank" rel="noopener noreferrer" class="btn-sjc-action wa">💬 WhatsApp</a>
+                <a href="https://wa.me/905466479004?text=ACİL%20SAHA%20DESTEĞİ:%20#${encodeURIComponent(j.orderCode || j.id)}%20numaralı%20görevdeyim,%20yönetici%20desteği%20rica%20ediyorum." target="_blank" rel="noopener noreferrer" class="btn-sjc-action" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#fca5a5;">🚨 Destek / SOS</a>
               </div>
 
               <div class="sjc-status-btns">
