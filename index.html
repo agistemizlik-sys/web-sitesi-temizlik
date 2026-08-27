@@ -3601,49 +3601,25 @@
         <button type="button" class="rx-cmodal-close-btn" id="btnCloseAuthModal" aria-label="Kapat">✕</button>
       </div>
 
-      <!-- Multi-Role Switcher (Müşteri vs Çalışan vs Yönetici) -->
-      <div class="auth-role-switcher-wrap">
-        <button type="button" class="btn-role-switch active" id="btnRoleSelectCustomer">
-          <span>👤 Müşteri Portalı</span>
-        </button>
-        <button type="button" class="btn-role-switch" id="btnRoleSelectStaff">
-          <span>🧹 Temizlik Uzmanı</span>
-        </button>
-        <button type="button" class="btn-role-switch" id="btnRoleSelectAdmin">
-          <span>👑 Yönetici / Admin</span>
-        </button>
-      </div>
-
-      <!-- Auth Navigation Tabs -->
+      <!-- Unified Auth Navigation Tabs -->
       <div class="auth-tabs-nav">
-        <!-- Customer Tabs -->
-        <button type="button" class="auth-tab-btn customer-only-tab active" id="tabAuthLoginBtn">
-          <span>🔑 Giriş Yap</span>
+        <!-- Logged Out Tabs -->
+        <button type="button" class="auth-tab-btn active" id="tabAuthLoginBtn">
+          <span>🔑 Tek Giriş Masası</span>
         </button>
-        <button type="button" class="auth-tab-btn customer-only-tab" id="tabAuthRegisterBtn">
+        <button type="button" class="auth-tab-btn" id="tabAuthRegisterBtn">
           <span>✨ Hesap Aç (%15 İndirim)</span>
         </button>
-        <button type="button" class="auth-tab-btn customer-only-tab" id="tabAuthProfileBtn" style="display:none;">
-          <span>👤 Profilim & Siparişlerim</span>
-        </button>
 
-        <!-- Staff Tabs -->
-        <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffLoginBtn" style="display:none;">
-          <span>⚡ Uzman Girişi</span>
-        </button>
-        <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffApplyBtn" style="display:none;">
-          <span>📝 Ekibe Katıl / Başvuru</span>
+        <!-- Logged In Role-Specific Tabs -->
+        <button type="button" class="auth-tab-btn customer-only-tab" id="tabAuthProfileBtn" style="display:none;">
+          <span>👤 Müşteri Portalı</span>
         </button>
         <button type="button" class="auth-tab-btn staff-only-tab" id="tabAuthStaffDashBtn" style="display:none;">
-          <span>📋 Görev & Kazanç Paneli</span>
-        </button>
-
-        <!-- Admin Tabs -->
-        <button type="button" class="auth-tab-btn admin-only-tab" id="tabAuthAdminLoginBtn" style="display:none;">
-          <span>👑 Yetkili Girişi</span>
+          <span>🧹 Temizlik Uzmanı Masası</span>
         </button>
         <button type="button" class="auth-tab-btn admin-only-tab" id="tabAuthAdminDashBtn" style="display:none;">
-          <span>🛍️ Ürün & Katalog Paneli</span>
+          <span>👑 Yönetici / Admin Paneli</span>
         </button>
       </div>
 

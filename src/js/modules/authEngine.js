@@ -2186,10 +2186,10 @@ export function renderAdminDashboard() {
     const cleanQ = (query || '').toLowerCase().trim();
     
     const baseCustomers = [
-      { id: 'CST-101', name: 'Ahmet Yılmaz', email: 'ahmet.yilmaz@gmail.com', phone: '0532 111 22 33', city: 'İstanbul / Beşiktaş', vipScore: 240, ordersCount: 5, regDate: '12 Ocak 2026', badge: 'badge-success', vip: true },
-      { id: 'CST-102', name: 'Zeynep Demir', email: 'zeynep.demir@hotmail.com', phone: '0544 222 33 44', city: 'İstanbul / Kadıköy', vipScore: 180, ordersCount: 3, regDate: '24 Ocak 2026', badge: 'badge-success', vip: true },
-      { id: 'CST-103', name: 'Mehmet Can', email: 'mehmet.can@outlook.com', phone: '0555 444 55 66', city: 'Ankara / Çankaya', vipScore: 90, ordersCount: 2, regDate: '03 Şubat 2026', badge: 'badge-progress', vip: false },
-      { id: 'CST-104', name: 'Anna Kowalska', email: 'anna.kowalska@onet.pl', phone: '+48 501 234 567', city: 'Warszawa / Śródmieście', vipScore: 320, ordersCount: 7, regDate: '18 Aralık 2025', badge: 'badge-success', vip: true }
+      { id: 'CST-101', name: 'Ahmet Yılmaz', email: 'ahmet.yilmaz@gmail.com', phone: '0532 111 22 33', city: 'İstanbul / Beşiktaş', vipScore: 240, ordersCount: 5, regDate: '12 Ocak 2026', badge: 'badge-success', vip: true, role: 'customer' },
+      { id: 'CST-102', name: 'Zeynep Demir', email: 'zeynep.demir@hotmail.com', phone: '0544 222 33 44', city: 'İstanbul / Kadıköy', vipScore: 180, ordersCount: 3, regDate: '24 Ocak 2026', badge: 'badge-success', vip: true, role: 'staff' },
+      { id: 'CST-103', name: 'Mehmet Can', email: 'mehmet.can@outlook.com', phone: '0555 444 55 66', city: 'Ankara / Çankaya', vipScore: 90, ordersCount: 2, regDate: '03 Şubat 2026', badge: 'badge-progress', vip: false, role: 'customer' },
+      { id: 'CST-104', name: 'Anna Kowalska', email: 'anna.kowalska@onet.pl', phone: '+48 501 234 567', city: 'Warszawa / Śródmieście', vipScore: 320, ordersCount: 7, regDate: '18 Aralık 2025', badge: 'badge-success', vip: true, role: 'customer' }
     ];
 
     const localUsers = getRegisteredUsers().map(u => ({
@@ -2202,7 +2202,8 @@ export function renderAdminDashboard() {
       ordersCount: 1,
       regDate: 'Bugün',
       badge: 'badge-success',
-      vip: (u.vipScore || 100) >= 100
+      vip: (u.vipScore || 100) >= 100,
+      role: u.role || 'customer'
     }));
 
     const allCustomers = [...localUsers, ...baseCustomers.filter(b => !localUsers.some(l => l.email === b.email))];
@@ -2222,13 +2223,15 @@ export function renderAdminDashboard() {
             <th>Müşteri No / İsim</th>
             <th>İletişim & E-Posta</th>
             <th>Bölge / Şehir</th>
-            <th>VIP Puanı & Siparişler</th>
-            <th>Kayıt Tarihi</th>
+            <th>Sistem Rolü (Yetki)</th>
+            <th>VIP Puanı</th>
             <th>Hızlı İletişim & Aksiyon</th>
           </tr>
         </thead>
         <tbody>
-          ${filtered.map(c => `
+          ${filtered.map(c => {
+            const curRole = c.role || 'customer';
+            return `
             <tr>
               <td>
                 <strong style="color: #f1f5f9; font-size: 0.92rem;">${escapeHTML(c.name)}</strong>
@@ -2240,10 +2243,16 @@ export function renderAdminDashboard() {
               </td>
               <td><span>📍 ${escapeHTML(c.city)}</span></td>
               <td>
+                <select class="admin-role-select" onchange="window.changeUserRoleGlobal('${escapeHTML(c.email)}', this.value)" style="background: #0f172a; color: ${curRole === 'admin' ? '#f59e0b' : curRole === 'staff' ? '#38bdf8' : '#34d399'}; border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; padding: 4px 8px; font-size: 0.76rem; font-weight: bold; cursor: pointer;">
+                  <option value="customer" ${curRole === 'customer' ? 'selected' : ''}>👤 Müşteri</option>
+                  <option value="staff" ${curRole === 'staff' ? 'selected' : ''}>🧹 Temizlik Uzmanı</option>
+                  <option value="admin" ${curRole === 'admin' ? 'selected' : ''}>👑 Yönetici (Admin)</option>
+                </select>
+              </td>
+              <td>
                 <strong style="color: #fbbf24;">⭐ ${c.vipScore} Puan</strong>
                 <span style="font-size: 0.75rem; color: #94a3b8; display: block;">${c.ordersCount} Rezervasyon</span>
               </td>
-              <td><span style="font-size: 0.8rem; color: #cbd5e1;">${c.regDate}</span></td>
               <td>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                   <a href="https://wa.me/${String(c.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Merhaba Sayın ${c.name}, RELAXAX Temizlik müşteri destek ekibinden yazıyoruz.`)}" target="_blank" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.72rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">💬 WhatsApp</a>
@@ -2251,7 +2260,8 @@ export function renderAdminDashboard() {
                 </div>
               </td>
             </tr>
-          `).join('')}
+          `;
+          }).join('')}
         </tbody>
       </table>
     `;
@@ -3360,7 +3370,7 @@ export function initAuthEngine() {
   document.getElementById('linkGoToStaffApply')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('staff_apply'); });
   document.getElementById('linkGoToStaffLogin')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('staff_login'); });
 
-  // Customer Login Form Submission
+  // Unified Login Form Submission
   const loginForm = document.getElementById('authLoginForm');
   const loginFeedback = document.getElementById('authLoginFeedback');
   const btnSubmitLogin = document.getElementById('btnSubmitLogin');
@@ -3373,10 +3383,10 @@ export function initAuthEngine() {
 
       if (btnSubmitLogin) {
         btnSubmitLogin.disabled = true;
-        btnSubmitLogin.innerHTML = '<span>Giriş yapılıyor... ⏳</span>';
+        btnSubmitLogin.innerHTML = '<span>Yetkili Girişi Doğrulanıyor... ⏳</span>';
       }
 
-      const res = await loginUser(email, pass, remember, 'customer');
+      const res = await loginUser(email, pass, remember, 'any');
 
       if (btnSubmitLogin) {
         btnSubmitLogin.disabled = false;
@@ -3387,21 +3397,78 @@ export function initAuthEngine() {
         if (loginFeedback) {
           loginFeedback.style.display = 'block';
           loginFeedback.className = 'auth-feedback success';
-          loginFeedback.textContent = `✓ Hoş geldiniz, ${res.user.name}! Giriş yapıldı.`;
+          loginFeedback.textContent = `✓ Hoş geldiniz, ${res.user.name}! Giriş yapıldı (${res.role === 'admin' ? 'Yönetici' : res.role === 'staff' ? 'Temizlik Uzmanı' : 'Müşteri'}).`;
         }
+        if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
         setTimeout(() => {
-          closeAuthModal();
+          if (res.role === 'admin') {
+            switchAuthTab('admin_dashboard');
+          } else if (res.role === 'staff') {
+            switchAuthTab('staff_dashboard');
+          } else {
+            switchAuthTab('profile');
+          }
           if (loginFeedback) loginFeedback.style.display = 'none';
-        }, 800);
+        }, 500);
       } else {
         if (loginFeedback) {
           loginFeedback.style.display = 'block';
           loginFeedback.className = 'auth-feedback error';
           loginFeedback.textContent = `⚠️ ${res.message}`;
         }
+        if (typeof window.playAlertChime === 'function') window.playAlertChime();
       }
     });
   }
+
+  window.changeUserRoleGlobal = function(email, newRole) {
+    if (!email) return;
+    const users = getRegisteredUsers();
+    const targetUser = users.find(u => u.email === email);
+    if (targetUser) {
+      targetUser.role = newRole;
+      saveRegisteredUsers(users);
+    }
+
+    // If user is promoted to staff, ensure presence in registered staff list
+    if (newRole === 'staff') {
+      const staffList = getRegisteredStaff();
+      if (!staffList.some(s => s.email === email)) {
+        staffList.push({
+          id: targetUser?.id || ('staff_' + Date.now().toString(36)),
+          role: 'staff',
+          name: (targetUser?.name || 'Temizlik Uzmanı'),
+          email: email,
+          phone: targetUser?.phone || '0532 999 88 77',
+          password: targetUser?.password || '123456',
+          city: targetUser?.city || 'Istanbul',
+          district: targetUser?.district || 'Kadıköy',
+          rating: '5.00',
+          completedJobs: 0,
+          todayEarnings: 0,
+          isAvailable: true
+        });
+        saveRegisteredStaff(staffList);
+      }
+    }
+
+    // Update current session if the changed user is currently logged in
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.email === email) {
+      currentUser.role = newRole;
+      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(currentUser));
+      updateAuthUI();
+    }
+
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    if (typeof window.broadcastStateChange === 'function') {
+      window.broadcastStateChange('USER_ROLE_CHANGED', { email, newRole });
+    }
+    if (typeof window.renderAdminCustomersList === 'function') {
+      window.renderAdminCustomersList(window._adminSearchQuery || '');
+    }
+    alert(`✓ [${email}] kullanıcısının yetkisi başarıyla "${newRole === 'admin' ? 'YÖNETİCİ' : newRole === 'staff' ? 'TEMİZLİK UZMANI' : 'MÜŞTERİ'}" olarak güncellendi!\n\nKullanıcı tek giriş masasından (${email}) ile giriş yaptığında doğrudan bu yetkiye ait paneline yönlendirilecektir.`);
+  };
 
   // Staff Login Form Submission
   const staffLoginForm = document.getElementById('authStaffLoginForm');
