@@ -49,6 +49,14 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
+// Global Client Resilience & Error Boundary
+window.addEventListener('unhandledrejection', (event) => {
+  if (event && event.reason) {
+    console.warn('[RELAXAX_RESILIENT_LOOP_GUARD]', event.reason);
+  }
+  event.preventDefault();
+});
+
 // Initialize Hardware Booster, Master Loop Engine, Cyber Defense, Push Engine, Voice Assistant, Hygiene Certificates, VIP Concierge & Debug Hardening
 initHardwareBooster();
 initLoopEngineering();
