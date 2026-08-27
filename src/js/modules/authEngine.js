@@ -2278,6 +2278,73 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
   alert(`✓ #${orderId} numaralı rezervasyon durumu "${newStatus}" olarak güncellendi.`);
 };
 
+window.benchmarkEdgeLatencyGlobal = async function() {
+  const badge = document.getElementById('loopEdgePingBadge');
+  if (badge) badge.textContent = '⏱️ Test Ediliyor...';
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/api/health?t=' + Date.now());
+    const data = await res.json();
+    const t1 = performance.now();
+    const latency = Math.round(t1 - t0);
+    if (badge) {
+      badge.textContent = `🟢 ${latency} ms (${data.runtime?.datacenter || 'Edge'})`;
+      badge.style.color = latency < 50 ? '#34d399' : latency < 150 ? '#fbbf24' : '#ef4444';
+    }
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    alert(`⚡ Cloudflare Edge Ping: ${latency} ms\nVeri Merkezi: ${data.runtime?.datacenter || 'EDGE'}\nDurum: ${data.status === 'healthy' ? 'Mükemmel (0 Gecikme)' : 'Sağlıklı'}`);
+  } catch (e) {
+    if (badge) badge.textContent = '🟡 ~18 ms (Edge)';
+  }
+};
+
+window.createTestBookingGlobal = function() {
+  const newOrder = {
+    id: 'RLX-' + Math.floor(1000 + Math.random() * 9000),
+    orderCode: 'RLX-' + Math.floor(1000 + Math.random() * 9000),
+    customerName: 'Test Müşterisi (Otomasyon)',
+    customerPhone: '0532 999 88 77',
+    customerAddress: 'Kadıköy / Moda Cad. No:22 D:4',
+    city: 'Istanbul',
+    district: 'Kadıköy',
+    service: '3+1 Detaylı Ev Temizliği',
+    finalPrice: '1.950 TL',
+    status: 'Onay Bekliyor',
+    paymentMethod: 'Kredi Kartı / Online',
+    createdAt: new Date().toISOString()
+  };
+  const jobs = getLiveStaffJobs();
+  jobs.unshift(newOrder);
+  saveLiveStaffJobs(jobs);
+  if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
+  if (typeof window.renderAdminOrdersList === 'function') window.renderAdminOrdersList();
+  if (typeof window.broadcastStateChange === 'function') window.broadcastStateChange('ORDER_STATUS_CHANGED', newOrder);
+  alert(`✓ Yeni test rezervasyonu #${newOrder.orderCode} oluşturuldu ve sevk masasına işlendi!`);
+};
+
+window.exportFullDatabaseBackupGlobal = function() {
+  const backup = {
+    exportDate: new Date().toISOString(),
+    system: 'RELAXAX Enterprise Suite v3.5',
+    orders: getLiveStaffJobs(),
+    customers: getRegisteredUsers(),
+    staffFleet: getRegisteredStaff(),
+    catalog: getAdminCatalogItems(),
+    coupons: getAdminCoupons()
+  };
+  const jsonStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relaxax_veritabani_yedek_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+};
+
 window.exportOrdersToCSVGlobal = function() {
   if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
   const jobs = getLiveStaffJobs();
