@@ -17,17 +17,27 @@ import { isVpnOrProxy, generateVpnBlockScreen } from './api/_vpnGuard.js';
 
 const ORIGIN = 'https://relaxax.com';
 
-// JavaScript çalıştırmayan veya rendering kuyruğu gecikmeli bilinen crawler'lar
+// Meşru Arama Motorları & Sosyal Medya Önizleme Botları
 const BOT_RE = new RegExp(
   [
     'googlebot', 'google-inspectiontool', 'storebot-google', 'adsbot-google', 'mediapartners-google',
     'bingbot', 'bingpreview', 'msnbot',
     'yandex(bot|images|metrika)?', 'duckduckbot', 'baiduspider', 'slurp', 'applebot', 'petalbot',
-    'facebookexternalhit', 'facebot', 'meta-externalagent',
+    'facebookexternalhit', 'facebot',
     'whatsapp', 'twitterbot', 'linkedinbot', 'telegrambot', 'slackbot', 'discordbot',
     'pinterest(bot)?', 'redditbot', 'skypeuripreview', 'vkshare', 'embedly', 'quora link preview',
-    'gptbot', 'oai-searchbot', 'chatgpt-user', 'perplexitybot', 'claudebot', 'claude-web', 'bytespider',
     'semrushbot', 'ahrefsbot', 'screaming frog', 'rogerbot', 'dotbot',
+  ].join('|'),
+  'i'
+);
+
+// 🛑 Yapay Zeka Kazıma & Kod Kopyalama Botları (Anti-AI Scraping Shield)
+const AI_SCRAPER_BOT_RE = new RegExp(
+  [
+    'gptbot', 'chatgpt-user', 'claudebot', 'claude-web', 'anthropic-ai',
+    'ccbot', 'perplexitybot', 'bytespider', 'diffbot', 'imagesiftbot',
+    'cohere-training-data-crawler', 'omgilibot', 'facebookbot', 'meta-externalagent',
+    'scrapy', 'seekr', 'amazonbot', 'turnitin', 'ia_archiver'
   ].join('|'),
   'i'
 );
@@ -326,6 +336,25 @@ export async function onRequest(context) {
   if (isDocRequest && !url.pathname.startsWith('/api/') && isVpnOrProxy(request)) {
     const langParam = url.searchParams.get('lang') || 'tr';
     return generateVpnBlockScreen(langParam);
+  }
+
+  // 0C. Anti-AI Scraping & LLM Cloning Shield
+  const userAgent = request.headers.get('User-Agent') || '';
+  if (AI_SCRAPER_BOT_RE.test(userAgent)) {
+    return new Response(JSON.stringify({
+      status: 403,
+      error: "AI Scraping & Automated Code Synthesis Forbidden",
+      copyright: "RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. All rights reserved.",
+      directive: "All proprietary Three.js 3D shaders, visual assets, algorithms, and business logics of RELAXAX are strictly protected against automated AI extraction under WIPO & DMCA international copyright laws. Unauthorized reproduction, imitation, or LLM training is strictly prohibited.",
+      robots: "noai, noimageai, noindex, nofollow"
+    }, null, 2), {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-Robots-Tag': 'noindex, nofollow, noai, noimageai, noarchive',
+        'X-AI-Shield': 'Active'
+      }
+    });
   }
 
   // API yolları için güvenlik ve robot başlıklarını uygula
