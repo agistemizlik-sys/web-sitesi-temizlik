@@ -19,6 +19,13 @@ const SQLI_PATTERNS = [
   /(\$where|\$regex|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$or|\$and|\$not|\$nor|\$expr)/i
 ];
 
+const PROMPT_INJECTION_PATTERNS = [
+  /(ignore|disregard|forget|override)\s+(all\s+)?(previous|prior|above|system)\s+(instructions|prompts|rules|commands)/i,
+  /(\b(system\s*prompt|system\s*directive|developer\s*mode|jailbreak|DAN\s*mode)\b)/i,
+  /(you\s+are\s+now|act\s+as\s+an?\s+unrestricted|bypass\s+(safety|content)\s+filters)/i,
+  /(\[SYSTEM\]|\[INST\]|<\|im_start\|>|<\|im_end\|>|<<SYS>>)/i
+];
+
 export function hasSqlInjection(value) {
   if (value === null || value === undefined) return false;
   if (typeof value === 'object') {
@@ -29,12 +36,22 @@ export function hasSqlInjection(value) {
   return SQLI_PATTERNS.some(regex => regex.test(str));
 }
 
+export function hasPromptInjection(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'object') {
+    return Object.values(value).some(v => hasPromptInjection(v));
+  }
+  const str = String(value).trim();
+  if (!str) return false;
+  return PROMPT_INJECTION_PATTERNS.some(regex => regex.test(str));
+}
+
 export function scanPayloadForInjection(obj) {
   if (!obj || typeof obj !== 'object') return false;
   for (const key of Object.keys(obj)) {
-    if (hasSqlInjection(key)) return true;
+    if (hasSqlInjection(key) || hasPromptInjection(key)) return true;
     const val = obj[key];
-    if (typeof val === 'string' && hasSqlInjection(val)) {
+    if (typeof val === 'string' && (hasSqlInjection(val) || hasPromptInjection(val))) {
       return true;
     } else if (typeof val === 'object' && val !== null) {
       if (scanPayloadForInjection(val)) return true;
