@@ -7005,6 +7005,13 @@ video::-webkit-media-controls-overlay-play-button {
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
   color: #ffffff;
+  pointer-events: auto !important;
+  z-index: 25 !important;
+  user-select: none;
+}
+
+.cso-capsule-card * {
+  pointer-events: none !important;
 }
 
 .cso-capsule-card:hover {
@@ -7020,6 +7027,7 @@ video::-webkit-media-controls-overlay-play-button {
   overflow: hidden;
   border-radius: 118px 118px 0 0;
   background: rgba(10, 17, 34, 0.9);
+  pointer-events: none;
 }
 
 .cso-capsule-img {

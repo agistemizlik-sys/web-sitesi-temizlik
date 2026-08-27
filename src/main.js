@@ -4712,145 +4712,99 @@ function setupPortalGateway() {
 
   // ── COUNTRY SELECTOR HANDLERS ──────────────────────────────────────────
   function selectCountryGlobal(countryCode) {
-    if (typeof closeBookingScreen === 'function') {
-      closeBookingScreen();
-    }
-    if (typeof closeServicesModal === 'function') {
-      closeServicesModal();
-    }
+    const code = (countryCode === 'pl' || countryCode === 'poland') ? 'pl' : 'tr';
 
-    if (window.history && window.history.pushState) {
-      window.history.pushState({ stage: 'map' }, '');
-    }
-
-    STATE.language = countryCode;
-    applyLanguage(countryCode);
-
-    const mapTr = document.getElementById('portalNeonMap');
-    const mapPl = document.getElementById('portalNeonMapPoland');
-
-    if (countryCode === 'pl') {
-      if (mapTr) mapTr.style.display = 'none';
-      if (mapPl) mapPl.style.display = 'block';
-      destroyLeafletMap('turkey');
-      initLeafletMap('poland');
-    } else {
-      if (mapTr) mapTr.style.display = 'block';
-      if (mapPl) mapPl.style.display = 'none';
-      destroyLeafletMap('poland');
-      initLeafletMap('turkey');
-    }
-
-    const portalStageEl = document.getElementById('portal-stage');
-    if (portalStageEl) {
-      portalStageEl.style.display = 'flex';
-      portalStageEl.style.opacity = '1';
-      portalStageEl.style.pointerEvents = 'all';
-      portalStageEl.style.padding = '16px 12px';
-      portalStageEl.style.background = 'radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%)';
-    }
-
+    // 1. Immediately hide country selector overlay synchronously
     const csoOverlayEl = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
     if (csoOverlayEl) {
       csoOverlayEl.classList.add('cso-hidden');
-      csoOverlayEl.style.display = 'none';
-      csoOverlayEl.style.visibility = 'hidden';
-      csoOverlayEl.style.pointerEvents = 'none';
-      csoOverlayEl.style.opacity = '0';
+      csoOverlayEl.style.setProperty('display', 'none', 'important');
+      csoOverlayEl.style.setProperty('opacity', '0', 'important');
+      csoOverlayEl.style.setProperty('visibility', 'hidden', 'important');
+      csoOverlayEl.style.setProperty('pointer-events', 'none', 'important');
       const earthVideo = document.getElementById('csoEarthVideo');
       if (earthVideo && !earthVideo.paused) {
         try { earthVideo.pause(); } catch(err) {}
       }
     }
 
+    // 2. Immediately reveal portal stage & map stage
     document.body.classList.add('flag-selection-mode');
+    document.body.classList.remove('portal-intro-mode');
+
+    const portalStageEl = document.getElementById('portal-stage');
+    if (portalStageEl) {
+      portalStageEl.style.setProperty('display', 'flex', 'important');
+      portalStageEl.style.setProperty('opacity', '1', 'important');
+      portalStageEl.style.setProperty('pointer-events', 'all', 'important');
+      portalStageEl.style.padding = '16px 12px';
+      portalStageEl.style.background = 'radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%)';
+    }
 
     const mapStageEl = document.querySelector('.portal-map-selector-stage');
     if (mapStageEl) {
-      mapStageEl.style.display = 'block';
-      mapStageEl.style.visibility = 'visible';
-      mapStageEl.style.pointerEvents = 'all';
-      mapStageEl.style.opacity = '1';
-      setTimeout(() => {
-        if (window.turkeyMapInstance) window.turkeyMapInstance.invalidateSize();
-        if (window.polandMapInstance) window.polandMapInstance.invalidateSize();
-      }, 150);
+      mapStageEl.style.setProperty('display', 'block', 'important');
+      mapStageEl.style.setProperty('visibility', 'visible', 'important');
+      mapStageEl.style.setProperty('pointer-events', 'all', 'important');
+      mapStageEl.style.setProperty('opacity', '1', 'important');
     }
+
     const logoContainer = document.querySelector('.portal-logo-container');
     if (logoContainer) logoContainer.style.display = 'none';
     const portalCenterHintEl = document.querySelector('.portal-center-hint');
     if (portalCenterHintEl) portalCenterHintEl.style.display = 'none';
 
-    // Update Bottom Carousel & Right Preview Card according to Country
-    renderPopularCitiesGrid(countryCode);
+    try {
+      if (typeof closeBookingScreen === 'function') closeBookingScreen();
+      if (typeof closeServicesModal === 'function') closeServicesModal();
+      if (window.history && window.history.pushState) window.history.pushState({ stage: 'map' }, '');
 
-    if (countryCode === 'pl') {
-      if (typeof showCityPreviewFn === 'function') {
-        showCityPreviewFn('Warszawa');
-      }
-      
-      const mainHeading = document.querySelector('.tms-main-heading');
-      if (mainHeading) mainHeading.textContent = 'Wybierz swoje miasto';
-      const mainSub = document.querySelector('.tms-main-sub');
-      if (mainSub) mainSub.textContent = 'Wybierz miasto lub dzielnicę, aby zobaczyć najbliższe punkty usług i zarezerwować termin.';
+      STATE.language = code;
+      applyLanguage(code);
 
-      const nearTitle = document.querySelector('.tms-near-title');
-      if (nearTitle) nearTitle.textContent = 'NAJBLIŻSZY PUNKT USŁUG:';
-      const nearCity = document.querySelector('.tms-near-city');
-      if (nearCity) nearCity.innerHTML = 'Śródmieście, Warszawa <span class="tms-near-dist">(1.8 km)</span>';
+      const mapTr = document.getElementById('portalNeonMap');
+      const mapPl = document.getElementById('portalNeonMapPoland');
 
-      const searchInput = document.getElementById('tmsCitySearchInput');
-      if (searchInput) searchInput.setAttribute('placeholder', 'Szukaj dzielnicy lub miasta...');
-      const gpsBtn = document.getElementById('tmsUseGpsBtn');
-      if (gpsBtn) gpsBtn.innerHTML = '<span>🎯</span> Użyj mojej lokalizacji';
-      const resetBtn = document.getElementById('tmsResetMapBtn');
-      if (resetBtn) resetBtn.textContent = 'Zobacz całą Warszawę';
-
-      const filterAll = document.querySelector('.tms-filter-btn[data-filter="all"]');
-      if (filterAll) filterAll.textContent = '🎛️ Wszystkie';
-      const filterActive = document.querySelector('.tms-filter-btn[data-filter="active"]');
-      if (filterActive) filterActive.textContent = '🟢 Dostępne';
-      const filterComing = document.querySelector('.tms-filter-btn[data-filter="coming_soon"]');
-      if (filterComing) filterComing.textContent = '🟡 Wkrótce';
-      const filterNone = document.querySelector('.tms-filter-btn[data-filter="none"]');
-      if (filterNone) filterNone.textContent = '⚪ Niedostępne';
-
-    } else {
-      if (typeof showCityPreviewFn === 'function') {
-        showCityPreviewFn('Istanbul');
+      if (code === 'pl') {
+        if (mapTr) mapTr.style.display = 'none';
+        if (mapPl) mapPl.style.display = 'block';
+        destroyLeafletMap('turkey');
+        setTimeout(() => { initLeafletMap('poland'); }, 30);
+      } else {
+        if (mapTr) mapTr.style.display = 'block';
+        if (mapPl) mapPl.style.display = 'none';
+        destroyLeafletMap('poland');
+        setTimeout(() => { initLeafletMap('turkey'); }, 30);
       }
 
-      const mainHeading = document.querySelector('.tms-main-heading');
-      if (mainHeading) mainHeading.textContent = 'Şehrinizi seçin';
-      const mainSub = document.querySelector('.tms-main-sub');
-      if (mainSub) mainSub.textContent = 'Size en yakın hizmet noktalarımızı görmek ve randevu oluşturmak için şehrinizi seçin.';
+      // Update Bottom Carousel & Right Preview Card according to Country
+      renderPopularCitiesGrid(code);
 
-      const nearTitle = document.querySelector('.tms-near-title');
-      if (nearTitle) nearTitle.textContent = 'Size en yakın hizmet noktası:';
-      const nearCity = document.querySelector('.tms-near-city');
-      if (nearCity) nearCity.innerHTML = 'Kadıköy, İstanbul <span class="tms-near-dist">(2.4 km uzaklıkta)</span>';
-
-      const searchInput = document.getElementById('tmsCitySearchInput');
-      if (searchInput) searchInput.setAttribute('placeholder', 'Şehir ara veya seç...');
-      const gpsBtn = document.getElementById('tmsUseGpsBtn');
-      if (gpsBtn) gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
-      const resetBtn = document.getElementById('tmsResetMapBtn');
-      if (resetBtn) resetBtn.textContent = 'Türkiye genelini görün';
-
-      const filterAll = document.querySelector('.tms-filter-btn[data-filter="all"]');
-      if (filterAll) filterAll.textContent = '🎛️ Tüm';
-      const filterActive = document.querySelector('.tms-filter-btn[data-filter="active"]');
-      if (filterActive) filterActive.textContent = '🟢 Hizmet Veriliyor';
-      const filterComing = document.querySelector('.tms-filter-btn[data-filter="coming_soon"]');
-      if (filterComing) filterComing.textContent = '🟡 Yakında';
-      const filterNone = document.querySelector('.tms-filter-btn[data-filter="none"]');
-      if (filterNone) filterNone.textContent = '⚪ Hizmet Verilmiyor';
+      if (code === 'pl') {
+        if (typeof showCityPreviewFn === 'function') showCityPreviewFn('Warszawa');
+        const mainHeading = document.querySelector('.tms-main-heading');
+        if (mainHeading) mainHeading.textContent = 'Wybierz swoje miasto';
+        const mainSub = document.querySelector('.tms-main-sub');
+        if (mainSub) mainSub.textContent = 'Wybierz miasto lub dzielnicę, aby zobaczyć najbliższe punkty usług i zarezerwować termin.';
+        const searchInput = document.getElementById('tmsCitySearchInput');
+        if (searchInput) searchInput.setAttribute('placeholder', 'Szukaj dzielnicy lub miasta...');
+      } else {
+        if (typeof showCityPreviewFn === 'function') showCityPreviewFn('Istanbul');
+        const mainHeading = document.querySelector('.tms-main-heading');
+        if (mainHeading) mainHeading.textContent = 'Şehrinizi seçin';
+        const mainSub = document.querySelector('.tms-main-sub');
+        if (mainSub) mainSub.textContent = 'Size en yakın hizmet noktalarımızı görmek ve randevu oluşturmak için şehrinizi seçin.';
+        const searchInput = document.getElementById('tmsCitySearchInput');
+        if (searchInput) searchInput.setAttribute('placeholder', 'Şehir ara veya seç...');
+      }
+    } catch (e) {
+      console.warn('[selectCountryGlobal] Error in async handlers:', e);
     }
 
     setTimeout(() => {
-      if (countryCode === 'tr' && turkeyMapInstance) {
+      if (code === 'tr' && turkeyMapInstance) {
         turkeyMapInstance.invalidateSize();
-      } else if (countryCode === 'pl' && polandMapInstance) {
+      } else if (code === 'pl' && polandMapInstance) {
         polandMapInstance.invalidateSize();
       }
     }, 150);
@@ -5014,19 +4968,39 @@ function setupPortalGateway() {
     initMobileVideoLoopEngine();
   }
 
+  const handleTurkeySelect = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    selectCountryGlobal('tr');
+  };
+
+  const handlePolandSelect = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    selectCountryGlobal('pl');
+  };
+
   if (csoBtnTurkey) {
-    csoBtnTurkey.addEventListener('click', (e) => {
-      e.preventDefault();
-      selectCountryGlobal('tr');
-    });
+    csoBtnTurkey.addEventListener('click', handleTurkeySelect);
+    csoBtnTurkey.addEventListener('pointerup', handleTurkeySelect);
   }
 
   if (csoBtnPoland) {
-    csoBtnPoland.addEventListener('click', (e) => {
-      e.preventDefault();
-      selectCountryGlobal('pl');
-    });
+    csoBtnPoland.addEventListener('click', handlePolandSelect);
+    csoBtnPoland.addEventListener('pointerup', handlePolandSelect);
   }
+
+  // Universal Click Delegation for Country Cards
+  document.addEventListener('click', (e) => {
+    const trCard = e.target && e.target.closest ? e.target.closest('#csoBtnTurkey, [data-country="turkey"]') : null;
+    if (trCard) {
+      handleTurkeySelect(e);
+      return;
+    }
+    const plCard = e.target && e.target.closest ? e.target.closest('#csoBtnPoland, [data-country="poland"]') : null;
+    if (plCard) {
+      handlePolandSelect(e);
+      return;
+    }
+  });
 
   // Country Selector Top-right Language Dropdown Toggle
   const csoLangWrap = document.getElementById('csoLangDropdown');
