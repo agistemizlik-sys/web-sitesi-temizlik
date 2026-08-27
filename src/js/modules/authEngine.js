@@ -1824,7 +1824,7 @@ function renderStaffDashboard() {
                 <a href="tel:${escapeHTML(j.customerPhone)}" class="btn-sjc-action call">📞 Ara</a>
                 <a href="https://wa.me/90${escapeHTML(j.customerPhone.replace(/\D/g, ''))}?text=${waText}" target="_blank" rel="noopener noreferrer" class="btn-sjc-action wa">💬 WhatsApp</a>
                 <button type="button" class="btn-sjc-action" style="background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc;" onclick="window.uploadStaffJobPhotoGlobal('${escapeHTML(j.id)}')">📸 Fotoğraf (${j.photosCount || 0})</button>
-                <a href="https://wa.me/905466479004?text=ACİL%20SAHA%20DESTEĞİ:%20#${encodeURIComponent(j.orderCode || j.id)}%20numaralı%20görevdeyim,%20yönetici%20desteği%20rica%20ediyorum." target="_blank" rel="noopener noreferrer" class="btn-sjc-action" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#fca5a5;">🚨 SOS</a>
+                <button type="button" class="btn-sjc-action" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#fca5a5;" onclick="window.openStaffSosModalGlobal('${escapeHTML(j.orderCode || j.id)}')">🚨 SOS</button>
               </div>
 
               <div class="sjc-status-btns">
@@ -2604,6 +2604,28 @@ window.downloadInvoiceGlobal = function(orderCode, serviceName, finalPrice, cust
   const blob = new Blob([invoiceHtml], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   window.open(url, '_blank');
+};
+
+window.openStaffSosModalGlobal = function(jobId) {
+  window._activeSosJobId = jobId;
+  if (typeof window.playAlertChime === 'function') window.playAlertChime();
+  const modal = document.getElementById('staffSosModal');
+  if (modal) modal.style.display = 'flex';
+};
+
+window.triggerStaffSosOptionGlobal = function(reason) {
+  const modal = document.getElementById('staffSosModal');
+  if (modal) modal.style.display = 'none';
+  const jobId = window._activeSosJobId || 'RLX-SAHA';
+  if (typeof window.playAlertChime === 'function') window.playAlertChime();
+  if (typeof window.broadcastStateChange === 'function') {
+    window.broadcastStateChange('STAFF_SOS_ALERT', { jobId, reason, timestamp: Date.now() });
+  }
+  let reasonText = 'Adrese Giremiyorum / Kilitli Kapı';
+  if (reason === 'HEAVY_DIRT') reasonText = 'Ağır Kirlilik / Hasar Tespiti';
+  if (reason === 'EMERGENCY') reasonText = 'Acil Güvenlik / Sağlık Durumu';
+  
+  window.open(`https://wa.me/905466479004?text=${encodeURIComponent(`🚨 ACİL SAHA BİLDİRİMİ (#${jobId})\nTalep Nedeni: ${reasonText}\nUzman saha desteği ve operasyon koordinasyonu talep ediyor.`)}`, '_blank');
 };
 
 window.addNewCouponGlobal = function() {
