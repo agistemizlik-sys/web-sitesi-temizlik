@@ -18,6 +18,18 @@ let particles = [];
 let animFrameId = null;
 let lastFrameTime = performance.now();
 
+// Real-time Loop Engineering Telemetry Profiler
+export const LOOP_TELEMETRY = {
+  fps: 60,
+  frameTimeMs: 16.6,
+  loopJitterMs: 0.1,
+  videoLoopsActive: 0,
+  videoStallRecoveries: 0,
+  gcCycles: 0,
+  syncMessagesSent: 0,
+  mode: 'ULTRA_PRECISION_144HZ'
+};
+
 // Kinetic Marquee Ticker Registry
 const registeredMarquees = [];
 
@@ -26,6 +38,27 @@ export const LOOP_COORDS = {
   cursor: { currentX: 0, currentY: 0, targetX: 0, targetY: 0, speed: 0.15 },
   ambient: { currentX: 50, currentY: 50, targetX: 50, targetY: 50, speed: 0.08 }
 };
+
+export function getLoopTelemetry() {
+  LOOP_TELEMETRY.videoLoopsActive = registeredLoopVideos.size;
+  return { ...LOOP_TELEMETRY };
+}
+
+export function runImmediateGarbageCollectionLoop() {
+  const staleToasts = document.querySelectorAll('.toast-msg.fade-out, .auth-toast.expired');
+  let pruned = staleToasts.length;
+  staleToasts.forEach(t => t.remove());
+
+  registeredLoopVideos.forEach(v => {
+    if (!document.body.contains(v)) {
+      registeredLoopVideos.delete(v);
+      pruned++;
+    }
+  });
+
+  LOOP_TELEMETRY.gcCycles++;
+  return { success: true, prunedNodes: pruned, gcCycles: LOOP_TELEMETRY.gcCycles };
+}
 
 /**
  * Attaches sub-millisecond precision looping to a video element.
@@ -230,6 +263,13 @@ function masterLoopTick(now) {
   const deltaSec = Math.min(0.1, (now - lastFrameTime) / 1000);
   lastFrameTime = now;
 
+  if (deltaSec > 0) {
+    const instantFps = 1 / deltaSec;
+    LOOP_TELEMETRY.fps = Math.round(LOOP_TELEMETRY.fps * 0.9 + instantFps * 0.1);
+    LOOP_TELEMETRY.frameTimeMs = parseFloat((deltaSec * 1000).toFixed(1));
+    LOOP_TELEMETRY.loopJitterMs = parseFloat(Math.abs(deltaSec * 1000 - (1000 / (LOOP_TELEMETRY.fps || 60))).toFixed(2));
+  }
+
   if (!document.hidden) {
     // 1. Video loop inspection with sub-frame lookahead
     registeredLoopVideos.forEach(v => {
@@ -365,4 +405,6 @@ if (typeof window !== 'undefined') {
   window.initStateSyncLoop = initStateSyncLoop;
   window.broadcastStateChange = broadcastStateChange;
   window.executeResilientFetchLoop = executeResilientFetchLoop;
+  window.getLoopTelemetry = getLoopTelemetry;
+  window.runImmediateGarbageCollectionLoop = runImmediateGarbageCollectionLoop;
 }
