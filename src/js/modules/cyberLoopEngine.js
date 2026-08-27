@@ -21,8 +21,7 @@ const WHITELISTED_DOMAINS = [
   'cloudflare.com',
   'unpkg.com',
   'googleapis.com',
-  'gstatic.com',
-  'telegram.org'
+  'gstatic.com'
 ];
 
 const threatListeners = new Set();
