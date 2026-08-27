@@ -4308,6 +4308,20 @@
               </div>
               <span style="background: rgba(239,68,68,0.2); color: #fca5a5; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Canlı Sevk Aktif</span>
             </div>
+
+            <!-- Staff Zone / Status Filter Chips -->
+            <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;" id="staffJobFilterChips">
+              <button type="button" class="portal-subnav-btn active" style="padding: 5px 12px; font-size: 0.76rem;" onclick="window.filterStaffJobsGlobal?.('ALL', this)">
+                <span>Tüm Görevler</span>
+              </button>
+              <button type="button" class="portal-subnav-btn" style="padding: 5px 12px; font-size: 0.76rem;" onclick="window.filterStaffJobsGlobal?.('KADIKOY', this)">
+                <span>📍 Kadıköy / Anadolu</span>
+              </button>
+              <button type="button" class="portal-subnav-btn" style="padding: 5px 12px; font-size: 0.76rem;" onclick="window.filterStaffJobsGlobal?.('BESIKTAS', this)">
+                <span>📍 Beşiktaş / Avrupa</span>
+              </button>
+            </div>
+
             <div class="staff-jobs-list" id="staffJobsList">
               <!-- Dynamically populated via authEngine.js -->
             </div>

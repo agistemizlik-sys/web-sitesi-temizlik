@@ -1839,6 +1839,29 @@ window.requestStaffNotificationGlobal = async function() {
   }
 };
 
+window.filterStaffJobsGlobal = function(filterZone, btnEl) {
+  if (btnEl) {
+    const parent = btnEl.parentElement;
+    if (parent) parent.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+  }
+  if (typeof window.playTickSound === 'function') window.playTickSound();
+  
+  const listEl = document.getElementById('staffJobsList');
+  if (!listEl) return;
+  const cards = listEl.querySelectorAll('.staff-job-card');
+  cards.forEach(c => {
+    const text = c.textContent.toLowerCase();
+    if (filterZone === 'ALL') {
+      c.style.display = 'flex';
+    } else if (filterZone === 'KADIKOY') {
+      c.style.display = (text.includes('kadıköy') || text.includes('moda') || text.includes('anadolu') || text.includes('fenerbahçe')) ? 'flex' : 'none';
+    } else if (filterZone === 'BESIKTAS') {
+      c.style.display = (text.includes('beşiktaş') || text.includes('levent') || text.includes('avrupa') || text.includes('şişli') || text.includes('sarıyer')) ? 'flex' : 'none';
+    }
+  });
+};
+
 function renderStaffDashboard() {
   const staff = getCurrentUser();
   if (!staff || staff.role !== 'staff') return;
