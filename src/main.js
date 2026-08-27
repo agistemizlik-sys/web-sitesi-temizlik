@@ -49,8 +49,9 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
-// Initialize Hardware Booster, Cyber Defense, Push Engine, Voice Assistant, Hygiene Certificates, VIP Concierge & Debug Hardening
+// Initialize Hardware Booster, Master Loop Engine, Cyber Defense, Push Engine, Voice Assistant, Hygiene Certificates, VIP Concierge & Debug Hardening
 initHardwareBooster();
+initLoopEngineering();
 initCyberLoopEngine();
 initPushEngine();
 initHygieneCertificateEngine();

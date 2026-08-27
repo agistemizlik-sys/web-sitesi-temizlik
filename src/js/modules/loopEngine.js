@@ -134,8 +134,62 @@ function updateAmbientParticles() {
 
     particleCtx.beginPath();
     particleCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-    particleCtx.fillStyle = gba(56, 189, 248, );
+    particleCtx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
     particleCtx.fill();
+  }
+}
+
+/**
+ * Real-Time Tab & Client State Synchronization Loop via BroadcastChannel
+ */
+let stateBroadcastChannel = null;
+export function initStateSyncLoop() {
+  if (typeof BroadcastChannel !== 'undefined' && !stateBroadcastChannel) {
+    try {
+      stateBroadcastChannel = new BroadcastChannel('relaxax_state_loop');
+      stateBroadcastChannel.onmessage = (event) => {
+        const { type, payload } = event.data || {};
+        if (type === 'ORDER_STATUS_CHANGED' && typeof window.renderAdminOrdersList === 'function') {
+          window.renderAdminOrdersList();
+        }
+        if (type === 'CATALOG_UPDATED' && typeof window.syncCatalogToDom === 'function') {
+          window.syncCatalogToDom();
+        }
+      };
+    } catch (e) {}
+  }
+}
+
+export function broadcastStateChange(type, payload = {}) {
+  if (stateBroadcastChannel) {
+    try {
+      stateBroadcastChannel.postMessage({ type, payload, timestamp: Date.now() });
+    } catch (e) {}
+  }
+}
+
+/**
+ * Resilient Network Request Loop:
+ * Auto-retry with jittered exponential backoff for spotty mobile connections.
+ * @param {string} url - Target URL
+ * @param {RequestInit} options - Fetch options
+ * @param {number} maxRetries - Maximum retry attempts (default 3)
+ */
+export async function executeResilientFetchLoop(url, options = {}, maxRetries = 3) {
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok || (res.status >= 400 && res.status < 500)) {
+        return res;
+      }
+      throw new Error(`Server returned status ${res.status}`);
+    } catch (err) {
+      attempt++;
+      if (attempt >= maxRetries) throw err;
+      const delay = Math.min(3000, 300 * Math.pow(2, attempt) + Math.random() * 200);
+      await new Promise(r => setTimeout(r, delay));
+    }
   }
 }
 
@@ -299,8 +353,16 @@ export function initLoopEngineering() {
 
   initAmbientParticleLoop();
   initIdleGarbageCollector();
+  initStateSyncLoop();
 
   // Start high-precision master loop
   lastFrameTime = performance.now();
   animFrameId = requestAnimationFrame(masterLoopTick);
+}
+
+if (typeof window !== 'undefined') {
+  window.initLoopEngineering = initLoopEngineering;
+  window.initStateSyncLoop = initStateSyncLoop;
+  window.broadcastStateChange = broadcastStateChange;
+  window.executeResilientFetchLoop = executeResilientFetchLoop;
 }
