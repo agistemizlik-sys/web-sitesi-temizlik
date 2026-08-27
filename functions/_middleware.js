@@ -1,4 +1,5 @@
 import { isHoneypotProbe, generateDecoyResponse, alertHoneypotTrigger } from './api/_deception.js';
+import { isVpnOrProxy, generateVpnBlockScreen } from './api/_vpnGuard.js';
 
 /**
  * RELAXAX — Edge SEO & Active Cyber Defense Middleware (Cloudflare Pages Functions)
@@ -318,6 +319,13 @@ export async function onRequest(context) {
     const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
     alertHoneypotTrigger(context.env, request, url.pathname, waitUntil);
     return generateDecoyResponse(url.pathname, clientIp);
+  }
+
+  // 0B. Anti-VPN / Anti-Tor / Anti-Proxy Shield
+  const isDocRequest = request.method === 'GET' && (url.pathname === '/' || url.pathname.endsWith('.html') || !url.pathname.includes('.'));
+  if (isDocRequest && !url.pathname.startsWith('/api/') && isVpnOrProxy(request)) {
+    const langParam = url.searchParams.get('lang') || 'tr';
+    return generateVpnBlockScreen(langParam);
   }
 
   // API yolları için güvenlik ve robot başlıklarını uygula
