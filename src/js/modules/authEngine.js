@@ -1674,22 +1674,35 @@ function renderCustomerAddresses(email) {
   }
 
   listEl.innerHTML = addrs.map((a, idx) => `
-    <div class="saved-address-card">
+    <div class="saved-address-card ${a.isDefault ? 'default' : ''}">
       <div class="sac-top">
         <span class="sac-icon">📍</span>
         <strong class="sac-title">${escapeHTML(a.title)}</strong>
         <span class="sac-city-tag">${escapeHTML(a.city)} / ${escapeHTML(a.district)}</span>
+        ${a.isDefault ? '<span style="background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-size:0.72rem; padding:2px 6px; border-radius:4px; font-weight:700;">⭐ Varsayılan</span>' : ''}
       </div>
       <p class="sac-full">${escapeHTML(a.fullAddress)}</p>
       <div class="sac-actions">
         <button type="button" class="btn-use-address" onclick="window.useSavedAddressInWizard('${escapeHTML(a.city)}', '${escapeHTML(a.district)}', '${escapeHTML(a.fullAddress)}')">
           <span>✨ Bu Adrese Temizlik İste</span>
         </button>
+        ${!a.isDefault ? `<button type="button" class="btn-del-address" style="color:#fbbf24;" onclick="window.setDefaultSavedAddress(${idx})">⭐ Varsayılan Yap</button>` : ''}
         <button type="button" class="btn-del-address" onclick="window.deleteSavedAddress(${idx})">🗑️ Sil</button>
       </div>
     </div>
   `).join('');
 }
+
+window.setDefaultSavedAddress = function(idx) {
+  const user = getCurrentUser();
+  if (!user) return;
+  const key = STORAGE_ADDRS_PREFIX + user.email;
+  const addrs = getCustomerSavedAddresses(user.email);
+  addrs.forEach((a, i) => { a.isDefault = (i === idx); });
+  localStorage.setItem(key, JSON.stringify(addrs));
+  if (typeof window.playTickSound === 'function') window.playTickSound();
+  renderCustomerAddresses(user.email);
+};
 
 window.deleteSavedAddress = function(idx) {
   const user = getCurrentUser();
