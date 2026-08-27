@@ -9,6 +9,7 @@ import { playTickSound, playSuccessChime, toggleSound, isSoundEnabled } from './
 import { openModal, closeModal } from './js/modules/modalManager.js';
 import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from './js/modules/pricingEngine.js';
 import { initAuthEngine, prefillBookingWizardWithUser } from './js/modules/authEngine.js';
+import { initI18nDropdowns, applyLanguageGlobal } from './js/modules/i18nEngine.js';
 import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngine.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
@@ -2420,6 +2421,7 @@ function applyLanguage(lang) {
     localStorage.setItem('relaxax_language', lang);
   } catch(e) {}
 
+  applyLanguageGlobal(lang);
   applyPageMetaTranslations(dict, lang);
   applyPortalHudTranslations(dict, lang);
   applyNavAndDrawerTranslations(dict, lang);
@@ -3792,6 +3794,7 @@ function initApp() {
   setupCorporateModals();
   setupHelpCenterButtons();
   initAuthEngine();
+  initI18nDropdowns();
 
   // Initialize interactive visual effects (Custom cursor on desktop, ambient glow globally)
   setupCustomCursor();

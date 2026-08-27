@@ -587,21 +587,33 @@
             </svg>
           </button>
           <div class="cso-lang-popover" id="csoLangPopover">
-            <button type="button" class="cso-lang-option active" data-lang="en">
-              <span class="cso-opt-flag">🇬🇧</span>
-              <span class="cso-opt-name">English</span>
-            </button>
             <button type="button" class="cso-lang-option" data-lang="tr">
               <span class="cso-opt-flag">🇹🇷</span>
               <span class="cso-opt-name">Türkçe</span>
+            </button>
+            <button type="button" class="cso-lang-option active" data-lang="en">
+              <span class="cso-opt-flag">🇬🇧</span>
+              <span class="cso-opt-name">English</span>
             </button>
             <button type="button" class="cso-lang-option" data-lang="pl">
               <span class="cso-opt-flag">🇵🇱</span>
               <span class="cso-opt-name">Polski</span>
             </button>
+            <button type="button" class="cso-lang-option" data-lang="de">
+              <span class="cso-opt-flag">🇩🇪</span>
+              <span class="cso-opt-name">Deutsch</span>
+            </button>
+            <button type="button" class="cso-lang-option" data-lang="ru">
+              <span class="cso-opt-flag">🇷🇺</span>
+              <span class="cso-opt-name">Русский</span>
+            </button>
             <button type="button" class="cso-lang-option" data-lang="uk">
               <span class="cso-opt-flag">🇺🇦</span>
               <span class="cso-opt-name">Українська</span>
+            </button>
+            <button type="button" class="cso-lang-option" data-lang="ar">
+              <span class="cso-opt-flag">🇸🇦</span>
+              <span class="cso-opt-name">العربية</span>
             </button>
           </div>
         </div>
@@ -1492,6 +1504,23 @@
                 <span class="c-dd-title">Mobil Uygulamamız</span>
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- 2.5 Language Switcher Dropdown Capsule -->
+        <div class="c-nav-lang-wrap" id="cNavLangWrap">
+          <button type="button" class="c-nav-pill-btn c-nav-lang-btn" id="cNavLangBtn" title="Dil Seçimi / Change Language">
+            <span class="c-nav-btn-icon" id="cNavLangFlag">🇹🇷</span>
+            <span class="c-nav-btn-text" id="cNavLangCode">TR</span>
+          </button>
+          <div class="c-nav-lang-dropdown" id="cNavLangDropdown">
+            <button type="button" class="c-nav-lang-opt active" data-lang="tr"><span>🇹🇷 Türkçe (TR)</span></button>
+            <button type="button" class="c-nav-lang-opt" data-lang="en"><span>🇬🇧 English (EN)</span></button>
+            <button type="button" class="c-nav-lang-opt" data-lang="pl"><span>🇵🇱 Polski (PL)</span></button>
+            <button type="button" class="c-nav-lang-opt" data-lang="de"><span>🇩🇪 Deutsch (DE)</span></button>
+            <button type="button" class="c-nav-lang-opt" data-lang="ru"><span>🇷🇺 Русский (RU)</span></button>
+            <button type="button" class="c-nav-lang-opt" data-lang="uk"><span>🇺🇦 Українська (UK)</span></button>
+            <button type="button" class="c-nav-lang-opt" data-lang="ar"><span>🇸🇦 العربية (AR)</span></button>
           </div>
         </div>
 
@@ -3271,6 +3300,20 @@
         <a href="#" class="drawer-link-item" data-modal-target="franchiseModal">🤝 Temsilcilik / Bayilik</a>
         <a href="#" class="drawer-link-item" data-modal-target="countriesModal">🌍 Hangi Ülkelerdeyiz?</a>
         <a href="#" class="drawer-link-item" data-modal-target="mobileAppModal">📱 Mobil Uygulamamız</a>
+
+        <!-- Mobile Drawer Multi-Language Switcher -->
+        <div class="drawer-lang-selector-box" style="margin: 12px 0 6px; padding: 10px 12px; background: rgba(0,0,0,0.03); border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
+          <span style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">🌐 Dil / Language:</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt active" data-lang="tr" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇹🇷 TR</button>
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt" data-lang="en" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇬🇧 EN</button>
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt" data-lang="pl" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇵🇱 PL</button>
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt" data-lang="de" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇩🇪 DE</button>
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt" data-lang="ru" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇷🇺 RU</button>
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt" data-lang="uk" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇺🇦 UK</button>
+            <button type="button" class="drawer-lang-btn c-nav-lang-opt" data-lang="ar" style="flex: 1; min-width: 42px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #fff; font-size: 0.76rem; font-weight: 700; cursor: pointer;">🇸🇦 AR</button>
+          </div>
+        </div>
 
         <div class="drawer-social-group" style="margin-top: 14px;">
           <a href="https://instagram.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" class="drawer-social-btn" aria-label="Instagram">
