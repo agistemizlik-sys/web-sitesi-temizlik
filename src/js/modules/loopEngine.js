@@ -182,11 +182,23 @@ export function initStateSyncLoop() {
       stateBroadcastChannel = new BroadcastChannel('relaxax_state_loop');
       stateBroadcastChannel.onmessage = (event) => {
         const { type, payload } = event.data || {};
-        if (type === 'ORDER_STATUS_CHANGED' && typeof window.renderAdminOrdersList === 'function') {
+        if ((type === 'ORDER_STATUS_CHANGED' || type === 'STAFF_AVAILABILITY_CHANGED') && typeof window.renderAdminOrdersList === 'function') {
           window.renderAdminOrdersList();
+        }
+        if ((type === 'USER_REGISTERED' || type === 'STAFF_REGISTERED') && typeof window.renderAdminCustomersList === 'function') {
+          window.renderAdminCustomersList();
         }
         if (type === 'CATALOG_UPDATED' && typeof window.syncCatalogToDom === 'function') {
           window.syncCatalogToDom();
+        }
+        if (type === 'STAFF_SOS_ALERT') {
+          if (typeof window.playAlertChime === 'function') window.playAlertChime();
+          if (typeof window.showLocalNotification === 'function') {
+            window.showLocalNotification('🚨 SAHA ACİL DURUM BİLDİRİMİ', `Görev #${payload?.jobId || 'SAHA'} için acil destek talebi iletildi!`);
+          }
+        }
+        if (type === 'STAFF_SUPPLY_REQUEST') {
+          if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
         }
       };
     } catch (e) {}
