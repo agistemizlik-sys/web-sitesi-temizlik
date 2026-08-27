@@ -4768,6 +4768,28 @@
               </div>
             </div>
 
+            <!-- Admin Operations Quick Actions Footer Bar -->
+            <div class="admin-floating-quick-bar" style="margin-top: 24px; padding: 14px 18px; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #cbd5e1;">
+                <span style="font-size: 1.1rem;">⚡</span>
+                <strong>Yönetici Hızlı Araçları:</strong>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-save-address" onclick="if(typeof window.createTestBookingGlobal==='function')window.createTestBookingGlobal();" style="padding: 6px 12px; font-size: 0.78rem; background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                  + Test Siparişi Ekle
+                </button>
+                <button type="button" class="btn-save-address" onclick="if(typeof window.openFinancialModalGlobal==='function')window.openFinancialModalGlobal();" style="padding: 6px 12px; font-size: 0.78rem; background: linear-gradient(135deg, #10b981, #059669);">
+                  💰 Finans & Hakediş
+                </button>
+                <button type="button" class="btn-save-address" onclick="if(typeof window.runManualGcUi==='function')window.runManualGcUi();" style="padding: 6px 12px; font-size: 0.78rem; background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                  🧹 Bellek Temizle (GC)
+                </button>
+                <button type="button" class="btn-save-address" onclick="if(typeof window.exportFullDatabaseBackupGlobal==='function')window.exportFullDatabaseBackupGlobal();" style="padding: 6px 12px; font-size: 0.78rem; background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                  💾 JSON Yedek Al
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
 
