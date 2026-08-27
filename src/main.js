@@ -11,6 +11,7 @@ import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from '.
 import { initAuthEngine, prefillBookingWizardWithUser } from './js/modules/authEngine.js';
 import { initI18nDropdowns, applyLanguageGlobal } from './js/modules/i18nEngine.js';
 import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngine.js';
+import { initCyberLoopEngine } from './js/modules/cyberLoopEngine.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -23,6 +24,7 @@ window.toggleSound = toggleSound;
 window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
 window.initLoopEngineering = initLoopEngineering;
+window.initCyberLoopEngine = initCyberLoopEngine;
 window.attachSubMsVideoLoop = attachSubMsVideoLoop;
 window.toggleDiagnosticsHUD = toggleDiagnosticsHUD;
 window.runPerformanceBenchmark = runPerformanceBenchmark;
@@ -30,7 +32,8 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
-// Initialize Debug Hardening Suite immediately
+// Initialize Cyber Defense & Debug Hardening Suite immediately
+initCyberLoopEngine();
 initDebugHardening();
 
 // Global cached window dimensions to prevent layout recalculations in mousemove events
