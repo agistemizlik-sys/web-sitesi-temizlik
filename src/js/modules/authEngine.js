@@ -2323,6 +2323,37 @@ window.openAdminOrderModalGlobal = function(orderId) {
   document.getElementById('aodmBackdrop')?.addEventListener('click', close, { once: true });
 };
 
+window.openFinancialModalGlobal = function() {
+  const modal = document.getElementById('adminFinancialModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  if (typeof window.playTickSound === 'function') window.playTickSound();
+
+  const close = () => { modal.style.display = 'none'; };
+  document.getElementById('btnAdminFinModalClose')?.addEventListener('click', close, { once: true });
+  document.getElementById('btnAdminFinModalCloseFooter')?.addEventListener('click', close, { once: true });
+  document.getElementById('afmBackdrop')?.addEventListener('click', close, { once: true });
+};
+
+window.exportFinancialLedgerCSVGlobal = function() {
+  if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
+  let csv = 'Finansal Kalem,Tutar TL,Tutar PLN,Oran %,Aciklama\n';
+  csv += 'Toplam Brut Ciro,128450,14890,100%,Tum sehirler toplam ciro\n';
+  csv += 'Temizlik Uzmani Hakedisleri,89915,10423,70%,Saha personeline odenen net tutar\n';
+  csv += 'Sirket Net Faaliyet Kari,38535,4467,30%,Ekipman ve sirket net kar payi\n';
+  csv += 'Ortalama Sepet Tutari (AOV),1850,215,-,54 aktif rezervasyon ortalamasi\n';
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relaxax_finans_raporu_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 window.saveAssignedStaffGlobal = function() {
   const sel = document.getElementById('aodmSelectStaff');
   const staffName = sel ? sel.options[sel.selectedIndex]?.text : 'Ayşe Kaya';

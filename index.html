@@ -4342,10 +4342,10 @@
 
             <!-- Executive KPI Stats Bar -->
             <div class="admin-stats-grid">
-              <div class="admin-stat-card">
-                <span class="asc-lbl">💰 Toplam Ciro (TL / PLN)</span>
+              <div class="admin-stat-card" style="cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease;" onclick="if(typeof window.openFinancialModalGlobal==='function')window.openFinancialModalGlobal();" title="Detaylı Hakediş & Finans Raporunu Görüntüle">
+                <span class="asc-lbl">💰 Toplam Ciro (TL / PLN) ↗</span>
                 <strong class="asc-val" id="adminKpiRevenue" style="color: #fbbf24;">128.450 TL</strong>
-                <span style="font-size: 0.72rem; color: #94a3b8;">/ 14.890 PLN (Polonya)</span>
+                <span style="font-size: 0.72rem; color: #94a3b8;">/ 14.890 PLN (Tıkla & İncele)</span>
               </div>
               <div class="admin-stat-card">
                 <span class="asc-lbl">📦 Toplam Rezervasyon</span>
@@ -5733,6 +5733,80 @@
           🖨️ Görev Sevk Formunu Yazdır (PDF)
         </button>
         <button type="button" class="rx-cmodal-btn-primary" id="btnAdminOrderModalCloseFooter" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 📊 RELAXAX ENTERPRISE FINANCIAL ANALYTICS & REVENUE SPLIT MODAL -->
+  <div class="rx-corporate-modal-overlay" id="adminFinancialModal" role="dialog" aria-modal="true" aria-labelledby="afmTitle" style="display:none;">
+    <div class="rx-corporate-modal-backdrop" id="afmBackdrop"></div>
+    <div class="rx-corporate-modal-dialog" style="max-width: 680px;">
+      
+      <!-- Modal Header -->
+      <div class="rx-cmodal-header" style="background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95));">
+        <div class="rx-cmodal-title-row">
+          <div class="rx-cmodal-icon" style="background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: #34d399;">💰</div>
+          <div>
+            <span class="rx-cmodal-badge" style="background: rgba(34,197,94,0.15); color: #34d399; border: 1px solid rgba(34,197,94,0.3);">CANLI FİNANS & MUHASEBE</span>
+            <h3 id="afmTitle" class="rx-cmodal-title">Ciro Dağılımı & Hakediş Masası</h3>
+          </div>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" id="btnAdminFinModalClose" aria-label="Kapat">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="rx-cmodal-body">
+        
+        <div class="admin-stats-grid" style="margin-bottom: 20px;">
+          <div class="admin-stat-card" style="border: 1px solid rgba(251,191,36,0.3);">
+            <span class="asc-lbl">🏦 Toplam Brüt Ciro</span>
+            <strong class="asc-val" style="color: #fbbf24; font-size: 1.25rem;">128.450 TL</strong>
+            <span style="font-size: 0.72rem; color: #94a3b8;">/ 14.890 PLN (Polonya)</span>
+          </div>
+          <div class="admin-stat-card" style="border: 1px solid rgba(52,211,153,0.3);">
+            <span class="asc-lbl">💵 Uzman Hakedişleri (%70)</span>
+            <strong class="asc-val" style="color: #34d399; font-size: 1.25rem;">89.915 TL</strong>
+            <span style="font-size: 0.72rem; color: #34d399;">/ 10.423 PLN (Ödenen)</span>
+          </div>
+          <div class="admin-stat-card" style="border: 1px solid rgba(56,189,248,0.3);">
+            <span class="asc-lbl">🏢 Şirket Net Marjı (%30)</span>
+            <strong class="asc-val" style="color: #38bdf8; font-size: 1.25rem;">38.535 TL</strong>
+            <span style="font-size: 0.72rem; color: #38bdf8;">/ 4.467 PLN (Net Kâr)</span>
+          </div>
+          <div class="admin-stat-card" style="border: 1px solid rgba(168,85,247,0.3);">
+            <span class="asc-lbl">📈 Ortalama Sepet (AOV)</span>
+            <strong class="asc-val" style="color: #a855f7; font-size: 1.25rem;">1.850 TL</strong>
+            <span style="font-size: 0.72rem; color: #a855f7;">54 Rezervasyon</span>
+          </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; font-size: 0.84rem; color: #cbd5e1; margin-bottom: 16px;">
+          <h6 style="color: #f1f5f9; margin-bottom: 8px; font-size: 0.9rem;">💳 Ödeme Yöntemleri Dağılımı</h6>
+          <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <span>💳 Online Kredi Kartı / 3D Secure</span>
+            <strong style="color: #38bdf8;">%62 (79.639 TL)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <span>🏦 Havale / EFT / FAST</span>
+            <strong style="color: #34d399;">%28 (35.966 TL)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+            <span>💵 Hizmet Sonu Kapıda Ödeme</span>
+            <strong style="color: #fbbf24;">%10 (12.845 TL)</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="rx-cmodal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <button type="button" class="rx-cmodal-btn-secondary" onclick="if(typeof window.exportFinancialLedgerCSVGlobal==='function')window.exportFinancialLedgerCSVGlobal();" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); color: #34d399; border-color: rgba(34,197,94,0.3);">
+          📥 Finansal Raporu Excel / CSV İndir
+        </button>
+        <button type="button" class="rx-cmodal-btn-primary" id="btnAdminFinModalCloseFooter" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
           Kapat
         </button>
       </div>
