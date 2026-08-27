@@ -1454,7 +1454,30 @@ function renderUserProfileDetails(user) {
                 <span class="ub-code">#${escapeHTML(b.orderCode || b.resCode || 'RLX-REZERVASYON')}</span>
                 <span class="ub-date-tag">🗓️ ${escapeHTML(b.date || 'Bugün')} - ${escapeHTML(b.time || '09:30')}</span>
               </div>
-              <span class="ub-status badge-success">✓ ${escapeHTML(b.status || 'Onaylandı')}</span>
+              <span class="ub-status ${b.status === 'Tamamlandı' ? 'badge-success' : b.status === 'Yolda' ? 'badge-progress' : 'badge-warning'}">✓ ${escapeHTML(b.status || 'Onaylandı')}</span>
+            </div>
+
+            <!-- 4-Step Live Progress Stepper -->
+            <div class="user-booking-stepper" style="display:flex; justify-content:space-between; align-items:center; margin: 14px 0 16px; position:relative; padding: 0 12px;">
+              <div style="position:absolute; top:12px; left:24px; right:24px; height:2px; background:rgba(255,255,255,0.1); z-index:1;"></div>
+              <div style="position:absolute; top:12px; left:24px; width:${b.status === 'Tamamlandı' ? 'calc(100% - 48px)' : b.status === 'Temizlik Başladı' ? '66%' : b.status === 'Yolda' ? '33%' : '0%'}; height:2px; background:#34d399; z-index:2; transition:width 0.4s ease;"></div>
+              
+              <div style="position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; gap:4px;">
+                <div style="width:24px; height:24px; border-radius:50%; background:#34d399; color:#0f172a; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;">✓</div>
+                <span style="font-size:10px; color:#cbd5e1;">Onaylandı</span>
+              </div>
+              <div style="position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; gap:4px;">
+                <div style="width:24px; height:24px; border-radius:50%; background:${b.status === 'Yolda' || b.status === 'Temizlik Başladı' || b.status === 'Tamamlandı' ? '#34d399' : 'rgba(255,255,255,0.15)'}; color:${b.status === 'Yolda' || b.status === 'Temizlik Başladı' || b.status === 'Tamamlandı' ? '#0f172a' : '#94a3b8'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;">🚗</div>
+                <span style="font-size:10px; color:${b.status === 'Yolda' || b.status === 'Temizlik Başladı' || b.status === 'Tamamlandı' ? '#38bdf8' : '#64748b'};">Yolda</span>
+              </div>
+              <div style="position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; gap:4px;">
+                <div style="width:24px; height:24px; border-radius:50%; background:${b.status === 'Temizlik Başladı' || b.status === 'Tamamlandı' ? '#34d399' : 'rgba(255,255,255,0.15)'}; color:${b.status === 'Temizlik Başladı' || b.status === 'Tamamlandı' ? '#0f172a' : '#94a3b8'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;">🧹</div>
+                <span style="font-size:10px; color:${b.status === 'Temizlik Başladı' || b.status === 'Tamamlandı' ? '#fbbf24' : '#64748b'};">Temizlikte</span>
+              </div>
+              <div style="position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; gap:4px;">
+                <div style="width:24px; height:24px; border-radius:50%; background:${b.status === 'Tamamlandı' ? '#34d399' : 'rgba(255,255,255,0.15)'}; color:${b.status === 'Tamamlandı' ? '#0f172a' : '#94a3b8'}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;">✨</div>
+                <span style="font-size:10px; color:${b.status === 'Tamamlandı' ? '#34d399' : '#64748b'};">Tamamlandı</span>
+              </div>
             </div>
             
             <!-- Assigned Cleaner & Live Distance Radar Box -->
