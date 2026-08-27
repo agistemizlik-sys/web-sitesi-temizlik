@@ -1319,6 +1319,7 @@ export function updateStaffJobStatus(jobId, newStatus) {
     saveLiveStaffJobs(jobs);
 
     if (newStatus === 'Tamamlandı') {
+      if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
       const u = getCurrentUser();
       if (u && u.role === 'staff') {
         const staffList = getRegisteredStaff();
@@ -1332,7 +1333,18 @@ export function updateStaffJobStatus(jobId, newStatus) {
           localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(found));
         }
       }
+      alert(`🎉 #${target.orderCode || jobId} numaralı görev tamamlandı! Hak edişiniz anında bakiyenize işlendi.`);
+    } else if (newStatus === 'Yolda') {
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+      alert(`🚗 #${target.orderCode || jobId} numaralı randevuya doğru yola çıktınız. Müşteriye bildirim iletildi.`);
+    } else {
+      if (typeof window.playTickSound === 'function') window.playTickSound();
     }
+
+    if (typeof window.broadcastStateChange === 'function') {
+      window.broadcastStateChange('ORDER_STATUS_CHANGED', { jobId, status: newStatus });
+    }
+
     renderStaffDashboard();
   }
 }
