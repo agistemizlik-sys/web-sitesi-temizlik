@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RELAXAX Enterprise i18n Engine
  * Modularized Language Architecture supporting TR, EN, PL, DE, RU, UK, AR
  */
@@ -94,7 +94,91 @@ export function applyLanguageGlobal(lang) {
   if (sInd2) sInd2.textContent = lang === 'pl' ? 'Usługi Dodatkowe' : (lang === 'en' ? 'Extra Services' : (lang === 'de' ? 'Zusatzleistungen' : (lang === 'ru' ? 'Дополнительные услуги' : (lang === 'ar' ? 'خدمات إضافية' : 'Ek Hizmetler'))));
   if (sInd3) sInd3.textContent = lang === 'pl' ? 'Adres i Termin' : (lang === 'en' ? 'Address & Schedule' : (lang === 'de' ? 'Adresse & Termin' : (lang === 'ru' ? 'Адрес и Дата' : (lang === 'ar' ? 'العنوان والموعد' : 'Adres & Randevu'))));
 
-  // 5. Trigger calculation redraw
+  // 5. Automatic DOM Translation via data-i18n, data-i18n-placeholder & data-i18n-title
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key && dict[key]) {
+      el.textContent = dict[key];
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key && dict[key]) {
+      el.setAttribute('placeholder', dict[key]);
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (key && dict[key]) {
+      el.setAttribute('title', dict[key]);
+    }
+  });
+
+  // 6. Translate Legal Modal Tab Headers
+  const legalTabTerms = document.getElementById('legalTabBtn_terms');
+  const legalTabKvkk = document.getElementById('legalTabBtn_kvkk');
+  const legalTabStaff = document.getElementById('legalTabBtn_staff');
+  const legalTabSecurity = document.getElementById('legalTabBtn_security');
+  const legalTabDistance = document.getElementById('legalTabBtn_distance');
+  const legalModalTitle = document.getElementById('legalModalTitle');
+
+  if (legalModalTitle) {
+    legalModalTitle.textContent = lang === 'pl' ? 'Oficjalne Umowy Prawne i Ochrona Danych (RODO)' :
+      (lang === 'en' ? 'Official Legal Agreements & Privacy Compliance' :
+      (lang === 'de' ? 'Offizielle Rechtliche Vereinbarungen & DSGVO' :
+      (lang === 'ru' ? 'Официальные Соглашения и Защита Данных' :
+      (lang === 'ar' ? 'الاتفاقيات القانونية وحماية البيانات' :
+      (lang === 'uk' ? 'Офіційні Угоди та Захист Даних' : 'Resmi Sözleşmeler & KVKK Uyumluluk Merkezi')))));
+  }
+
+  if (legalTabTerms) legalTabTerms.innerHTML = lang === 'pl' ? '📜 Regulamin Usług' : (lang === 'en' ? '📜 Terms of Service' : (lang === 'de' ? '📜 AGB & Nutzungsbedingungen' : (lang === 'ru' ? '📜 Пользовательское Соглашение' : (lang === 'ar' ? '📜 شروط الاستخدام' : '📜 Kullanıcı Sözleşmesi'))));
+  if (legalTabKvkk) legalTabKvkk.innerHTML = lang === 'pl' ? '🔒 RODO & Prywatność' : (lang === 'en' ? '🔒 Privacy & GDPR' : (lang === 'de' ? '🔒 Datenschutz & DSGVO' : (lang === 'ru' ? '🔒 Политика Конфиденциальности' : (lang === 'ar' ? '🔒 الخصوصية وحماية البيانات' : '🔒 KVKK & Gizlilik'))));
+  if (legalTabStaff) legalTabStaff.innerHTML = lang === 'pl' ? '💼 Warunki Wykonawcy' : (lang === 'en' ? '💼 Contractor Terms' : (lang === 'de' ? '💼 Partner-Bedingungen' : (lang === 'ru' ? '💼 Условия для Исполнителей' : (lang === 'ar' ? '💼 شروط مقدمي الخدمة' : '💼 Hizmet Sağlayıcı Şartları'))));
+  if (legalTabSecurity) legalTabSecurity.innerHTML = lang === 'pl' ? '🛡️ Protokół Bezpieczeństwa' : (lang === 'en' ? '🛡️ Security Protocol' : (lang === 'de' ? '🛡️ Sicherheitsprotokoll' : (lang === 'ru' ? '🛡️ Протокол Безопасности' : (lang === 'ar' ? '🛡️ بروتوكول الأمان والسجل الجنائي' : '🛡️ Güvenlik Protokolü'))));
+  if (legalTabDistance) legalTabDistance.innerHTML = lang === 'pl' ? '💳 Odstąpienie i Zwroty' : (lang === 'en' ? '💳 Cancellation & Returns' : (lang === 'de' ? '💳 Widerruf & Erstattung' : (lang === 'ru' ? '💳 Возврат и Отмена' : (lang === 'ar' ? '💳 شروط الإلغاء والاسترداد' : '💳 Mesafeli Satış & İade'))));
+
+  // 7. Translate Hygiene Certificate Header
+  const certModalTitle = document.getElementById('certModalTitle');
+  const certSubtag = document.querySelector('.rx-cert-subtag');
+  const printCertBtn = document.getElementById('btnPrintHygieneCert');
+  const shareCertBtn = document.getElementById('btnShareCertWa');
+
+  if (certModalTitle) {
+    certModalTitle.textContent = lang === 'pl' ? '48-Punktowy Cyfrowy Certyfikat Higieny' :
+      (lang === 'en' ? '48-Point Digital Hygiene Certificate' :
+      (lang === 'de' ? '48-Punkte Digitales Hygiene-Zertifikat' :
+      (lang === 'ru' ? '48-Точечный Цифровой Сертификат Гигиены' :
+      (lang === 'ar' ? 'شهادة النظافة والتعقيم الرقمية المعتمدة (48 نقطة)' :
+      (lang === 'uk' ? '48-Точковий Цифровий Сертифікат Гігієни' : '48 Nokta Dijital Hijyen Sertifikası')))));
+  }
+
+  if (certSubtag) {
+    certSubtag.textContent = lang === 'pl' ? 'CERTYFIKOWANY DOKUMENT ISO-9001:2015 & ISO-45001' :
+      (lang === 'en' ? 'ISO-9001:2015 & ISO-45001 CERTIFIED OFFICIAL HYGIENE DOCUMENT' :
+      (lang === 'de' ? 'ISO-9001:2015 & ISO-45001 ZERTIFIZIERTES HYGIENEDOKUMENT' :
+      (lang === 'ru' ? 'СЕРТИФИКАТ СООТВЕТСТВИЯ ISO-9001:2015 & ISO-45001' :
+      (lang === 'ar' ? 'وثيقة النظافة الرسمية المعتمدة وفق معايير ISO-9001:2015 و ISO-45001' : 'ISO-9001:2015 & ISO-45001 ONAYLI RESMİ HİJYEN BELGESİ'))));
+  }
+
+  if (printCertBtn) {
+    printCertBtn.textContent = lang === 'pl' ? '🖨️ Pobierz / Drukuj Certyfikat (PDF)' :
+      (lang === 'en' ? '🖨️ Download / Print Certificate (PDF)' :
+      (lang === 'de' ? '🖨️ Zertifikat Herunterladen / Drucken (PDF)' :
+      (lang === 'ru' ? '🖨️ Скачать / Печать Сертификата (PDF)' :
+      (lang === 'ar' ? '🖨️ تحميل / طباعة الشهادة (PDF)' : '🖨️ Sertifikayı İndir / Yazdır (PDF)'))));
+  }
+
+  if (shareCertBtn) {
+    shareCertBtn.textContent = lang === 'pl' ? '💬 Udostępnij na WhatsApp' :
+      (lang === 'en' ? '💬 Share via WhatsApp' :
+      (lang === 'de' ? '💬 Über WhatsApp Teilen' :
+      (lang === 'ru' ? '💬 Поделиться в WhatsApp' :
+      (lang === 'ar' ? '💬 مشاركة عبر واتساب' : '💬 WhatsApp ile Paylaş'))));
+  }
+
+  // 8. Trigger calculation redraw
   if (typeof window.calculatePriceGlobal === 'function') {
     window.calculatePriceGlobal();
   }
