@@ -226,6 +226,73 @@ export function broadcastStateChange(type, payload = {}) {
 }
 
 /**
+ * Offline Sync Action Queue Loop
+ * Automatically retries queued operations when network connectivity restores.
+ */
+const offlineActionQueue = [];
+let isQueueLoopRunning = false;
+
+export function enqueueOfflineAction(actionType, payload) {
+  offlineActionQueue.push({
+    id: 'ACT-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+    actionType,
+    payload,
+    timestamp: Date.now(),
+    retries: 0
+  });
+  saveOfflineQueueToStorage();
+  startOfflineQueueLoop();
+}
+
+function saveOfflineQueueToStorage() {
+  try {
+    localStorage.setItem('relaxax_offline_queue', JSON.stringify(offlineActionQueue));
+  } catch (e) {}
+}
+
+function loadOfflineQueueFromStorage() {
+  try {
+    const raw = localStorage.getItem('relaxax_offline_queue');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        offlineActionQueue.length = 0;
+        offlineActionQueue.push(...parsed);
+      }
+    }
+  } catch (e) {}
+}
+
+export async function startOfflineQueueLoop() {
+  if (isQueueLoopRunning || offlineActionQueue.length === 0 || !navigator.onLine) return;
+  isQueueLoopRunning = true;
+
+  while (offlineActionQueue.length > 0 && navigator.onLine) {
+    const item = offlineActionQueue[0];
+    try {
+      if (item.actionType === 'BROADCAST') {
+        broadcastStateChange(item.payload.type, item.payload.data);
+      }
+      offlineActionQueue.shift();
+      saveOfflineQueueToStorage();
+    } catch (err) {
+      item.retries++;
+      if (item.retries > 5) {
+        offlineActionQueue.shift(); // Drop after 5 failed attempts
+        saveOfflineQueueToStorage();
+      }
+      break;
+    }
+  }
+
+  isQueueLoopRunning = false;
+}
+
+window.addEventListener('online', () => {
+  startOfflineQueueLoop();
+});
+
+/**
  * Resilient Network Request Loop:
  * Auto-retry with jittered exponential backoff for spotty mobile connections.
  * @param {string} url - Target URL
