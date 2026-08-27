@@ -29,6 +29,19 @@ _backups/
 .wrangler/
 dist.zip
 
+# Secrets, Credentials & Keys Protection
+.env
+.env.*
+*.pem
+*.key
+*.cert
+*.pfx
+*.token
+*.sqlite
+*.db
+credentials.json
+service-account*.json
+
 # Temporary screenshots, scratch & logs
 step_*.png
 screenshot_*.png
