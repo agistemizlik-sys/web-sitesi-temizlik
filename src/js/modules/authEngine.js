@@ -3447,6 +3447,7 @@ window.openStaffWithdrawalModal = function() {
     }
     localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(staff));
     renderStaffDashboard();
+    if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
 
     alert(`✅ FAST Para Çekme Talebiniz Onaylandı!\n\nÇekilen Tutar: ${withdrawAmount.toLocaleString('tr-TR')} TL\nHesap Sahibi: ${staff.name}\nIBAN: ${staff.iban}\n\nÖdemeniz Garanti BBVA / FAST altyapısıyla 15 dakika içinde banka hesabınıza aktarılacaktır.`);
   }
