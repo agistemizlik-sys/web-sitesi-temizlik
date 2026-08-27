@@ -5725,6 +5725,9 @@
       <div class="rx-cmodal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <span style="font-size:13px; color:#9ca3af;">🔒 Belge No: <code id="certFooterCode">HYG-2026-8921</code></span>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="rx-cmodal-btn-secondary" onclick="document.getElementById('photoProofGalleryModal').style.display='flex';" style="background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3);">
+            📸 Öncesi/Sonrası Fotoğrafları Gör
+          </button>
           <button type="button" class="rx-cmodal-btn-primary" id="btnPrintHygieneCert" style="background: linear-gradient(135deg, #10b981, #059669);">
             🖨️ Sertifikayı İndir / Yazdır (PDF)
           </button>
@@ -5734,6 +5737,76 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- 📸 RELAXAX CANLI TEMİZLİK ÖNCESİ & SONRASI FOTOĞRAF GALERİ MODALI -->
+  <div class="rx-corporate-modal-overlay rx-cert-modal-overlay" id="photoProofGalleryModal" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle" style="display:none;">
+    <div class="rx-corporate-modal-backdrop" onclick="document.getElementById('photoProofGalleryModal').style.display='none';"></div>
+    <div class="rx-corporate-modal-dialog" style="max-width: 860px; background: #0b1329; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 24px; color: #fff;">
+      <div class="rx-cmodal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.6rem;">📸</span>
+          <div>
+            <span style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; letter-spacing: 1px;">ISO-9001 SERTİFİKALI GÖRSEL KALİTE KANITI</span>
+            <h4 id="photoModalTitle" style="margin: 0; font-size: 1.25rem;">Temizlik Öncesi & Sonrası Karşılaştırma Galerisi</h4>
+          </div>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" onclick="document.getElementById('photoProofGalleryModal').style.display='none';" aria-label="Kapat" style="background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer;">&times;</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 20px;">
+        <!-- Card 1: Salon -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px;">
+          <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 8px;">🛋️ Salon & Lamine Parke</div>
+          <div style="display: flex; gap: 8px; font-size: 0.75rem;">
+            <div style="flex: 1; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 8px; text-align: center;">
+              <span style="color: #f87171; font-weight: bold;">🔴 ÖNCESİ</span>
+              <p style="margin: 4px 0 0 0; color: #cbd5e1;">Tozlu & Mat Yüzey</p>
+            </div>
+            <div style="flex: 1; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 8px; text-align: center;">
+              <span style="color: #34d399; font-weight: bold;">🟢 SONRASI</span>
+              <p style="margin: 4px 0 0 0; color: #cbd5e1;">Ayna Parlaklığı & Cila</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Mutfak -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px;">
+          <div style="font-weight: 700; color: #fbbf24; font-size: 0.9rem; margin-bottom: 8px;">🍽️ Mutfak Ankastre & Davlumbaz</div>
+          <div style="display: flex; gap: 8px; font-size: 0.75rem;">
+            <div style="flex: 1; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 8px; text-align: center;">
+              <span style="color: #f87171; font-weight: bold;">🔴 ÖNCESİ</span>
+              <p style="margin: 4px 0 0 0; color: #cbd5e1;">Yağ & Yanık Lekeleri</p>
+            </div>
+            <div style="flex: 1; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 8px; text-align: center;">
+              <span style="color: #34d399; font-weight: bold;">🟢 SONRASI</span>
+              <p style="margin: 4px 0 0 0; color: #cbd5e1;">140°C Buharlı Hijyen</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Banyo -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px;">
+          <div style="font-weight: 700; color: #a78bfa; font-size: 0.9rem; margin-bottom: 8px;">🚿 Banyo Duşakabin & Derzler</div>
+          <div style="display: flex; gap: 8px; font-size: 0.75rem;">
+            <div style="flex: 1; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 8px; text-align: center;">
+              <span style="color: #f87171; font-weight: bold;">🔴 ÖNCESİ</span>
+              <p style="margin: 4px 0 0 0; color: #cbd5e1;">Kireç & Sabun Kalıntısı</p>
+            </div>
+            <div style="flex: 1; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 6px; padding: 8px; text-align: center;">
+              <span style="color: #34d399; font-weight: bold;">🟢 SONRASI</span>
+              <p style="margin: 4px 0 0 0; color: #cbd5e1;">Kristal Berraklık & Anti-Kireç</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <button type="button" class="btn-save-address" style="margin: 0 auto;" onclick="document.getElementById('photoProofGalleryModal').style.display='none';">
+          <span>✓ Anladım, Galeriyi Kapat</span>
+        </button>
+      </div>
     </div>
   </div>
 
