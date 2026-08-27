@@ -4340,146 +4340,222 @@
               <button type="button" class="btn-logout-user" id="btnLogoutAdmin">Çıkış</button>
             </div>
 
-            <!-- Stats Bar -->
+            <!-- Executive KPI Stats Bar -->
             <div class="admin-stats-grid">
               <div class="admin-stat-card">
-                <span class="asc-lbl">📦 Toplam Ürün & Hizmet</span>
-                <strong class="asc-val" id="adminTotalProducts">12 Öğe</strong>
+                <span class="asc-lbl">💰 Toplam Ciro (TL / PLN)</span>
+                <strong class="asc-val" id="adminKpiRevenue" style="color: #fbbf24;">128.450 TL</strong>
+                <span style="font-size: 0.72rem; color: #94a3b8;">/ 14.890 PLN (Polonya)</span>
               </div>
               <div class="admin-stat-card">
-                <span class="asc-lbl">🟢 Satışta / Aktif</span>
-                <strong class="asc-val" id="adminInStockCount" style="color: #34d399;">11 Ürün</strong>
+                <span class="asc-lbl">📦 Toplam Rezervasyon</span>
+                <strong class="asc-val" id="adminKpiOrders" style="color: #38bdf8;">54 Sipariş</strong>
+                <span style="font-size: 0.72rem; color: #34d399;">%98 Tamamlanma</span>
               </div>
               <div class="admin-stat-card">
-                <span class="asc-lbl">🔴 Tükendi (Stokta Yok)</span>
-                <strong class="asc-val" id="adminOutOfStockCount" style="color: #f87171;">1 Ürün</strong>
+                <span class="asc-lbl">👥 Aktif Saha Filosu</span>
+                <strong class="asc-val" id="adminKpiStaff" style="color: #34d399;">16 Uzman Çevrimiçi</strong>
+                <span style="font-size: 0.72rem; color: #a78bfa;">3 Şehir Operasyonda</span>
+              </div>
+              <div class="admin-stat-card">
+                <span class="asc-lbl">⭐ Müşteri Memnuniyeti</span>
+                <strong class="asc-val" style="color: #f59e0b;">4.98 / 5.0</strong>
+                <span style="font-size: 0.72rem; color: #94a3b8;">984 Doğrulanmış Yorum</span>
               </div>
             </div>
           </div>
 
-          <!-- Admin Sub Tabs Navigation -->
+          <!-- Admin Sub Tabs Navigation (7 Core Modules) -->
           <div class="portal-subnav admin-subnav">
-            <button type="button" class="portal-subnav-btn active" data-target="adminSubTabCatalog">
-              <span>🛍️ Ürün & Hizmet Kataloğu</span>
+            <button type="button" class="portal-subnav-btn active" data-target="adminSubTabAllOrders">
+              <span>📋 Sipariş & Sevk Masası</span>
             </button>
-            <button type="button" class="portal-subnav-btn" data-target="adminSubTabAddProduct">
-              <span>➕ Yeni Ürün / Hizmet Ekle</span>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabStaffFleet">
+              <span>👥 Temizlik Filosu</span>
             </button>
-            <button type="button" class="portal-subnav-btn" data-target="adminSubTabAllOrders">
-              <span>📋 Canlı Sipariş Akışı</span>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabCatalog">
+              <span>🛍️ Hizmet & Fiyat Kataloğu</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabCoupons">
+              <span>🎟️ Kupon & Promosyon</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabSupportTickets">
+              <span>📩 Destek & B2B Biletleri</span>
             </button>
             <button type="button" class="portal-subnav-btn" data-target="adminSubTabSecurityRadar">
-              <span>🚨 Canlı Siber Tehdit Masası</span>
+              <span>🚨 Siber Güvenlik Radarı</span>
             </button>
           </div>
 
-          <!-- Admin Sub Tab 1: Catalog List with Stock Toggles -->
-          <div class="portal-subtab-pane active" id="adminSubTabCatalog">
-            <div class="sd-section-header">
-              <h5>🛍️ Canlı Ürün & Hizmet Kataloğu Yönetimi</h5>
-              <span class="psh-desc">Sitede ve rezervasyon sihirbazında yer alan ürünlerin durumunu anında <strong>"Stokta Var / Stokta Yok"</strong> yapabilir, fiyatını düzenleyebilir veya silebilirsiniz.</span>
+          <!-- 1. SİPARİŞ & CANLI SEVK MASASI -->
+          <div class="portal-subtab-pane active" id="adminSubTabAllOrders">
+            <div class="sd-section-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h5>📋 Canlı Rezervasyon & Görev Sevk Masası</h5>
+                <span class="psh-desc">Gelen tüm temizlik rezervasyonlarını onaylayabilir, personele atayabilir, durumunu güncelleyebilir ve dışa aktarabilirsiniz.</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn-save-address" id="btnExportOrdersCsv" onclick="if(typeof window.exportOrdersToCSVGlobal==='function')window.exportOrdersToCSVGlobal();" style="padding:8px 14px; font-size:0.8rem; background:linear-gradient(135deg, #10b981, #059669);">
+                  📥 Siparişleri CSV / Excel İndir
+                </button>
+              </div>
             </div>
-            <div class="admin-catalog-table-wrap" id="adminCatalogTableWrap">
+
+            <!-- Order Filter Bar -->
+            <div style="display:flex; gap:10px; margin: 14px 0; flex-wrap:wrap; align-items:center;">
+              <input type="text" id="adminOrderSearchInput" placeholder="🔍 Sipariş Kodu, Müşteri Adı veya Telefon Ara..." style="flex:1; min-width:220px; padding:8px 12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff; font-size:0.85rem;" oninput="if(typeof window.filterAdminOrdersGlobal==='function')window.filterAdminOrdersGlobal(this.value);" />
+              <div class="wizard-date-shortcuts" style="margin:0;">
+                <button type="button" class="date-shortcut-chip active" onclick="if(typeof window.filterOrderStatusGlobal==='function')window.filterOrderStatusGlobal('ALL', this);">Tümü (54)</button>
+                <button type="button" class="date-shortcut-chip" onclick="if(typeof window.filterOrderStatusGlobal==='function')window.filterOrderStatusGlobal('BEKLEYEN', this);">🟡 Onay Bekleyen (4)</button>
+                <button type="button" class="date-shortcut-chip" onclick="if(typeof window.filterOrderStatusGlobal==='function')window.filterOrderStatusGlobal('YOLDA', this);">🚗 Yolda (6)</button>
+                <button type="button" class="date-shortcut-chip" onclick="if(typeof window.filterOrderStatusGlobal==='function')window.filterOrderStatusGlobal('TAMAMLANDI', this);">🟢 Tamamlanan (44)</button>
+              </div>
+            </div>
+
+            <div class="admin-orders-list" id="adminAllOrdersList">
               <!-- Dynamically populated via authEngine.js -->
             </div>
           </div>
 
-          <!-- Admin Sub Tab 2: Add New Product / Service -->
-          <div class="portal-subtab-pane" id="adminSubTabAddProduct" style="display:none;">
+          <!-- 2. TEMİZLİK FİLOSU & PERSONEL YÖNETİMİ -->
+          <div class="portal-subtab-pane" id="adminSubTabStaffFleet" style="display:none;">
             <div class="sd-section-header">
-              <h5>➕ Yeni Ürün / Ek Hizmet Tanımla</h5>
-              <span class="psh-desc">Eklediğiniz yeni butik ürün veya temizlik hizmeti sitede ve rezervasyon formunda anında yayınlanır.</span>
+              <h5>👥 Temizlik Uzmanları & Saha Filosu Masası</h5>
+              <span class="psh-desc">Kayıtlı uzmanların canlı görev durumu, adli sicil / güvenlik kontrol onayları ve günlük hak edişleri.</span>
+            </div>
+            <div class="admin-catalog-table-wrap" id="adminStaffFleetTableWrap">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+          </div>
+
+          <!-- 3. HİZMET & FİYAT KATALOĞU -->
+          <div class="portal-subtab-pane" id="adminSubTabCatalog" style="display:none;">
+            <div class="sd-section-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h5>🛍️ Canlı Ürün & Hizmet Kataloğu & Fiyat Kontrolü</h5>
+                <span class="psh-desc">Hizmetlerin aktiflik durumunu (Stokta Var / Tükendi) anında değiştirebilir, TL ve PLN fiyatlarını güncelleyebilirsiniz.</span>
+              </div>
+            </div>
+            <div class="admin-catalog-table-wrap" id="adminCatalogTableWrap">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+
+            <!-- Inline Add Product Form -->
+            <div class="sd-section-header" style="margin-top: 24px;">
+              <h6>➕ Yeni Hizmet / Butik Ürün Ekle</h6>
             </div>
             <form id="formAdminAddProduct" onsubmit="return false;" class="subform-grid">
               <div id="adminAddProductFeedback" class="auth-feedback" style="display:none;"></div>
               
               <div class="auth-field-group">
-                <label for="newProdKey">Benzersiz Ürün Kodu (ID) *</label>
-                <input type="text" id="newProdKey" placeholder="Örn: lavanta_hediye_seti" required />
+                <label for="newProdKey">Benzersiz Hizmet Kodu (ID) *</label>
+                <input type="text" id="newProdKey" placeholder="Örn: ekstra_balkon_yikama" required />
               </div>
 
               <div class="auth-field-group">
                 <label for="newProdCategory">Kategori *</label>
                 <select id="newProdCategory" class="auth-select">
-                  <option value="boutique">🛍️ Butik Hediyelik Ürün</option>
                   <option value="extra_cleaning">🧹 Ekstra Temizlik Hizmeti</option>
+                  <option value="boutique">🛍️ Butik Hediyelik Ürün</option>
                   <option value="vip_care">💎 VIP Derin Bakım</option>
                 </select>
               </div>
 
               <div class="auth-field-group full-width">
-                <label for="newProdTitle">Ürün / Hizmet Başlığı *</label>
-                <input type="text" id="newProdTitle" placeholder="Örn: Lavanta & Gül Doğal Aromaterapi Seti" required />
+                <label for="newProdTitle">Hizmet / Ürün Başlığı *</label>
+                <input type="text" id="newProdTitle" placeholder="Örn: Geniş Balkon & Cam Yıkama Paketi" required />
               </div>
 
               <div class="auth-field-group">
                 <label for="newProdPriceTR">Satış Fiyatı (TL) *</label>
-                <input type="number" id="newProdPriceTR" placeholder="490" required />
-              </div>
-
-              <div class="auth-field-group">
-                <label for="newProdOldPriceTR">İndirimsiz Eski Fiyat (TL)</label>
-                <input type="number" id="newProdOldPriceTR" placeholder="650" />
+                <input type="number" id="newProdPriceTR" placeholder="450" required />
               </div>
 
               <div class="auth-field-group">
                 <label for="newProdPricePL">Satış Fiyatı (PLN - Polonya)</label>
-                <input type="number" id="newProdPricePL" placeholder="59" />
+                <input type="number" id="newProdPricePL" placeholder="55" />
               </div>
 
               <div class="auth-field-group">
-                <label for="newProdStockStatus">Başlangıç Stok Durumu *</label>
+                <label for="newProdStockStatus">Başlangıç Durumu *</label>
                 <select id="newProdStockStatus" class="auth-select">
                   <option value="in_stock">🟢 Stokta Var (Satışa Açık)</option>
-                  <option value="out_of_stock">🔴 Stokta Yok (Tükendi)</option>
+                  <option value="out_of_stock">🔴 Pasif (Stokta Yok)</option>
                 </select>
               </div>
 
               <div class="auth-field-group full-width">
-                <label for="newProdImage">Görsel Yolu (URL / Path)</label>
-                <input type="text" id="newProdImage" placeholder="/images/product_rose_gift_box.webp" value="/images/product_rose_gift_box.webp" />
+                <button type="submit" class="btn-save-address" id="btnSubmitAddProduct">
+                  <span>🚀 Ürünü Kaydet & Anında Yayına Al</span>
+                </button>
               </div>
-
-              <div class="auth-field-group full-width">
-                <label for="newProdDesc">Kısa Açıklama / Özellikler</label>
-                <textarea id="newProdDesc" rows="2" placeholder="Özel tasarım el yapımı aromaterapi ve çiçek kutusu..."></textarea>
-              </div>
-
-              <button type="submit" class="btn-save-address" id="btnSubmitAddProduct">
-                <span>🚀 Ürünü Kaydet & Anında Yayına Al</span>
-              </button>
             </form>
           </div>
 
-          <!-- Admin Sub Tab 3: All Live Orders -->
-          <div class="portal-subtab-pane" id="adminSubTabAllOrders" style="display:none;">
+          <!-- 4. KUPON & PROMOSYON MASASI -->
+          <div class="portal-subtab-pane" id="adminSubTabCoupons" style="display:none;">
             <div class="sd-section-header">
-              <h5>📋 Tüm Canlı Müşteri Siparişleri & Durumları</h5>
-              <span class="psh-desc">Sistemdeki tüm rezervasyonlar, atanan personeller ve canlı lokasyon takibi.</span>
+              <h5>🎟️ Kupon & Promosyon Kampanyaları</h5>
+              <span class="psh-desc">Müşterilerin ödeme adımında kullanabileceği indirim kodlarını oluşturun, düzenleyin veya kaldırın.</span>
             </div>
-            <div class="admin-orders-list" id="adminAllOrdersList">
-              <!-- Dynamically populated -->
+            <div class="admin-catalog-table-wrap" id="adminCouponsTableWrap">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+
+            <div class="sd-section-header" style="margin-top:24px;">
+              <h6>➕ Yeni İndirim Kuponu Tanımla</h6>
+            </div>
+            <form id="formAdminAddCoupon" onsubmit="return false;" class="subform-grid">
+              <div id="adminCouponFeedback" class="auth-feedback" style="display:none;"></div>
+              <div class="auth-field-group">
+                <label for="newCouponCode">Kupon Kodu (Büyük Harf) *</label>
+                <input type="text" id="newCouponCode" placeholder="Örn: BAHAR2026" required style="text-transform:uppercase;" />
+              </div>
+              <div class="auth-field-group">
+                <label for="newCouponDiscount">İndirim Oranı (%) *</label>
+                <input type="number" id="newCouponDiscount" placeholder="15" min="1" max="90" required />
+              </div>
+              <div class="auth-field-group full-width">
+                <label for="newCouponDesc">Kampanya Açıklaması</label>
+                <input type="text" id="newCouponDesc" placeholder="Örn: İlk siparişe özel %15 hoş geldin indirimi" />
+              </div>
+              <div class="auth-field-group full-width">
+                <button type="button" class="btn-save-address" id="btnSaveNewCoupon" onclick="if(typeof window.addNewCouponGlobal==='function')window.addNewCouponGlobal();">
+                  <span>💾 Kuponu Oluştur & Aktif Et</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- 5. DESTEK & B2B TALEPLERİ MASASI -->
+          <div class="portal-subtab-pane" id="adminSubTabSupportTickets" style="display:none;">
+            <div class="sd-section-header">
+              <h5>📩 Müşteri İletişim & Kurumsal B2B Talepleri</h5>
+              <span class="psh-desc">Web sitesinden iletilen destek biletleri, kurumsal ofis temizliği teklif talepleri ve franchise başvuruları.</span>
+            </div>
+            <div class="admin-catalog-table-wrap" id="adminSupportTicketsWrap">
+              <!-- Dynamically populated via authEngine.js -->
             </div>
           </div>
 
-          <!-- Admin Sub Tab 4: 🚨 Live Security & Threat Radar -->
+          <!-- 6. 🚨 SİBER GÜVENLİK RADARI & IP BLOKLAMA -->
           <div class="portal-subtab-pane" id="adminSubTabSecurityRadar" style="display:none;">
             <div class="sd-section-header">
               <h5>🚨 Canlı Siber Güvenlik & Tehdit Masası</h5>
-              <span class="psh-desc">Sisteme yapılan saldırı girişimleri, yakalanan SQL/Prompt enjeksiyonları, devreye giren bal küpleri (Honeypot) ve engellenen VPN bağlantıları.</span>
+              <span class="psh-desc">Sisteme yapılan saldırı girişimleri, yakalanan SQL/Prompt enjeksiyonları ve engellenen saldırgan IP adresleri.</span>
             </div>
 
             <div class="admin-stats-grid" style="margin-bottom: 20px;">
               <div class="admin-stat-card">
-                <span class="asc-lbl">🛡️ Cyber Loop Sentinel</span>
-                <strong class="asc-val" style="color: #34d399;">AKTİF (0 Tehdit)</strong>
+                <span class="asc-lbl">🛡️ WAF & Sentinel Zırhı</span>
+                <strong class="asc-val" style="color: #34d399;">TAM KORUMA (0 Sızıntı)</strong>
               </div>
               <div class="admin-stat-card">
                 <span class="asc-lbl">🪤 Yakalanan Saldırılar</span>
                 <strong class="asc-val" id="statBlockedThreats" style="color: #38bdf8;">14 Engellendi</strong>
               </div>
               <div class="admin-stat-card">
-                <span class="asc-lbl">⛔ Engellenen VPN/Tor</span>
+                <span class="asc-lbl">⛔ Engellenen Proxy/Tor</span>
                 <strong class="asc-val" id="statBlockedVpn" style="color: #f87171;">6 Engellendi</strong>
               </div>
             </div>
@@ -4490,8 +4566,6 @@
             <div class="admin-security-logs-wrap" id="adminSecurityLogsWrap">
               <!-- Dynamically populated via authEngine.js -->
             </div>
-          </div>
-
           </div>
         </div>
 
