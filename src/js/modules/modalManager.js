@@ -17,6 +17,10 @@ export function openModal(modal) {
   modalEl.style.display = 'flex';
   modalEl.classList.add('active');
 
+  if (typeof window.pushAppState === 'function') {
+    window.pushAppState('modal_' + (modalEl.id || 'modal'));
+  }
+
   const content = modalEl.querySelector('.modal-content, .modal-dialog, .corporate-modal-dialog, .glass-card');
   if (content) {
     gsap.fromTo(content,
@@ -62,6 +66,10 @@ export function closeModal(modal) {
 export function openLegalModal(tabKey = 'terms') {
   const modal = document.getElementById('legalModal');
   if (!modal) return;
+
+  if (typeof window.pushAppState === 'function') {
+    window.pushAppState('legalModal', { tabKey });
+  }
 
   const tabs = modal.querySelectorAll('.rx-legal-tab-btn');
   const panes = modal.querySelectorAll('.rx-legal-tab-pane');

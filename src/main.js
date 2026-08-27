@@ -3823,6 +3823,7 @@ function initApp() {
   setupServicesModal();
   setupResizeObserver();
   setupGlobalEscapeKey();
+  setupHistoryBackNavigation();
   setupScentAndPetLogic();
   setupQualityReportModal();
   setupCorporateModals();
@@ -7665,6 +7666,10 @@ function openBookingScreen() {
       bookingEl.addEventListener('wheel', (e) => { e.stopPropagation(); }, { passive: true });
     }
 
+    if (typeof window.pushAppState === 'function') {
+      window.pushAppState('booking');
+    }
+
     gsap.fromTo(bookingEl, 
       { opacity: 0 }, 
       { opacity: 1, duration: 0.35, ease: 'power2.out' }
@@ -11039,6 +11044,106 @@ function setupGlobalEscapeKey() {
       // 4. Booking Screen
       closeBookingScreen();
     }
+  });
+}
+
+function setupHistoryBackNavigation() {
+  if (typeof window === 'undefined') return;
+
+  try {
+    if (!window.history.state) {
+      window.history.replaceState({ view: 'home' }, '');
+    }
+  } catch (e) {}
+
+  let isHandlingPop = false;
+
+  // Master UI Back Button handler
+  window.navigateAppBackGlobal = function() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    }
+  };
+
+  // Push state on Modal / Booking opens
+  window.pushAppState = function(viewName, data = {}) {
+    if (isHandlingPop) return;
+    try {
+      window.history.pushState({ view: viewName, ...data, timestamp: Date.now() }, '');
+    } catch (e) {}
+  };
+
+  // Intercept Browser Back Button / Mobile Swipe Back / Android Hardware Back
+  window.addEventListener('popstate', () => {
+    isHandlingPop = true;
+
+    // 1. Check if an active open Corporate / System Modal exists
+    const openModals = [
+      document.getElementById('authModal'),
+      document.getElementById('legalModal'),
+      document.getElementById('hygieneCertModal'),
+      document.getElementById('photoProofGalleryModal'),
+      document.getElementById('staffSosModal'),
+      document.getElementById('vipConciergeModal'),
+      document.getElementById('productsModal'),
+      document.getElementById('services-modal'),
+      document.getElementById('adminOrderDetailsModal'),
+      document.getElementById('adminFinancialModal'),
+      document.getElementById('helpModalOverlay')
+    ].filter(m => m && (m.style.display === 'flex' || m.style.display === 'block' || m.classList.contains('active') || (!m.hasAttribute('hidden') && m.id === 'services-modal')));
+
+    if (openModals.length > 0) {
+      const topModal = openModals[openModals.length - 1];
+      if (topModal.id === 'authModal' && typeof window.closeAuthModal === 'function') {
+        window.closeAuthModal();
+      } else if (typeof window.closeCorporateModal === 'function') {
+        window.closeCorporateModal(topModal);
+      } else {
+        topModal.style.display = 'none';
+        topModal.classList.remove('active');
+        if (topModal.id === 'services-modal') topModal.setAttribute('hidden', '');
+      }
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      setTimeout(() => { isHandlingPop = false; }, 100);
+      return;
+    }
+
+    // 2. Check if Mobile Menu Drawer or Boutique Drawer is open
+    const mobileDrawer = document.getElementById('mobile-menu-drawer');
+    if (mobileDrawer && !mobileDrawer.hasAttribute('hidden')) {
+      const closeBtn = document.getElementById('closeMobileDrawerBtn');
+      if (closeBtn) closeBtn.click();
+      setTimeout(() => { isHandlingPop = false; }, 100);
+      return;
+    }
+    const boutiqueDrawer = document.getElementById('boutiqueDrawer');
+    if (boutiqueDrawer && boutiqueDrawer.style.display !== 'none' && boutiqueDrawer.classList.contains('active')) {
+      boutiqueDrawer.style.display = 'none';
+      boutiqueDrawer.classList.remove('active');
+      setTimeout(() => { isHandlingPop = false; }, 100);
+      return;
+    }
+
+    // 3. Check if Booking Wizard is open
+    const bookingEl = document.getElementById('bookingReveal');
+    if (bookingEl && (bookingEl.style.display === 'block' || bookingEl.classList.contains('active') || !bookingEl.hasAttribute('hidden'))) {
+      if (typeof window.closeBookingScreen === 'function') {
+        window.closeBookingScreen();
+      }
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+      setTimeout(() => { isHandlingPop = false; }, 100);
+      return;
+    }
+
+    // 4. Check if on 3D Cinematic Scene > 0
+    if (typeof window.goToCinemaStep === 'function' && typeof currentStep !== 'undefined' && currentStep > 0) {
+      window.goToCinemaStep(currentStep - 1, -1);
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    }
+
+    setTimeout(() => { isHandlingPop = false; }, 100);
   });
 }
 

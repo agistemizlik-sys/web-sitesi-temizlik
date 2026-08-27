@@ -1052,6 +1052,10 @@ export function openAuthModal(targetTab = 'login', targetRole = 'customer') {
   modal.removeAttribute('hidden');
   modal.classList.add('active');
 
+  if (typeof window.pushAppState === 'function') {
+    window.pushAppState('authModal', { targetTab, targetRole });
+  }
+
   const user = getCurrentUser();
   if (user) {
     if (user.role === 'admin') {

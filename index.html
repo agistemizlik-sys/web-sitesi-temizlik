@@ -2017,6 +2017,9 @@
           
           <div class="booking-section-header">
             <div class="b-header-meta-row">
+              <button type="button" class="wizard-back-nav-btn" onclick="if(typeof window.navigateAppBackGlobal==='function'){window.navigateAppBackGlobal();}else if(typeof closeBookingScreen==='function'){closeBookingScreen();}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+                <span>← Geri Dön</span>
+              </button>
               <div class="b-badge">HIZLI SİPARİŞİ OLUŞTURUN</div>
               <button type="button" class="wizard-sound-toggle-btn" id="wizardSoundToggleBtn" aria-label="Ses Efektlerini Değiştir">
                 <span class="sound-icon">🔊</span>
