@@ -3770,7 +3770,7 @@
             <div class="auth-terms-box">
               <label class="auth-check-wrap">
                 <input type="checkbox" id="regTermsConsent" checked required />
-                <span><a href="#" onclick="if(typeof openCorporateModal==='function')openCorporateModal(document.getElementById('faqModal')); return false;">Kullanıcı Sözleşmesi</a> ve <a href="#" onclick="return false;">KVKK Gizlilik Politikası</a>'nı okudum, onaylıyorum.</span>
+                <span><a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('terms');} return false;">Kullanıcı Sözleşmesi</a> ve <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('kvkk');} return false;">KVKK Gizlilik Politikası</a>'nı okudum, onaylıyorum.</span>
               </label>
               <label class="auth-check-wrap">
                 <input type="checkbox" id="regMarketingConsent" checked />
@@ -4138,7 +4138,7 @@
             <div class="auth-terms-box">
               <label class="auth-check-wrap">
                 <input type="checkbox" id="staffTermsConsent" checked required />
-                <span><a href="#" onclick="return false;">Hizmet Sağlayıcı Sözleşmesi</a> ve Adli Sicil / Güvenlik Kontrol Protokolü'nü onaylıyorum.</span>
+                <span><a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('staff');} return false;">Hizmet Sağlayıcı Sözleşmesi</a> ve <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('security');} return false;">Adli Sicil / Güvenlik Kontrol Protokolü</a>'nü onaylıyorum.</span>
               </label>
             </div>
 
@@ -5086,6 +5086,130 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  <!-- =======================================================
+       📜 7. YASAL SÖZLEŞMELER, KVKK & GÜVENLİK PROTOKOLLERİ MODALI
+       ======================================================= -->
+  <div class="rx-corporate-modal-overlay rx-legal-modal-overlay" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle" style="display:none;">
+    <div class="rx-corporate-modal-dialog rx-legal-modal-dialog">
+      <!-- Modal Header -->
+      <div class="rx-cmodal-header">
+        <div class="rx-cmodal-title-group">
+          <span class="rx-cmodal-icon">📜</span>
+          <div>
+            <h3 id="legalModalTitle">Yasal Sözleşmeler & Gizlilik Protokolleri</h3>
+            <p>RELAXAX Güvencesi, Kullanıcı Hakları ve Hizmet Şartları</p>
+          </div>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" id="btnCloseLegalModal" aria-label="Kapat" onclick="if(typeof closeCorporateModal==='function')closeCorporateModal(document.getElementById('legalModal'));">✕</button>
+      </div>
+
+      <!-- Legal Navigation Tabs -->
+      <div class="rx-legal-tabs-bar">
+        <button type="button" class="rx-legal-tab-btn active" data-legal-tab="terms" onclick="if(typeof openLegalModal==='function')openLegalModal('terms');">📜 Kullanıcı Sözleşmesi</button>
+        <button type="button" class="rx-legal-tab-btn" data-legal-tab="kvkk" onclick="if(typeof openLegalModal==='function')openLegalModal('kvkk');">🔒 KVKK & Gizlilik</button>
+        <button type="button" class="rx-legal-tab-btn" data-legal-tab="staff" onclick="if(typeof openLegalModal==='function')openLegalModal('staff');">💼 Hizmet Sağlayıcı Şartları</button>
+        <button type="button" class="rx-legal-tab-btn" data-legal-tab="security" onclick="if(typeof openLegalModal==='function')openLegalModal('security');">🛡️ Güvenlik & Sicil</button>
+        <button type="button" class="rx-legal-tab-btn" data-legal-tab="distance" onclick="if(typeof openLegalModal==='function')openLegalModal('distance');">💳 Mesafeli Satış & İade</button>
+      </div>
+
+      <!-- Modal Body (Tab Panes) -->
+      <div class="rx-cmodal-body rx-legal-body">
+        
+        <!-- 1. KULLANICI SÖZLEŞMESİ -->
+        <div class="rx-legal-tab-pane active" id="legalPane_terms">
+          <div class="rx-legal-section">
+            <h4>1. Taraflar ve Amaç</h4>
+            <p>İşbu Kullanıcı Sözleşmesi, RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. ("RELAXAX") ile web sitesi veya mobil uygulama üzerinden rezervasyon oluşturan, üye olan "Müşteri / Kullanıcı" arasında akdedilmiştir. Sözleşmenin amacı, platform üzerinden sunulan temizlik hizmetlerinin şart ve kurallarını belirlemektir.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>2. Hizmet Kapsamı ve İfası</h4>
+            <p>RELAXAX; standart ev temizliği, detaylı temizlik, inşaat sonrası arındırma, taşınma temizliği ve kurumsal ofis hijyeni alanlarında profesyonel ekip ve çevre dostu sertifikalı kimyasallarla hizmet sağlar. Temizlik uzmanı randevu saatinde müşterinin belirttiği adreste hazır bulunur.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>3. İptal, Tarih Değişikliği ve Esneklik</h4>
+            <p>Müşteri, planlanan hizmet saatinden en az <strong>24 saat öncesine kadar</strong> rezervasyonunu hiçbir ücret ödemeksizin iptal edebilir veya randevu tarihini dilediği gibi güncelleyebilir. 24 saatten daha az kalan iptallerde ekip hazırlık maliyeti sebebiyle kısmi kesinti uygulanabilir.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>4. %100 Memnuniyet ve Hasar Güvencesi</h4>
+            <p>Hizmet kalitesinden memnun kalınmaması durumunda hizmet bitiminden itibaren <strong>24 saat içinde</strong> bildirilmesi halinde ücretsiz telafi temizliği organize edilir. Operasyon esnasında meydana gelebilecek olası kazara hasarlar RELAXAX Kurumsal Mesleki Sorumluluk Sigortası kapsamında tazmin edilir.</p>
+          </div>
+        </div>
+
+        <!-- 2. KVKK VE GİZLİLİK POLİTİKASI -->
+        <div class="rx-legal-tab-pane" id="legalPane_kvkk" style="display:none;">
+          <div class="rx-legal-section">
+            <h4>1. Veri Sorumlusu</h4>
+            <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve Avrupa Birliği Genel Veri Koruma Tüzüğü ("GDPR") kapsamında veri sorumlusu <strong>RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş.</strong>'dir.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>2. İşlenen Kişisel Veriler ve Amaçları</h4>
+            <p>Platformumuzda işlem gören veriler:</p>
+            <ul>
+              <li><strong>Kimlik & İletişim:</strong> Ad, soyad, telefon numarası, e-posta adresi (Rezervasyon ve bilgilendirme amacıyla).</li>
+              <li><strong>Lokasyon:</strong> İl, ilçe, açık adres bilgisi (Temizlik ekibinin adrese yönlendirilmesi için).</li>
+              <li><strong>İşlem & Güvenlik:</strong> IP adresi, oturum logları ve çerezler (Siber güvenlik ve sahtekarlık önleme için).</li>
+            </ul>
+          </div>
+          <div class="rx-legal-section">
+            <h4>3. Veri Güvenliği ve Haklarınız</h4>
+            <p>Kişisel verileriniz Cloudflare Zero-Trust Edge ağında 256-bit SSL şifreleme ile saklanır; üçüncü şahıslara ticari amaçla satılmaz. KVKK Madde 11 uyarınca verilerinizin silinmesini, düzeltilmesini talep etmek için <a href="mailto:kvkk@relaxax.com">kvkk@relaxax.com</a> üzerinden bize dilediğiniz zaman ulaşabilirsiniz.</p>
+          </div>
+        </div>
+
+        <!-- 3. HİZMET SAĞLAYICI ŞARTLARI -->
+        <div class="rx-legal-tab-pane" id="legalPane_staff" style="display:none;">
+          <div class="rx-legal-section">
+            <h4>1. İşbirliği Modeli ve %70 Hakediş</h4>
+            <p>RELAXAX platformunda görev alan temizlik personelleri bağımsız hizmet sağlayıcı statüsündedir. Başarıyla tamamlanan her temizlik görevi bedelinin <strong>net %70'i</strong> personelin banka hesabına eksiksiz aktarılır.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>2. Hijyen Standartları ve Kurumsal İtibar</h4>
+            <p>Personel; hizmet süresince RELAXAX onaylı çevre dostu kimyasalları kullanmak, hijyen maskesi/eldiven protokolüne uymak ve müşteri mahremiyetine mutlak saygı göstermekle yükümlüdür.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>3. Performans ve Prim Sistemi</h4>
+            <p>Aylık 20 seans üzeri tamamlayan ve müşteri memnuniyet puanı 4.8 üzeri olan uzmanlara ek VIP performans primi tahsis edilir.</p>
+          </div>
+        </div>
+
+        <!-- 4. GÜVENLİK VE ADLİ SİCİL PROTOKOLÜ -->
+        <div class="rx-legal-tab-pane" id="legalPane_security" style="display:none;">
+          <div class="rx-legal-section">
+            <h4>1. Zorunlu Adli Sicil (Sabıka Kaydı) Taraması</h4>
+            <p>Müşterilerimizin can ve mal güvenliği en temel önceliğimizdir. RELAXAX bünyesindeki her temizlik uzmanı e-Devlet onaylı güncel <strong>Adli Sicil Kaydı (sabıka kaydı temiz)</strong> ibraz etmek zorundadır.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>2. Kimlik, İkamet ve Referans Teyidi</h4>
+            <p>Nüfus cüzdanı doğrulaması, ikametgah kontrolü ve en az 2 geçmiş iş referansı teyit edilmeyen adayların başvuruları kabul edilmez.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>3. Sıfır Tolerans Güvenlik Politikası</h4>
+            <p>Dürüstlük ve güvenlik standartlarına aykırı en ufak şüpheli durumda personel sistemden derhal ihraç edilir ve adli mercilere resmi bildirim yapılır.</p>
+          </div>
+        </div>
+
+        <!-- 5. MESAFELİ SATIŞ VE İADE -->
+        <div class="rx-legal-tab-pane" id="legalPane_distance" style="display:none;">
+          <div class="rx-legal-section">
+            <h4>1. Cayma Hakkı ve 24 Saat Kuralı</h4>
+            <p>6502 sayılı Tüketicinin Korunması Hakkında Kanun uyarınca, hizmet başlamadan 24 saat önce yapılan iptallerde ödenen ücretin <strong>%100'ü kesintisiz olarak</strong> iade edilir.</p>
+          </div>
+          <div class="rx-legal-section">
+            <h4>2. İade Süresi ve Banka Prosedürü</h4>
+            <p>Onaylanan iadeler 3-7 iş günü içerisinde ödemenin yapıldığı kredi kartına veya banka hesabına otomatik olarak yansıtılır.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="rx-cmodal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <span style="font-size:13px; color:#9ca3af;">🛡️ RELAXAX Legal Compliance v3.0 · Güncel Sürüm</span>
+        <button type="button" class="rx-cmodal-btn-primary" id="btnLegalModalAccept" onclick="if(typeof closeCorporateModal==='function')closeCorporateModal(document.getElementById('legalModal'));">
+          ✔️ Okudum, Tüm Şartları Onaylıyorum
+        </button>
       </div>
     </div>
   </div>

@@ -6,7 +6,7 @@ import { TRANSLATIONS, SERVICE_SCENE_TEXTS, SERVICE_SCENE_TEXTS_PL } from './js/
 import { initAttribution, trackConversion } from './js/tracking.js';
 import { escapeHTML, sanitizeInputVal, debounce, throttle, formatCurrency } from './js/modules/domUtils.js';
 import { playTickSound, playSuccessChime, toggleSound, isSoundEnabled } from './js/modules/soundEngine.js';
-import { openModal, closeModal } from './js/modules/modalManager.js';
+import { openModal, closeModal, openLegalModal } from './js/modules/modalManager.js';
 import { calculateBasePrice, getFrequencyDiscountRate, verifyPromoCode } from './js/modules/pricingEngine.js';
 import { initAuthEngine, prefillBookingWizardWithUser } from './js/modules/authEngine.js';
 import { initI18nDropdowns, applyLanguageGlobal } from './js/modules/i18nEngine.js';
@@ -24,6 +24,7 @@ window.playSuccessChime = playSuccessChime;
 window.toggleSound = toggleSound;
 window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
+window.openLegalModal = openLegalModal;
 window.initLoopEngineering = initLoopEngineering;
 window.initCyberLoopEngine = initCyberLoopEngine;
 window.secureFetch = secureFetch;

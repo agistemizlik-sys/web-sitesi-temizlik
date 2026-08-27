@@ -18386,6 +18386,106 @@ html[dir="rtl"] .counter-btn.plus {
   order: 0;
 }
 
+/* ==========================================================================
+   LEGAL & COMPLIANCE MODAL (SÖZLEŞMELER & KVKK)
+   ========================================================================== */
+.rx-legal-modal-dialog {
+  max-width: 840px !important;
+  width: 100%;
+  background: rgba(11, 17, 33, 0.96) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(56, 189, 248, 0.12);
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  overflow: hidden;
+}
+
+.rx-legal-tabs-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.rx-legal-tab-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.rx-legal-tab-btn:hover {
+  background: rgba(56, 189, 248, 0.1);
+  color: #e2e8f0;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.rx-legal-tab-btn.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(14, 165, 233, 0.15) 100%);
+  color: #38bdf8;
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+}
+
+.rx-legal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  max-height: calc(88vh - 180px);
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.rx-legal-section {
+  margin-bottom: 22px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rx-legal-section h4 {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rx-legal-section p {
+  margin-bottom: 8px;
+  color: #94a3b8;
+}
+
+.rx-legal-section ul {
+  padding-left: 20px;
+  margin-top: 8px;
+}
+
+.rx-legal-section li {
+  margin-bottom: 6px;
+  color: #cbd5e1;
+}
+
+.rx-legal-section a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+
 
 
 
