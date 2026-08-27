@@ -1525,6 +1525,11 @@ function renderUserProfileDetails(user) {
               <button type="button" class="btn-reorder-booking" onclick="if(typeof window.openHygieneCertificate==='function'){window.openHygieneCertificate({orderCode:'${escapeHTML(b.orderCode || b.resCode || '')}', service:'${escapeHTML(b.service || 'Detaylı Temizlik')}', customerName:'${escapeHTML(user.name || 'Değerli Müşterimiz')}', address:'${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')}', assignedStaff:{name:'${escapeHTML(staff.name || 'Ayşe K.')}'}});}">
                 <span style="color:#fbbf24;">🏆 48 Nokta Hijyen Sertifikası</span>
               </button>
+              ${b.status === 'Tamamlandı' ? `
+                <button type="button" class="btn-reorder-booking" style="border-color:rgba(251,191,36,0.5); color:#fbbf24;" onclick="window.rateStaffServiceGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(staff.name || 'Ayşe K.')}')">
+                  <span>⭐ 5★ Değerlendir</span>
+                </button>
+              ` : ''}
               <button type="button" class="btn-reorder-booking" onclick="window.reorderBookingGlobal(${idx})">
                 <span>🔄 Tekrar İste</span>
               </button>
@@ -1538,6 +1543,11 @@ function renderUserProfileDetails(user) {
     }
   }
 }
+
+window.rateStaffServiceGlobal = function(orderCode, staffName) {
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  alert(`🌟 Teşekkürler! #${orderCode} numaralı hizmet için uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz ve memnuniyet kaydınız sisteme başarıyla işlendi!`);
+};
 
 window.reorderBookingGlobal = function(idx) {
   const user = getCurrentUser();
