@@ -3824,6 +3824,7 @@ function initApp() {
   setupResizeObserver();
   setupGlobalEscapeKey();
   setupHistoryBackNavigation();
+  setupNetworkResilienceWatcher();
   setupScentAndPetLogic();
   setupQualityReportModal();
   setupCorporateModals();
@@ -11145,6 +11146,51 @@ function setupHistoryBackNavigation() {
 
     setTimeout(() => { isHandlingPop = false; }, 100);
   });
+}
+
+function setupNetworkResilienceWatcher() {
+  if (typeof window === 'undefined') return;
+
+  const showConnBanner = (status, text) => {
+    let banner = document.getElementById('relaxaxConnBanner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'relaxaxConnBanner';
+      banner.style.cssText = 'position:fixed; top:20px; right:20px; z-index:999999; padding:10px 18px; border-radius:999px; font-size:0.84rem; font-weight:700; display:flex; align-items:center; gap:8px; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.5); transition:all 0.3s cubic-bezier(0.16,1,0.3,1); opacity:0; transform:translateY(-15px); pointer-events:none;';
+      document.body.appendChild(banner);
+    }
+
+    if (status === 'offline') {
+      banner.style.background = 'rgba(239, 68, 68, 0.9)';
+      banner.style.border = '1px solid rgba(254, 202, 202, 0.3)';
+      banner.style.color = '#fff';
+      banner.innerHTML = `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fff; animation:connPulse 1.5s infinite;"></span> ${text || '⚠️ İnternet bağlantısı kesildi (Çevrimdışı koruma aktif)'}`;
+      if (typeof window.playAlertChime === 'function') window.playAlertChime();
+    } else {
+      banner.style.background = 'rgba(34, 197, 94, 0.9)';
+      banner.style.border = '1px solid rgba(187, 247, 208, 0.3)';
+      banner.style.color = '#fff';
+      banner.innerHTML = `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fff;"></span> ${text || '✓ İnternet bağlantısı sağlandı (Sistem senkronize)'}`;
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    }
+
+    banner.style.opacity = '1';
+    banner.style.transform = 'translateY(0)';
+
+    clearTimeout(banner._hideTimer);
+    banner._hideTimer = setTimeout(() => {
+      banner.style.opacity = '0';
+      banner.style.transform = 'translateY(-15px)';
+    }, 4000);
+  };
+
+  window.addEventListener('offline', () => {
+    showConnBanner('offline');
+  }, { passive: true });
+
+  window.addEventListener('online', () => {
+    showConnBanner('online');
+  }, { passive: true });
 }
 
 

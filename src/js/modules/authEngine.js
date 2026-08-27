@@ -3156,6 +3156,10 @@ export function initAuthEngine() {
         btn.classList.add('active');
         const targetPane = document.getElementById(targetId);
         if (targetPane) targetPane.style.display = 'block';
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+        if (typeof window.pushAppState === 'function') {
+          window.pushAppState('portal_subtab', { targetId });
+        }
       }
     });
   });
