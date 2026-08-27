@@ -10934,6 +10934,8 @@ function setupBookingReveal() {
     const chk3 = document.getElementById('staffTermsConsent');
     if (chk3) chk3.checked = true;
 
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+
     const modal = document.getElementById('legalModal');
     if (modal && typeof window.closeCorporateModal === 'function') {
       window.closeCorporateModal(modal);
