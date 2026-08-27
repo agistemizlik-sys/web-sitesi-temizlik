@@ -12,6 +12,7 @@ import { initAuthEngine, prefillBookingWizardWithUser } from './js/modules/authE
 import { initI18nDropdowns, applyLanguageGlobal } from './js/modules/i18nEngine.js';
 import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngine.js';
 import { initCyberLoopEngine } from './js/modules/cyberLoopEngine.js';
+import { secureFetch, getCsrfToken } from './js/modules/csrfEngine.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -25,6 +26,8 @@ window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
 window.initLoopEngineering = initLoopEngineering;
 window.initCyberLoopEngine = initCyberLoopEngine;
+window.secureFetch = secureFetch;
+window.getCsrfToken = getCsrfToken;
 window.attachSubMsVideoLoop = attachSubMsVideoLoop;
 window.toggleDiagnosticsHUD = toggleDiagnosticsHUD;
 window.runPerformanceBenchmark = runPerformanceBenchmark;
