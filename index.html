@@ -4365,10 +4365,13 @@
             </div>
           </div>
 
-          <!-- Admin Sub Tabs Navigation (8 Core Modules) -->
+          <!-- Admin Sub Tabs Navigation (9 Core Modules) -->
           <div class="portal-subnav admin-subnav">
             <button type="button" class="portal-subnav-btn active" data-target="adminSubTabAllOrders">
               <span>📋 Sipariş & Sevk Masası</span>
+            </button>
+            <button type="button" class="portal-subnav-btn" data-target="adminSubTabCustomers">
+              <span>👤 Kayıtlı Müşteriler</span>
             </button>
             <button type="button" class="portal-subnav-btn" data-target="adminSubTabStaffFleet">
               <span>👥 Temizlik Filosu</span>
@@ -4420,7 +4423,42 @@
             </div>
           </div>
 
-          <!-- 2. TEMİZLİK FİLOSU & PERSONEL YÖNETİMİ -->
+          <!-- 2. 👤 KAYITLI MÜŞTERİ & KULLANICI YÖNETİM MASASI -->
+          <div class="portal-subtab-pane" id="adminSubTabCustomers" style="display:none;">
+            <div class="sd-section-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h5>👤 Kayıtlı Müşteri & Üye Veritabanı Masası</h5>
+                <span class="psh-desc">Web sitesinden kayıt olan müşterilerin profilleri, kayıtlı adresleri, VIP puanları ve rezervasyon geçmişleri.</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input type="text" id="adminCustomerSearchInput" placeholder="🔍 İsim, e-posta veya telefon ile ara..." style="padding: 8px 12px; font-size: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; min-width: 240px;" oninput="if(typeof window.filterAdminCustomersGlobal==='function')window.filterAdminCustomersGlobal(this.value);" />
+              </div>
+            </div>
+
+            <div class="admin-stats-grid" style="margin-bottom: 20px;">
+              <div class="admin-stat-card">
+                <span class="asc-lbl">👥 Toplam Kayıtlı Müşteri</span>
+                <strong class="asc-val" id="statTotalCustomers" style="color: #38bdf8;">342 Üye</strong>
+                <span style="font-size: 0.72rem; color: #38bdf8;">%100 Doğrulanmış</span>
+              </div>
+              <div class="admin-stat-card">
+                <span class="asc-lbl">⭐ VIP Sadakat Üyeleri</span>
+                <strong class="asc-val" style="color: #fbbf24;">48 VIP Üye</strong>
+                <span style="font-size: 0.72rem; color: #fbbf24;">Özel İndirim Tanımlı</span>
+              </div>
+              <div class="admin-stat-card">
+                <span class="asc-lbl">📍 Kayıtlı Adres Sayısı</span>
+                <strong class="asc-val" style="color: #34d399;">512 Adres</strong>
+                <span style="font-size: 0.72rem; color: #34d399;">Hızlı Sevk Hazır</span>
+              </div>
+            </div>
+
+            <div class="admin-catalog-table-wrap" id="adminCustomersTableWrap">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
+          </div>
+
+          <!-- 3. TEMİZLİK FİLOSU & PERSONEL YÖNETİMİ -->
           <div class="portal-subtab-pane" id="adminSubTabStaffFleet" style="display:none;">
             <div class="sd-section-header">
               <h5>👥 Temizlik Uzmanları & Saha Filosu Masası</h5>

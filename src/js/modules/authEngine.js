@@ -1833,7 +1833,87 @@ export function renderAdminDashboard() {
 
   window.renderAdminOrdersList();
 
-  // 2. Render Staff Fleet Management Table & Applicant Queue
+  // 2. Render Registered Customers Table
+  const customersTableWrap = document.getElementById('adminCustomersTableWrap');
+  window.renderAdminCustomersList = function(query = '') {
+    if (!customersTableWrap) return;
+    const cleanQ = (query || '').toLowerCase().trim();
+    
+    const baseCustomers = [
+      { id: 'CST-101', name: 'Ahmet Yılmaz', email: 'ahmet.yilmaz@gmail.com', phone: '0532 111 22 33', city: 'İstanbul / Beşiktaş', vipScore: 240, ordersCount: 5, regDate: '12 Ocak 2026', badge: 'badge-success', vip: true },
+      { id: 'CST-102', name: 'Zeynep Demir', email: 'zeynep.demir@hotmail.com', phone: '0544 222 33 44', city: 'İstanbul / Kadıköy', vipScore: 180, ordersCount: 3, regDate: '24 Ocak 2026', badge: 'badge-success', vip: true },
+      { id: 'CST-103', name: 'Mehmet Can', email: 'mehmet.can@outlook.com', phone: '0555 444 55 66', city: 'Ankara / Çankaya', vipScore: 90, ordersCount: 2, regDate: '03 Şubat 2026', badge: 'badge-progress', vip: false },
+      { id: 'CST-104', name: 'Anna Kowalska', email: 'anna.kowalska@onet.pl', phone: '+48 501 234 567', city: 'Warszawa / Śródmieście', vipScore: 320, ordersCount: 7, regDate: '18 Aralık 2025', badge: 'badge-success', vip: true }
+    ];
+
+    const localUsers = getRegisteredUsers().map(u => ({
+      id: u.id || 'CST-NEW',
+      name: u.name || 'Yeni Müşteri',
+      email: u.email || '',
+      phone: u.phone || '0500 000 00 00',
+      city: `${u.city || 'İstanbul'} / ${u.district || 'Merkez'}`,
+      vipScore: u.vipScore || 100,
+      ordersCount: 1,
+      regDate: 'Bugün',
+      badge: 'badge-success',
+      vip: (u.vipScore || 100) >= 100
+    }));
+
+    const allCustomers = [...localUsers, ...baseCustomers.filter(b => !localUsers.some(l => l.email === b.email))];
+
+    const filtered = allCustomers.filter(c => {
+      if (!cleanQ) return true;
+      return (c.name || '').toLowerCase().includes(cleanQ) ||
+             (c.email || '').toLowerCase().includes(cleanQ) ||
+             (c.phone || '').includes(cleanQ) ||
+             (c.city || '').toLowerCase().includes(cleanQ);
+    });
+
+    customersTableWrap.innerHTML = `
+      <table class="admin-catalog-table">
+        <thead>
+          <tr>
+            <th>Müşteri No / İsim</th>
+            <th>İletişim & E-Posta</th>
+            <th>Bölge / Şehir</th>
+            <th>VIP Puanı & Siparişler</th>
+            <th>Kayıt Tarihi</th>
+            <th>Hızlı İletişim & Aksiyon</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(c => `
+            <tr>
+              <td>
+                <strong style="color: #f1f5f9; font-size: 0.92rem;">${escapeHTML(c.name)}</strong>
+                <div style="font-size: 0.75rem; color: #94a3b8;">Kod: <code>${c.id}</code> ${c.vip ? '<span style="color:#fbbf24; font-weight:bold;">★ VIP</span>' : ''}</div>
+              </td>
+              <td>
+                <div style="color: #38bdf8; font-size: 0.85rem;">✉️ ${escapeHTML(c.email)}</div>
+                <div style="color: #cbd5e1; font-size: 0.8rem; margin-top: 2px;">📞 ${escapeHTML(c.phone)}</div>
+              </td>
+              <td><span>📍 ${escapeHTML(c.city)}</span></td>
+              <td>
+                <strong style="color: #fbbf24;">⭐ ${c.vipScore} Puan</strong>
+                <span style="font-size: 0.75rem; color: #94a3b8; display: block;">${c.ordersCount} Rezervasyon</span>
+              </td>
+              <td><span style="font-size: 0.8rem; color: #cbd5e1;">${c.regDate}</span></td>
+              <td>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <a href="https://wa.me/${String(c.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Merhaba Sayın ${c.name}, RELAXAX Temizlik müşteri destek ekibinden yazıyoruz.`)}" target="_blank" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.72rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">💬 WhatsApp</a>
+                  <button type="button" class="btn-admin-act" style="padding: 4px 8px; font-size: 0.72rem; background: rgba(234,179,8,0.2); color: #fbbf24; border: 1px solid rgba(234,179,8,0.4);" onclick="if(typeof window.playCashRegisterChime==='function')window.playCashRegisterChime(); alert('${c.name} müşterisine özel %20 VIPBAKIM kuponu SMS ve e-posta ile gönderildi.');">🎁 %20 Kupon Ver</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  };
+
+  window.renderAdminCustomersList();
+
+  // 3. Render Staff Fleet Management Table & Applicant Queue
   const staffFleetWrap = document.getElementById('adminStaffFleetTableWrap');
   const staffApplicantsWrap = document.getElementById('adminStaffApplicantsWrap');
 
@@ -2093,7 +2173,13 @@ export function renderAdminDashboard() {
   }
 }
 
-// Global Order Filter & CSV Export Handlers
+// Global Customer & Order Filter & CSV Export Handlers
+window.filterAdminCustomersGlobal = function(query) {
+  if (typeof window.renderAdminCustomersList === 'function') {
+    window.renderAdminCustomersList(query);
+  }
+};
+
 window.filterAdminOrdersGlobal = function(query) {
   window._adminSearchQuery = query || '';
   if (typeof window.renderAdminOrdersList === 'function') window.renderAdminOrdersList();
