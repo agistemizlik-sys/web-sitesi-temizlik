@@ -7,12 +7,11 @@ import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, sa
  * Capabilities:
  *  1. Multi-Tier High Availability Dispatch:
  *     - Primary Admin Panel (https://panel.relaxax.com/api/leads)
- *     - Direct VDS IP Fallback (http://64.177.116.243/api/leads)
- *     - Cloudflare Worker Fallback (https://backend-api.relaxaxserwis.workers.dev/api/leads)
- *  2. Real-Time Telegram Admin Instant Notifications (HTML-escaped & structured)
+ *     - Direct Internal API Relay (https://backend-api.relaxaxserwis.workers.dev/api/leads)
+ *  2. Direct Admin Panel Real-Time Telemetry & KV Persistence
  *  3. Dynamic Webhook & CRM Dispatch (env.CRM_WEBHOOK_URL / env.WHATSAPP_WEBHOOK_URL)
  *  4. Cryptographic HMAC Signature Generation (X-RELAXAX-Signature) for tamper-proofing
- *  5. Edge KV Persistence with 90-day retention (if env.LEADS_KV is configured)
+ *  5. Edge KV Persistence with 90-day retention (env.LEADS_KV)
  *  6. Full Geo & Telemetry Enrichment via Cloudflare Edge Headers
  *  7. Zero-Failure Guarantee: Resilient response with unique traceId & audit trail
  */
@@ -28,7 +27,7 @@ function sanitizeStr(str, maxLen = 500) {
   return str.replace(/<[^>]*>?/gm, '').trim().substring(0, maxLen);
 }
 
-// Helper: Escape HTML characters for Telegram Bot API
+// Helper: Escape HTML characters for secure rendering
 function escapeHtml(text) {
   if (!text) return '';
   return String(text)
