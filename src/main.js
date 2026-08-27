@@ -193,25 +193,42 @@ let portalMutationObserver = null;
 let portalHUDMoveHandler = null;
 let portalHUDLeaveHandler = null;
 
-// Safe Early Global Exposure
+// Safe Early Global Exposure with Non-recursive Delegation
+let _boundSelectCountryGlobal = null;
+let _boundSelectCityGlobal = null;
+let _boundReturnToCountrySelector = null;
+let _boundReturnToCityMap = null;
+
 window.selectCountryGlobal = function(code) {
-  if (typeof selectCountryGlobal === 'function') {
-    selectCountryGlobal(code);
+  if (typeof _boundSelectCountryGlobal === 'function') {
+    _boundSelectCountryGlobal(code);
+  } else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof _boundSelectCountryGlobal === 'function') {
+        _boundSelectCountryGlobal(code);
+      }
+    }, { once: true });
   }
 };
 window.selectCityGlobal = function(city) {
-  if (typeof selectCityGlobal === 'function') {
-    selectCityGlobal(city);
+  if (typeof _boundSelectCityGlobal === 'function') {
+    _boundSelectCityGlobal(city);
+  } else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof _boundSelectCityGlobal === 'function') {
+        _boundSelectCityGlobal(city);
+      }
+    }, { once: true });
   }
 };
 window.returnToCountrySelector = function() {
-  if (typeof returnToCountrySelector === 'function') {
-    returnToCountrySelector();
+  if (typeof _boundReturnToCountrySelector === 'function') {
+    _boundReturnToCountrySelector();
   }
 };
 window.returnToCityMap = function() {
-  if (typeof returnToCityMap === 'function') {
-    returnToCityMap();
+  if (typeof _boundReturnToCityMap === 'function') {
+    _boundReturnToCityMap();
   }
 };
 
@@ -4733,7 +4750,7 @@ function setupPortalGateway() {
       portalStageEl.style.background = 'radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%)';
     }
 
-    const csoOverlayEl = document.getElementById('country-selector-overlay') || document.querySelector('.country-selector-overlay');
+    const csoOverlayEl = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
     if (csoOverlayEl) {
       csoOverlayEl.classList.add('cso-hidden');
       csoOverlayEl.style.display = 'none';
@@ -4761,7 +4778,8 @@ function setupPortalGateway() {
     }
     const logoContainer = document.querySelector('.portal-logo-container');
     if (logoContainer) logoContainer.style.display = 'none';
-    if (portalCenterHint) portalCenterHint.style.display = 'none';
+    const portalCenterHintEl = document.querySelector('.portal-center-hint');
+    if (portalCenterHintEl) portalCenterHintEl.style.display = 'none';
 
     // Update Bottom Carousel & Right Preview Card according to Country
     renderPopularCitiesGrid(countryCode);
@@ -4839,6 +4857,7 @@ function setupPortalGateway() {
 
     updatePortalCachedRects();
   }
+  _boundSelectCountryGlobal = selectCountryGlobal;
   window.selectCountryGlobal = selectCountryGlobal;
 
   function selectCityGlobal(city) {
@@ -4846,7 +4865,7 @@ function setupPortalGateway() {
     setCityState(city, true);
 
     const portalStage = document.getElementById('portal-stage');
-    const csoOverlay = document.getElementById('country-selector-overlay');
+    const csoOverlay = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
     const portalIntro = document.getElementById('portal-intro-stage');
 
     if (portalIntro) {
@@ -4885,10 +4904,11 @@ function setupPortalGateway() {
       window.goToCinemaStep(1);
     }
   }
+  _boundSelectCityGlobal = selectCityGlobal;
   window.selectCityGlobal = selectCityGlobal;
 
   function returnToCountrySelector() {
-    const csoOverlay = document.getElementById('country-selector-overlay');
+    const csoOverlay = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
     const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
     const earthVideo = document.getElementById('csoEarthVideo');
     
@@ -4908,6 +4928,7 @@ function setupPortalGateway() {
     }
     document.body.classList.remove('flag-selection-mode');
   }
+  _boundReturnToCountrySelector = returnToCountrySelector;
   window.returnToCountrySelector = returnToCountrySelector;
 
   function returnToCityMap() {
