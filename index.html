@@ -1561,6 +1561,12 @@
           <span class="c-nav-btn-text" id="cNavCalcText">Fiyat Hesapla</span>
         </button>
 
+        <!-- 5B. Ultra-Luxury VIP Concierge Capsule -->
+        <button type="button" class="c-nav-pill-btn c-nav-vip-btn" id="cNavVipConciergeBtn" title="VIP Concierge & Özel Rezidans Hizmeti">
+          <span class="c-nav-btn-icon">👑</span>
+          <span class="c-nav-btn-text" id="cNavVipText" style="color: #fbbf24; font-weight: 800;">VIP Concierge</span>
+        </button>
+
         <!-- 6. User Account (Giriş / Kayıt / Profilim) Capsule -->
         <button type="button" class="c-nav-pill-btn c-nav-auth-btn" id="cNavAuthBtn" title="Giriş Yap / Hesap Aç">
           <span class="c-nav-btn-icon" id="cNavAuthIcon">👤</span>
@@ -5439,6 +5445,115 @@
             💬 WhatsApp ile Paylaş
           </button>
         </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 👑 RELAXAX ULTRA-LUXURY BLACK & GOLD VIP CONCIERGE MODAL -->
+  <div class="rx-corporate-modal-overlay rx-vip-modal-overlay" id="vipConciergeModal" role="dialog" aria-modal="true" aria-labelledby="vipModalTitle" style="display:none;">
+    <div class="rx-corporate-modal-backdrop" id="vipConciergeBackdrop"></div>
+    <div class="rx-corporate-modal-dialog rx-vip-modal-dialog">
+      
+      <!-- Modal Header -->
+      <div class="rx-cmodal-header rx-vip-modal-header">
+        <div class="rx-cmodal-title-row">
+          <div class="rx-vip-emblem">👑</div>
+          <div>
+            <span class="rx-vip-subtag">PREMIER 5-STAR LUXURY HOUSEKEEPING PROTOCOL</span>
+            <h3 id="vipModalTitle" class="rx-cmodal-title">RELAXAX Black & Gold VIP Concierge</h3>
+          </div>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" id="btnVipModalClose" aria-label="Kapat">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="rx-cmodal-body rx-vip-modal-body">
+        <!-- VIP Highlights Banner -->
+        <div class="rx-vip-hero-banner">
+          <div class="rx-vip-hero-content">
+            <h4>🌟 Rezidans, Penthouse & Özel Villalar İçin Kişiselleştirilmiş Hizmet</h4>
+            <p>5 yıldızlı otel başkanlık süiti standartlarında, 10+ yıl deneyimli sertifikalı baş denetçi ve gizlilik sözleşmeli özel ekip tahsisi.</p>
+          </div>
+        </div>
+
+        <!-- 4 Key VIP Pillars Grid -->
+        <div class="rx-vip-pillars-grid">
+          <div class="rx-vip-pillar-card">
+            <div class="rx-vcard-icon">👩‍💼</div>
+            <h5>Özel Housekeeping Butleri</h5>
+            <p>Evinize özel atanan kıdemli housekeeper ve doğrudan 7/24 kişisel WhatsApp concierge hattı.</p>
+          </div>
+
+          <div class="rx-vip-pillar-card">
+            <div class="rx-vcard-icon">🔒</div>
+            <h5>%100 Gizlilik & NDA Güvencesi</h5>
+            <p>Tüm personeller için adli sicil arşiv kayıtlı, imzalı gizlilik sözleşmesi (NDA) ve mühürlü üniforma.</p>
+          </div>
+
+          <div class="rx-vip-pillar-card">
+            <div class="rx-vcard-icon">⚡</div>
+            <h5>2 Saat İçinde VIP Ekspres Sevk</h5>
+            <p>Beklemeden, aynı gün içinde 2 saatte adrese ulaşan tam teçhizatlı medikal buharlı ekip.</p>
+          </div>
+
+          <div class="rx-vip-pillar-card">
+            <div class="rx-vcard-icon">💎</div>
+            <h5>İpek Çarşaf & Kristal Bakım Kürü</h5>
+            <p>Antika, ipek mobilya, kristal avize ve hassas mermer yüzeyler için özel İtalyan nano cilalama.</p>
+          </div>
+        </div>
+
+        <!-- VIP Concierge Direct Contact Form -->
+        <div class="rx-vip-form-box">
+          <h5>🛎️ Özel VIP Temsilcinizle Doğrudan İletişime Geçin</h5>
+          <form id="formVipConciergeRequest" onsubmit="return false;" class="subform-grid" style="margin-top:14px;">
+            <div id="vipConciergeFeedback" class="auth-feedback" style="display:none;"></div>
+            
+            <div class="auth-field-group">
+              <label for="vipName">Adınız Soyadınız / Ünvanınız *</label>
+              <input type="text" id="vipName" placeholder="Örn: Sn. Mehmet Kaya" required />
+            </div>
+
+            <div class="auth-field-group">
+              <label for="vipPhone">Doğrudan İletişim Telefonu *</label>
+              <input type="tel" id="vipPhone" placeholder="0532 123 45 67" required />
+            </div>
+
+            <div class="auth-field-group full-width">
+              <label for="vipResidenceType">Konut / Mülk Tipi *</label>
+              <select id="vipResidenceType" class="auth-select">
+                <option value="Lüks Rezidans / Penthouse">🏢 Lüks Rezidans / Penthouse (Zorlu, Quasar, Sapphire vb.)</option>
+                <option value="Müstakil Villa / Yalı">🏡 Müstakil Villa / Yalı / Köşk</option>
+                <option value="Kurumsal Konsolosluk / Temsilcilik">🏛️ Konsolosluk / Diplomatik Temsilcilik / VIP Ofis</option>
+                <option value="Özel Yat / Tekne">⛵ Özel Yat / Tekne İç Mekan Detaylandırma</option>
+              </select>
+            </div>
+
+            <div class="auth-field-group full-width">
+              <label for="vipNotes">Özel Talepleriniz veya Hassas Noktalar (Opsiyonel)</label>
+              <textarea id="vipNotes" rows="2" placeholder="Örn: Evcil hayvan mevcut, antika mobilyalar için özel bakım istiyoruz..."></textarea>
+            </div>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap; width:100%;">
+              <button type="submit" class="btn-save-address" style="background: linear-gradient(135deg, #d97706, #fbbf24); color:#000; font-weight:800; flex:1;">
+                <span>👑 VIP Concierge Görüşmesi Başlat</span>
+              </button>
+              <a href="https://wa.me/905466479004?text=Merhaba,%20RELAXAX%20Black%20%26%20Gold%20VIP%20Concierge%20hizmetiniz%20hakk%C4%B1nda%20%C3%B6ncelikli%20destek%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-save-address" style="background: rgba(37,211,102,0.15); color:#25d366; border:1px solid rgba(37,211,102,0.3); text-decoration:none; display:flex; align-items:center; justify-content:center; flex:1;">
+                <span>💬 WhatsApp VIP Direkt Hat</span>
+              </a>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="rx-cmodal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <span style="font-size:13px; color:#fbbf24;">★ 5-Star White-Glove Luxury Standard Guaranteed</span>
+        <button type="button" class="rx-cmodal-btn-secondary" onclick="if(typeof closeVipConciergeModal==='function')closeVipConciergeModal();">
+          Kapat
+        </button>
       </div>
 
     </div>
