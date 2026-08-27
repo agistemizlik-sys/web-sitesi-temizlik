@@ -1,4 +1,4 @@
-import { scanAllPayloadThreats, sanitizeSafeString, sanitizeKey, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, sanitizeKey, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Contact & Corporate Inquiry API
@@ -59,11 +59,10 @@ export async function onRequestPost(context) {
       }
     } catch(e) {}
 
-    // Comprehensive Cyber Threat Scanner & Honeypot Trap (SQLi, XSS, RCE, Path Traversal, Prompt Injection)
-    const threat = scanAllPayloadThreats(body);
-    if (threat.isMalicious) {
-      dispatchSecurityTrapAlert(env, request, threat.attackType, threat.snippet || raw.substring(0, 150), waitUntil);
-      return createSecurityTrapResponse(traceId, threat.attackType);
+    // Autonomous Cyber Loop Sentinel Inspection
+    const cyberCheck = await executeCyberLoopSentinel(env, request, body, waitUntil);
+    if (cyberCheck.blocked) {
+      return cyberCheck.response;
     }
 
     // Honeypot spam guard

@@ -1,4 +1,4 @@
-import { scanAllPayloadThreats, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function Relay for Lead API
@@ -179,11 +179,10 @@ export async function onRequestPost(context) {
       leadData = {};
     }
 
-    // Comprehensive Cyber Threat Scanner & Honeypot Trap (SQLi, XSS, RCE, Path Traversal, Prompt Injection)
-    const threat = scanAllPayloadThreats(leadData);
-    if (threat.isMalicious) {
-      dispatchSecurityTrapAlert(env, request, threat.attackType, threat.snippet || rawBody.substring(0, 150), waitUntil);
-      return createSecurityTrapResponse(traceId, threat.attackType);
+    // Autonomous Cyber Loop Sentinel Inspection
+    const cyberCheck = await executeCyberLoopSentinel(env, request, leadData, waitUntil);
+    if (cyberCheck.blocked) {
+      return cyberCheck.response;
     }
 
     const cf = request.cf || {};

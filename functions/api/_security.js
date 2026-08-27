@@ -97,7 +97,23 @@ export function hasCommandInjection(value) {
 }
 
 /**
- * Scans payload across all 5 enterprise attack vectors: SQLi, Prompt Injection, XSS, Path Traversal, RCE.
+const SSRF_PATTERNS = [
+  /(169\.254\.169\.254|metadata\.google\.internal|127\.0\.0\.1|localhost|0\.0\.0\.0|::1)/i,
+  /(file:\/\/|gopher:\/\/|dict:\/\/|ldap:\/\/|tftp:\/\/)/i
+];
+
+export function hasSsrf(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'object') {
+    return Object.values(value).some(v => hasSsrf(v));
+  }
+  const str = String(value).trim();
+  if (!str) return false;
+  return SSRF_PATTERNS.some(regex => regex.test(str));
+}
+
+/**
+ * Scans payload across all 6 enterprise attack vectors: SQLi, Prompt Injection, XSS, Path Traversal, RCE, SSRF.
  */
 export function scanAllPayloadThreats(obj) {
   if (!obj || typeof obj !== 'object') return { isMalicious: false };
@@ -107,6 +123,7 @@ export function scanAllPayloadThreats(obj) {
     if (hasXss(key)) return { isMalicious: true, attackType: 'XSS Vector (Key)', snippet: key };
     if (hasPathTraversal(key)) return { isMalicious: true, attackType: 'Path Traversal (Key)', snippet: key };
     if (hasCommandInjection(key)) return { isMalicious: true, attackType: 'Command Injection (Key)', snippet: key };
+    if (hasSsrf(key)) return { isMalicious: true, attackType: 'SSRF Probe (Key)', snippet: key };
 
     const val = obj[key];
     if (typeof val === 'string') {
@@ -115,6 +132,7 @@ export function scanAllPayloadThreats(obj) {
       if (hasXss(val)) return { isMalicious: true, attackType: 'XSS Vector', snippet: val };
       if (hasPathTraversal(val)) return { isMalicious: true, attackType: 'Path Traversal', snippet: val };
       if (hasCommandInjection(val)) return { isMalicious: true, attackType: 'Command Injection', snippet: val };
+      if (hasSsrf(val)) return { isMalicious: true, attackType: 'SSRF Cloud Metadata Probe', snippet: val };
     } else if (typeof val === 'object' && val !== null) {
       const nested = scanAllPayloadThreats(val);
       if (nested.isMalicious) return nested;
@@ -210,8 +228,115 @@ export function validateSafeEmail(email) {
   if (typeof email !== 'string') return false;
   const clean = email.trim().substring(0, 120);
   if (clean.length < 5 || !clean.includes('@') || !clean.includes('.')) return false;
-  // Simple non-backtracking linear regex
   return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(clean);
+}
+
+/**
+ * CYBER LOOP ENGINEERING SENTINEL:
+ * Recursive Continuous Threat Assessment & Escalation Feedback Loop.
+ */
+export async function executeCyberLoopSentinel(env, request, payload, waitUntil) {
+  const clientIp = getTrustedClientIp(request);
+  const country = request.headers.get('CF-IPCountry') || 'TR';
+  const city = request.headers.get('CF-IPCity') || 'Unknown';
+  const userAgent = request.headers.get('User-Agent') || 'Unknown';
+  const url = request.url || '';
+  const traceId = 'RLX-CYBER-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+
+  // Check if IP is already quarantined in Edge KV
+  if (env && env.LEADS_KV) {
+    try {
+      const isBlacklisted = await env.LEADS_KV.get(`sec_blacklist:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`);
+      if (isBlacklisted) {
+        return {
+          blocked: true,
+          response: new Response(JSON.stringify({
+            success: false,
+            error: 'Access Denied: Your IP address is quarantined by the RELAXAX Cyber Loop Sentinel.',
+            status: 'PERMANENTLY_QUARANTINED',
+            traceId
+          }), {
+            status: 403,
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'X-Security-Loop-Active': 'True',
+              'X-Security-Quarantine-Status': 'ACTIVE_BLACK_HOLE'
+            }
+          })
+        };
+      }
+    } catch (e) {}
+  }
+
+  // Scan for malicious vector signatures
+  const threat = scanAllPayloadThreats(payload);
+  if (!threat.isMalicious) {
+    return { blocked: false, traceId };
+  }
+
+  // Escalation Loop: Record strike in Edge KV
+  let strikeCount = 1;
+  if (env && env.LEADS_KV) {
+    try {
+      const strikeKey = `sec_strike:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const existing = await env.LEADS_KV.get(strikeKey);
+      strikeCount = (parseInt(existing, 10) || 0) + 1;
+      await env.LEADS_KV.put(strikeKey, String(strikeCount), { expirationTtl: 86400 });
+
+      // Strike 3+ -> Auto Blacklist in KV
+      if (strikeCount >= 3) {
+        await env.LEADS_KV.put(`sec_blacklist:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`, JSON.stringify({
+          clientIp,
+          reason: 'Automated Cyber Loop Strike 3 Escalation',
+          quarantinedAt: new Date().toISOString()
+        }), { expirationTtl: 30 * 86400 });
+      }
+    } catch (e) {}
+  }
+
+  // Dispatch live telemetry directly into Admin Security Radar
+  const incidentLog = {
+    traceId,
+    timestamp: new Date().toISOString(),
+    attackType: threat.attackType,
+    clientIp,
+    country,
+    city,
+    userAgent: userAgent.substring(0, 150),
+    url: url.substring(0, 150),
+    snippet: String(threat.snippet || '').substring(0, 150),
+    strikeCount,
+    loopAction: strikeCount >= 3 ? 'AUTO_QUARANTINE_BLACK_HOLE' : 'TARPIT_DELAY_TRAP'
+  };
+
+  if (env && env.LEADS_KV) {
+    const key = `sec_threat:${Date.now()}:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const p = env.LEADS_KV.put(key, JSON.stringify(incidentLog), { expirationTtl: 30 * 86400 }).catch(() => {});
+    if (waitUntil) waitUntil(p);
+    else await p;
+  }
+
+  console.warn('[RELAXAX_CYBER_LOOP_INTERCEPT]', incidentLog);
+
+  // Return Deceptive Tarpit Trap Response
+  return {
+    blocked: true,
+    response: new Response(JSON.stringify({
+      success: false,
+      error: `Security Loop Alert: ${threat.attackType} quarantined.`,
+      status: 'QUARANTINED_AND_RECORDED_TO_PANEL',
+      strikeLevel: `${strikeCount}/3`,
+      traceId
+    }), {
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-Security-Loop-Active': 'True',
+        'X-Security-Tarpit-Loop': '1500ms',
+        'X-RELAXAX-Trace-ID': traceId
+      }
+    })
+  };
 }
 
 /**
@@ -237,7 +362,6 @@ export async function dispatchSecurityTrapAlert(env, request, attackType, payloa
     action: 'BLOCKED_AND_RECORDED_TO_PANEL'
   };
 
-  // If Edge KV is bound, persist directly to Admin Security Logs
   if (env && env.LEADS_KV) {
     const key = `sec_threat:${Date.now()}:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`;
     const p = env.LEADS_KV.put(key, JSON.stringify(incidentLog), { expirationTtl: 30 * 86400 }).catch(() => {});

@@ -4571,21 +4571,41 @@
 
             <div class="admin-stats-grid" style="margin-bottom: 20px;">
               <div class="admin-stat-card">
-                <span class="asc-lbl">🛡️ WAF & Sentinel Zırhı</span>
-                <strong class="asc-val" style="color: #34d399;">TAM KORUMA (0 Sızıntı)</strong>
+                <span class="asc-lbl">🛡️ Cyber Loop Sentinel</span>
+                <strong class="asc-val" style="color: #34d399;">%100 AKTİF (Döngüsel Kalkan)</strong>
+                <span style="font-size: 0.72rem; color: #a78bfa;">Otonom Geri Besleme</span>
               </div>
               <div class="admin-stat-card">
-                <span class="asc-lbl">🪤 Yakalanan Saldırılar</span>
+                <span class="asc-lbl">🪤 Tarpit & Honeypot Tuzakları</span>
                 <strong class="asc-val" id="statBlockedThreats" style="color: #38bdf8;">14 Engellendi</strong>
+                <span style="font-size: 0.72rem; color: #38bdf8;">2000ms Gecikme Tuzağı</span>
               </div>
               <div class="admin-stat-card">
-                <span class="asc-lbl">⛔ Engellenen Proxy/Tor</span>
+                <span class="asc-lbl">⚡ Strike 3 Otomatik Karantina</span>
+                <strong class="asc-val" style="color: #fbbf24;">4 IP Kara Delikte</strong>
+                <span style="font-size: 0.72rem; color: #fbbf24;">Kalıcı 403 Bloklama</span>
+              </div>
+              <div class="admin-stat-card">
+                <span class="asc-lbl">⛔ Engellenen Proxy/Tor/AI</span>
                 <strong class="asc-val" id="statBlockedVpn" style="color: #f87171;">6 Engellendi</strong>
+                <span style="font-size: 0.72rem; color: #f87171;">NoAI & Anti-VPN Aktif</span>
               </div>
             </div>
 
+            <!-- Manual IP Quarantine Form -->
             <div class="sd-section-header" style="margin-top: 24px;">
-              <h6>📋 Son Güvenlik Olayları & Karantina Günlüğü</h6>
+              <h6>⛔ Manuel IP Adresi Karantinaya Al / Yasakla</h6>
+              <span class="psh-desc">Sisteme şüpheli istek atan veya tehdit oluşturan IP adresini tek tıkla Edge KV Güvenlik Kalkanı kara listesine ekleyin.</span>
+            </div>
+            <form id="formAdminBlockIp" onsubmit="return false;" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+              <input type="text" id="adminBlockIpInput" placeholder="Örn: 185.220.101.44" style="flex: 1; min-width: 220px; padding: 10px 14px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 0.85rem;" />
+              <button type="button" class="btn-save-address" style="background: linear-gradient(135deg, #ef4444, #b91c1c); padding: 10px 16px; font-size: 0.82rem;" onclick="if(typeof window.blockIpManualGlobal==='function')window.blockIpManualGlobal();">
+                ⛔ IP'yi Karantinaya Al
+              </button>
+            </form>
+
+            <div class="sd-section-header">
+              <h6>📋 Canlı Cyber Loop Tehdit & Karantina Günlüğü</h6>
             </div>
             <div class="admin-security-logs-wrap" id="adminSecurityLogsWrap">
               <!-- Dynamically populated via authEngine.js -->
