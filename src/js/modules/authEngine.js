@@ -1319,6 +1319,9 @@ export function updateStaffJobStatus(jobId, newStatus) {
     saveLiveStaffJobs(jobs);
 
     if (newStatus === 'Tamamlandı') {
+      const confirmQa = confirm(`✨ Görev Tamamlama & Kalite Kontrolü\n\n#${target.orderCode || jobId} numaralı randevu için:\n✓ Tüm odalar havalandırıldı ve yüzeyler dezenfekte edildi mi?\n✓ Mutfak, banyo ve zeminler kontrol edildi mi?\n\nGörevi tamamlayıp %70 hak edişinizi hesabınıza aktarmak istiyor musunuz?`);
+      if (!confirmQa) return;
+
       if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
       const u = getCurrentUser();
       if (u && u.role === 'staff') {
