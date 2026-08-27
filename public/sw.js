@@ -55,3 +55,61 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// ==========================================
+// 🔔 WEBPUSH & NOTIFICATION HANDLERS
+// ==========================================
+self.addEventListener('push', (event) => {
+  let data = {
+    title: 'RELAXAX Temizlik',
+    body: 'Siparişiniz veya bildiriminiz güncellendi.',
+    icon: '/favicon.svg',
+    badge: '/favicon.svg',
+    data: { url: '/' }
+  };
+
+  if (event.data) {
+    try {
+      data = { ...data, ...event.data.json() };
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || '/favicon.svg',
+    badge: data.badge || '/favicon.svg',
+    vibrate: [100, 50, 100],
+    data: data.data || { url: '/' },
+    actions: [
+      { action: 'open', title: 'Görüntüle ➔' },
+      { action: 'close', title: 'Kapat' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  if (event.action === 'close') return;
+
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+
