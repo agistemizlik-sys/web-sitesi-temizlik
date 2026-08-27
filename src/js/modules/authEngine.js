@@ -2544,55 +2544,6 @@ export function initAuthEngine() {
   });
 }
 
-// Fast 1-Click Auth Switch for Testing
-window.fastAuthFill = async function(type) {
-  if (type === 'customer') {
-    switchAuthTab('login');
-    const emailInput = document.getElementById('loginEmail');
-    const passInput = document.getElementById('loginPassword');
-    if (emailInput) emailInput.value = 'zeynep@relaxax.com';
-    if (passInput) passInput.value = '123456';
-    const res = await loginUser('zeynep@relaxax.com', '123456', true, 'customer');
-    if (res.success) {
-      switchAuthTab('profile');
-      showAuthFeedback('paneAuthProfile', '✓ Zeynep Kaya (Müşteri) hesabına başarıyla giriş yapıldı.', 'success');
-    }
-  } else if (type === 'staff') {
-    switchAuthTab('staff_login');
-    const emailInput = document.getElementById('staffLoginEmail');
-    const passInput = document.getElementById('staffLoginPassword');
-    if (emailInput) emailInput.value = 'uzman@relaxax.com';
-    if (passInput) passInput.value = '123456';
-    const res = await loginUser('uzman@relaxax.com', '123456', true, 'staff');
-    if (res.success) {
-      switchAuthTab('staff_dashboard');
-      showAuthFeedback('paneAuthStaffDashboard', '✓ Ayşe K. (Kıdemli Temizlik Uzmanı) görev masası yüklendi.', 'success');
-    }
-  } else if (type === 'staff2') {
-    switchAuthTab('staff_login');
-    const emailInput = document.getElementById('staffLoginEmail');
-    const passInput = document.getElementById('staffLoginPassword');
-    if (emailInput) emailInput.value = 'mehmet.uzman@relaxax.com';
-    if (passInput) passInput.value = '123456';
-    const res = await loginUser('mehmet.uzman@relaxax.com', '123456', true, 'staff');
-    if (res.success) {
-      switchAuthTab('staff_dashboard');
-      showAuthFeedback('paneAuthStaffDashboard', '✓ Mehmet D. (Hijyen Şefi) görev masası yüklendi.', 'success');
-    }
-  } else if (type === 'admin') {
-    switchAuthTab('admin_login');
-    const emailInput = document.getElementById('adminLoginEmail');
-    const passInput = document.getElementById('adminLoginPassword');
-    if (emailInput) emailInput.value = 'admin@relaxax.com';
-    if (passInput) passInput.value = '123456';
-    const res = await loginUser('admin@relaxax.com', '123456', true, 'admin');
-    if (res.success) {
-      switchAuthTab('admin_dashboard');
-      showAuthFeedback('paneAuthAdminDashboard', '✓ Sistem Yöneticisi (Admin) Masası aktif edildi.', 'success');
-    }
-  }
-};
-
 // Staff FAST Withdrawal Handler
 window.openStaffWithdrawalModal = function() {
   const staff = getCurrentUser();
