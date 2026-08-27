@@ -10870,18 +10870,22 @@ function setupBookingReveal() {
 
     const highlightInvalidField = (el, msg) => {
       if (!el) return;
-      el.style.border = '2px solid #ef4444';
-      el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.35)';
+      if (typeof window.playAlertChime === 'function') window.playAlertChime();
+      const targetBox = (el.type === 'checkbox') ? (el.closest('.wizard-legal-consent-box') || el.parentElement) : el;
+      if (targetBox) {
+        targetBox.style.border = '2px solid #ef4444';
+        targetBox.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.35)';
+      }
       const bookingReveal = document.getElementById('bookingReveal');
       if (bookingReveal) {
-        const topOffset = el.offsetTop - 140;
+        const topOffset = (targetBox || el).offsetTop - 140;
         bookingReveal.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
       } else {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (targetBox || el).scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       setTimeout(() => { try { el.focus(); } catch(e){} }, 200);
       if (typeof gsap !== 'undefined') {
-        gsap.fromTo(el, { x: -8 }, { x: 8, duration: 0.06, repeat: 5, yoyo: true, onComplete: () => { el.style.transform = ''; } });
+        gsap.fromTo(targetBox || el, { x: -8 }, { x: 8, duration: 0.06, repeat: 5, yoyo: true, onComplete: () => { (targetBox || el).style.transform = ''; } });
       }
       showFormToast(msg);
     };
