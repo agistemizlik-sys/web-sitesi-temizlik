@@ -83,3 +83,51 @@ export function maskErrorMessage(err) {
   return "İşlem sırasında güvenli bir hata oluştu. Lütfen tekrar deneyiniz.";
 }
 
+/**
+ * Extracts verified client IP address preventing IP-spoofing via forged headers.
+ * Strictly trusts CF-Connecting-IP provided directly by Cloudflare edge.
+ * @param {Request} request - Cloudflare Request
+ * @returns {string} Authenticated IP address
+ */
+export function getTrustedClientIp(request) {
+  if (!request || !request.headers) return '127.0.0.1';
+  const cfIp = request.headers.get('cf-connecting-ip');
+  if (cfIp && typeof cfIp === 'string') {
+    return cfIp.trim().substring(0, 45);
+  }
+  return 'unknown';
+}
+
+/**
+ * Validates and clamps numeric inputs preventing negative price manipulation, NaN, and Infinity exploits.
+ * @param {*} val - Input value
+ * @param {number} min - Minimum allowed
+ * @param {number} max - Maximum allowed
+ * @param {number} defaultVal - Fallback default
+ * @returns {number} Sanitized bounded number
+ */
+export function validateSafeNumber(val, min = 0, max = 1000000, defaultVal = 0) {
+  if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+    return Math.max(min, Math.min(max, Math.round(val)));
+  }
+  const parsed = Number(val);
+  if (!isNaN(parsed) && isFinite(parsed)) {
+    return Math.max(min, Math.min(max, Math.round(parsed)));
+  }
+  return defaultVal;
+}
+
+/**
+ * ReDoS-safe and slice-guarded email validator.
+ * @param {string} email - Raw email string
+ * @returns {boolean} True if email is valid and safe
+ */
+export function validateSafeEmail(email) {
+  if (typeof email !== 'string') return false;
+  const clean = email.trim().substring(0, 120);
+  if (clean.length < 5 || !clean.includes('@') || !clean.includes('.')) return false;
+  // Simple non-backtracking linear regex
+  return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(clean);
+}
+
+

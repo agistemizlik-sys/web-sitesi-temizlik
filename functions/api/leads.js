@@ -1,4 +1,4 @@
-import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey } from './_security.js';
+import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage } from './_security.js';
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function Relay for Lead API
@@ -190,9 +190,9 @@ export async function onRequestPost(context) {
   const traceId = `lead-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
 
   try {
-    const clientIp = request.headers.get('CF-Connecting-IP') || request.headers.get('x-real-ip') || '';
+    const clientIp = getTrustedClientIp(request);
 
-    // 1. Anti-DDoS / Rate Limiting Protection
+    // 1. Anti-DDoS / Rate Limiting Protection (Spoof-Proof)
     if (checkRateLimit(clientIp)) {
       return new Response(JSON.stringify({
         success: false,
@@ -282,13 +282,13 @@ export async function onRequestPost(context) {
       address: sanitizeStr(leadData.address || leadData.customerAddress || '', 300),
       serviceType: sanitizeStr(leadData.serviceType || leadData.service || 'standart', 80),
       
-      // Specs & Pricing
-      rooms: parseInt(leadData.rooms || leadData.roomCount) || 1,
-      baths: parseInt(leadData.baths || leadData.bathCount) || 1,
-      squareMeters: Number(leadData.squareMeters || leadData.area) || ((parseInt(leadData.rooms) || 1) * 25 + 40),
-      price: Number(leadData.price || leadData.amount || (parseFloat(leadData.finalPrice) || 0)),
+      // Specs & Pricing (Red-Team Bounded Validation)
+      rooms: validateSafeNumber(leadData.rooms || leadData.roomCount, 1, 20, 1),
+      baths: validateSafeNumber(leadData.baths || leadData.bathCount, 1, 10, 1),
+      squareMeters: validateSafeNumber(leadData.squareMeters || leadData.area, 15, 2000, 65),
+      price: validateSafeNumber(leadData.price || leadData.amount || parseFloat(leadData.finalPrice), 0, 1000000, 0),
       finalPrice: sanitizeStr(leadData.finalPrice || `${leadData.price || 0} TL`, 60),
-      currency: (city.toLowerCase().includes('warsz') || clientCountry === 'PL' || (leadData.finalPrice && leadData.finalPrice.includes('PLN'))) ? 'PLN' : 'TL',
+      currency: (city.toLowerCase().includes('warsz') || clientCountry === 'PL' || (leadData.finalPrice && String(leadData.finalPrice).includes('PLN'))) ? 'PLN' : 'TL',
       
       // Booking Schedule
       preferredDate: sanitizeStr(leadData.date || leadData.preferredDate || new Date().toISOString().split('T')[0], 30),
@@ -450,7 +450,7 @@ export async function onRequestPost(context) {
         fallback: true,
         message: "Lead received and saved to edge fallback",
         traceId: traceId,
-        error: err.message
+        error: maskErrorMessage(err)
       }
     }), {
       status: 200,
