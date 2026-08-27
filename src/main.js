@@ -10905,6 +10905,12 @@ function setupBookingReveal() {
       return;
     }
 
+    const chkTermsConsent = document.getElementById('chkBookingTermsConsent');
+    if (chkTermsConsent && !chkTermsConsent.checked) {
+      highlightInvalidField(chkTermsConsent, isPl ? 'Proszę zaakceptować regulamin i warunki umowy przed złożeniem zamówienia.' : 'Lütfen devam etmek için Kullanıcı Sözleşmesi ve KVKK metnini onaylayınız.');
+      return;
+    }
+
     const selectedPayMethod = document.getElementById('payMethodInput')?.value || 'transfer';
 
     const paymentMeta = {
@@ -10917,6 +10923,23 @@ function setupBookingReveal() {
       currency: STATE.currency
     };
     finalizeBookingOrder(paymentMeta);
+  };
+
+  window.acceptLegalTermsGlobal = function() {
+    const chk1 = document.getElementById('chkBookingTermsConsent');
+    if (chk1) chk1.checked = true;
+    const chk2 = document.getElementById('regTermsConsent');
+    if (chk2) chk2.checked = true;
+    const chk3 = document.getElementById('staffTermsConsent');
+    if (chk3) chk3.checked = true;
+
+    const modal = document.getElementById('legalModal');
+    if (modal && typeof window.closeCorporateModal === 'function') {
+      window.closeCorporateModal(modal);
+    } else if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active');
+    }
   };
 
   if (btnSubmit) {

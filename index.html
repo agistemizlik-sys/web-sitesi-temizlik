@@ -3045,6 +3045,18 @@
                   </div>
                 </div>
 
+                <!-- 📜 YASAL SÖZLEŞME, KVKK & ŞARTLAR ONAY KUTUSU -->
+                <div class="wizard-legal-consent-box" style="margin: 14px 0 16px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 12px; font-size: 0.84rem; color: #cbd5e1; line-height: 1.45;">
+                  <label class="auth-checkbox-label" style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="chkBookingTermsConsent" checked style="margin-top: 2px; width: 18px; height: 18px; accent-color: #fbbf24; cursor: pointer;" />
+                    <span style="flex: 1;">
+                      <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('terms');} return false;" style="color: #fbbf24; font-weight: 700; text-decoration: underline;">Kullanıcı Sözleşmesi</a>,
+                      <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('kvkk');} return false;" style="color: #38bdf8; font-weight: 700; text-decoration: underline;">KVKK Gizlilik Politikası</a> ve
+                      <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('distance');} return false;" style="color: #34d399; font-weight: 700; text-decoration: underline;">Mesafeli Satış Şartları</a>'nı okudum, kabul ediyorum.
+                    </span>
+                  </label>
+                </div>
+
                 <!-- Big Action Order Button -->
                 <button type="button" id="btnSubmitBooking" class="wizard-submit-btn">
                   <span>Siparişi Tamamla ➔</span>
@@ -5268,7 +5280,7 @@
       <!-- Modal Footer -->
       <div class="rx-cmodal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <span style="font-size:13px; color:#9ca3af;">🛡️ RELAXAX Legal Compliance v3.0 · Güncel Sürüm</span>
-        <button type="button" class="rx-cmodal-btn-primary" id="btnLegalModalAccept" onclick="if(typeof closeCorporateModal==='function')closeCorporateModal(document.getElementById('legalModal'));">
+        <button type="button" class="rx-cmodal-btn-primary" id="btnLegalModalAccept" onclick="if(typeof window.acceptLegalTermsGlobal==='function'){window.acceptLegalTermsGlobal();}else if(typeof closeCorporateModal==='function'){closeCorporateModal(document.getElementById('legalModal'));}">
           ✔️ Okudum, Tüm Şartları Onaylıyorum
         </button>
     </div>
