@@ -5559,6 +5559,49 @@
     </div>
   </div>
 
+  <!-- 🎙️ RELAXAX INTERACTIVE VOICE CONSULTATION ASSISTANT HUD -->
+  <div class="rx-voice-assistant-hud" id="voiceAssistantHud" style="display:none;" role="dialog" aria-labelledby="voiceHudTitle">
+    <div class="rx-vah-header">
+      <div class="rx-vah-title-row">
+        <div class="rx-vah-icon">🎙️</div>
+        <div>
+          <h5 id="voiceHudTitle">Sesli Temizlik Danışmanı</h5>
+          <span class="rx-vah-sub" id="voiceHudStatusText">🎙️ Dinlemeye hazır</span>
+        </div>
+      </div>
+      <button type="button" class="rx-vah-close-btn" id="btnVoiceHudClose" aria-label="Kapat">&times;</button>
+    </div>
+
+    <!-- Animated Audio Wave Equalizer -->
+    <div class="rx-vah-wave-box" id="voiceWaveAnim">
+      <span class="rx-vw-bar"></span>
+      <span class="rx-vw-bar"></span>
+      <span class="rx-vw-bar"></span>
+      <span class="rx-vw-bar"></span>
+      <span class="rx-vw-bar"></span>
+    </div>
+
+    <!-- Dynamic Voice Response Box -->
+    <div class="rx-vah-reply-box" id="voiceHudReplyBox">
+      Merhaba! RELAXAX Premium Temizlik Merkezine hoş geldiniz. Size nasıl yardımcı olabilirim?
+    </div>
+
+    <!-- Quick Question Buttons -->
+    <div class="rx-vah-quick-grid">
+      <button type="button" class="btn-voice-quick-ask" data-topic="pricing">💰 Fiyatlar Kaç TL?</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="hygiene">🧪 48 Nokta Hijyen Nedir?</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="vip">👑 VIP Concierge Nedir?</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="promo">🎁 İndirim Kuponu Var mı?</button>
+    </div>
+  </div>
+
+  <!-- Floating Voice Assistant Trigger Capsule -->
+  <button type="button" class="rx-floating-voice-btn" id="btnToggleVoiceAssistant" title="Sesli Asistan & Canlı Danışman" aria-label="Sesli Asistan">
+    <span class="rx-fvb-icon">🎙️</span>
+    <span class="rx-fvb-pulse"></span>
+    <span class="rx-fvb-text">Sesli Asistan</span>
+  </button>
+
   <!-- Semantic SEO Directory & Noscript Fallback for Search Engine Spiders (Googlebot, Bingbot, YandexBot) -->
   <noscript>
     <div style="padding: 40px 20px; background: #030712; color: #e2e8f0; font-family: sans-serif; line-height: 1.6;">

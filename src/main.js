@@ -17,6 +17,7 @@ import { initPushEngine, requestNotificationPermission, showLocalNotification } 
 import { initHygieneCertificateEngine, openHygieneCertificate } from './js/modules/hygieneCertificateEngine.js';
 import { initVipConciergeEngine, openVipConciergeModal } from './js/modules/vipConcierge.js';
 import { initHardwareBooster, probeGpuHardware } from './js/modules/hardwareBooster.js';
+import { initVoiceAssistantEngine, toggleVoiceAssistantHud, askVoiceTopic } from './js/modules/voiceAssistant.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -31,6 +32,8 @@ window.closeCorporateModal = closeModal;
 window.openLegalModal = openLegalModal;
 window.openHygieneCertificate = openHygieneCertificate;
 window.openVipConciergeModal = openVipConciergeModal;
+window.toggleVoiceAssistantHud = toggleVoiceAssistantHud;
+window.askVoiceTopic = askVoiceTopic;
 window.initHardwareBooster = initHardwareBooster;
 window.probeGpuHardware = probeGpuHardware;
 window.initLoopEngineering = initLoopEngineering;
@@ -46,12 +49,13 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
-// Initialize Hardware Booster, Cyber Defense, Push Engine, Hygiene Certificates, VIP Concierge & Debug Hardening immediately
+// Initialize Hardware Booster, Cyber Defense, Push Engine, Voice Assistant, Hygiene Certificates, VIP Concierge & Debug Hardening
 initHardwareBooster();
 initCyberLoopEngine();
 initPushEngine();
 initHygieneCertificateEngine();
 initVipConciergeEngine();
+initVoiceAssistantEngine();
 initDebugHardening();
 
 // Global cached window dimensions to prevent layout recalculations in mousemove events
