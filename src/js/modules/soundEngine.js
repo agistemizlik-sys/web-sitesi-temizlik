@@ -155,3 +155,12 @@ export function toggleSound() {
 export function isSoundEnabled() {
   return soundEnabled;
 }
+
+if (typeof window !== 'undefined') {
+  window.toggleSound = toggleSound;
+  window.isSoundEnabled = isSoundEnabled;
+  window.playCashRegisterChime = playCashRegisterChime;
+  window.playAlertChime = playAlertChime;
+  window.playSuccessChime = playSuccessChime;
+  window.playTickSound = playTickSound;
+}
