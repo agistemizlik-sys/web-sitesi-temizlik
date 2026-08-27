@@ -191,11 +191,14 @@ export function initStateSyncLoop() {
       stateBroadcastChannel = new BroadcastChannel('relaxax_state_loop');
       stateBroadcastChannel.onmessage = (event) => {
         const { type, payload } = event.data || {};
-        if ((type === 'ORDER_STATUS_CHANGED' || type === 'STAFF_AVAILABILITY_CHANGED') && typeof window.renderAdminOrdersList === 'function') {
-          window.renderAdminOrdersList();
+        if (type === 'ORDER_STATUS_CHANGED' || type === 'STAFF_AVAILABILITY_CHANGED') {
+          if (typeof window.renderAdminOrdersList === 'function') window.renderAdminOrdersList();
+          if (typeof window.renderCustomerDashboard === 'function') window.renderCustomerDashboard();
+          if (typeof window.renderStaffDashboard === 'function') window.renderStaffDashboard();
         }
-        if ((type === 'USER_REGISTERED' || type === 'STAFF_REGISTERED') && typeof window.renderAdminCustomersList === 'function') {
-          window.renderAdminCustomersList();
+        if (type === 'USER_REGISTERED' || type === 'STAFF_REGISTERED' || type === 'USER_ROLE_CHANGED') {
+          if (typeof window.renderAdminCustomersList === 'function') window.renderAdminCustomersList();
+          if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
         }
         if (type === 'CATALOG_UPDATED' && typeof window.syncCatalogToDom === 'function') {
           window.syncCatalogToDom();
