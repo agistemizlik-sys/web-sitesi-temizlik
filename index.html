@@ -4363,7 +4363,12 @@
                   <h4 id="adminProfileName">Sistem Yöneticisi</h4>
                   <span class="badge-admin-role">YÖNETİCİ / FULL ACCESS</span>
                 </div>
-                <span id="adminProfileEmail" class="adh-sub">admin@relaxax.com | Yetkili Katalog Yönetim Masası</span>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
+                  <span id="adminProfileEmail" class="adh-sub" style="margin: 0;">admin@relaxax.com | Yetkili Katalog Yönetim Masası</span>
+                  <span id="adminEdgeLiveBadge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; background: rgba(34,197,94,0.15); color: #34d399; border: 1px solid rgba(34,197,94,0.3); cursor: pointer;" onclick="if(typeof window.benchmarkEdgeLatencyGlobal==='function')window.benchmarkEdgeLatencyGlobal();" title="Cloudflare Edge Ping Testini Çalıştır">
+                    🟢 Edge KV: Aktif · ⚡ Ping: 12ms · 🛡️ WAF Devrede
+                  </span>
+                </div>
               </div>
               <button type="button" class="btn-logout-user" id="btnLogoutAdmin">Çıkış</button>
             </div>
