@@ -125,6 +125,15 @@ function initAmbientParticleLoop() {
   particleCtx = particleCanvas.getContext('2d');
   if (!particleCtx) return;
 
+  const resizeCanvas = () => {
+    if (!particleCanvas) return;
+    const rect = particleCanvas.getBoundingClientRect();
+    particleCanvas.width = rect.width || window.innerWidth;
+    particleCanvas.height = rect.height || window.innerHeight;
+  };
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas, { passive: true });
+
   const count = window.innerWidth < 768 ? 35 : 75;
   particles = [];
 
