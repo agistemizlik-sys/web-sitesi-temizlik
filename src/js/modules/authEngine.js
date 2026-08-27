@@ -1257,26 +1257,30 @@ export function matchAndAssignCleaner(city = 'Istanbul', district = '') {
   
   let matched = staffList.find(s => s.district && s.district.toLowerCase().includes(lowerDistrict));
   if (!matched && staffList.length > 0) {
-    matched = staffList[Math.floor(Math.random() * staffList.length)];
+    matched = staffList[0];
   }
   if (!matched) {
-    matched = DEFAULT_DEMO_STAFF[0];
+    matched = {
+      id: 'staff_central',
+      name: 'Bölge Sevk Ekibi',
+      phone: '0546 647 90 04',
+      rating: '5.00',
+      experience: '5+ Yıl',
+      avatar: '🧹'
+    };
   }
-
-  const distanceNum = (0.9 + Math.random() * 1.5).toFixed(1);
-  const etaMinutes = Math.round(parseFloat(distanceNum) * 5 + 2);
 
   return {
     id: matched.id,
     name: matched.name,
-    phone: matched.phone || '0532 999 88 77',
-    rating: matched.rating || '4.98',
-    experience: matched.experience || '6 Yıl',
+    phone: matched.phone || '0546 647 90 04',
+    rating: matched.rating || '5.00',
+    experience: matched.experience || '5 Yıl',
     avatar: matched.name && matched.name.includes('Ayşe') ? '👩‍💼' : (matched.name && matched.name.includes('Mehmet') ? '👨‍💼' : '🧹'),
     location: `${district ? district + ', ' : ''}${city || 'İstanbul'}`,
-    distanceKm: `${distanceNum} km`,
-    etaMinutes: `${etaMinutes} dakika`,
-    status: 'Yolda'
+    distanceKm: '1.2 km',
+    etaMinutes: '15 dakika',
+    status: 'Beklemede'
   };
 }
 
@@ -2538,28 +2542,20 @@ export function renderAdminDashboard() {
     `;
   }
 
-  // 7. Live Activity Ticker Dynamic Pulse Rotator
+  // 7. Live Activity Ticker with Real System Data
   const tickerEl = document.getElementById('adminLiveEventTicker');
-  if (tickerEl && !window._adminTickerInterval) {
-    const events = [
-      "⚡ 1 dk önce: Ayşe K. #RLX-9941 Kadıköy randevusuna doğru yola çıktı | 🛡️ Cyber Loop: %100 Koruma | 💰 1.850 TL tahsilat",
-      "✨ 3 dk önce: Yeni müşteri Zeynep D. sisteme kaydoldu ve VIP Gold statüsüne erişti",
-      "🧹 5 dk önce: #RLX-9938 Beşiktaş 3+1 süit temizliği tamamlandı (+2.100 TL)",
-      "🛡️ 8 dk önce: Cyber Loop Sentinel: 1 şüpheli SQLi isteği yakalandı ve 2000ms Tarpit tuzağı uygulandı",
-      "👥 12 dk önce: Mehmet D. Beşiktaş bölgesinde göreve hazır (Müsait) durumuna geçti"
-    ];
-    let evIdx = 0;
-    window._adminTickerInterval = setInterval(() => {
-      evIdx = (evIdx + 1) % events.length;
-      if (tickerEl) {
-        tickerEl.style.transition = 'opacity 0.3s ease';
-        tickerEl.style.opacity = '0';
-        setTimeout(() => {
-          tickerEl.textContent = events[evIdx];
-          tickerEl.style.opacity = '1';
-        }, 300);
-      }
-    }, 6000);
+  if (tickerEl) {
+    if (window._adminTickerInterval) {
+      clearInterval(window._adminTickerInterval);
+      window._adminTickerInterval = null;
+    }
+    const realOrders = getLiveStaffJobs();
+    const lastOrder = realOrders[0];
+    if (lastOrder) {
+      tickerEl.textContent = `📋 Canlı Sistem Durumu: Toplam ${realOrders.length} rezervasyon | Son Sipariş: #${lastOrder.orderCode || lastOrder.id} (${lastOrder.customerName} - ${lastOrder.city}) | 🛡️ Siber Kalkan: %100 Aktif`;
+    } else {
+      tickerEl.textContent = `✨ Canlı Sistem Durumu: Operasyona hazır | 0 bekleyen kuyruk | 🛡️ Siber Kalkan: %100 Aktif`;
+    }
   }
 }
 
@@ -3142,25 +3138,35 @@ function initRegistrationInteractions() {
 // 5. 1-Click Social Sign-Up (Google / Apple Instant Auth)
 window.handleSocialAuth = async function(provider) {
   const regFeedback = document.getElementById('authRegisterFeedback');
-  const dummyName = provider === 'google' ? 'Google Kullanıcısı' : 'Apple Kullanıcısı';
-  const dummyEmail = provider === 'google' ? `kullanici.${Math.floor(1000 + Math.random()*9000)}@gmail.com` : `apple.user.${Math.floor(1000 + Math.random()*9000)}@icloud.com`;
-  const dummyPhone = '0 (532) ' + Math.floor(100 + Math.random()*900) + ' ' + Math.floor(10 + Math.random()*90) + ' ' + Math.floor(10 + Math.random()*90);
+  const userEmail = prompt(`Lütfen ${provider === 'google' ? 'Google' : 'Apple'} hesabınıza bağlı gerçek e-posta adresinizi giriniz:`, '');
+  if (!userEmail || !userEmail.includes('@')) {
+    if (regFeedback) {
+      regFeedback.style.display = 'block';
+      regFeedback.className = 'auth-feedback error';
+      regFeedback.textContent = '⚠️ Geçerli bir e-posta adresi girilmediği için işlem iptal edildi.';
+    }
+    return;
+  }
+
+  const cleanEmail = userEmail.trim().toLowerCase();
+  const userName = cleanEmail.split('@')[0];
+  const userPhone = '0532 000 00 00';
 
   if (regFeedback) {
     regFeedback.style.display = 'block';
     regFeedback.className = 'auth-feedback success';
-    regFeedback.textContent = `🚀 ${provider === 'google' ? 'Google' : 'Apple'} hesabınızla güvenli bağlantı kuruluyor...`;
+    regFeedback.textContent = `🚀 ${provider === 'google' ? 'Google' : 'Apple'} hesabınızla (${cleanEmail}) işlem yapılıyor...`;
   }
 
-  const res = await registerUser(dummyName, dummyEmail, dummyPhone, 'SocialAuth2026!', 'Istanbul');
+  const res = await registerUser(userName, cleanEmail, userPhone, 'SocialAuth2026!', 'Istanbul');
   if (res.success) {
     if (regFeedback) {
-      regFeedback.textContent = `🎉 Hoş geldiniz! ${provider === 'google' ? 'Google' : 'Apple'} ile hesabınız başarıyla açıldı. 100 Hoşgeldin Puanı & %15 Kuponunuz Aktif!`;
+      regFeedback.textContent = `🎉 Hoş geldiniz, ${userName}! Hesabınız başarıyla oluşturuldu.`;
     }
     setTimeout(() => {
       closeAuthModal();
       if (typeof openBookingScreen === 'function') openBookingScreen();
-    }, 1000);
+    }, 600);
   }
 };
 
