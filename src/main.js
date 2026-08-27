@@ -16,6 +16,7 @@ import { secureFetch, getCsrfToken } from './js/modules/csrfEngine.js';
 import { initPushEngine, requestNotificationPermission, showLocalNotification } from './js/modules/pushEngine.js';
 import { initHygieneCertificateEngine, openHygieneCertificate } from './js/modules/hygieneCertificateEngine.js';
 import { initVipConciergeEngine, openVipConciergeModal } from './js/modules/vipConcierge.js';
+import { initHardwareBooster, probeGpuHardware } from './js/modules/hardwareBooster.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -30,6 +31,8 @@ window.closeCorporateModal = closeModal;
 window.openLegalModal = openLegalModal;
 window.openHygieneCertificate = openHygieneCertificate;
 window.openVipConciergeModal = openVipConciergeModal;
+window.initHardwareBooster = initHardwareBooster;
+window.probeGpuHardware = probeGpuHardware;
 window.initLoopEngineering = initLoopEngineering;
 window.initCyberLoopEngine = initCyberLoopEngine;
 window.secureFetch = secureFetch;
@@ -43,7 +46,8 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
-// Initialize Cyber Defense, Push Engine, Hygiene Certificates, VIP Concierge & Debug Hardening Suite immediately
+// Initialize Hardware Booster, Cyber Defense, Push Engine, Hygiene Certificates, VIP Concierge & Debug Hardening immediately
+initHardwareBooster();
 initCyberLoopEngine();
 initPushEngine();
 initHygieneCertificateEngine();
