@@ -1723,6 +1723,18 @@ function renderStaffDashboard() {
               </div>
             </div>
 
+            ${j.status === 'Temizlik Başladı' ? `
+              <div class="sjc-timer-wrap" style="margin: 10px 0; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="color: #34d399; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span>
+                  ⏱️ Aktif Temizlik Süresi:
+                </span>
+                <strong class="staff-job-timer-display" data-started="${j.startedAt || (j.startedAt = Date.now())}" style="color: #38bdf8; font-family: monospace; font-size: 1rem;">
+                  00:00:00
+                </strong>
+              </div>
+            ` : ''}
+
             <div class="sjc-actions-bar">
               <div class="sjc-comms">
                 <a href="https://maps.google.com/?q=${mapsQuery}" target="_blank" rel="noopener noreferrer" class="btn-sjc-action maps">🗺️ Harita Yol Tarifi</a>
@@ -1791,6 +1803,19 @@ function renderStaffDashboard() {
         </tbody>
       </table>
     `;
+  }
+
+  if (!window._staffTimerInterval) {
+    window._staffTimerInterval = setInterval(() => {
+      document.querySelectorAll('.staff-job-timer-display').forEach(el => {
+        const start = parseInt(el.getAttribute('data-started'), 10) || Date.now();
+        const diff = Math.max(0, Math.floor((Date.now() - start) / 1000));
+        const hrs = String(Math.floor(diff / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+        const secs = String(diff % 60).padStart(2, '0');
+        el.textContent = `${hrs}:${mins}:${secs}`;
+      });
+    }, 1000);
   }
 }
 
