@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RELAXAX Enterprise Server-Side Quote & Dynamic Pricing Engine
  * POST /api/quote & GET /api/quote
  *
@@ -99,11 +99,30 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const body = await request.json().catch(() => ({}));
-    
-    // Prototype pollution guard
-    if (body && (body.__proto__ || body.constructor?.prototype)) {
-      delete body.__proto__;
+    const raw = await request.text();
+    if (raw.length > 15000) {
+      return new Response(JSON.stringify({ success: false, error: "Payload too large", traceId }), {
+        status: 413,
+        headers
+      });
+    }
+
+    let body = {};
+    try {
+      body = JSON.parse(raw);
+      if (body && (body.__proto__ || body.constructor?.prototype)) {
+        delete body.__proto__;
+      }
+    } catch(e) {
+      body = {};
+    }
+
+    // Honeypot spam guard
+    if (body.website_url || body._hp_check) {
+      return new Response(JSON.stringify({ success: true, message: "Quote generated", traceId }), {
+        status: 200,
+        headers
+      });
     }
 
     const city = String(body.city || 'Istanbul').trim();

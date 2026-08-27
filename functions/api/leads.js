@@ -17,7 +17,6 @@
 
 const PANEL_ENDPOINTS = [
   "https://panel.relaxax.com/api/leads",
-  "http://64.177.116.243/api/leads",
   "https://backend-api.relaxaxserwis.workers.dev/api/leads"
 ];
 

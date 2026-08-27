@@ -310,9 +310,15 @@ export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
 
-  // API yolları için middleware'i tamamen atla
+  // API yolları için güvenlik ve robot başlıklarını uygula
   if (url.pathname.startsWith('/api/')) {
-    return next();
+    const apiRes = await next();
+    const secureApiRes = new Response(apiRes.body, apiRes);
+    secureApiRes.headers.set('X-Content-Type-Options', 'nosniff');
+    secureApiRes.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    secureApiRes.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    secureApiRes.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    return secureApiRes;
   }
 
   // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)
