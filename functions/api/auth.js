@@ -1,12 +1,12 @@
-import { scanAllPayloadThreats, sanitizeSafeString, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function for Authentication & Staff Portal API
  * POST /api/auth
  *
  * Integrated with the Cleaning Panel:
- *  - Customer registration & login
- *  - Cleaning staff registration & onboarding
+ *  - Real Customer registration & login with Edge KV database persistence
+ *  - Cleaning staff registration, application & onboarding
  *  - Panel synchronization with secure HTTPS relays
  *  - Session token verification & persistence
  *  - Anti-brute force rate limiting & SQL/NoSQL Anti-Injection Defense
@@ -58,6 +58,7 @@ function sanitizeEmail(email) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
   const clientIp = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || 'unknown';
   const origin = request.headers.get('Origin') || '*';
   const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')))
@@ -107,11 +108,10 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Comprehensive Cyber Threat Scanner & Honeypot Trap (SQLi, XSS, RCE, Path Traversal, Prompt Injection)
-    const threat = scanAllPayloadThreats(body);
-    if (threat.isMalicious) {
-      dispatchSecurityTrapAlert(env, request, threat.attackType, threat.snippet || rawBody.substring(0, 150), waitUntil);
-      return createSecurityTrapResponse(Date.now().toString(36), threat.attackType);
+    // Autonomous Cyber Loop Sentinel Inspection
+    const cyberCheck = await executeCyberLoopSentinel(env, request, body, waitUntil);
+    if (cyberCheck.blocked) {
+      return cyberCheck.response;
     }
 
     // Honeypot spam trap
@@ -141,69 +141,24 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Attempt secure backend relay to centralized cleaning panel over HTTPS
-    let panelResponse = null;
-    for (const endpoint of PANEL_AUTH_ENDPOINTS) {
-      try {
-        const ctrl = new AbortController();
-        const timeoutId = setTimeout(() => ctrl.abort(), 3500);
-
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'User-Agent': 'RELAXAX-Cloudflare-Auth-Relay/2.0'
-          },
-          body: JSON.stringify({
-            action,
-            role,
-            email,
-            password,
-            name: sanitizeStr(body.name),
-            phone: sanitizeStr(body.phone),
-            city: sanitizeStr(body.city),
-            district: sanitizeStr(body.district),
-            experience: sanitizeStr(body.experience),
-            clientIp,
-            geoCountry: request.headers.get('cf-ipcountry') || 'TR',
-            geoCity: request.headers.get('cf-ipcity') || 'Istanbul',
-            timestamp: Date.now()
-          }),
-          signal: ctrl.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          panelResponse = await res.json();
-          break;
-        }
-      } catch (err) {
-        // Fallback to secure Edge engine
-      }
-    }
-
-    if (panelResponse && panelResponse.success) {
-      return new Response(JSON.stringify(panelResponse), {
-        status: 200,
-        headers: corsHeaders
-      });
-    }
-
     // 2. Realistic Edge KV User Store & Credential Validation
-    const kvKey = `${role}:${email}`;
+    const kvKey = `user:${email}`;
+    const staffKvKey = `staff:${email}`;
     let existingUser = null;
+
     if (env && env.LEADS_KV) {
       try {
-        const stored = await env.LEADS_KV.get(kvKey, 'json');
+        const stored = await env.LEADS_KV.get(role === 'staff' ? staffKvKey : kvKey, 'json');
         if (stored) existingUser = stored;
       } catch (e) {}
     }
 
+    // ── REGISTRATION / SIGNUP FLOW ──
     if (action.includes('register') || action.includes('apply')) {
       if (existingUser) {
         return new Response(JSON.stringify({
           success: false,
-          message: 'Bu e-posta adresi ile zaten kayıtlı bir hesap mevcuttur. Lütfen giriş yapınız.'
+          message: 'Bu e-posta adresi ile zaten kayıtlı bir hesap mevcuttur. Lütfen Giriş Yap sekmesinden oturum açınız.'
         }), {
           status: 409,
           headers: corsHeaders
@@ -216,10 +171,11 @@ export async function onRequestPost(context) {
         role: role,
         name: sanitizeStr(body.name || (role === 'staff' ? 'Temizlik Uzmanı' : 'Müşteri')),
         email: email,
-        passwordHash: password, // In edge prototype, persisted securely
+        passwordHash: password,
         phone: sanitizeStr(body.phone || ''),
         city: sanitizeStr(body.city || 'Istanbul'),
         district: sanitizeStr(body.district || ''),
+        street: sanitizeStr(body.street || ''),
         rating: role === 'staff' ? '5.00' : undefined,
         experience: role === 'staff' ? sanitizeStr(body.experience || '3 Yıl') : undefined,
         token: token,
@@ -227,9 +183,19 @@ export async function onRequestPost(context) {
         authenticated: true
       };
 
+      // Persist user to Edge KV with 365-day persistence
       if (env && env.LEADS_KV) {
         try {
-          await env.LEADS_KV.put(kvKey, JSON.stringify(newUser));
+          const targetKey = role === 'staff' ? staffKvKey : kvKey;
+          await env.LEADS_KV.put(targetKey, JSON.stringify(newUser), { expirationTtl: 31536000 });
+          
+          // Append to global index
+          let usersIndex = await env.LEADS_KV.get('kv_users_index', 'json') || [];
+          if (!usersIndex.includes(email)) {
+            usersIndex.push(email);
+            if (usersIndex.length > 500) usersIndex = usersIndex.slice(-500);
+            await env.LEADS_KV.put('kv_users_index', JSON.stringify(usersIndex));
+          }
         } catch (e) {}
       }
 
@@ -247,12 +213,12 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Login Action Verification
-    if (role === 'admin') {
+    // ── ADMIN LOGIN FLOW ──
+    if (role === 'admin' || email.startsWith('admin@') || email === 'yonetici@relaxax.com') {
       const validAdminEmail = (env && env.ADMIN_EMAIL) ? env.ADMIN_EMAIL : 'admin@relaxax.com';
       const validAdminPass = (env && env.ADMIN_PASSWORD) ? env.ADMIN_PASSWORD : 'admin123!relaxax';
 
-      if (email !== validAdminEmail && email !== 'admin@relaxax.com') {
+      if (email !== validAdminEmail && email !== 'admin@relaxax.com' && email !== 'yonetici@relaxax.com') {
         return new Response(JSON.stringify({
           success: false,
           message: 'Yetkili yönetici hesabı bulunamadı. Lütfen e-postanızı kontrol ediniz.'
@@ -275,7 +241,7 @@ export async function onRequestPost(context) {
       const adminToken = 'rlx_adm_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
       return new Response(JSON.stringify({
         success: true,
-        message: '👑 Yönetici Girişi Başarılı. Panel Masası Yüklendi.',
+        message: '👑 Yönetici Girişi Başarılı. Yönetim Masası Yüklendi.',
         user: {
           id: 'admin_root',
           role: 'admin',
@@ -292,7 +258,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Customer / Staff Login Validation
+    // ── CUSTOMER / STAFF LOGIN VALIDATION ──
     if (existingUser) {
       if (existingUser.passwordHash && existingUser.passwordHash !== password) {
         return new Response(JSON.stringify({
@@ -319,30 +285,52 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Default Seed Accounts / Direct Dynamic Login
-    const token = 'rlx_tok_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-    const userPayload = {
-      id: (role === 'staff' ? 'staff_' : 'usr_') + Date.now().toString(36),
-      role: role,
-      name: sanitizeStr(body.name || (role === 'staff' ? 'Temizlik Uzmanı' : 'Müşteri')),
-      email: email,
-      phone: sanitizeStr(body.phone || ''),
-      city: sanitizeStr(body.city || 'Istanbul'),
-      district: sanitizeStr(body.district || ''),
-      rating: role === 'staff' ? '4.98' : undefined,
-      experience: role === 'staff' ? sanitizeStr(body.experience || '3 Yıl') : undefined,
-      token: token,
-      authenticated: true,
-      timestamp: Date.now()
+    // Predefined Demo Customer / Staff Accounts
+    const DEMO_ACCOUNTS = {
+      'musteri@relaxax.com': { name: 'Ahmet Yılmaz', phone: '0532 111 22 33', role: 'customer', pass: '123456' },
+      'demo@relaxax.com': { name: 'Zeynep Demir', phone: '0544 222 33 44', role: 'customer', pass: '123456' },
+      'personel@relaxax.com': { name: 'Ayşe Kaya (Uzman)', phone: '0555 333 44 55', role: 'staff', pass: '123456' }
     };
 
+    if (DEMO_ACCOUNTS[email]) {
+      const acc = DEMO_ACCOUNTS[email];
+      if (password !== acc.pass && password !== '123456') {
+        return new Response(JSON.stringify({
+          success: false,
+          message: 'Girdiğiniz şifre hatalı. Lütfen şifrenizi kontrol ediniz.'
+        }), {
+          status: 401,
+          headers: corsHeaders
+        });
+      }
+
+      const token = 'rlx_tok_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Giriş başarılı.',
+        user: {
+          id: (acc.role === 'staff' ? 'staff_' : 'usr_') + 'demo',
+          role: acc.role,
+          name: acc.name,
+          email: email,
+          phone: acc.phone,
+          city: 'Istanbul',
+          token: token,
+          authenticated: true
+        },
+        token: token
+      }), {
+        status: 200,
+        headers: corsHeaders
+      });
+    }
+
+    // If account doesn't exist in KV and isn't demo, reject realistically with 404
     return new Response(JSON.stringify({
-      success: true,
-      message: 'Giriş başarılı.',
-      user: userPayload,
-      token: token
+      success: false,
+      message: 'Bu e-posta adresi ile kayıtlı bir hesap bulunamadı. Lütfen önce "Kayıt Ol" sekmesinden ücretsiz hesap oluşturunuz.'
     }), {
-      status: 200,
+      status: 404,
       headers: corsHeaders
     });
 

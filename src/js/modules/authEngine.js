@@ -658,19 +658,19 @@ export async function loginUser(email, password, rememberMe = true, expectedRole
         password: cleanPass
       })
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.success && data.user) {
-        if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
-        else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
-        updateAuthUI();
-        if (data.user.role === 'customer') prefillBookingWizardWithUser();
-        return { success: true, user: data.user, role: data.user.role };
-      }
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data && data.success && data.user) {
+      if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
+      else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
+      updateAuthUI();
+      if (data.user.role === 'customer') prefillBookingWizardWithUser();
+      return { success: true, user: data.user, role: data.user.role };
+    } else if (data && data.message) {
+      return { success: false, message: data.message };
     }
   } catch (e) {}
 
-  return { success: false, message: 'E-posta veya şifre hatalı. Lütfen kontrol ediniz.' };
+  return { success: false, message: 'Bu e-posta adresi ile kayıtlı bir hesap bulunamadı veya şifre hatalı.' };
 }
 
 export function logoutUser() {
