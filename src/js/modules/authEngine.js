@@ -1540,6 +1540,9 @@ function renderUserProfileDetails(user) {
               <button type="button" class="btn-reorder-booking" onclick="if(typeof window.openHygieneCertificate==='function'){window.openHygieneCertificate({orderCode:'${escapeHTML(b.orderCode || b.resCode || '')}', service:'${escapeHTML(b.service || 'Detaylı Temizlik')}', customerName:'${escapeHTML(user.name || 'Değerli Müşterimiz')}', address:'${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')}', assignedStaff:{name:'${escapeHTML(staff.name || 'Ayşe K.')}'}});}">
                 <span style="color:#fbbf24;">🏆 48 Nokta Hijyen Sertifikası</span>
               </button>
+              <button type="button" class="btn-reorder-booking" style="border-color:rgba(56,189,248,0.4); color:#38bdf8;" onclick="window.downloadInvoiceGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(b.service || 'Detaylı Temizlik')}', '${escapeHTML(b.finalPrice || '2.450 TL')}', '${escapeHTML(user.name || 'Değerli Müşterimiz')}')">
+                <span>🧾 E-Fatura / Fiş</span>
+              </button>
               ${b.status === 'Tamamlandı' ? `
                 <button type="button" class="btn-reorder-booking" style="border-color:rgba(251,191,36,0.5); color:#fbbf24;" onclick="window.rateStaffServiceGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(staff.name || 'Ayşe K.')}')">
                   <span>⭐ 5★ Değerlendir</span>
@@ -2509,6 +2512,85 @@ window.exportOrdersToCSVGlobal = function() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+window.downloadInvoiceGlobal = function(orderCode, serviceName, finalPrice, customerName) {
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  const invoiceHtml = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>RELAXAX E-Fatura Makbuzu #${escapeHTML(orderCode)}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; color: #1e293b; background: #fff; line-height: 1.5; max-width: 800px; margin: 0 auto; }
+    .header { border-bottom: 2px solid #0284c7; padding-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 24px; font-weight: 900; color: #0284c7; letter-spacing: 2px; }
+    .meta { text-align: right; font-size: 13px; color: #64748b; }
+    .title { margin-top: 30px; font-size: 18px; font-weight: 700; color: #0f172a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 13px; border-bottom: 1px solid #cbd5e1; }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .total-row { font-size: 16px; font-weight: 800; color: #0284c7; background: #f8fafc; }
+    .footer { margin-top: 50px; font-size: 12px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+    .stamp { display: inline-block; border: 2px dashed #10b981; color: #059669; padding: 8px 16px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="logo">✨ RELAXAX ENTERPRISE</div>
+      <div style="font-size: 12px; color: #64748b;">Merkezi Temizlik ve Tesis Yönetim A.Ş.</div>
+    </div>
+    <div class="meta">
+      <div><strong>Belge No:</strong> E-FAT-${escapeHTML(orderCode)}</div>
+      <div><strong>Tarih:</strong> ${new Date().toLocaleDateString('tr-TR')}</div>
+      <div><strong>Düzenleyen:</strong> Sistem Otomasyonu (ISO-9001)</div>
+    </div>
+  </div>
+
+  <div class="title">HİZMET FATURASI / ELEKTRONİK MAKBUZ</div>
+  <p><strong>Sayın:</strong> ${escapeHTML(customerName)}</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Açıklama / Hizmet</th>
+        <th>Adet</th>
+        <th>Birim Fiyat</th>
+        <th>KDV (%20)</th>
+        <th>Toplam Tutar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>${escapeHTML(serviceName)} (48 Nokta ISO-9001 Sertifikalı Temizlik)</td>
+        <td>1 Hizmet</td>
+        <td>${escapeHTML(finalPrice)}</td>
+        <td>Dahil</td>
+        <td><strong>${escapeHTML(finalPrice)}</strong></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4" style="text-align: right;"><strong>ÖDENEN GENEL TOPLAM:</strong></td>
+        <td><strong>${escapeHTML(finalPrice)}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="text-align: right;">
+    <div class="stamp">✓ ÖDENDİ & ELEKTRONİK İMZA ONAYLI</div>
+  </div>
+
+  <div class="footer">
+    Bu belge 213 sayılı Vergi Usul Kanunu uyarınca elektronik ortamda düzenlenmiştir.<br>
+    RELAXAX Kurumsal Müşteri Hizmetleri: 0546 647 90 04 | www.relaxax.com
+  </div>
+  <script>window.print();<\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([invoiceHtml], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
 };
 
 window.addNewCouponGlobal = function() {
