@@ -1,5 +1,6 @@
 import { isHoneypotProbe, generateDecoyResponse, alertHoneypotTrigger } from './api/_deception.js';
 import { isVpnOrProxy, generateVpnBlockScreen } from './api/_vpnGuard.js';
+import { isVulnScanner, applyEnterpriseSecurityHeaders } from './api/_security.js';
 
 /**
  * RELAXAX — Edge SEO & Active Cyber Defense Middleware (Cloudflare Pages Functions)
@@ -357,15 +358,27 @@ export async function onRequest(context) {
     });
   }
 
-  // API yolları için güvenlik ve robot başlıklarını uygula
+  // 0D. Anti-Scanner & Vulnerability Fuzzer Shield
+  if (isVulnScanner(request)) {
+    return new Response(JSON.stringify({
+      status: 403,
+      error: "Automated vulnerability scanner or fuzzer detected. Access denied.",
+      status: "SECURITY_SCANNER_QUARANTINED"
+    }, null, 2), {
+      status: 403,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'X-Robots-Tag': 'noindex, nofollow',
+        'X-Security-Scan-Shield': 'Active',
+        'X-Tarpit-Penalty': '2000ms'
+      }
+    });
+  }
+
+  // API yolları için kurumsal güvenlik başlıklarını uygula
   if (url.pathname.startsWith('/api/')) {
     const apiRes = await next();
-    const secureApiRes = new Response(apiRes.body, apiRes);
-    secureApiRes.headers.set('X-Content-Type-Options', 'nosniff');
-    secureApiRes.headers.set('X-Frame-Options', 'SAMEORIGIN');
-    secureApiRes.headers.set('X-Robots-Tag', 'noindex, nofollow');
-    secureApiRes.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    return secureApiRes;
+    return applyEnterpriseSecurityHeaders(apiRes);
   }
 
   // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)

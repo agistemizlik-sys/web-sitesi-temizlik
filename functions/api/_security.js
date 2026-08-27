@@ -404,6 +404,68 @@ export function validateCsrfHeader(request) {
   return true;
 }
 
+const VULN_SCANNER_BOT_RE = /(\b(sqlmap|nikto|acunetix|dirbuster|gobuster|masscan|zgrab|nmap|censys|shodan|python-requests|wpscan|hydra|burpcollaborator|openvas|nessus)\b)/i;
+
+/**
+ * Checks if request comes from automated vulnerability scanners or attack frameworks.
+ */
+export function isVulnScanner(request) {
+  if (!request || !request.headers) return false;
+  const ua = request.headers.get('User-Agent') || '';
+  return VULN_SCANNER_BOT_RE.test(ua);
+}
+
+/**
+ * Edge KV Token-Bucket Rate Limiter (Anti-DDoS & Brute-Force Shield)
+ */
+export async function executeRateLimitGuard(env, request, maxRequests = 40, windowSecs = 60) {
+  if (!env || !env.LEADS_KV) return { allowed: true };
+  const clientIp = getTrustedClientIp(request);
+  const key = `ratelimit:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`;
+  try {
+    const raw = await env.LEADS_KV.get(key);
+    const current = parseInt(raw, 10) || 0;
+    if (current >= maxRequests) {
+      return {
+        allowed: false,
+        response: new Response(JSON.stringify({
+          success: false,
+          error: 'Rate limit exceeded: Too many requests. Please try again in 60 seconds.',
+          status: 'RATE_LIMITED'
+        }), {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Retry-After': String(windowSecs),
+            'X-RateLimit-Limit': String(maxRequests),
+            'X-RateLimit-Remaining': '0',
+            'X-Security-Guard': 'RateLimitActive'
+          }
+        })
+      };
+    }
+    await env.LEADS_KV.put(key, String(current + 1), { expirationTtl: windowSecs });
+    return { allowed: true, remaining: maxRequests - current - 1 };
+  } catch (e) {
+    return { allowed: true };
+  }
+}
+
+/**
+ * Hardens HTTP Response with Military-Grade Enterprise Security Headers
+ */
+export function applyEnterpriseSecurityHeaders(response) {
+  const res = new Response(response.body, response);
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  res.headers.set('X-XSS-Protection', '1; mode=block');
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
+  return res;
+}
+
 
 
 
