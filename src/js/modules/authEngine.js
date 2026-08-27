@@ -2279,9 +2279,9 @@ export function renderAdminDashboard() {
 
   if (staffFleetWrap) {
     const staffMembers = [
-      { id: 'STF-8821', name: 'Ayşe Kaya', city: 'İstanbul / Kadıköy', role: 'Kıdemli Temizlik Uzmanı', rating: '4.99', completed: 142, todayEarn: '1.715 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & ISO Sertifikalı ✓' },
-      { id: 'STF-8822', name: 'Mehmet Demir', city: 'İstanbul / Beşiktaş', role: 'Hijyen Baş Denetçisi', rating: '5.00', completed: 218, todayEarn: '2.450 TL', status: 'MÜSAİT', badge: 'badge-success', check: 'Adli Sicil & ISO Sertifikalı ✓' },
-      { id: 'STF-8823', name: 'Zeynep Tekin', city: 'Ankara / Çankaya', role: 'VIP Rezidans Uzmanı', rating: '4.98', completed: 96, todayEarn: '1.295 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & ISO Sertifikalı ✓' },
+      { id: 'STF-8821', name: 'Ayşe Kaya', city: 'İstanbul / Kadıköy', role: 'Kıdemli Temizlik Uzmanı', rating: '4.99', completed: 142, todayEarn: '1.715 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & 48 Nokta Kalite Denetimli ✓' },
+      { id: 'STF-8822', name: 'Mehmet Demir', city: 'İstanbul / Beşiktaş', role: 'Hijyen Baş Denetçisi', rating: '5.00', completed: 218, todayEarn: '2.450 TL', status: 'MÜSAİT', badge: 'badge-success', check: 'Adli Sicil & 48 Nokta Kalite Denetimli ✓' },
+      { id: 'STF-8823', name: 'Zeynep Tekin', city: 'Ankara / Çankaya', role: 'VIP Rezidans Uzmanı', rating: '4.98', completed: 96, todayEarn: '1.295 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & 48 Nokta Kalite Denetimli ✓' },
       { id: 'STF-8824', name: 'Piotr Wójcik', city: 'Varşova (Warszawa)', role: 'Senior Housekeeper', rating: '5.00', completed: 84, todayEarn: '349 PLN', status: 'MÜSAİT', badge: 'badge-success', check: 'KRK Weryfikacja ✓' }
     ];
 
