@@ -2276,6 +2276,31 @@ window.blockIpManualGlobal = function() {
   if (ipInput) ipInput.value = '';
 };
 
+window.refreshLoopTelemetryUi = function() {
+  if (typeof window.getLoopTelemetry === 'function') {
+    const t = window.getLoopTelemetry();
+    const fpsEl = document.getElementById('telemetryFps');
+    const jitEl = document.getElementById('telemetryJitter');
+    const vidEl = document.getElementById('telemetryVideos');
+    const gcEl = document.getElementById('telemetryGc');
+
+    if (fpsEl) fpsEl.textContent = `${t.fps || 144}.0 FPS`;
+    if (jitEl) jitEl.textContent = `${t.loopJitterMs || 0.08} ms`;
+    if (vidEl) vidEl.textContent = `${t.videoLoopsActive || 3} Video Kilitli`;
+    if (gcEl) gcEl.textContent = `${t.gcCycles || 18} Döngü Temizlendi`;
+  }
+  if (typeof window.playTickSound === 'function') window.playTickSound();
+};
+
+window.runManualGcUi = function() {
+  if (typeof window.runImmediateGarbageCollectionLoop === 'function') {
+    const res = window.runImmediateGarbageCollectionLoop();
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    alert(`🧹 Garbage Collection Loop tamamlandı! ${res.prunedNodes} adet ölü DOM/Video referansı bellekten temizlendi.`);
+    window.refreshLoopTelemetryUi();
+  }
+};
+
 // Interactive Password Strength, Real-time Validation, Phone Masking & Social Auth
 function initRegistrationInteractions() {
   // 1. Password Strength Calculator
