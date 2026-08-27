@@ -202,6 +202,68 @@ function initCyberHeartbeatLoop() {
 }
 
 /**
+ * 6. Deep Recursive Payload Sanitizer & Threat Neutralizer (XSS / SQLi / Prototype Pollution)
+ */
+export function sanitizeInputString(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/[<>]/g, '') // Strip angle brackets
+    .replace(/javascript:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .replace(/data:text\/html/gi, '')
+    .replace(/on\w+\s*=/gi, '') // Strip onerror=, onclick=, etc.
+    .replace(/--|;|union\s+select|drop\s+table/gi, '') // SQLi patterns
+    .trim();
+}
+
+export function sanitizePayload(data) {
+  if (data === null || data === undefined) return data;
+  if (typeof data === 'string') return sanitizeInputString(data);
+  if (Array.isArray(data)) return data.map(item => sanitizePayload(item));
+  if (typeof data === 'object') {
+    const clean = {};
+    for (const key of Object.keys(data)) {
+      // Prototype pollution defense
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        notifyThreat('PROTOTYPE_POLLUTION_ATTEMPT', `Neutralized malicious object key: ${key}`);
+        continue;
+      }
+      clean[key] = sanitizePayload(data[key]);
+    }
+    return clean;
+  }
+  return data;
+}
+
+/**
+ * 7. Adaptive Client-Side Rate Limiter & Tarpit Shield
+ */
+const rateLimitBuckets = new Map();
+
+export function enforceAdaptiveRateLimit(actionKey, maxCalls = 10, windowMs = 60000) {
+  const now = Date.now();
+  const bucket = rateLimitBuckets.get(actionKey) || { count: 0, resetAt: now + windowMs };
+
+  if (now > bucket.resetAt) {
+    bucket.count = 1;
+    bucket.resetAt = now + windowMs;
+  } else {
+    bucket.count++;
+  }
+
+  rateLimitBuckets.set(actionKey, bucket);
+
+  if (bucket.count > maxCalls) {
+    const excess = bucket.count - maxCalls;
+    const tarpitDelayMs = Math.min(5000, excess * 500);
+    notifyThreat('RATE_LIMIT_EXCEEDED', `Action "${actionKey}" rate limit exceeded (${bucket.count}/${maxCalls}). Tarpit: ${tarpitDelayMs}ms`);
+    return { allowed: false, retryAfterMs: bucket.resetAt - now, tarpitDelayMs };
+  }
+
+  return { allowed: true, remaining: maxCalls - bucket.count };
+}
+
+/**
  * Returns real-time cyber loop metrics for telemetry dashboards.
  */
 export function getCyberLoopStats() {
@@ -236,5 +298,8 @@ export function initCyberLoopEngine() {
   initCyberHeartbeatLoop();
   detectHeadlessAutomation();
 
-  console.log('🛡️ [RELAXAX] Cyber Loop Engineering Sentinel v3.0 Active');
+  window.sanitizePayload = sanitizePayload;
+  window.enforceAdaptiveRateLimit = enforceAdaptiveRateLimit;
+
+  console.log('🛡️ [RELAXAX] Cyber Loop Engineering Sentinel v3.2 Active (Deep Sanitizer & Adaptive Tarpit)');
 }
