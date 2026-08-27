@@ -147,4 +147,66 @@ export function validateSafeEmail(email) {
   return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(clean);
 }
 
+/**
+ * Dispatches an instant security incident alert to Telegram when an attack payload is intercepted.
+ */
+export async function dispatchSecurityTrapAlert(env, request, attackType, payloadSnippet, waitUntil) {
+  if (!env || !env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
+
+  const clientIp = getTrustedClientIp(request);
+  const country = request.headers.get('CF-IPCountry') || 'TR';
+  const city = request.headers.get('CF-IPCity') || 'Unknown';
+  const userAgent = request.headers.get('User-Agent') || 'Unknown';
+  const url = request.url || '';
+
+  const tgMessage = [
+    '🚨 <b>SALDIRI TUZAĞA DÜŞTÜ & ENGELLENDİ!</b> 🚨',
+    '━━━━━━━━━━━━━━━━━━━━━',
+    '🛡️ <b>Saldırı Tipi:</b> <code>' + attackType + '</code>',
+    '🎯 <b>Hedef URL:</b> <code>' + url.substring(0, 100) + '</code>',
+    '🌐 <b>Saldırgan IP:</b> <code>' + clientIp + '</code>',
+    '📍 <b>Konum:</b> ' + city + ' / ' + country,
+    '🕵️ <b>User-Agent:</b> <code>' + userAgent.substring(0, 100) + '</code>',
+    '💣 <b>Yük Özeti:</b> <code>' + String(payloadSnippet).substring(0, 120) + '</code>',
+    '━━━━━━━━━━━━━━━━━━━━━',
+    '⛔ <i>İstek anında düşürüldü, saldırgan IP adresi güvenlik günlüğüne işlendi.</i>'
+  ].join('\n');
+
+  const tgUrl = 'https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage';
+  const p = fetch(tgUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: env.TELEGRAM_CHAT_ID,
+      text: tgMessage,
+      parse_mode: 'HTML'
+    })
+  }).then(r => r.json()).catch(() => {});
+
+  if (waitUntil) waitUntil(p);
+  else await p;
+}
+
+/**
+ * Creates a quarantine trap response for malicious payloads.
+ */
+export function createSecurityTrapResponse(traceId, attackType = 'SQL/Prompt Injection') {
+  return new Response(JSON.stringify({
+    success: false,
+    error: 'Security Alert: Malicious ' + attackType + ' vector quarantined',
+    status: 'QUARANTINED_AND_REPORTED',
+    traceId
+  }), {
+    status: 400,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'X-Security-Trap-Active': 'True',
+      'X-RELAXAX-Trace-ID': traceId
+    }
+  });
+}
+
+
 

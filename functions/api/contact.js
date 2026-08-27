@@ -1,4 +1,4 @@
-import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey } from './_security.js';
+import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Contact & Corporate Inquiry API
@@ -94,16 +94,10 @@ export async function onRequestPost(context) {
       }
     } catch(e) {}
 
-    // SQL / NoSQL Injection Threat Blocker
+    // SQL / NoSQL / Prompt Injection Threat Blocker & Honeypot Trap
     if (scanPayloadForInjection(body)) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Security Alert: Malicious SQL or script injection payload detected",
-        traceId
-      }), {
-        status: 400,
-        headers
-      });
+      dispatchSecurityTrapAlert(env, request, 'SQL/Prompt Injection', raw.substring(0, 150), waitUntil);
+      return createSecurityTrapResponse(traceId, 'SQL/Prompt Injection');
     }
 
     // Honeypot spam guard

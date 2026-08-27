@@ -1,4 +1,4 @@
-import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage } from './_security.js';
+import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function Relay for Lead API
@@ -233,19 +233,10 @@ export async function onRequestPost(context) {
       leadData = {};
     }
 
-    // SQL / NoSQL Injection Threat Blocker
+    // SQL / NoSQL / Prompt Injection Threat Blocker & Honeypot Trap
     if (scanPayloadForInjection(leadData)) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Security Alert: Malicious SQL or command injection sequence detected",
-        traceId
-      }), {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "X-Content-Type-Options": "nosniff"
-        }
-      });
+      dispatchSecurityTrapAlert(env, request, 'SQL/Lead Injection', rawBody.substring(0, 150), waitUntil);
+      return createSecurityTrapResponse(traceId, 'SQL/Lead Injection');
     }
 
     const cf = request.cf || {};
