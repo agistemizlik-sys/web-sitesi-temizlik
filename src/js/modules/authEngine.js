@@ -1545,8 +1545,29 @@ function renderUserProfileDetails(user) {
 }
 
 window.rateStaffServiceGlobal = function(orderCode, staffName) {
-  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
-  alert(`🌟 Teşekkürler! #${orderCode} numaralı hizmet için uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz ve memnuniyet kaydınız sisteme başarıyla işlendi!`);
+  const tipPrompt = prompt(`🌟 #${orderCode} numaralı hizmet için uzmanımız ${staffName} 5 Yıldız ile değerlendirildi!\n\nUzmanımıza dijital bahşiş bırakmak ister misiniz? (Örn: 50, 100, 150 veya boş bırakarak devam edin):`, '100');
+  
+  let tipVal = 0;
+  if (tipPrompt && !isNaN(parseInt(tipPrompt, 10))) {
+    tipVal = parseInt(tipPrompt, 10);
+  }
+
+  if (tipVal > 0) {
+    const staffList = getRegisteredStaff();
+    const found = staffList.find(s => s.name === staffName || s.email === 'personel@relaxax.com');
+    if (found) {
+      found.todayEarnings = (found.todayEarnings || 0) + tipVal;
+      saveRegisteredStaff(staffList);
+    }
+    if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
+    if (typeof window.broadcastStateChange === 'function') {
+      window.broadcastStateChange('ORDER_STATUS_CHANGED', { type: 'STAFF_TIP', amount: tipVal, staffName });
+    }
+    alert(`🌟 Harika! Uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz ve +${tipVal} TL bahşişiniz başarıyla iletildi. Çok teşekkür ederiz!`);
+  } else {
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    alert(`🌟 Teşekkürler! #${orderCode} numaralı hizmet için uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz sisteme başarıyla işlendi!`);
+  }
 };
 
 window.reorderBookingGlobal = function(idx) {
