@@ -1,3 +1,5 @@
+import { scanPayloadForInjection } from './_security.js';
+
 /**
  * RELAXAX Enterprise Promo & Referral Validation Engine
  * POST /api/promo
@@ -158,6 +160,18 @@ export async function onRequestPost(context) {
         delete body.__proto__;
       }
     } catch(e){}
+
+    // SQL / NoSQL Injection Threat Blocker
+    if (scanPayloadForInjection(body)) {
+      return new Response(JSON.stringify({
+        valid: false,
+        error: "Security Alert: Malicious characters detected",
+        traceId
+      }), {
+        status: 400,
+        headers
+      });
+    }
 
     const rawCode = (body.code || body.promoCode || '').trim();
     const code = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '');

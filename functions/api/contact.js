@@ -1,8 +1,10 @@
-﻿/**
+import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey } from './_security.js';
+
+/**
  * RELAXAX Enterprise Contact & Corporate Inquiry API
  * POST /api/contact & OPTIONS /api/contact
  *
- * Handles customer support tickets, B2B commercial quote requests, and franchise inquiries.
+ * Handles customer support tickets, B2B commercial quote requests, and franchise inquiries with SQL Anti-Injection defense.
  */
 
 function sanitizeStr(str, maxLen = 500) {
@@ -91,6 +93,18 @@ export async function onRequestPost(context) {
         delete body.__proto__;
       }
     } catch(e) {}
+
+    // SQL / NoSQL Injection Threat Blocker
+    if (scanPayloadForInjection(body)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Security Alert: Malicious SQL or script injection payload detected",
+        traceId
+      }), {
+        status: 400,
+        headers
+      });
+    }
 
     // Honeypot spam guard
     if (body.website_url || body._hp_check) {

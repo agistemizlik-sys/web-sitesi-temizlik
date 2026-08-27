@@ -1,3 +1,5 @@
+import { scanPayloadForInjection, sanitizeSafeString } from './_security.js';
+
 /**
  * RELAXAX Enterprise Cloudflare Pages Function for Authentication & Staff Portal API
  * POST /api/auth
@@ -7,7 +9,7 @@
  *  - Cleaning staff registration & onboarding
  *  - Panel synchronization with secure HTTPS relays
  *  - Session token verification & persistence
- *  - Anti-brute force rate limiting & input sanitization
+ *  - Anti-brute force rate limiting & SQL/NoSQL Anti-Injection Defense
  */
 
 const PANEL_AUTH_ENDPOINTS = [
@@ -100,6 +102,17 @@ export async function onRequestPost(context) {
       }
     } catch (e) {
       return new Response(JSON.stringify({ success: false, message: 'Geçersiz JSON verisi.' }), {
+        status: 400,
+        headers: corsHeaders
+      });
+    }
+
+    // SQL / NoSQL Injection Threat Blocker
+    if (scanPayloadForInjection(body)) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Güvenlik uyarısı: Geçersiz veya potansiyel zararlı karakter dizisi tespit edildi.'
+      }), {
         status: 400,
         headers: corsHeaders
       });

@@ -1,9 +1,11 @@
+import { scanPayloadForInjection } from './_security.js';
+
 /**
  * RELAXAX Enterprise Server-Side Quote & Dynamic Pricing Engine
  * POST /api/quote & GET /api/quote
  *
  * Provides authoritative server-side price calculation and cryptographic quote tokens (HMAC-SHA256)
- * to prevent client-side price manipulation.
+ * to prevent client-side price manipulation and SQL injection attacks.
  */
 
 const BASE_RATES = {
@@ -115,6 +117,18 @@ export async function onRequestPost(context) {
       }
     } catch(e) {
       body = {};
+    }
+
+    // SQL / NoSQL Injection Threat Blocker
+    if (scanPayloadForInjection(body)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Security Alert: Malicious SQL or script injection payload detected",
+        traceId
+      }), {
+        status: 400,
+        headers
+      });
     }
 
     // Honeypot spam guard

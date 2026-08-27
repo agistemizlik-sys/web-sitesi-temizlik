@@ -1,3 +1,5 @@
+import { scanPayloadForInjection, sanitizeSafeString, sanitizeKey } from './_security.js';
+
 /**
  * RELAXAX Enterprise Cloudflare Pages Function Relay for Lead API
  * POST /api/leads
@@ -229,6 +231,21 @@ export async function onRequestPost(context) {
       }
     } catch (e) {
       leadData = {};
+    }
+
+    // SQL / NoSQL Injection Threat Blocker
+    if (scanPayloadForInjection(leadData)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Security Alert: Malicious SQL or command injection sequence detected",
+        traceId
+      }), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "X-Content-Type-Options": "nosniff"
+        }
+      });
     }
 
     const cf = request.cf || {};

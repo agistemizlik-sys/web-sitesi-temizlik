@@ -1,8 +1,10 @@
-﻿/**
+import { hasSqlInjection } from './_security.js';
+
+/**
  * RELAXAX Enterprise Verified Reviews & Ratings API
  * GET /api/reviews & OPTIONS /api/reviews
  *
- * Provides authentic customer feedback, verified badges, rating aggregates, and city filtering.
+ * Provides authentic customer feedback, verified badges, rating aggregates, and city filtering with SQL injection protection.
  */
 
 const REVIEWS_DATABASE = [
@@ -113,7 +115,19 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const cityFilter = (url.searchParams.get('city') || '').toLowerCase();
   const countryFilter = (url.searchParams.get('country') || '').toUpperCase();
-  const limit = Math.min(50, parseInt(url.searchParams.get('limit') || '10', 10));
+  const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '10', 10) || 10));
+
+  // SQL Injection Filter Guard
+  if (hasSqlInjection(cityFilter) || hasSqlInjection(countryFilter)) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: "Security Alert: Invalid query parameter",
+      traceId
+    }), {
+      status: 400,
+      headers
+    });
+  }
 
   let filtered = REVIEWS_DATABASE;
   if (cityFilter) {

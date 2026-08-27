@@ -1,8 +1,10 @@
-﻿/**
+import { hasSqlInjection, sanitizeKey } from './_security.js';
+
+/**
  * RELAXAX Enterprise Newsletter & VIP Hygiene Club API
  * POST /api/newsletter & OPTIONS /api/newsletter
  *
- * Collects emails for exclusive promo coupons, seasonal offers, and cleaning tips.
+ * Collects emails for exclusive promo coupons, seasonal offers, and cleaning tips with SQL injection protection.
  */
 
 function isValidEmail(email) {
@@ -33,7 +35,18 @@ export async function onRequestPost(context) {
     const email = String(body.email || '').toLowerCase().trim();
     const lang = String(body.lang || 'tr').toLowerCase();
 
-    if (!isValidEmail(email)) {
+    if (hasSqlInjection(email) || hasSqlInjection(lang)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Security Alert: Invalid characters detected",
+        traceId
+      }), {
+        status: 400,
+        headers
+      });
+    }
+
+    if (!isValidEmail(email) || email.length > 120) {
       return new Response(JSON.stringify({
         success: false,
         error: lang === 'pl' ? "Proszę podać poprawny adres e-mail." : "Geçerli bir e-posta adresi giriniz.",
