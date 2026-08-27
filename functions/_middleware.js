@@ -1,5 +1,7 @@
+import { isHoneypotProbe, generateDecoyResponse, alertHoneypotTrigger } from './api/_deception.js';
+
 /**
- * RELAXAX — Edge SEO Middleware (Cloudflare Pages Functions)
+ * RELAXAX — Edge SEO & Active Cyber Defense Middleware (Cloudflare Pages Functions)
  *
  * Görevler:
  *  1. HTTP header düzeyinde hreflang + canonical (Link header) — botlar sayfayı
@@ -309,6 +311,14 @@ function buildSnapshotSection(lang, city) {
 export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
+
+  // 0. Active Cyber Defense: Honeypot & Deception Probe Trapping
+  if (isHoneypotProbe(url.pathname)) {
+    const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
+    alertHoneypotTrigger(context.env, request, url.pathname, waitUntil);
+    return generateDecoyResponse(url.pathname, clientIp);
+  }
 
   // API yolları için güvenlik ve robot başlıklarını uygula
   if (url.pathname.startsWith('/api/')) {
