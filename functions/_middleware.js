@@ -412,7 +412,6 @@ export async function onRequest(context) {
   withHeaders.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   withHeaders.headers.append('Vary', 'User-Agent, Accept-Language');
 
-  const userAgent = request.headers.get('user-agent') || '';
   const isBot = BOT_RE.test(userAgent);
   if (!isBot) return withHeaders; // İnsan trafiği: SPA aynen servis edilir
 
