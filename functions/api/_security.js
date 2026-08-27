@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RELAXAX Enterprise Security & Anti-Injection Guard
  * Defends against:
  * 1. SQL Injection (Union-based, Error-based, Blind, Time-based, Stacked Queries)
@@ -16,8 +16,7 @@ const SQLI_PATTERNS = [
   /('|\")\s*(or|and)\s*('|\")?[a-z0-9_]+('|\")?\s*=\s*('|\")?[a-z0-9_]+/i,
   /(\b(or|and)\b\s+1\s*=\s*1)/i,
   /(\b(or|and)\b\s+true\s*=\s*true)/i,
-  /(\b(order\s+by|group\s+by)\s+\d+)/i,
-  /(\|\|\|\|\|\|\|\|\|\|\|\|\|\)/i
+  /(\$where|\$regex|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$or|\$and|\$not|\$nor|\$expr)/i
 ];
 
 export function hasSqlInjection(value) {
