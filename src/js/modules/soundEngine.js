@@ -37,6 +37,54 @@ export function triggerHaptic(pattern = 12) {
 }
 
 /**
+ * Plays a luxury harmonic cash register "Cha-Ching" synthesizer chord for order completions.
+ */
+export function playCashRegisterChime() {
+  triggerHaptic([30, 80, 40]);
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const freqs = [987.77, 1318.51, 1567.98, 2093.00];
+    freqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.05);
+      gain.gain.setValueAtTime(0.045, ctx.currentTime + idx * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.05 + 0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.05);
+      osc.stop(ctx.currentTime + idx * 0.05 + 0.45);
+    });
+  } catch (e) {}
+}
+
+/**
+ * Plays an alert tone for security quarantine and threat radar.
+ */
+export function playAlertChime() {
+  triggerHaptic([50, 50]);
+  if (!soundEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.setValueAtTime(330, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.03, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch (e) {}
+}
+
+/**
  * Plays an ultra-subtle mechanical tick micro-interaction sound (800Hz gentle sine) + haptic pulse.
  */
 export function playTickSound() {

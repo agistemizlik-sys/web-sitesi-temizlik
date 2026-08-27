@@ -2065,11 +2065,17 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
   if (target) {
     target.status = newStatus;
   }
+  if (newStatus === 'Tamamlandı') {
+    if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
+  } else {
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  }
   if (typeof window.renderAdminOrdersList === 'function') window.renderAdminOrdersList();
   alert(`✓ #${orderId} numaralı rezervasyon durumu "${newStatus}" olarak güncellendi.`);
 };
 
 window.exportOrdersToCSVGlobal = function() {
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
   const jobs = getLiveStaffJobs();
   let csv = 'Siparis Kodu,Hizmet,Musteri Adi,Telefon,Adres,Tutar,Durum,Tarih\n';
   jobs.forEach(j => {
