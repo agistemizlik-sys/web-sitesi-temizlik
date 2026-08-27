@@ -1543,6 +1543,9 @@ function renderUserProfileDetails(user) {
               <button type="button" class="btn-reorder-booking" style="border-color:rgba(56,189,248,0.4); color:#38bdf8;" onclick="window.downloadInvoiceGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(b.service || 'Detaylı Temizlik')}', '${escapeHTML(b.finalPrice || '2.450 TL')}', '${escapeHTML(user.name || 'Değerli Müşterimiz')}')">
                 <span>🧾 E-Fatura / Fiş</span>
               </button>
+              <button type="button" class="btn-reorder-booking" style="border-color:rgba(168,85,247,0.4); color:#c084fc;" onclick="window.convertToSubscriptionGlobal(${idx})">
+                <span>📅 Aboneliğe Çevir (-%20)</span>
+              </button>
               ${b.status === 'Tamamlandı' ? `
                 <button type="button" class="btn-reorder-booking" style="border-color:rgba(251,191,36,0.5); color:#fbbf24;" onclick="window.rateStaffServiceGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(staff.name || 'Ayşe K.')}')">
                   <span>⭐ 5★ Değerlendir</span>
@@ -1598,6 +1601,32 @@ window.rateStaffServiceGlobal = function(orderCode, staffName) {
   } else {
     if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
     alert(`🌟 Teşekkürler! #${orderCode} numaralı hizmet için uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz sisteme başarıyla işlendi!\n\n🎁 Değerlendirmeniz için hesabınıza sonraki randevunuzda geçerli +50 TL İndirim Kuponu (YILDIZ50) ve +25 VIP Sadakat Puanı tanımlandı!`);
+  }
+};
+
+window.convertToSubscriptionGlobal = function(idx) {
+  const user = getCurrentUser();
+  if (!user) return;
+  const bookings = getCustomerBookings(user.email);
+  const b = bookings[idx];
+  if (!b) return;
+
+  const confirmSub = confirm(
+    `📅 Düzenli Abonelik Avantajı (-%20 İndirim)\n\n` +
+    `#${b.orderCode || b.resCode || ''} numaralı "${b.service || 'Ev Temizliği'}" hizmetinizi her hafta aynı gün düzenli aboneliğe çevirmek ister misiniz?\n\n` +
+    `✓ Her hafta %20 İndirimli Fiyat\n` +
+    `✓ Aynı Sabit Temizlik Uzmanı Tahsisi\n` +
+    `✓ Dilediğiniz An Ücretsiz İptal / Erteleme`
+  );
+
+  if (confirmSub) {
+    b.isSubscription = true;
+    b.subscriptionFrequency = 'Haftalık (-%20)';
+    const key = STORAGE_BOOKINGS_PREFIX + user.email;
+    localStorage.setItem(key, JSON.stringify(bookings));
+    if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
+    renderCustomerDashboard();
+    alert(`🎉 Harika! #${b.orderCode || b.resCode || ''} numaralı hizmetiniz Haftalık Düzenli Aboneliğe dönüştürüldü (%20 İndirim Tanımlandı).`);
   }
 };
 
