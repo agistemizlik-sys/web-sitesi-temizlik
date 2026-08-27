@@ -1558,6 +1558,9 @@ function renderUserProfileDetails(user) {
               <button type="button" class="btn-reorder-booking" style="border-color:rgba(56,189,248,0.4); color:#38bdf8;" onclick="window.downloadInvoiceGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(b.service || 'Detaylı Temizlik')}', '${escapeHTML(b.finalPrice || '2.450 TL')}', '${escapeHTML(user.name || 'Değerli Müşterimiz')}')">
                 <span>🧾 E-Fatura / Fiş</span>
               </button>
+              <button type="button" class="btn-reorder-booking" style="border-color:rgba(34,197,94,0.4); color:#34d399;" onclick="window.exportBookingToCalendarGlobal('${escapeHTML(b.orderCode || b.resCode || '')}', '${escapeHTML(b.service || 'Detaylı Ev Temizliği')}', '${escapeHTML(b.date || 'Yarın')}', '${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')}', '${escapeHTML(staff.name || 'Ayşe K.')}')">
+                <span>📅 Takvime Ekle</span>
+              </button>
               <button type="button" class="btn-reorder-booking" style="border-color:rgba(168,85,247,0.4); color:#c084fc;" onclick="window.convertToSubscriptionGlobal(${idx})">
                 <span>📅 Aboneliğe Çevir (-%20)</span>
               </button>
@@ -1643,6 +1646,58 @@ window.convertToSubscriptionGlobal = function(idx) {
     renderCustomerDashboard();
     alert(`🎉 Harika! #${b.orderCode || b.resCode || ''} numaralı hizmetiniz Haftalık Düzenli Aboneliğe dönüştürüldü (%20 İndirim Tanımlandı).`);
   }
+};
+
+window.exportBookingToCalendarGlobal = function(orderCode, serviceName, dateStr, address, staffName) {
+  const title = `RELAXAX: ${serviceName} (#${orderCode})`;
+  const description = `Temizlik Hizmeti: ${serviceName}\\nAtanan Uzman: ${staffName}\\nAdres: ${address}\\nİletişim: 0546 647 90 04\\nWeb: https://relaxax.com`;
+  const location = address;
+  
+  // Format iCalendar (.ics) content
+  const now = new Date();
+  const start = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Default tomorrow 09:00
+  start.setHours(9, 0, 0, 0);
+  const end = new Date(start.getTime() + 3 * 60 * 60 * 1000); // 3-hour duration
+  
+  const pad = (n) => String(n).padStart(2, '0');
+  const formatIcsDate = (d) => `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//RELAXAX//Housekeeping Calendar//TR',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:relaxax-${orderCode}-${Date.now()}@relaxax.com`,
+    `DTSTAMP:${formatIcsDate(now)}`,
+    `DTSTART:${formatIcsDate(start)}`,
+    `DTEND:${formatIcsDate(end)}`,
+    `SUMMARY:${title}`,
+    `DESCRIPTION:${description}`,
+    `LOCATION:${location}`,
+    'STATUS:CONFIRMED',
+    'BEGIN:VALARM',
+    'TRIGGER:-PT60M',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:Temizlik Randevusu Hatırlatıcısı (1 Saat Kaldı)',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `RELAXAX-Randevu-${orderCode}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  alert(`📅 Randevunuz Takvim Dosyası (.ics) olarak indirildi!\n\nGoogle Takvim, Apple Calendar veya Outlook uygulamanıza tek tıkla ekleyebilir ve randevunuzu 1 saat önceden hatırlatıcıyla takip edebilirsiniz.`);
 };
 
 window.reorderBookingGlobal = function(idx) {
