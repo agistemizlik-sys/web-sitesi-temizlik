@@ -24,7 +24,7 @@ const VOICE_RESPONSES = {
   },
   en: {
     greeting: "Hello! Welcome to RELAXAX Premium Housekeeping. How can I assist you today?",
-    pricing: "Our standard 2-bedroom cleaning starts from €75, and 3-bedroom deep cleaning starts from €99 with up to 25% recurring discounts.",
+    pricing: "Our standard 2-bedroom home cleaning starts from 1.850 TL (or 189 PLN in Warsaw), and 3-bedroom deep cleaning starts from 2.450 TL (249 PLN) with up to 25% recurring discounts.",
     hygiene: "We provide 48-point ISO-9001 certified medical-grade 150°C steam disinfection for all spaces.",
     vip: "Our VIP Concierge provides a dedicated private butler and 2-hour express dispatch for luxury residences.",
     promo: "Your exclusive 15% discount code for your first booking is: WELCOME15."

@@ -7,12 +7,12 @@ import { STATE } from '../state.js';
 
 export const SUPPORTED_LANGUAGES = {
   tr: { code: 'tr', name: 'Türkçe', flag: '🇹🇷', currency: 'TL', dir: 'ltr' },
-  en: { code: 'en', name: 'English', flag: '🇬🇧', currency: '€', dir: 'ltr' },
+  en: { code: 'en', name: 'English', flag: '🇬🇧', currency: 'TL', dir: 'ltr' },
   pl: { code: 'pl', name: 'Polski', flag: '🇵🇱', currency: 'PLN', dir: 'ltr' },
-  de: { code: 'de', name: 'Deutsch', flag: '🇩🇪', currency: '€', dir: 'ltr' },
-  ru: { code: 'ru', name: 'Русский', flag: '🇷🇺', currency: '$', dir: 'ltr' },
+  de: { code: 'de', name: 'Deutsch', flag: '🇩🇪', currency: 'TL', dir: 'ltr' },
+  ru: { code: 'ru', name: 'Русский', flag: '🇷🇺', currency: 'TL', dir: 'ltr' },
   uk: { code: 'uk', name: 'Українська', flag: '🇺🇦', currency: 'PLN', dir: 'ltr' },
-  ar: { code: 'ar', name: 'العربية', flag: '🇸🇦', currency: '$', dir: 'rtl' }
+  ar: { code: 'ar', name: 'العربية', flag: '🇸🇦', currency: 'TL', dir: 'rtl' }
 };
 
 export function getTranslation(key, fallback = '') {
