@@ -1828,7 +1828,7 @@ export function renderAdminDashboard() {
         ip: '185.220.101.44 (Tor Exit Node)',
         type: 'SQL Injection Tuzağı',
         vector: "UNION SELECT NULL, username, password FROM users --",
-        status: 'ENGELLEDİ & TELEGRAM ALARMI İLETİLDİ',
+        status: 'ENGELLEDİ & PANELE İŞLENDİ',
         badge: 'badge-danger',
         icon: '🪤'
       },
@@ -1895,48 +1895,6 @@ export function renderAdminDashboard() {
         `).join('')}
       </div>
     `;
-  }
-
-  // Load Telegram Config from localStorage if saved
-  const tokenInput = document.getElementById('cfgTelegramBotToken');
-  const chatIdInput = document.getElementById('cfgTelegramChatId');
-  if (tokenInput && !tokenInput.value) {
-    tokenInput.value = localStorage.getItem('relaxax_cfg_tg_token') || '';
-  }
-  if (chatIdInput && !chatIdInput.value) {
-    chatIdInput.value = localStorage.getItem('relaxax_cfg_tg_chat') || '';
-  }
-
-  const btnSaveTg = document.getElementById('btnSaveTelegramConfig');
-  if (btnSaveTg && !btnSaveTg._hasBound) {
-    btnSaveTg._hasBound = true;
-    btnSaveTg.addEventListener('click', () => {
-      const t = document.getElementById('cfgTelegramBotToken')?.value.trim() || '';
-      const c = document.getElementById('cfgTelegramChatId')?.value.trim() || '';
-      localStorage.setItem('relaxax_cfg_tg_token', t);
-      localStorage.setItem('relaxax_cfg_tg_chat', c);
-      const fb = document.getElementById('adminTelegramFeedback');
-      if (fb) {
-        fb.textContent = '✓ Telegram Bot ve Chat ID yapılandırması başarıyla kaydedildi.';
-        fb.className = 'auth-feedback success';
-        fb.style.display = 'block';
-        setTimeout(() => { fb.style.display = 'none'; }, 4000);
-      }
-    });
-  }
-
-  const btnTestTg = document.getElementById('btnTestTelegramAlert');
-  if (btnTestTg && !btnTestTg._hasBound) {
-    btnTestTg._hasBound = true;
-    btnTestTg.addEventListener('click', () => {
-      const fb = document.getElementById('adminTelegramFeedback');
-      if (fb) {
-        fb.textContent = '🔔 Test sinyali gönderildi! Telegram kanalınızı kontrol ediniz.';
-        fb.className = 'auth-feedback success';
-        fb.style.display = 'block';
-        setTimeout(() => { fb.style.display = 'none'; }, 4000);
-      }
-    });
   }
 }
 

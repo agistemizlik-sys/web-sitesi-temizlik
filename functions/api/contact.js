@@ -22,41 +22,6 @@ function escapeHtml(text) {
     .replace(/'/g, '&#039;');
 }
 
-async function sendTelegramAlert(env, payload, waitUntil) {
-  if (!env || !env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
-
-  const isB2B = payload.type === 'b2b' || payload.type === 'corporate';
-  const tgMessage = `
-📩 <b>${isB2B ? 'YENİ KURUMSAL B2B TALEBİ' : 'YENİ İLETİŞİM / DESTEK MESAJI'}</b>
-━━━━━━━━━━━━━━━━━━━━━
-👤 <b>Ad Soyad:</b> ${escapeHtml(payload.name)}
-📞 <b>Telefon:</b> <code>${escapeHtml(payload.phone)}</code>
-📧 <b>E-posta:</b> ${escapeHtml(payload.email || 'N/A')}
-🏢 <b>Şirket:</b> ${escapeHtml(payload.company || 'Bireysel')}
-📍 <b>Şehir:</b> ${escapeHtml(payload.city)}
-🏷 <b>Konu:</b> ${escapeHtml(payload.subject)}
-📝 <b>Mesaj:</b> ${escapeHtml(payload.message)}
-━━━━━━━━━━━━━━━━━━━━━
-🌐 <b>IP:</b> ${escapeHtml(payload.ip)}
-⏱ <b>Tarih:</b> ${new Date().toLocaleString('tr-TR', { timeZone: 'Europe/Istanbul' })}
-  `.trim();
-
-  const url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`;
-  const p = fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: env.TELEGRAM_CHAT_ID,
-      text: tgMessage,
-      parse_mode: 'HTML',
-      disable_web_page_preview: true
-    })
-  }).then(r => r.json()).catch(err => console.error('[CONTACT_TG_ERR]', err));
-
-  if (waitUntil) waitUntil(p);
-  else await p;
-}
-
 export async function onRequestPost(context) {
   const { request, env } = context;
   const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
@@ -144,12 +109,7 @@ export async function onRequestPost(context) {
       createdAt: new Date().toISOString()
     };
 
-    // 1. Dispatch Telegram Alert
-    try {
-      await sendTelegramAlert(env, payload, waitUntil);
-    } catch(e) {}
-
-    // 2. Persist to KV if configured
+    // Persist to KV / Admin Panel if configured
     if (env && env.LEADS_KV) {
       try {
         const kvP = env.LEADS_KV.put(`ticket:${payload.ticketId}`, JSON.stringify(payload), {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RELAXAX Enterprise Backend Health Check & Telemetry Endpoint
  * GET /api/health & HEAD /api/health
  */
@@ -48,7 +48,7 @@ export async function onRequest(context) {
     },
     capabilities: {
       multiTierRelay: true,
-      telegramAlerts: Boolean(env && env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID),
+      directPanelSync: true,
       kvPersistence: Boolean(env && env.LEADS_KV),
       serverSideConversions: Boolean(env && env.META_PIXEL_ID && env.META_CAPI_ACCESS_TOKEN),
       geoEnrichment: true,

@@ -215,43 +215,37 @@ export function validateSafeEmail(email) {
 }
 
 /**
- * Dispatches an instant security incident alert to Telegram when an attack payload is intercepted.
+ * Logs an instant security incident alert to Edge KV / Admin Panel radar when an attack payload is intercepted.
  */
 export async function dispatchSecurityTrapAlert(env, request, attackType, payloadSnippet, waitUntil) {
-  if (!env || !env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
-
   const clientIp = getTrustedClientIp(request);
   const country = request.headers.get('CF-IPCountry') || 'TR';
   const city = request.headers.get('CF-IPCity') || 'Unknown';
   const userAgent = request.headers.get('User-Agent') || 'Unknown';
   const url = request.url || '';
+  const timestamp = new Date().toISOString();
 
-  const tgMessage = [
-    '🚨 <b>SALDIRI TUZAĞA DÜŞTÜ & ENGELLENDİ!</b> 🚨',
-    '━━━━━━━━━━━━━━━━━━━━━',
-    '🛡️ <b>Saldırı Tipi:</b> <code>' + attackType + '</code>',
-    '🎯 <b>Hedef URL:</b> <code>' + url.substring(0, 100) + '</code>',
-    '🌐 <b>Saldırgan IP:</b> <code>' + clientIp + '</code>',
-    '📍 <b>Konum:</b> ' + city + ' / ' + country,
-    '🕵️ <b>User-Agent:</b> <code>' + userAgent.substring(0, 100) + '</code>',
-    '💣 <b>Yük Özeti:</b> <code>' + String(payloadSnippet).substring(0, 120) + '</code>',
-    '━━━━━━━━━━━━━━━━━━━━━',
-    '⛔ <i>İstek anında düşürüldü, saldırgan IP adresi güvenlik günlüğüne işlendi.</i>'
-  ].join('\n');
+  const incidentLog = {
+    timestamp,
+    attackType,
+    clientIp,
+    country,
+    city,
+    userAgent: userAgent.substring(0, 150),
+    url: url.substring(0, 150),
+    payloadSnippet: String(payloadSnippet).substring(0, 150),
+    action: 'BLOCKED_AND_RECORDED_TO_PANEL'
+  };
 
-  const tgUrl = 'https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage';
-  const p = fetch(tgUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: env.TELEGRAM_CHAT_ID,
-      text: tgMessage,
-      parse_mode: 'HTML'
-    })
-  }).then(r => r.json()).catch(() => {});
+  // If Edge KV is bound, persist directly to Admin Security Logs
+  if (env && env.LEADS_KV) {
+    const key = `sec_threat:${Date.now()}:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const p = env.LEADS_KV.put(key, JSON.stringify(incidentLog), { expirationTtl: 30 * 86400 }).catch(() => {});
+    if (waitUntil) waitUntil(p);
+    else await p;
+  }
 
-  if (waitUntil) waitUntil(p);
-  else await p;
+  console.warn('[RELAXAX_SECURITY_INTERCEPT]', incidentLog);
 }
 
 /**

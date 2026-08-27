@@ -98,40 +98,34 @@ export function generateDecoyResponse(pathname, clientIp) {
 }
 
 /**
- * Sends real-time threat intelligence alert to admin Telegram when honeypot is triggered.
+ * Logs real-time threat intelligence to Edge KV / Admin Panel radar when honeypot is triggered.
  */
 export async function alertHoneypotTrigger(env, request, pathname, waitUntil) {
-  if (!env || !env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
-
   const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
   const country = request.headers.get('CF-IPCountry') || 'TR';
   const city = request.headers.get('CF-IPCity') || 'Unknown';
   const userAgent = request.headers.get('User-Agent') || 'Unknown';
   const cfRay = request.headers.get('CF-Ray') || 'N/A';
+  const timestamp = new Date().toISOString();
 
-  const tgMessage = [
-    '🚨 <b>SALDIRGAN TUZAĞA DÜŞTÜ (HONEYPOT TRAP)!</b> 🚨',
-    '━━━━━━━━━━━━━━━━━━━━━',
-    '🎯 <b>Tetiklenen Yol:</b> <code>' + pathname + '</code>',
-    '🌐 <b>Saldırgan IP:</b> <code>' + clientIp + '</code>',
-    '📍 <b>Konum:</b> ' + city + ' / ' + country,
-    '🕵️ <b>User-Agent:</b> <code>' + userAgent.substring(0, 100) + '</code>',
-    '⚡ <b>Ray ID:</b> <code>' + cfRay + '</code>',
-    '━━━━━━━━━━━━━━━━━━━━━',
-    '🛡️ <i>Saldırgana sahte Canary Decoy yanıtı servis edildi ve IP adresi tehdit günlüğüne işlendi.</i>'
-  ].join('\n');
+  const incidentLog = {
+    timestamp,
+    attackType: 'HONEYPOT_PROBE',
+    pathname,
+    clientIp,
+    country,
+    city,
+    userAgent: userAgent.substring(0, 150),
+    cfRay,
+    action: 'DECOY_SERVED_RECORDED_TO_PANEL'
+  };
 
-  const url = 'https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage';
-  const p = fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: env.TELEGRAM_CHAT_ID,
-      text: tgMessage,
-      parse_mode: 'HTML'
-    })
-  }).then(r => r.json()).catch(() => {});
+  if (env && env.LEADS_KV) {
+    const key = `sec_honeypot:${Date.now()}:${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const p = env.LEADS_KV.put(key, JSON.stringify(incidentLog), { expirationTtl: 30 * 86400 }).catch(() => {});
+    if (waitUntil) waitUntil(p);
+    else await p;
+  }
 
-  if (waitUntil) waitUntil(p);
-  else await p;
+  console.warn('[RELAXAX_HONEYPOT_TRAP]', incidentLog);
 }

@@ -78,60 +78,6 @@ async function generateHmacSignature(secret, message) {
   }
 }
 
-// Helper: Send Telegram Alert with Safe HTML
-async function sendTelegramAlert(env, payload, waitUntil) {
-  if (!env || !env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
-
-  const token = env.TELEGRAM_BOT_TOKEN;
-  const chatId = env.TELEGRAM_CHAT_ID;
-
-  const isPl = payload.city && (payload.city.toLowerCase().includes('warsz') || payload.city.toLowerCase().includes('pol'));
-  const extrasList = Array.isArray(payload.extras) && payload.extras.length > 0
-    ? payload.extras.map(e => escapeHtml(e)).join(', ')
-    : (isPl ? 'Brak dodatków' : 'Yok');
-
-  const tgMessage = `
-✨ <b>${isPl ? 'NOWE ZAMÓWIENIE USŁUGI' : 'YENİ SİPARİŞ REZERVASYONU'}</b> ✨
-━━━━━━━━━━━━━━━━━━━━━
-📋 <b>Kod:</b> <code>#${escapeHtml(payload.resCode)}</code>
-👤 <b>${isPl ? 'Klient' : 'Müşteri'}:</b> ${escapeHtml(payload.customerName)}
-📞 <b>Telefon:</b> <code>${escapeHtml(payload.customerPhone)}</code>
-📧 <b>E-mail:</b> ${escapeHtml(payload.customerEmail || (isPl ? 'Nie podano' : 'Belirtilmedi'))}
-📍 <b>${isPl ? 'Lokalizacja' : 'Konum'}:</b> ${escapeHtml(payload.city)} / ${escapeHtml(payload.district || (isPl ? 'Centrum' : 'Merkez'))}
-🏠 <b>${isPl ? 'Adres' : 'Adres'}:</b> ${escapeHtml(payload.customerAddress)}
-🗓 <b>${isPl ? 'Data i Godzina' : 'Tarih & Saat'}:</b> ${escapeHtml(payload.preferredDate)} (${escapeHtml(payload.preferredTime)})
-🧹 <b>${isPl ? 'Usługa' : 'Hizmet'}:</b> ${escapeHtml(payload.serviceType)} (${payload.rooms} ${isPl ? 'pok.' : 'Oda'}, ${payload.baths} ${isPl ? 'łaz.' : 'Banyo'})
-✨ <b>${isPl ? 'Dodatki' : 'Ekstralar'}:</b> ${extrasList}
-🌸 <b>${isPl ? 'Zapach' : 'Koku'}:</b> ${escapeHtml(payload.scent || 'Standart')}
-💳 <b>${isPl ? 'Płatność' : 'Ödeme'}:</b> ${escapeHtml(payload.paymentMethod)}
-💰 <b>${isPl ? 'Kwota do zapłaty' : 'Toplam Tutar'}:</b> <b>${escapeHtml(payload.finalPrice)}</b>
-📝 <b>${isPl ? 'Uwagi' : 'Not'}:</b> ${escapeHtml(payload.notes || (isPl ? 'Brak' : 'Yok'))}
-━━━━━━━━━━━━━━━━━━━━━
-🌐 <b>IP / Kraj:</b> ${escapeHtml(payload.geo?.ip || 'N/A')} (${escapeHtml(payload.geo?.country || 'TR')})
-⏱ <b>Zaman:</b> ${new Date().toLocaleString(isPl ? 'pl-PL' : 'tr-TR', { timeZone: isPl ? 'Europe/Warsaw' : 'Europe/Istanbul' })}
-  `.trim();
-
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  const body = JSON.stringify({
-    chat_id: chatId,
-    text: tgMessage,
-    parse_mode: 'HTML',
-    disable_web_page_preview: true
-  });
-
-  const p = fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body
-  }).then(r => r.json()).catch(err => console.error('[TG_ALERT_ERR]', err));
-
-  if (waitUntil) {
-    waitUntil(p);
-  } else {
-    await p;
-  }
-}
-
 // Helper: Dispatch to External Webhook (CRM / WhatsApp Service)
 async function sendWebhookAlert(env, payload, waitUntil) {
   const webhookUrl = (env && (env.CRM_WEBHOOK_URL || env.WHATSAPP_WEBHOOK_URL));
@@ -342,21 +288,14 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 2. Telegram Instant Notification Dispatch
-    try {
-      await sendTelegramAlert(env, normalizedPayload, waitUntil);
-    } catch (tgErr) {
-      console.warn('[TG_DISPATCH_WARN]', tgErr);
-    }
-
-    // 3. Webhook / CRM Integration Dispatch
+    // 2. Webhook / CRM Integration Dispatch
     try {
       await sendWebhookAlert(env, normalizedPayload, waitUntil);
     } catch (whErr) {
       console.warn('[WEBHOOK_DISPATCH_WARN]', whErr);
     }
 
-    // 4. Multi-Tier Panel Endpoint Synchronization
+    // 3. Multi-Tier Panel Endpoint Synchronization
     const finalJsonBody = JSON.stringify(normalizedPayload);
     let successResponse = null;
     let syncedEndpoint = null;
@@ -426,7 +365,6 @@ export async function onRequestPost(context) {
       },
       audit: {
         kvSaved: Boolean(env && env.LEADS_KV),
-        telegramSent: Boolean(env && env.TELEGRAM_BOT_TOKEN),
         syncStatus: syncedEndpoint ? "synced" : "queued",
         syncErrors: syncErrors.length > 0 ? syncErrors : undefined
       }
