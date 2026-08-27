@@ -1659,6 +1659,27 @@ window.rateStaffServiceGlobal = function(orderCode, staffName) {
   }
 };
 
+window.renderCustomerDashboard = function() {
+  const user = getCurrentUser();
+  if (user && user.role === 'customer') {
+    renderUserProfileDetails(user);
+  }
+};
+
+window.renderStaffDashboard = function() {
+  const user = getCurrentUser();
+  if (user && user.role === 'staff') {
+    renderStaffDashboard();
+  }
+};
+
+window.renderAdminDashboard = function() {
+  const user = getCurrentUser();
+  if (user && user.role === 'admin') {
+    renderAdminDashboard();
+  }
+};
+
 window.convertToSubscriptionGlobal = function(idx) {
   const user = getCurrentUser();
   if (!user) return;
