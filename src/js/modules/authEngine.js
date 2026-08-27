@@ -1487,11 +1487,14 @@ function renderUserProfileDetails(user) {
             </div>
 
             <div class="ub-actions-row">
+              <button type="button" class="btn-reorder-booking" onclick="if(typeof window.openHygieneCertificate==='function'){window.openHygieneCertificate({orderCode:'${escapeHTML(b.orderCode || b.resCode || '')}', service:'${escapeHTML(b.service || 'Detaylı Temizlik')}', customerName:'${escapeHTML(user.name || 'Değerli Müşterimiz')}', address:'${escapeHTML(b.city || 'İstanbul')}, ${escapeHTML(b.district || '')}', assignedStaff:{name:'${escapeHTML(staff.name || 'Ayşe K.')}'}});}">
+                <span style="color:#fbbf24;">🏆 48 Nokta Hijyen Sertifikası</span>
+              </button>
               <button type="button" class="btn-reorder-booking" onclick="if(typeof openBookingScreen==='function'){closeAuthModal(); openBookingScreen();}">
-                <span>🔄 Aynı Temizliği Tekrar İste</span>
+                <span>🔄 Tekrar İste</span>
               </button>
               <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20#${encodeURIComponent(b.orderCode || b.resCode || '')}%20numarali%20siparisim%20hakkinda%20destek%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-order-support">
-                <span>🎧 7/24 Müşteri Desteği</span>
+                <span>🎧 Destek</span>
               </a>
             </div>
           </div>

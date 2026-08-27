@@ -14,6 +14,7 @@ import { initLoopEngineering, attachSubMsVideoLoop } from './js/modules/loopEngi
 import { initCyberLoopEngine } from './js/modules/cyberLoopEngine.js';
 import { secureFetch, getCsrfToken } from './js/modules/csrfEngine.js';
 import { initPushEngine, requestNotificationPermission, showLocalNotification } from './js/modules/pushEngine.js';
+import { initHygieneCertificateEngine, openHygieneCertificate } from './js/modules/hygieneCertificateEngine.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -26,6 +27,7 @@ window.toggleSound = toggleSound;
 window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
 window.openLegalModal = openLegalModal;
+window.openHygieneCertificate = openHygieneCertificate;
 window.initLoopEngineering = initLoopEngineering;
 window.initCyberLoopEngine = initCyberLoopEngine;
 window.secureFetch = secureFetch;
@@ -39,9 +41,10 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
-// Initialize Cyber Defense, Push Engine & Debug Hardening Suite immediately
+// Initialize Cyber Defense, Push Engine, Hygiene Certificates & Debug Hardening Suite immediately
 initCyberLoopEngine();
 initPushEngine();
+initHygieneCertificateEngine();
 initDebugHardening();
 
 // Global cached window dimensions to prevent layout recalculations in mousemove events

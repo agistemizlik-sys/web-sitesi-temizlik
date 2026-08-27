@@ -18485,6 +18485,277 @@ html[dir="rtl"] .counter-btn.plus {
   text-decoration: underline;
 }
 
+/* ==========================================================================
+   🏆 RELAXAX OFFICIAL HYGIENE CERTIFICATE & AUDIT REPORT STYLING
+   ========================================================================== */
+.rx-cert-modal-dialog {
+  max-width: 820px;
+  width: 95%;
+  background: linear-gradient(135deg, #0b1329 0%, #030712 100%);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px rgba(251, 191, 36, 0.12);
+  border-radius: 20px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.rx-cert-modal-header {
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.rx-cert-emblem {
+  font-size: 32px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.rx-cert-subtag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #fbbf24;
+  text-transform: uppercase;
+  display: block;
+}
+
+.rx-cert-body-printable {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  color: #e2e8f0;
+}
+
+.rx-cert-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid rgba(251, 191, 36, 0.25);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rx-cb-logo {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+  display: block;
+}
+
+.rx-cb-sub {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.rx-cert-meta-box {
+  text-align: right;
+}
+
+.rx-cert-no {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fbbf24;
+  font-family: monospace;
+  display: block;
+}
+
+.rx-cert-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.rx-cert-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 20px;
+}
+
+.rx-cmg-lbl {
+  font-size: 11px;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.rx-cert-section-title {
+  color: #fbbf24;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.rx-cert-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.rx-ccg-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.rx-ccg-card h6 {
+  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.rx-ccg-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rx-ccg-card li {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+}
+
+.rx-cert-equip-box {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.rx-cert-equip-box h6 {
+  color: #34d399;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rx-cert-equip-box p {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.rx-cert-footer-seal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.rx-cfs-lbl {
+  font-size: 11px;
+  color: #94a3b8;
+  display: block;
+}
+
+.rx-cfs-sig {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'Brush Script MT', cursive, sans-serif;
+}
+
+.rx-cfs-role {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+}
+
+.rx-gold-seal {
+  background: linear-gradient(135deg, #d97706, #fbbf24);
+  color: #000;
+  padding: 8px 16px;
+  border-radius: 50px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.rx-gold-seal span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.rx-gold-seal strong {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.rx-gold-seal small {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.rx-cfs-qr {
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  font-family: monospace;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #hygieneCertModal, #hygieneCertModal * {
+    visibility: visible;
+  }
+  #hygieneCertModal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff !important;
+    color: #000000 !important;
+    display: block !important;
+  }
+  .rx-corporate-modal-backdrop, .rx-cmodal-header, .rx-cmodal-footer {
+    display: none !important;
+  }
+  .rx-cert-modal-dialog {
+    border: 2px solid #d97706 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .rx-cert-body-printable {
+    color: #000000 !important;
+  }
+  .rx-cb-logo, .rx-cb-sub, .rx-ccg-card li, .rx-cert-equip-box p, .rx-cfs-sig {
+    color: #000000 !important;
+  }
+  .rx-ccg-card, .rx-cert-meta-grid, .rx-cert-equip-box {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+  }
+}
+
+
 
 
 
