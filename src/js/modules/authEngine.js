@@ -2670,6 +2670,14 @@ window.triggerStaffSosOptionGlobal = function(reason) {
   window.open(`https://wa.me/905466479004?text=${encodeURIComponent(`🚨 ACİL SAHA BİLDİRİMİ (#${jobId})\nTalep Nedeni: ${reasonText}\nUzman saha desteği ve operasyon koordinasyonu talep ediyor.`)}`, '_blank');
 };
 
+window.redeemCustomerPointsGlobal = function() {
+  const user = getCurrentUser();
+  if (!user) return;
+  
+  if (typeof window.playCashRegisterChime === 'function') window.playCashRegisterChime();
+  alert("🎉 Tebrikler! 100 VIP Sadakat Puanınız başarıyla 100 TL değerinde 'PUAN100' indirim kuponuna dönüştürüldü ve cüzdanınıza eklendi!\n\nRezervasyon adımında 'PUAN100' kodunu girerek anında 100 TL indirimden yararlanabilirsiniz.");
+};
+
 window.addNewCouponGlobal = function() {
   const code = document.getElementById('newCouponCode')?.value.trim().toUpperCase();
   const disc = document.getElementById('newCouponDiscount')?.value.trim();
