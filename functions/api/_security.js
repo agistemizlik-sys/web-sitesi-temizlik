@@ -269,5 +269,17 @@ export function createSecurityTrapResponse(traceId, attackType = 'SQL/Prompt Inj
   });
 }
 
+/**
+ * Validates Anti-CSRF token on mutation requests (POST/PUT/DELETE).
+ */
+export function validateCsrfHeader(request) {
+  if (!request || !request.headers) return false;
+  const token = request.headers.get('X-RELAXAX-CSRF-Token') || request.headers.get('x-csrf-token');
+  if (!token || typeof token !== 'string') return false;
+  if (!token.startsWith('rlx_csrf_') || token.length < 24) return false;
+  return true;
+}
+
+
 
 
