@@ -490,6 +490,9 @@ export async function registerUser(name, email, phone, password, city = 'Istanbu
         localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
         updateAuthUI();
         prefillBookingWizardWithUser();
+        if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+        if (typeof window.broadcastStateChange === 'function') window.broadcastStateChange('USER_REGISTERED', data.user);
+        if (typeof window.renderAdminCustomersList === 'function') window.renderAdminCustomersList();
         return { success: true, user: data.user };
       }
     }
@@ -517,6 +520,9 @@ export async function registerUser(name, email, phone, password, city = 'Istanbu
   localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(newUser));
   updateAuthUI();
   prefillBookingWizardWithUser();
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  if (typeof window.broadcastStateChange === 'function') window.broadcastStateChange('USER_REGISTERED', newUser);
+  if (typeof window.renderAdminCustomersList === 'function') window.renderAdminCustomersList();
   return { success: true, user: newUser };
 }
 
@@ -561,6 +567,9 @@ export async function registerStaff(name, email, phone, password, city = 'Istanb
         saveRegisteredStaff(staffList);
         localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
         updateAuthUI();
+        if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+        if (typeof window.broadcastStateChange === 'function') window.broadcastStateChange('STAFF_REGISTERED', data.user);
+        if (typeof window.renderAdminDashboard === 'function') window.renderAdminDashboard();
         return { success: true, user: data.user };
       }
     }
@@ -589,6 +598,9 @@ export async function registerStaff(name, email, phone, password, city = 'Istanb
 
   localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(newStaff));
   updateAuthUI();
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  if (typeof window.broadcastStateChange === 'function') window.broadcastStateChange('STAFF_REGISTERED', newStaff);
+  if (typeof window.renderAdminDashboard === 'function') window.renderAdminDashboard();
   return { success: true, user: newStaff };
 }
 
