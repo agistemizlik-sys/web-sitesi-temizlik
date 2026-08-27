@@ -1815,6 +1815,7 @@ export function renderAdminDashboard() {
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-admin-act" style="border-color: #fbbf24; color: #fbbf24;" onclick="window.openAdminOrderModalGlobal('${escapeHTML(j.id || j.orderCode)}')">🔍 Sevk Kartı / Detay</button>
                 ${isPending ? `
                   <button type="button" class="btn-admin-act" style="border-color: #38bdf8; color: #38bdf8;" onclick="window.updateOrderStatusGlobal('${escapeHTML(j.id || j.orderCode)}', 'Yolda')">🚗 Onayla & Yola Çıkar</button>
                 ` : ''}
@@ -1832,8 +1833,10 @@ export function renderAdminDashboard() {
 
   window.renderAdminOrdersList();
 
-  // 2. Render Staff Fleet Management Table
+  // 2. Render Staff Fleet Management Table & Applicant Queue
   const staffFleetWrap = document.getElementById('adminStaffFleetTableWrap');
+  const staffApplicantsWrap = document.getElementById('adminStaffApplicantsWrap');
+
   if (staffFleetWrap) {
     const staffMembers = [
       { id: 'STF-8821', name: 'Ayşe Kaya', city: 'İstanbul / Kadıköy', role: 'Kıdemli Temizlik Uzmanı', rating: '4.99', completed: 142, todayEarn: '1.715 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & ISO Sertifikalı ✓' },
@@ -1871,7 +1874,51 @@ export function renderAdminDashboard() {
               <td><strong style="color: #34d399;">${s.todayEarn}</strong></td>
               <td><span class="ub-status ${s.badge}">${s.status}</span></td>
               <td>
-                <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="alert('${s.name} için günlük hak ediş banka transferi onaylandı.')">💰 Ödeme Onayla</button>
+                <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="if(typeof window.playCashRegisterChime==='function')window.playCashRegisterChime(); alert('${s.name} için günlük hak ediş banka transferi onaylandı.')">💰 Ödeme Onayla</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  // Render Staff Applicants Queue
+  if (staffApplicantsWrap) {
+    const applicants = [
+      { id: 'APP-102', name: 'Fatma Şahin', phone: '0542 333 44 55', city: 'Ankara / Çankaya', exp: '6 Yıl Profesyonel Temizlik Deneyimi', date: 'Dün', badge: 'badge-warning' },
+      { id: 'APP-103', name: 'Tomasz Kozłowski', phone: '+48 509 888 777', city: 'Warszawa / Mokotów', exp: '4 Lata Doświadczenia / Hotele 5★', date: 'Bugün', badge: 'badge-warning' }
+    ];
+
+    staffApplicantsWrap.innerHTML = `
+      <table class="admin-catalog-table">
+        <thead>
+          <tr>
+            <th>Aday Sicil / İsim</th>
+            <th>İletişim & Şehir</th>
+            <th>Deneyim & Nitelik</th>
+            <th>Başvuru Tarihi</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${applicants.map(a => `
+            <tr id="rowApplicant_${a.id}">
+              <td>
+                <strong style="color: #f1f5f9;">${a.name}</strong>
+                <span class="act-key">Kod: <code>${a.id}</code></span>
+              </td>
+              <td>
+                <span>📍 ${a.city}</span>
+                <span style="font-size: 0.72rem; color: #94a3b8; display: block;">📞 ${a.phone}</span>
+              </td>
+              <td><span style="font-size: 0.78rem; color: #cbd5e1;">${a.exp}</span></td>
+              <td><span style="font-size: 0.72rem; color: #94a3b8;">${a.date}</span></td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="window.approveStaffApplicantGlobal('${a.id}', '${a.name}')">✓ Onayla & Filoya Kat</button>
+                  <button type="button" class="btn-admin-act delete" style="padding: 4px 8px; font-size: 0.7rem;" onclick="window.rejectStaffApplicantGlobal('${a.id}')">✕ Reddet</button>
+                </div>
               </td>
             </tr>
           `).join('')}
@@ -2112,6 +2159,94 @@ window.addNewCouponGlobal = function() {
     fb.className = 'auth-feedback success';
     fb.style.display = 'block';
     setTimeout(() => { fb.style.display = 'none'; }, 4000);
+  }
+};
+
+window.openAdminOrderModalGlobal = function(orderId) {
+  const modal = document.getElementById('adminOrderDetailsModal');
+  if (!modal) return;
+
+  const jobs = getLiveStaffJobs();
+  const order = jobs.find(j => (j.id === orderId || j.orderCode === orderId)) || {
+    id: orderId || 'RLX-9941',
+    orderCode: orderId || 'RLX-9941',
+    customerName: 'Ayşe Yılmaz',
+    customerPhone: '0532 555 12 34',
+    customerAddress: 'Kadıköy, İstanbul (Fenerbahçe Mah.)',
+    service: 'Standart Ev Temizliği (3+1)',
+    finalPrice: '1.850 TL',
+    status: 'Onay Bekliyor',
+    paymentMethod: 'Banka Havalesi / FAST'
+  };
+
+  window._activeAdminOrder = order;
+
+  // Populate modal fields
+  const codeBadge = document.getElementById('aodmCodeBadge');
+  const serviceName = document.getElementById('aodmServiceName');
+  const customerName = document.getElementById('aodmCustomerName');
+  const customerPhone = document.getElementById('aodmCustomerPhone');
+  const customerAddress = document.getElementById('aodmCustomerAddress');
+  const statusBadge = document.getElementById('aodmStatusBadge');
+  const finalPrice = document.getElementById('aodmFinalPrice');
+  const paymentMethod = document.getElementById('aodmPaymentMethod');
+
+  if (codeBadge) codeBadge.textContent = `#${order.orderCode || order.id}`;
+  if (serviceName) serviceName.textContent = order.service || 'Standart Ev Temizliği';
+  if (customerName) customerName.textContent = order.customerName || 'Müşteri';
+  if (customerPhone) customerPhone.textContent = order.customerPhone || '0532 000 00 00';
+  if (customerAddress) customerAddress.textContent = order.customerAddress || 'Adres belirtildi';
+  if (statusBadge) {
+    statusBadge.textContent = order.status || 'Onay Bekliyor';
+    statusBadge.className = `ub-status ${order.status === 'Tamamlandı' ? 'badge-success' : order.status === 'Yolda' ? 'badge-progress' : 'badge-warning'}`;
+  }
+  if (finalPrice) finalPrice.textContent = order.finalPrice || '1.850 TL';
+  if (paymentMethod) paymentMethod.textContent = `💳 ${order.paymentMethod || 'Havale / FAST'}`;
+
+  // Wire action links
+  const btnCall = document.getElementById('aodmBtnCall');
+  const btnWa = document.getElementById('aodmBtnWhatsApp');
+  const btnMaps = document.getElementById('aodmBtnMaps');
+
+  const cleanPhone = String(order.customerPhone || '').replace(/[^0-9]/g, '');
+  if (btnCall) btnCall.setAttribute('href', `tel:${cleanPhone}`);
+  if (btnWa) btnWa.setAttribute('href', `https://wa.me/90${cleanPhone}?text=${encodeURIComponent(`Merhaba Sayın ${order.customerName}, RELAXAX Temizlik rezervasyonunuz (#${order.orderCode || order.id}) hakkında bilgilendirmedir.`)}`);
+  if (btnMaps) btnMaps.setAttribute('href', `https://maps.google.com/?q=${encodeURIComponent(order.customerAddress || 'Istanbul')}`);
+
+  modal.style.display = 'flex';
+  if (typeof window.playTickSound === 'function') window.playTickSound();
+
+  // Close handlers
+  const close = () => { modal.style.display = 'none'; };
+  document.getElementById('btnAdminOrderModalClose')?.addEventListener('click', close, { once: true });
+  document.getElementById('btnAdminOrderModalCloseFooter')?.addEventListener('click', close, { once: true });
+  document.getElementById('aodmBackdrop')?.addEventListener('click', close, { once: true });
+};
+
+window.saveAssignedStaffGlobal = function() {
+  const sel = document.getElementById('aodmSelectStaff');
+  const staffName = sel ? sel.options[sel.selectedIndex]?.text : 'Ayşe Kaya';
+  if (window._activeAdminOrder) {
+    window._activeAdminOrder.assignedStaff = staffName;
+  }
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  if (typeof window.renderAdminOrdersList === 'function') window.renderAdminOrdersList();
+  alert(`✓ Görev uzmanı "${staffName}" olarak başarıyla atandı ve SMS ile bildirildi.`);
+};
+
+window.approveStaffApplicantGlobal = function(applicantId, name) {
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  const row = document.getElementById(`rowApplicant_${applicantId}`);
+  if (row) {
+    row.innerHTML = `<td colspan="5" style="text-align: center; color: #34d399; font-weight: bold; padding: 12px;">✓ ${name} sisteme kabul edildi ve aktif temizlik filosuna eklendi!</td>`;
+  }
+};
+
+window.rejectStaffApplicantGlobal = function(applicantId) {
+  const row = document.getElementById(`rowApplicant_${applicantId}`);
+  if (row) {
+    row.style.opacity = '0.4';
+    row.innerHTML = `<td colspan="5" style="text-align: center; color: #f87171; padding: 12px;">✕ Başvuru arşive kaldırıldı.</td>`;
   }
 };
 

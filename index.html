@@ -4426,6 +4426,15 @@
             <div class="admin-catalog-table-wrap" id="adminStaffFleetTableWrap">
               <!-- Dynamically populated via authEngine.js -->
             </div>
+
+            <!-- Pending Staff Applicants Review Queue -->
+            <div class="sd-section-header" style="margin-top: 24px;">
+              <h6>📋 Personel Katılım & Başvuru Onay Masası (2 Yeni Aday)</h6>
+              <span class="psh-desc">Sisteme temizlik uzmanı olarak başvuran adayların adli sicil ve deneyim belgelerini inceleyip doğrudan filoya dahil edebilirsiniz.</span>
+            </div>
+            <div class="admin-catalog-table-wrap" id="adminStaffApplicantsWrap">
+              <!-- Dynamically populated via authEngine.js -->
+            </div>
           </div>
 
           <!-- 3. HİZMET & FİYAT KATALOĞU -->
@@ -4436,6 +4445,21 @@
                 <span class="psh-desc">Hizmetlerin aktiflik durumunu (Stokta Var / Tükendi) anında değiştirebilir, TL ve PLN fiyatlarını güncelleyebilirsiniz.</span>
               </div>
             </div>
+
+            <!-- Dynamic Surge & Express Dispatch Controls -->
+            <div class="admin-stats-grid" style="margin-bottom: 20px;">
+              <div class="admin-stat-card" style="border: 1px solid rgba(234, 179, 8, 0.3);">
+                <span class="asc-lbl">⚡ Hafta Sonu / Yoğunluk Çarpanı</span>
+                <strong class="asc-val" style="color: #fbbf24;">+%10 Dinamik</strong>
+                <button type="button" class="btn-stock-toggle in-stock" style="margin-top: 6px; padding: 4px 8px; font-size: 0.72rem;" onclick="alert('Hafta Sonu Dinamik Çarpanı (%10) aktif edildi.')">🟢 Aktif</button>
+              </div>
+              <div class="admin-stat-card" style="border: 1px solid rgba(56, 189, 248, 0.3);">
+                <span class="asc-lbl">🚀 2 Saat Ekspres Sevk Primi</span>
+                <strong class="asc-val" style="color: #38bdf8;">+150 TL / 25 PLN</strong>
+                <button type="button" class="btn-stock-toggle in-stock" style="margin-top: 6px; padding: 4px 8px; font-size: 0.72rem;" onclick="alert('2 Saat Ekspres Sevk opsiyonu devrede.')">🟢 Devrede</button>
+              </div>
+            </div>
+
             <div class="admin-catalog-table-wrap" id="adminCatalogTableWrap">
               <!-- Dynamically populated via authEngine.js -->
             </div>
@@ -5491,6 +5515,98 @@
             💬 WhatsApp ile Paylaş
           </button>
         </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 📋 RELAXAX ENTERPRISE ADMIN ORDER DETAILS & DISPATCH MODAL -->
+  <div class="rx-corporate-modal-overlay" id="adminOrderDetailsModal" role="dialog" aria-modal="true" aria-labelledby="aodmTitle" style="display:none;">
+    <div class="rx-corporate-modal-backdrop" id="aodmBackdrop"></div>
+    <div class="rx-corporate-modal-dialog" style="max-width: 680px;">
+      
+      <!-- Modal Header -->
+      <div class="rx-cmodal-header" style="background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.95));">
+        <div class="rx-cmodal-title-row">
+          <div class="rx-cmodal-icon" style="background: rgba(234,179,8,0.15); border-color: rgba(234,179,8,0.3); color: #fbbf24;">📋</div>
+          <div>
+            <span class="rx-cmodal-badge" id="aodmCodeBadge" style="background: rgba(234,179,8,0.15); color: #fbbf24; border: 1px solid rgba(234,179,8,0.3);">#RLX-9941</span>
+            <h3 id="aodmTitle" class="rx-cmodal-title">Sipariş & Görev Sevk Detay Kartı</h3>
+          </div>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" id="btnAdminOrderModalClose" aria-label="Kapat">&times;</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="rx-cmodal-body">
+        
+        <!-- Customer & Service Overview Card -->
+        <div class="admin-order-item-card" style="margin-bottom: 16px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); flex-direction: column; align-items: stretch;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <h5 id="aodmServiceName" style="color: #fbbf24; margin: 0 0 4px 0; font-size: 1.1rem;">Standart Ev Temizliği (3+1)</h5>
+              <div style="color: #cbd5e1; font-size: 0.88rem;">👤 Müşteri: <strong id="aodmCustomerName" style="color:#fff;">Ayşe Yılmaz</strong></div>
+              <div style="color: #94a3b8; font-size: 0.82rem; margin-top: 2px;">📞 Tel: <span id="aodmCustomerPhone">0532 555 12 34</span></div>
+              <div style="color: #94a3b8; font-size: 0.82rem; margin-top: 2px;">📍 Adres: <span id="aodmCustomerAddress">Kadıköy, İstanbul (Fenerbahçe Mah.)</span></div>
+            </div>
+            <div style="text-align: right;">
+              <span id="aodmStatusBadge" class="ub-status badge-warning" style="font-size: 0.85rem;">🟡 Onay Bekliyor</span>
+              <div id="aodmFinalPrice" style="color: #38bdf8; font-size: 1.3rem; font-weight: 800; margin-top: 6px;">1.850 TL</div>
+              <span style="font-size: 0.75rem; color: #94a3b8;" id="aodmPaymentMethod">💳 Havale / FAST</span>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons: Call, WhatsApp, Maps -->
+          <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+            <a id="aodmBtnCall" href="tel:05325551234" class="btn-admin-act" style="border-color: #38bdf8; color: #38bdf8; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+              📞 Müşteriyi Ara
+            </a>
+            <a id="aodmBtnWhatsApp" href="https://wa.me/905325551234" target="_blank" rel="noopener noreferrer" class="btn-admin-act" style="border-color: #25d366; color: #25d366; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+              💬 WhatsApp Bilgilendir
+            </a>
+            <a id="aodmBtnMaps" href="https://maps.google.com/?q=Kadikoy,Istanbul" target="_blank" rel="noopener noreferrer" class="btn-admin-act" style="border-color: #fbbf24; color: #fbbf24; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+              🗺️ Haritada Yol Tarifi Aç
+            </a>
+          </div>
+        </div>
+
+        <!-- Dispatch Management Settings -->
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+          <h6 style="color: #f1f5f9; margin-bottom: 10px; font-size: 0.9rem;">👩‍💼 Temizlik Uzmanı Görevlendirmesi (Sevk)</h6>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <select id="aodmSelectStaff" class="auth-select" style="flex: 1; min-width: 220px; font-size: 0.85rem;">
+              <option value="STF-8821">Ayşe Kaya (#STF-8821) - Kadıköy / 4.99★</option>
+              <option value="STF-8822">Mehmet Demir (#STF-8822) - Beşiktaş / 5.00★</option>
+              <option value="STF-8823">Zeynep Tekin (#STF-8823) - Çankaya / 4.98★</option>
+              <option value="STF-8824">Piotr Wójcik (#STF-8824) - Warszawa / 5.00★</option>
+            </select>
+            <button type="button" class="btn-save-address" style="padding: 8px 14px; font-size: 0.8rem;" onclick="if(typeof window.saveAssignedStaffGlobal==='function')window.saveAssignedStaffGlobal();">
+              💾 Uzmanı Ata & Kaydet
+            </button>
+          </div>
+        </div>
+
+        <!-- Service Line Items Detail -->
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px; font-size: 0.84rem; color: #cbd5e1;">
+          <h6 style="color: #f1f5f9; margin-bottom: 8px; font-size: 0.9rem;">✨ Hizmet Kapsamı & Seçilen Ekstralar</h6>
+          <ul style="margin: 0; padding-left: 18px; line-height: 1.6;">
+            <li>🧹 <strong>Hizmet Türü:</strong> Standart Ev Temizliği (3 Oda + 1 Salon)</li>
+            <li>🌸 <strong>Aroma Tercihi:</strong> Lavanta & Gül Doğal Esansiyel Kürü</li>
+            <li>⚡ <strong>Ekstra Hizmetler:</strong> Fırın İçi Yağ Arındırma + Balkon Cam Yıkama</li>
+            <li>🛡️ <strong>Hijyen Güvencesi:</strong> %100 Memnuniyet Garantili Mühürlü Bez Seti</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="rx-cmodal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <button type="button" class="rx-cmodal-btn-secondary" onclick="window.print();" style="display: inline-flex; align-items: center; gap: 6px;">
+          🖨️ Görev Sevk Formunu Yazdır (PDF)
+        </button>
+        <button type="button" class="rx-cmodal-btn-primary" id="btnAdminOrderModalCloseFooter" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+          Kapat
+        </button>
       </div>
 
     </div>
