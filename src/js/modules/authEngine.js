@@ -2216,6 +2216,30 @@ export function renderAdminDashboard() {
       </div>
     `;
   }
+
+  // 7. Live Activity Ticker Dynamic Pulse Rotator
+  const tickerEl = document.getElementById('adminLiveEventTicker');
+  if (tickerEl && !window._adminTickerInterval) {
+    const events = [
+      "⚡ 1 dk önce: Ayşe K. #RLX-9941 Kadıköy randevusuna doğru yola çıktı | 🛡️ Cyber Loop: %100 Koruma | 💰 1.850 TL tahsilat",
+      "✨ 3 dk önce: Yeni müşteri Zeynep D. sisteme kaydoldu ve VIP Gold statüsüne erişti",
+      "🧹 5 dk önce: #RLX-9938 Beşiktaş 3+1 süit temizliği tamamlandı (+2.100 TL)",
+      "🛡️ 8 dk önce: Cyber Loop Sentinel: 1 şüpheli SQLi isteği yakalandı ve 2000ms Tarpit tuzağı uygulandı",
+      "👥 12 dk önce: Mehmet D. Beşiktaş bölgesinde göreve hazır (Müsait) durumuna geçti"
+    ];
+    let evIdx = 0;
+    window._adminTickerInterval = setInterval(() => {
+      evIdx = (evIdx + 1) % events.length;
+      if (tickerEl) {
+        tickerEl.style.transition = 'opacity 0.3s ease';
+        tickerEl.style.opacity = '0';
+        setTimeout(() => {
+          tickerEl.textContent = events[evIdx];
+          tickerEl.style.opacity = '1';
+        }, 300);
+      }
+    }, 6000);
+  }
 }
 
 // Global Customer & Order Filter & CSV Export Handlers
