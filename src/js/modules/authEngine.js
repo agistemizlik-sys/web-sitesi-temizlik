@@ -3488,6 +3488,30 @@ window.openStaffWithdrawalModal = function() {
   }
 };
 
+window.requestStaffSuppliesGlobal = function() {
+  const suppliesPrompt = prompt(
+    "🧴 RELAXAX Saha Ekipman & Malzeme İkmal Masası\n\n" +
+    "Lütfen talep ettiğiniz malzemeleri belirtiniz:\n" +
+    "1: Profesyonel Zemin Deterjanı (5L)\n" +
+    "2: Renk Kodlu 4'lü Mikrofiber Bez Seti\n" +
+    "3: Kärcher Buhar Kireç Çözücü Çubuklar\n" +
+    "4: Hepsi / Standart Yenileme Paketi\n\n" +
+    "Seçiminiz (1, 2, 3 veya 4):", "4"
+  );
+
+  if (suppliesPrompt) {
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+    if (typeof window.broadcastStateChange === 'function') {
+      window.broadcastStateChange('STAFF_SUPPLY_REQUEST', {
+        staffName: getCurrentUser()?.name || 'Saha Uzmanı',
+        requestedPack: suppliesPrompt,
+        timestamp: Date.now()
+      });
+    }
+    alert("✓ Malzeme ikmal talebiniz alındı! Bölge koordinatörümüz malzemelerinizi 24 saat içinde görev noktanıza teslim edecektir.");
+  }
+};
+
 // Global public attachments
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
