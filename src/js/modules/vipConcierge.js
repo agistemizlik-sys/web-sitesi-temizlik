@@ -61,7 +61,7 @@ export function initVipConciergeEngine() {
 
       playSuccessChime();
 
-      // Trigger Telegram Priority Alert if available
+      // Dispatch directly to Backend & Admin Panel
       try {
         const payload = {
           name,
