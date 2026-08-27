@@ -4439,9 +4439,15 @@
                 <h5>📋 Canlı Rezervasyon & Görev Sevk Masası</h5>
                 <span class="psh-desc">Gelen tüm temizlik rezervasyonlarını onaylayabilir, personele atayabilir, durumunu güncelleyebilir ve dışa aktarabilirsiniz.</span>
               </div>
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="button" class="btn-save-address" id="btnExportOrdersCsv" onclick="if(typeof window.exportOrdersToCSVGlobal==='function')window.exportOrdersToCSVGlobal();" style="padding:8px 14px; font-size:0.8rem; background:linear-gradient(135deg, #10b981, #059669);">
-                  📥 Siparişleri CSV / Excel İndir
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn-save-address" onclick="if(typeof window.createTestBookingGlobal==='function')window.createTestBookingGlobal();" style="padding:8px 12px; font-size:0.8rem; background:linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                  ⚡ + Test Rezervasyonu Ekle
+                </button>
+                <button type="button" class="btn-save-address" onclick="if(typeof window.exportFullDatabaseBackupGlobal==='function')window.exportFullDatabaseBackupGlobal();" style="padding:8px 12px; font-size:0.8rem; background:linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                  💾 Veritabanı Yedeği (JSON)
+                </button>
+                <button type="button" class="btn-save-address" id="btnExportOrdersCsv" onclick="if(typeof window.exportOrdersToCSVGlobal==='function')window.exportOrdersToCSVGlobal();" style="padding:8px 12px; font-size:0.8rem; background:linear-gradient(135deg, #10b981, #059669);">
+                  📥 Siparişleri CSV İndir
                 </button>
               </div>
             </div>
