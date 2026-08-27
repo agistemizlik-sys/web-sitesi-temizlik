@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @fileoverview RELAXAX Enterprise Cyber Defense Loop Engine (Client-Side Sentinel)
  * Continuous In-Memory & Runtime Security Protection:
  * 1. DOM Integrity & Malicious Script/Iframe Injection Watcher Loop (MutationObserver)
@@ -10,6 +10,10 @@
 
 let isCyberLoopActive = false;
 let threatCounter = 0;
+let blockedInjections = 0;
+let detectedBots = 0;
+let lastHeartbeat = Date.now();
+
 const WHITELISTED_DOMAINS = [
   'relaxax.com',
   'pages.dev',
@@ -20,6 +24,8 @@ const WHITELISTED_DOMAINS = [
   'gstatic.com',
   'telegram.org'
 ];
+
+const threatListeners = new Set();
 
 /**
  * Validates if an external resource URL matches trusted whitelisted CDNs and origins.
@@ -38,6 +44,31 @@ function isTrustedSource(src) {
 }
 
 /**
+ * Dispatches threat signals to registered telemetry subscribers and Admin Radar.
+ */
+function notifyThreat(type, details) {
+  threatCounter++;
+  const payload = {
+    id: 'THREAT-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+    timestamp: new Date().toISOString(),
+    type,
+    details,
+    totalThreats: threatCounter
+  };
+  
+  threatListeners.forEach(fn => {
+    try { fn(payload); } catch (e) {}
+  });
+
+  // Also log securely to session storage for Admin Radar retrieval
+  try {
+    const logs = JSON.parse(sessionStorage.getItem('relaxax_runtime_threats') || '[]');
+    logs.unshift(payload);
+    sessionStorage.setItem('relaxax_runtime_threats', JSON.stringify(logs.slice(0, 20)));
+  } catch (e) {}
+}
+
+/**
  * 1. DOM Integrity Watcher Loop: Intercepts and neutralizes rogue script or iframe injection in real-time.
  */
 function initDomIntegrityWatcher() {
@@ -51,8 +82,9 @@ function initDomIntegrityWatcher() {
           const src = node.getAttribute('src');
           if (src && !isTrustedSource(src)) {
             node.remove();
-            threatCounter++;
-            console.warn('[CYBER_LOOP_DEFENSE] Blocked unauthorized external script injection:', src);
+            blockedInjections++;
+            notifyThreat('UNAUTHORIZED_SCRIPT_INJECTION', `Blocked external script from: ${src}`);
+            console.warn('[CYBER_LOOP] Blocked unauthorized script injection:', src);
           }
         }
 
@@ -61,8 +93,9 @@ function initDomIntegrityWatcher() {
           const src = node.getAttribute('src');
           if (src && !isTrustedSource(src)) {
             node.remove();
-            threatCounter++;
-            console.warn('[CYBER_LOOP_DEFENSE] Quarantined rogue iframe injection:', src);
+            blockedInjections++;
+            notifyThreat('CLICKJACKING_IFRAME_INJECTION', `Quarantined rogue iframe: ${src}`);
+            console.warn('[CYBER_LOOP] Quarantined rogue iframe injection:', src);
           }
         }
 
@@ -70,13 +103,14 @@ function initDomIntegrityWatcher() {
         const hasDangerousAttr = node.hasAttribute && (
           node.hasAttribute('onerror') ||
           node.hasAttribute('onload') ||
-          node.hasAttribute('onclick') && node.getAttribute('onclick').includes('eval(')
+          (node.hasAttribute('onclick') && String(node.getAttribute('onclick')).includes('eval('))
         );
         if (hasDangerousAttr) {
           node.removeAttribute('onerror');
           node.removeAttribute('onload');
-          threatCounter++;
-          console.warn('[CYBER_LOOP_DEFENSE] Neutralized dangerous inline attribute vector');
+          blockedInjections++;
+          notifyThreat('INLINE_XSS_VECTOR', 'Neutralized dangerous inline event handler attribute');
+          console.warn('[CYBER_LOOP] Neutralized dangerous inline attribute vector');
         }
       });
     });
@@ -95,21 +129,20 @@ function initAntiTamperingShield() {
   try {
     // Preserve pristine native references
     const nativeFetch = window.fetch;
-    const nativeJSONParse = JSON.parse;
-    const nativeSetTimeout = window.setTimeout;
 
-    // Freeze critical prototype chains against pollution
-    if (Object.freeze) {
-      Object.freeze(Object.prototype.__proto__);
+    // Freeze critical prototype chains against prototype pollution
+    if (Object.freeze && Object.prototype) {
+      try {
+        Object.freeze(Object.prototype.__proto__);
+      } catch (e) {}
     }
 
     // Monitor for malicious fetch hijacking
-    let fetchCheckInterval = setInterval(() => {
+    setInterval(() => {
       if (window.fetch !== nativeFetch && typeof window.fetch === 'function') {
-        // Attempt restoring native fetch if unauthorized hook is detected
         if (!window.fetch.toString().includes('[native code]') && !window.fetch.__isWhitelistedWrapper) {
-          threatCounter++;
-          console.warn('[CYBER_LOOP_DEFENSE] Detected fetch prototype tampering attempt');
+          notifyThreat('FETCH_HIJACKING_ATTEMPT', 'Unauthorized hook on window.fetch detected');
+          console.warn('[CYBER_LOOP] Detected fetch prototype tampering attempt');
         }
       }
     }, 5000);
@@ -130,7 +163,9 @@ function detectHeadlessAutomation() {
   );
 
   if (isAutomated) {
+    detectedBots++;
     document.documentElement.dataset.botThreat = 'detected';
+    notifyThreat('AUTOMATION_BOT_SNIFFED', 'Headless scraper / WebDriver environment active');
   }
 }
 
@@ -150,6 +185,7 @@ export function scrubSensitiveFormMemory(formElement) {
  */
 function initCyberHeartbeatLoop() {
   const checkThreatStatus = () => {
+    lastHeartbeat = Date.now();
     detectHeadlessAutomation();
 
     if ('requestIdleCallback' in window) {
@@ -167,6 +203,29 @@ function initCyberHeartbeatLoop() {
 }
 
 /**
+ * Returns real-time cyber loop metrics for telemetry dashboards.
+ */
+export function getCyberLoopStats() {
+  return {
+    isActive: isCyberLoopActive,
+    totalThreats: threatCounter,
+    blockedInjections,
+    detectedBots,
+    lastHeartbeat,
+    whitelistedDomains: WHITELISTED_DOMAINS.length
+  };
+}
+
+/**
+ * Subscribes to real-time cyber threat events.
+ */
+export function onCyberThreatDetected(callback) {
+  if (typeof callback === 'function') {
+    threatListeners.add(callback);
+  }
+}
+
+/**
  * Initializes the full Cyber Defense Loop Engine across the application runtime.
  */
 export function initCyberLoopEngine() {
@@ -177,4 +236,6 @@ export function initCyberLoopEngine() {
   initAntiTamperingShield();
   initCyberHeartbeatLoop();
   detectHeadlessAutomation();
+
+  console.log('🛡️ [RELAXAX] Cyber Loop Engineering Sentinel v3.0 Active');
 }
