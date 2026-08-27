@@ -361,7 +361,7 @@ export async function onRequest(context) {
   // 0D. Anti-Scanner & Vulnerability Fuzzer Shield
   if (isVulnScanner(request)) {
     return new Response(JSON.stringify({
-      status: 403,
+      statusCode: 403,
       error: "Automated vulnerability scanner or fuzzer detected. Access denied.",
       status: "SECURITY_SCANNER_QUARANTINED"
     }, null, 2), {
