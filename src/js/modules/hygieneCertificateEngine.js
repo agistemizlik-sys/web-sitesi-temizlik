@@ -37,6 +37,7 @@ export function openHygieneCertificate(orderData = {}) {
   if (elStaff) elStaff.textContent = staffName;
   if (elFooterCode) elFooterCode.textContent = certNo;
 
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
   openModal(modal);
 }
 
