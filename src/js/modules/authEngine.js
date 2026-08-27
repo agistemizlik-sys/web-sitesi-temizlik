@@ -2297,9 +2297,19 @@ export function renderAdminDashboard() {
       { id: 'LOOP-1045', time: '38 dk önce', ip: '20.171.206.11 (AI Crawler)', type: 'Anti-AI Scraping Shield (NoAI)', strike: 'Strike 1/3', vector: "User-Agent: GPTBot / OpenAI Scraping", status: 'NOAI ENGELİ VERİLDİ', badge: 'badge-progress', icon: '🤖', tarpit: 'Bot Filtresi' }
     ];
 
+    let filteredLogs = securityLogs;
+    const filter = window._adminSecurityFilter || 'ALL';
+    if (filter === 'SQLI') {
+      filteredLogs = securityLogs.filter(l => l.type.includes('SQL'));
+    } else if (filter === 'PROMPT') {
+      filteredLogs = securityLogs.filter(l => l.type.includes('Prompt') || l.type.includes('Jailbreak'));
+    } else if (filter === 'BOT') {
+      filteredLogs = securityLogs.filter(l => l.type.includes('AI') || l.type.includes('Scanner') || l.type.includes('VPN') || l.type.includes('Decoy'));
+    }
+
     securityLogsWrap.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 12px;">
-        ${securityLogs.map(log => `
+        ${filteredLogs.map(log => `
           <div class="admin-order-item-card" style="border-left: 4px solid ${log.badge === 'badge-danger' ? '#ef4444' : log.badge === 'badge-warning' ? '#f59e0b' : '#38bdf8'}; flex-direction: column; align-items: stretch; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
@@ -2460,6 +2470,15 @@ window.uploadStaffJobPhotoGlobal = function(jobId) {
     renderStaffDashboard();
     alert(`📸 Harika! #${target.orderCode || jobId} numaralı randevu için temizlik öncesi/sonrası fotoğrafları başarıyla yüklendi (${target.photosCount} Fotoğraf Doğrulandı). Müşteri hijyen sertifikasına eklendi.`);
   }
+};
+
+window.filterSecurityLogsGlobal = function(filterType, btn) {
+  window._adminSecurityFilter = filterType || 'ALL';
+  if (btn && btn.parentElement) {
+    btn.parentElement.querySelectorAll('.date-shortcut-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
 };
 
 window.exportOrdersToCSVGlobal = function() {

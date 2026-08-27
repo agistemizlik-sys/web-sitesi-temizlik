@@ -4709,6 +4709,12 @@
             <div class="sd-section-header">
               <h6>📋 Canlı Cyber Loop Tehdit & Karantina Günlüğü</h6>
             </div>
+            <div class="wizard-date-shortcuts" style="margin: 0 0 14px 0;">
+              <button type="button" class="date-shortcut-chip active" onclick="if(typeof window.filterSecurityLogsGlobal==='function')window.filterSecurityLogsGlobal('ALL', this);">Tüm Tehditler (14)</button>
+              <button type="button" class="date-shortcut-chip" onclick="if(typeof window.filterSecurityLogsGlobal==='function')window.filterSecurityLogsGlobal('SQLI', this);">🪤 SQL Injection (6)</button>
+              <button type="button" class="date-shortcut-chip" onclick="if(typeof window.filterSecurityLogsGlobal==='function')window.filterSecurityLogsGlobal('PROMPT', this);">🛑 Prompt Injection (3)</button>
+              <button type="button" class="date-shortcut-chip" onclick="if(typeof window.filterSecurityLogsGlobal==='function')window.filterSecurityLogsGlobal('BOT', this);">🤖 AI & Scanner (5)</button>
+            </div>
             <div class="admin-security-logs-wrap" id="adminSecurityLogsWrap">
               <!-- Dynamically populated via authEngine.js -->
             </div>
