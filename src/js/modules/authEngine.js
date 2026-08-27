@@ -2557,7 +2557,7 @@ window.downloadInvoiceGlobal = function(orderCode, serviceName, finalPrice, cust
     <div class="meta">
       <div><strong>Belge No:</strong> E-FAT-${escapeHTML(orderCode)}</div>
       <div><strong>Tarih:</strong> ${new Date().toLocaleDateString('tr-TR')}</div>
-      <div><strong>Düzenleyen:</strong> Sistem Otomasyonu (ISO-9001)</div>
+      <div><strong>Düzenleyen:</strong> Sistem Otomasyonu (RELAXAX Kalite Güvencesi)</div>
     </div>
   </div>
 
@@ -2576,7 +2576,7 @@ window.downloadInvoiceGlobal = function(orderCode, serviceName, finalPrice, cust
     </thead>
     <tbody>
       <tr>
-        <td>${escapeHTML(serviceName)} (48 Nokta ISO-9001 Sertifikalı Temizlik)</td>
+        <td>${escapeHTML(serviceName)} (48 Nokta Detaylı Hijyen & Kalite Güvencesi)</td>
         <td>1 Hizmet</td>
         <td>${escapeHTML(finalPrice)}</td>
         <td>Dahil</td>

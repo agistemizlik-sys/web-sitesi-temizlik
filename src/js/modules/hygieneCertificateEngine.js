@@ -77,9 +77,9 @@ export function initHygieneCertificateEngine() {
     shareWaBtn.addEventListener('click', () => {
       const code = currentCertData?.orderCode || currentCertData?.resCode || 'HYG-2026-RLX';
       const msg = encodeURIComponent(
-        `🏆 RELAXAX 48 Nokta ISO-9001 Onaylı Resmi Dijital Hijyen Sertifikası\n` +
+        `🏆 RELAXAX 48 Nokta Profesyonel Hijyen & Kalite Güvence Belgesi\n` +
         `📋 Belge No: #${code}\n` +
-        `✨ 48/48 Medikal Standart Hijyen Denetimi %100 Başarıyla Tamamlandı.\n` +
+        `✨ 48/48 Profesyonel Standart Hijyen Denetimi %100 Başarıyla Tamamlandı.\n` +
         `🌐 Doğrulama: https://relaxax.com`
       );
       window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener,noreferrer');

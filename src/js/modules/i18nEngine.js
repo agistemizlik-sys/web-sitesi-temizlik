@@ -147,19 +147,19 @@ export function applyLanguageGlobal(lang) {
 
   if (certModalTitle) {
     certModalTitle.textContent = lang === 'pl' ? '48-Punktowy Cyfrowy Certyfikat Higieny' :
-      (lang === 'en' ? '48-Point Digital Hygiene Certificate' :
-      (lang === 'de' ? '48-Punkte Digitales Hygiene-Zertifikat' :
-      (lang === 'ru' ? '48-Точечный Цифровой Сертификат Гигиены' :
-      (lang === 'ar' ? 'شهادة النظافة والتعقيم الرقمية المعتمدة (48 نقطة)' :
-      (lang === 'uk' ? '48-Точковий Цифровий Сертифікат Гігієни' : '48 Nokta Dijital Hijyen Sertifikası')))));
+      (lang === 'en' ? '48-Point Professional Hygiene & Quality Document' :
+      (lang === 'de' ? '48-Punkte Professionelles Hygiene- & Qualitätsdokument' :
+      (lang === 'ru' ? '48-Точечный Профессиональный Документ Гигиены и Качества' :
+      (lang === 'ar' ? 'وثيقة النظافة والجودة المهنية المعتمدة (48 نقطة)' :
+      (lang === 'uk' ? '48-Точковий Професійний Документ Гігієни та Якості' : '48 Nokta Profesyonel Hijyen & Kalite Belgesi')))));
   }
 
   if (certSubtag) {
-    certSubtag.textContent = lang === 'pl' ? 'CERTYFIKOWANY DOKUMENT ISO-9001:2015 & ISO-45001' :
-      (lang === 'en' ? 'ISO-9001:2015 & ISO-45001 CERTIFIED OFFICIAL HYGIENE DOCUMENT' :
-      (lang === 'de' ? 'ISO-9001:2015 & ISO-45001 ZERTIFIZIERTES HYGIENEDOKUMENT' :
-      (lang === 'ru' ? 'СЕРТИФИКАТ СООТВЕТСТВИЯ ISO-9001:2015 & ISO-45001' :
-      (lang === 'ar' ? 'وثيقة النظافة الرسمية المعتمدة وفق معايير ISO-9001:2015 و ISO-45001' : 'ISO-9001:2015 & ISO-45001 ONAYLI RESMİ HİJYEN BELGESİ'))));
+    certSubtag.textContent = lang === 'pl' ? 'RELAXAX DOKUMENT STANDARDÓW HIGIENY I KONTROLI JAKOŚCI' :
+      (lang === 'en' ? 'RELAXAX 48-POINT PROFESSIONAL HYGIENE & QUALITY PROTOCOL' :
+      (lang === 'de' ? 'RELAXAX 48-PUNKTE PROFESSIONELLES HYGIENE- & QUALITÄTSPROTOKOLL' :
+      (lang === 'ru' ? 'RELAXAX ПРОФЕССИОНАЛЬНЫЙ СТАНДАРТ ГИГИЕНЫ И КОНТРОЛЯ КАЧЕСТВА' :
+      (lang === 'ar' ? 'وثيقة معايير النظافة وضمان الجودة من ريلاكسكس' : 'RELAXAX 48 NOKTA PROFESYONEL HİJYEN VE KALİTE DENETİM BELGESİ'))));
   }
 
   if (printCertBtn) {
