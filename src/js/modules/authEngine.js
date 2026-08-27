@@ -1570,6 +1570,19 @@ window.rateStaffServiceGlobal = function(orderCode, staffName) {
     tipVal = parseInt(tipPrompt, 10);
   }
 
+  const user = getCurrentUser();
+  if (user && user.role === 'customer') {
+    user.vipScore = (user.vipScore || 100) + 25;
+    user.activePromo = 'YILDIZ50';
+    localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(user));
+    const allUsers = getRegisteredUsers();
+    const uIdx = allUsers.findIndex(u => u.id === user.id || u.email === user.email);
+    if (uIdx !== -1) {
+      allUsers[uIdx] = { ...allUsers[uIdx], vipScore: user.vipScore, activePromo: 'YILDIZ50' };
+      saveRegisteredUsers(allUsers);
+    }
+  }
+
   if (tipVal > 0) {
     const staffList = getRegisteredStaff();
     const found = staffList.find(s => s.name === staffName || s.email === 'personel@relaxax.com');
@@ -1581,10 +1594,10 @@ window.rateStaffServiceGlobal = function(orderCode, staffName) {
     if (typeof window.broadcastStateChange === 'function') {
       window.broadcastStateChange('ORDER_STATUS_CHANGED', { type: 'STAFF_TIP', amount: tipVal, staffName });
     }
-    alert(`🌟 Harika! Uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz ve +${tipVal} TL bahşişiniz başarıyla iletildi. Çok teşekkür ederiz!`);
+    alert(`🌟 Harika! Uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz ve +${tipVal} TL bahşişiniz başarıyla iletildi.\n\n🎁 Değerlendirmeniz için hesabınıza sonraki randevunuzda geçerli +50 TL İndirim Kuponu (YILDIZ50) ve +25 VIP Sadakat Puanı tanımlandı!`);
   } else {
     if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
-    alert(`🌟 Teşekkürler! #${orderCode} numaralı hizmet için uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz sisteme başarıyla işlendi!`);
+    alert(`🌟 Teşekkürler! #${orderCode} numaralı hizmet için uzmanımız ${staffName} adına 5 Yıldızlı değerlendirmeniz sisteme başarıyla işlendi!\n\n🎁 Değerlendirmeniz için hesabınıza sonraki randevunuzda geçerli +50 TL İndirim Kuponu (YILDIZ50) ve +25 VIP Sadakat Puanı tanımlandı!`);
   }
 };
 
