@@ -1684,6 +1684,21 @@ window.toggleStaffAvailability = function() {
   }
 };
 
+window.requestStaffNotificationGlobal = async function() {
+  if (typeof window.requestNotificationPermission === 'function') {
+    const perm = await window.requestNotificationPermission();
+    if (perm === 'granted') {
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+      if (typeof window.showLocalNotification === 'function') {
+        window.showLocalNotification('RELAXAX Sevk Masası', '🔔 Yeni görev bildirimleriniz başarıyla aktif edildi!');
+      }
+      alert('✓ Sevk bildirimleri başarıyla aktif edildi! Yeni bir temizlik randevusu geldiğinde anında haberdar edileceksiniz.');
+    } else {
+      alert('⚠️ Bildirim izni verilmedi. Tarayıcı ayarlarınızdan bildirimleri açabilirsiniz.');
+    }
+  }
+};
+
 function renderStaffDashboard() {
   const staff = getCurrentUser();
   if (!staff || staff.role !== 'staff') return;

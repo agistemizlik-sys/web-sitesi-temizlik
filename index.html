@@ -4223,10 +4223,13 @@
                   <span class="badge-staff-rating" id="staffRatingBadge">★ 4.98 (142 Başarılı Görev)</span>
                 </div>
                 <span id="staffProfileEmail" class="sdh-sub">uzman@relaxax.com | 📍 İstanbul (Kadıköy, Beşiktaş)</span>
-                <div class="sdh-status-picker">
+                <div class="sdh-status-picker" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                   <span class="sdh-status-lbl">Çalışma Durumu:</span>
                   <button type="button" class="btn-status-toggle active" id="btnStaffStatusToggle" onclick="window.toggleStaffAvailability?.()">
                     <span id="staffStatusIndicator">🟢 Göreve Hazır (Müsait)</span>
+                  </button>
+                  <button type="button" class="btn-status-toggle" style="background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.3); color: #38bdf8;" onclick="if(typeof window.requestStaffNotificationGlobal==='function')window.requestStaffNotificationGlobal();" title="Yeni Sevk Bildirimlerini Aç">
+                    <span>🔔 Sevk Bildirimleri</span>
                   </button>
                 </div>
               </div>
