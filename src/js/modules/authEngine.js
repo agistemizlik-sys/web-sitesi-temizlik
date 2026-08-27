@@ -1667,14 +1667,20 @@ window.toggleStaffAvailability = function() {
     staffAvailabilityMode = 'break';
     if (indicator) indicator.textContent = '🟡 Molada (Geçici Kapalı)';
     if (btn) btn.className = 'btn-status-toggle break';
+    if (typeof window.playTickSound === 'function') window.playTickSound();
   } else if (staffAvailabilityMode === 'break') {
     staffAvailabilityMode = 'busy';
     if (indicator) indicator.textContent = '🔴 Meşgul (Temizlikte)';
     if (btn) btn.className = 'btn-status-toggle busy';
+    if (typeof window.playTickSound === 'function') window.playTickSound();
   } else {
     staffAvailabilityMode = 'online';
     if (indicator) indicator.textContent = '🟢 Göreve Hazır (Müsait)';
     if (btn) btn.className = 'btn-status-toggle active';
+    if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  }
+  if (typeof window.broadcastStateChange === 'function') {
+    window.broadcastStateChange('STAFF_AVAILABILITY_CHANGED', { mode: staffAvailabilityMode });
   }
 };
 
