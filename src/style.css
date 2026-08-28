@@ -1836,17 +1836,19 @@ body.portal-intro-mode #main-nav,
   padding: 20px;
 }
 .wizard-help-modal-card {
-  background: #ffffff;
+  background: rgba(13, 22, 44, 0.96);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 20px;
   width: min(560px, 95vw);
   padding: 28px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
 }
 .hm-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding-bottom: 14px;
   margin-bottom: 16px;
 }
@@ -1854,10 +1856,11 @@ body.portal-intro-mode #main-nav,
   margin: 0;
   font-size: 1.15rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
 }
 .hm-close-btn {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   border: none;
   width: 32px;
   height: 32px;
@@ -13014,24 +13017,25 @@ iframe[title*="Message preview"] {
   }
 
   .m-fast-city-btn {
-    padding: 8px 4px !important;
+    padding: 8px 6px !important;
     border-radius: 10px !important;
-    background: #ffffff !important;
-    border: 1.5px solid #e2e8f0 !important;
-    color: #0f172a !important;
-    font-size: 0.74rem !important;
+    background: rgba(19, 31, 60, 0.9) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.3) !important;
+    color: #ffffff !important;
+    font-size: 0.76rem !important;
     font-weight: 700 !important;
     text-align: center !important;
     cursor: pointer !important;
     touch-action: manipulation !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
   }
 
   .m-fast-city-btn.active,
   .m-fast-city-btn:active {
-    background: #fff1f2 !important;
-    border-color: #e11d48 !important;
-    color: #e11d48 !important;
+    background: #0284c7 !important;
+    border-color: #38bdf8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(2, 132, 199, 0.5) !important;
     transform: scale(0.98);
   }
 
