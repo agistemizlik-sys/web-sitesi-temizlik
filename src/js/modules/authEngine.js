@@ -12,6 +12,22 @@ const STORAGE_SESSION_KEY = 'relaxax_user_session';
 const STORAGE_BOOKINGS_PREFIX = 'relaxax_user_bookings_';
 const STORAGE_JOBS_KEY = 'relaxax_staff_live_jobs';
 const STORAGE_CATALOG_KEY = 'relaxax_catalog_products';
+const STORAGE_STAFF_APPLICANTS_KEY = 'relaxax_staff_applicants';
+
+export function getStaffApplicants() {
+  try {
+    const raw = localStorage.getItem(STORAGE_STAFF_APPLICANTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function saveStaffApplicants(list) {
+  try {
+    localStorage.setItem(STORAGE_STAFF_APPLICANTS_KEY, JSON.stringify(list));
+  } catch (e) {}
+}
 
 // Default Product & Extra Services Catalog (Residential & Corporate)
 const DEFAULT_CATALOG_ITEMS = [
@@ -281,95 +297,14 @@ const DEFAULT_CATALOG_ITEMS = [
   }
 ];
 
-// Default pre-seeded demo staff accounts for instant testing
-const DEFAULT_DEMO_STAFF = [
-  {
-    id: 'staff_ayse_01',
-    role: 'staff',
-    name: 'Ayşe K. (Kıdemli Temizlik Uzmanı)',
-    email: 'uzman@relaxax.com',
-    phone: '0532 999 88 77',
-    password: '123456',
-    city: 'Istanbul',
-    district: 'Kadıköy, Beşiktaş, Üsküdar',
-    experience: '6 Yıl',
-    rating: '4.98',
-    completedJobs: 142,
-    todayEarnings: 2450,
-    isAvailable: true,
-    specialties: ['Detaylı Ev Temizliği', 'Buharlı Koltuk Yıkama', 'Fırın & Yağ Arındırma']
-  },
-  {
-    id: 'staff_mehmet_02',
-    role: 'staff',
-    name: 'Mehmet D. (Endüstriyel Hijyen Şefi)',
-    email: 'mehmet.uzman@relaxax.com',
-    phone: '0544 888 77 66',
-    password: '123456',
-    city: 'Istanbul',
-    district: 'Sarıyer, Şişli, Bakırköy',
-    experience: '8 Yıl',
-    rating: '4.95',
-    completedJobs: 210,
-    todayEarnings: 3100,
-    isAvailable: true,
-    specialties: ['İnşaat Sonrası Temizlik', 'Cam Balkon & Cephe', 'Ofis Dezenfeksiyonu']
-  }
-];
+// Registered staff accounts (starts empty until clean registered staff or applicants)
+const DEFAULT_DEMO_STAFF = [];
 
-// Initial demo jobs if empty
-const INITIAL_DEMO_JOBS = [
-  {
-    id: 'RLX-849201',
-    orderCode: 'RLX-849201',
-    customerName: 'Zeynep Kaya',
-    customerPhone: '0533 123 45 67',
-    customerAddress: 'Kadıköy, Moda Cad. No:14 D:6 Palmiye Apt. Kat:3',
-    city: 'Istanbul',
-    district: 'Kadıköy',
-    service: '3+1 Detaylı Ev Temizliği + Fırın İçi Hijyen',
-    date: 'Bugün',
-    time: '09:30 - 14:00',
-    finalPrice: '2.850,00 TL',
-    status: 'Yolda',
-    notes: 'Parkeler yeni cilalandı, lütfen ahşap temizleyici kullanınız.',
-    timestamp: Date.now() - 3600000
-  },
-  {
-    id: 'RLX-723145',
-    orderCode: 'RLX-723145',
-    customerName: 'Canberk Demir',
-    customerPhone: '0535 765 43 21',
-    customerAddress: 'Beşiktaş, Akaretler Süleyman Seba Cad. No:28 D:4',
-    city: 'Istanbul',
-    district: 'Beşiktaş',
-    service: '2+1 Standart Temizlik + Koltuk Buharlı Yıkama',
-    date: 'Yarın',
-    time: '12:30 - 16:30',
-    finalPrice: '2.300,00 TL',
-    status: 'Beklemede',
-    notes: 'Evde uysal kedi var, kapı açık kalmasın.',
-    timestamp: Date.now() - 7200000
-  }
-];
+// Initial jobs (starts strictly empty - zero simulation)
+const INITIAL_DEMO_JOBS = [];
 
-// Customers storage
-const DEFAULT_REGISTERED_USERS = [
-  {
-    id: 'usr_zeynep_01',
-    role: 'customer',
-    name: 'Zeynep Kaya',
-    email: 'zeynep@relaxax.com',
-    phone: '0533 123 45 67',
-    password: '123456',
-    city: 'Istanbul',
-    district: 'Kadıköy',
-    street: 'Moda Cad. No:14 D:6 Palmiye Apt.',
-    createdAt: new Date(Date.now() - 86400000 * 15).toISOString(),
-    vipScore: 240,
-    activePromo: 'HOSGELDIN15'
-  }
-];
+// Customers storage (starts strictly empty - zero simulation)
+const DEFAULT_REGISTERED_USERS = [];
 
 function getRegisteredUsers() {
   try {
@@ -2114,20 +2049,21 @@ export function renderAdminDashboard() {
 
   const items = getCatalogProducts();
   const jobs = getLiveStaffJobs();
+  const staffList = getRegisteredStaff();
   
-  // Calculate Live KPI Totals
+  // Calculate Live KPI Totals (Strictly Real - Zero Simulation)
   const totalRevenueTL = jobs.reduce((acc, j) => {
     const p = parseFloat(String(j.finalPrice || '0').replace(/[^0-9\.]/g, '')) || 0;
     return acc + p;
-  }, 84950);
+  }, 0);
 
   const kpiRev = document.getElementById('adminKpiRevenue');
   const kpiOrd = document.getElementById('adminKpiOrders');
   const kpiStf = document.getElementById('adminKpiStaff');
 
   if (kpiRev) kpiRev.textContent = `${totalRevenueTL.toLocaleString('tr-TR')} TL`;
-  if (kpiOrd) kpiOrd.textContent = `${jobs.length || 54} Sipariş`;
-  if (kpiStf) kpiStf.textContent = `16 Uzman Çevrimiçi`;
+  if (kpiOrd) kpiOrd.textContent = `${jobs.length} Sipariş`;
+  if (kpiStf) kpiStf.textContent = `${staffList.length} Uzman Kayıtlı`;
 
   // 1. Render All Orders List with Status Actions
   window._adminCurrentFilter = 'ALL';
@@ -2152,7 +2088,13 @@ export function renderAdminDashboard() {
     }
 
     if (filtered.length === 0) {
-      allOrdersList.innerHTML = '<div class="empty-sub-item" style="padding: 24px; text-align: center; color: #94a3b8;">Aradığınız kriterlere uygun sipariş bulunamadı.</div>';
+      allOrdersList.innerHTML = `
+        <div class="empty-sub-item" style="padding: 36px 16px; text-align: center; color: #94a3b8; background: rgba(13, 22, 44, 0.6); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📋</div>
+          <strong style="color: #ffffff; font-size: 1rem; display: block; margin-bottom: 4px;">Canlı Sipariş / Lead Bulunmuyor</strong>
+          <span style="font-size: 0.82rem; color: #64748b;">Müşteriler rezervasyon formunu doldurdukça gelen gerçek talepler anında bu masaya düşecektir. (Sıfır-Simülasyon)</span>
+        </div>
+      `;
       return;
     }
 
@@ -2181,7 +2123,7 @@ export function renderAdminDashboard() {
                 </div>
                 <div style="color: #94a3b8; font-size: 0.78rem; text-align: right;">
                   <div>💳 ${escapeHTML(j.paymentMethod || 'Banka Havalesi / FAST')}</div>
-                  <div>👩‍💼 Atanan: <strong style="color: #38bdf8;">${escapeHTML(j.assignedStaff || 'Ayşe K. (#8821)')}</strong></div>
+                  <div>👩‍💼 Atanan: <strong style="color: #38bdf8;">${escapeHTML(j.assignedStaff || 'Atama Bekliyor')}</strong></div>
                 </div>
               </div>
 
@@ -2204,18 +2146,11 @@ export function renderAdminDashboard() {
 
   window.renderAdminOrdersList();
 
-  // 2. Render Registered Customers Table
+  // 2. Render Registered Customers Table (Strictly Real Registered Users)
   const customersTableWrap = document.getElementById('adminCustomersTableWrap');
   window.renderAdminCustomersList = function(query = '') {
     if (!customersTableWrap) return;
     const cleanQ = (query || '').toLowerCase().trim();
-    
-    const baseCustomers = [
-      { id: 'CST-101', name: 'Ahmet Yılmaz', email: 'ahmet.yilmaz@gmail.com', phone: '0532 111 22 33', city: 'İstanbul / Beşiktaş', vipScore: 240, ordersCount: 5, regDate: '12 Ocak 2026', badge: 'badge-success', vip: true, role: 'customer' },
-      { id: 'CST-102', name: 'Zeynep Demir', email: 'zeynep.demir@hotmail.com', phone: '0544 222 33 44', city: 'İstanbul / Kadıköy', vipScore: 180, ordersCount: 3, regDate: '24 Ocak 2026', badge: 'badge-success', vip: true, role: 'staff' },
-      { id: 'CST-103', name: 'Mehmet Can', email: 'mehmet.can@outlook.com', phone: '0555 444 55 66', city: 'Ankara / Çankaya', vipScore: 90, ordersCount: 2, regDate: '03 Şubat 2026', badge: 'badge-progress', vip: false, role: 'customer' },
-      { id: 'CST-104', name: 'Anna Kowalska', email: 'anna.kowalska@onet.pl', phone: '+48 501 234 567', city: 'Warszawa / Śródmieście', vipScore: 320, ordersCount: 7, regDate: '18 Aralık 2025', badge: 'badge-success', vip: true, role: 'customer' }
-    ];
 
     const localUsers = getRegisteredUsers().map(u => ({
       id: u.id || 'CST-NEW',
@@ -2224,22 +2159,31 @@ export function renderAdminDashboard() {
       phone: u.phone || '0500 000 00 00',
       city: `${u.city || 'İstanbul'} / ${u.district || 'Merkez'}`,
       vipScore: u.vipScore || 100,
-      ordersCount: 1,
-      regDate: 'Bugün',
+      ordersCount: (jobs.filter(j => j.customerEmail === u.email || j.customerPhone === u.phone).length) || 0,
+      regDate: u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : 'Bugün',
       badge: 'badge-success',
       vip: (u.vipScore || 100) >= 100,
       role: u.role || 'customer'
     }));
 
-    const allCustomers = [...localUsers, ...baseCustomers.filter(b => !localUsers.some(l => l.email === b.email))];
-
-    const filtered = allCustomers.filter(c => {
+    const filtered = localUsers.filter(c => {
       if (!cleanQ) return true;
       return (c.name || '').toLowerCase().includes(cleanQ) ||
              (c.email || '').toLowerCase().includes(cleanQ) ||
              (c.phone || '').includes(cleanQ) ||
              (c.city || '').toLowerCase().includes(cleanQ);
     });
+
+    if (filtered.length === 0) {
+      customersTableWrap.innerHTML = `
+        <div class="empty-sub-item" style="padding: 32px 16px; text-align: center; color: #94a3b8; background: rgba(13, 22, 44, 0.6); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">👥</div>
+          <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 4px;">Henüz Kayıtlı Müşteri Bulunmamaktadır</strong>
+          <span style="font-size: 0.8rem; color: #64748b;">Siteden kayıt olan veya sipariş veren gerçek müşteriler bu listede canlı olarak yer alacaktır.</span>
+        </div>
+      `;
+      return;
+    }
 
     customersTableWrap.innerHTML = `
       <table class="admin-catalog-table">
@@ -2294,98 +2238,110 @@ export function renderAdminDashboard() {
 
   window.renderAdminCustomersList();
 
-  // 3. Render Staff Fleet Management Table & Applicant Queue
+  // 3. Render Staff Fleet Management Table & Applicant Queue (Real Registered Staff & Applicants)
   const staffFleetWrap = document.getElementById('adminStaffFleetTableWrap');
   const staffApplicantsWrap = document.getElementById('adminStaffApplicantsWrap');
 
   if (staffFleetWrap) {
-    const staffMembers = [
-      { id: 'STF-8821', name: 'Ayşe Kaya', city: 'İstanbul / Kadıköy', role: 'Kıdemli Temizlik Uzmanı', rating: '4.99', completed: 142, todayEarn: '1.715 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & 48 Nokta Kalite Denetimli ✓' },
-      { id: 'STF-8822', name: 'Mehmet Demir', city: 'İstanbul / Beşiktaş', role: 'Hijyen Baş Denetçisi', rating: '5.00', completed: 218, todayEarn: '2.450 TL', status: 'MÜSAİT', badge: 'badge-success', check: 'Adli Sicil & 48 Nokta Kalite Denetimli ✓' },
-      { id: 'STF-8823', name: 'Zeynep Tekin', city: 'Ankara / Çankaya', role: 'VIP Rezidans Uzmanı', rating: '4.98', completed: 96, todayEarn: '1.295 TL', status: 'GÖREVDE', badge: 'badge-progress', check: 'Adli Sicil & 48 Nokta Kalite Denetimli ✓' },
-      { id: 'STF-8824', name: 'Piotr Wójcik', city: 'Varşova (Warszawa)', role: 'Senior Housekeeper', rating: '5.00', completed: 84, todayEarn: '349 PLN', status: 'MÜSAİT', badge: 'badge-success', check: 'KRK Weryfikacja ✓' }
-    ];
+    const staffMembers = getRegisteredStaff();
 
-    staffFleetWrap.innerHTML = `
-      <table class="admin-catalog-table">
-        <thead>
-          <tr>
-            <th>Sicil No / Uzman Adı</th>
-            <th>Bölge / Şehir</th>
-            <th>Uzmanlık Unvanı</th>
-            <th>Puan & Görev</th>
-            <th>Günlük Hak Ediş</th>
-            <th>Durum</th>
-            <th>İşlem</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${staffMembers.map(s => `
+    if (staffMembers.length === 0) {
+      staffFleetWrap.innerHTML = `
+        <div class="empty-sub-item" style="padding: 32px 16px; text-align: center; color: #94a3b8; background: rgba(13, 22, 44, 0.6); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🧹</div>
+          <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 4px;">Kayıtlı Temizlik Uzmanı Bulunmuyor</strong>
+          <span style="font-size: 0.8rem; color: #64748b;">Yeni başvuran veya atanan temizlik uzmanları burada listelenecektir.</span>
+        </div>
+      `;
+    } else {
+      staffFleetWrap.innerHTML = `
+        <table class="admin-catalog-table">
+          <thead>
             <tr>
-              <td>
-                <strong style="color: #f1f5f9;">${s.name}</strong>
-                <span class="act-key">No: <code>${s.id}</code></span>
-              </td>
-              <td><span>📍 ${s.city}</span></td>
-              <td><span class="act-cat-tag">${s.role}</span></td>
-              <td>
-                <strong style="color: #fbbf24;">⭐ ${s.rating}</strong>
-                <span style="font-size: 0.72rem; color: #94a3b8; display: block;">${s.completed} Görev</span>
-              </td>
-              <td><strong style="color: #34d399;">${s.todayEarn}</strong></td>
-              <td><span class="ub-status ${s.badge}">${s.status}</span></td>
-              <td>
-                <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="if(typeof window.playCashRegisterChime==='function')window.playCashRegisterChime(); alert('${s.name} için günlük hak ediş banka transferi onaylandı.')">💰 Ödeme Onayla</button>
-              </td>
+              <th>Sicil No / Uzman Adı</th>
+              <th>Bölge / Şehir</th>
+              <th>Uzmanlık Unvanı</th>
+              <th>Puan & Görev</th>
+              <th>Günlük Hak Ediş</th>
+              <th>Durum</th>
+              <th>İşlem</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
+          </thead>
+          <tbody>
+            ${staffMembers.map(s => `
+              <tr>
+                <td>
+                  <strong style="color: #f1f5f9;">${escapeHTML(s.name)}</strong>
+                  <span class="act-key">No: <code>${escapeHTML(s.id)}</code></span>
+                </td>
+                <td><span>📍 ${escapeHTML(s.city)}</span></td>
+                <td><span class="act-cat-tag">${escapeHTML(s.specialties ? s.specialties.join(', ') : 'Temizlik Uzmanı')}</span></td>
+                <td>
+                  <strong style="color: #fbbf24;">⭐ ${escapeHTML(String(s.rating || '5.00'))}</strong>
+                  <span style="font-size: 0.72rem; color: #94a3b8; display: block;">${s.completedJobs || 0} Görev</span>
+                </td>
+                <td><strong style="color: #34d399;">${s.todayEarnings || 0} TL</strong></td>
+                <td><span class="ub-status ${s.isAvailable ? 'badge-success' : 'badge-warning'}">${s.isAvailable ? 'MÜSAİT' : 'GÖREVDE'}</span></td>
+                <td>
+                  <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="if(typeof window.playCashRegisterChime==='function')window.playCashRegisterChime(); alert('${escapeHTML(s.name)} için günlük hak ediş banka transferi onaylandı.')">💰 Ödeme Onayla</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
   }
 
   // Render Staff Applicants Queue
   if (staffApplicantsWrap) {
-    const applicants = [
-      { id: 'APP-102', name: 'Fatma Şahin', phone: '0542 333 44 55', city: 'Ankara / Çankaya', exp: '6 Yıl Profesyonel Temizlik Deneyimi', date: 'Dün', badge: 'badge-warning' },
-      { id: 'APP-103', name: 'Tomasz Kozłowski', phone: '+48 509 888 777', city: 'Warszawa / Mokotów', exp: '4 Lata Doświadczenia / Hotele 5★', date: 'Bugün', badge: 'badge-warning' }
-    ];
+    const applicants = getStaffApplicants();
 
-    staffApplicantsWrap.innerHTML = `
-      <table class="admin-catalog-table">
-        <thead>
-          <tr>
-            <th>Aday Sicil / İsim</th>
-            <th>İletişim & Şehir</th>
-            <th>Deneyim & Nitelik</th>
-            <th>Başvuru Tarihi</th>
-            <th>İşlem</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${applicants.map(a => `
-            <tr id="rowApplicant_${a.id}">
-              <td>
-                <strong style="color: #f1f5f9;">${a.name}</strong>
-                <span class="act-key">Kod: <code>${a.id}</code></span>
-              </td>
-              <td>
-                <span>📍 ${a.city}</span>
-                <span style="font-size: 0.72rem; color: #94a3b8; display: block;">📞 ${a.phone}</span>
-              </td>
-              <td><span style="font-size: 0.78rem; color: #cbd5e1;">${a.exp}</span></td>
-              <td><span style="font-size: 0.72rem; color: #94a3b8;">${a.date}</span></td>
-              <td>
-                <div style="display: flex; gap: 6px;">
-                  <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="window.approveStaffApplicantGlobal('${a.id}', '${a.name}')">✓ Onayla & Filoya Kat</button>
-                  <button type="button" class="btn-admin-act delete" style="padding: 4px 8px; font-size: 0.7rem;" onclick="window.rejectStaffApplicantGlobal('${a.id}')">✕ Reddet</button>
-                </div>
-              </td>
+    if (applicants.length === 0) {
+      staffApplicantsWrap.innerHTML = `
+        <div class="empty-sub-item" style="padding: 32px 16px; text-align: center; color: #94a3b8; background: rgba(13, 22, 44, 0.6); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📝</div>
+          <strong style="color: #ffffff; font-size: 0.95rem; display: block; margin-bottom: 4px;">Bekleyen Uzman Başvurusu Yok</strong>
+          <span style="font-size: 0.8rem; color: #64748b;">"Uzman Ol" formu üzerinden gelen temizlik personeli başvuruları burada listelenir.</span>
+        </div>
+      `;
+    } else {
+      staffApplicantsWrap.innerHTML = `
+        <table class="admin-catalog-table">
+          <thead>
+            <tr>
+              <th>Aday Sicil / İsim</th>
+              <th>İletişim & Şehir</th>
+              <th>Deneyim & Nitelik</th>
+              <th>Başvuru Tarihi</th>
+              <th>İşlem</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
+          </thead>
+          <tbody>
+            ${applicants.map(a => `
+              <tr id="rowApplicant_${escapeHTML(a.id)}">
+                <td>
+                  <strong style="color: #f1f5f9;">${escapeHTML(a.name)}</strong>
+                  <span class="act-key">Kod: <code>${escapeHTML(a.id)}</code></span>
+                </td>
+                <td>
+                  <span>📍 ${escapeHTML(a.city)}</span>
+                  <span style="font-size: 0.72rem; color: #94a3b8; display: block;">📞 ${escapeHTML(a.phone)}</span>
+                </td>
+                <td><span style="font-size: 0.78rem; color: #cbd5e1;">${escapeHTML(a.exp || 'Deneyimli')}</span></td>
+                <td><span style="font-size: 0.72rem; color: #94a3b8;">${escapeHTML(a.date || 'Bugün')}</span></td>
+                <td>
+                  <div style="display: flex; gap: 6px;">
+                    <button type="button" class="btn-stock-toggle in-stock" style="padding: 4px 8px; font-size: 0.7rem;" onclick="window.approveStaffApplicantGlobal('${escapeHTML(a.id)}', '${escapeHTML(a.name)}')">✓ Onayla & Filoya Kat</button>
+                    <button type="button" class="btn-admin-act delete" style="padding: 4px 8px; font-size: 0.7rem;" onclick="window.rejectStaffApplicantGlobal('${escapeHTML(a.id)}')">✕ Reddet</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
   }
 
   // 3. Render Catalog Management Table
@@ -2985,19 +2941,44 @@ window.saveAssignedStaffGlobal = function() {
 };
 
 window.approveStaffApplicantGlobal = function(applicantId, name) {
-  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
-  const row = document.getElementById(`rowApplicant_${applicantId}`);
-  if (row) {
-    row.innerHTML = `<td colspan="5" style="text-align: center; color: #34d399; font-weight: bold; padding: 12px;">✓ ${name} sisteme kabul edildi ve aktif temizlik filosuna eklendi!</td>`;
+  const applicants = getStaffApplicants();
+  const applicantIdx = applicants.findIndex(a => a.id === applicantId);
+  if (applicantIdx !== -1) {
+    const applicant = applicants[applicantIdx];
+    const staffList = getRegisteredStaff();
+    const newStaff = {
+      id: applicant.id || ('STF-' + Date.now().toString(36).toUpperCase()),
+      name: applicant.name || name,
+      email: applicant.email || (applicant.phone ? `${applicant.phone.replace(/[^0-9]/g, '')}@relaxax.com` : 'uzman@relaxax.com'),
+      phone: applicant.phone || '',
+      password: applicant.password || '123456',
+      city: applicant.city || 'Istanbul',
+      specialties: [applicant.exp || 'Detaylı Ev Temizliği'],
+      rating: '5.00',
+      completedJobs: 0,
+      todayEarnings: 0,
+      isAvailable: true,
+      role: 'staff'
+    };
+    staffList.push(newStaff);
+    saveRegisteredStaff(staffList);
+    
+    applicants.splice(applicantIdx, 1);
+    saveStaffApplicants(applicants);
   }
+
+  if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+  if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+  alert(`✓ "${name}" onaylandı ve aktif temizlik filosuna eklendi!`);
 };
 
 window.rejectStaffApplicantGlobal = function(applicantId) {
-  const row = document.getElementById(`rowApplicant_${applicantId}`);
-  if (row) {
-    row.style.opacity = '0.4';
-    row.innerHTML = `<td colspan="5" style="text-align: center; color: #f87171; padding: 12px;">✕ Başvuru arşive kaldırıldı.</td>`;
-  }
+  const applicants = getStaffApplicants();
+  const filtered = applicants.filter(a => a.id !== applicantId);
+  saveStaffApplicants(filtered);
+
+  if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+  alert('Başvuru arşive kaldırıldı.');
 };
 
 window.toggleProductStockGlobal = function(key) {
