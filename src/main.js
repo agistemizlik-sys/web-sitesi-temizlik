@@ -2872,6 +2872,9 @@ function updateIntroVideoState(city) {
   cachedIntroVideos.forEach(video => {
     if (video.id === targetId) {
       video.classList.add('active');
+      video.style.opacity = '1';
+      video.style.visibility = 'visible';
+      video.style.display = 'block';
       activeIntroVideoEl = video; // Track active reference
       video.loop = true;
       video.muted = true;
@@ -2889,6 +2892,7 @@ function updateIntroVideoState(city) {
       video.classList.remove('active');
       video.style.opacity = '0';
       video.style.visibility = 'hidden';
+      video.style.display = 'none';
       if (!video.paused) {
         video.pause();
       }

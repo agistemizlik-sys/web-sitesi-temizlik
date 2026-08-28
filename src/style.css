@@ -5917,12 +5917,12 @@ video::-webkit-media-controls-overlay-play-button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  padding: 5px 14px;
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 10px !important;
+  padding: 8px 14px;
+  background: rgba(13, 22, 44, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 12px !important;
   text-align: left;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
   width: 100%;
   flex-shrink: 0;
   position: relative;
@@ -5938,7 +5938,7 @@ video::-webkit-media-controls-overlay-play-button {
 .trust-badge-text strong {
   display: block;
   font-size: clamp(0.72rem, 0.85vw, 0.78rem);
-  color: #0f172a !important;
+  color: #ffffff !important;
   font-weight: 800;
   letter-spacing: 0.2px;
 }
@@ -5946,7 +5946,7 @@ video::-webkit-media-controls-overlay-play-button {
 .trust-badge-text small {
   display: block;
   font-size: clamp(0.64rem, 0.75vw, 0.68rem);
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-weight: 500;
   margin-top: 1px;
 }
@@ -5960,7 +5960,7 @@ video::-webkit-media-controls-overlay-play-button {
 .trust-badge-text strong {
   display: block;
   font-size: clamp(0.76rem, 0.9vw, 0.82rem);
-  color: #0f172a !important;
+  color: #ffffff !important;
   font-weight: 800;
   letter-spacing: 0.2px;
 }
@@ -5968,7 +5968,7 @@ video::-webkit-media-controls-overlay-play-button {
 .trust-badge-text small {
   display: block;
   font-size: clamp(0.68rem, 0.8vw, 0.72rem);
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-weight: 500;
   margin-top: 1px;
 }
@@ -5982,7 +5982,7 @@ video::-webkit-media-controls-overlay-play-button {
 .trust-badge-text strong {
   display: block;
   font-size: 0.88rem;
-  color: #0f172a !important;
+  color: #ffffff !important;
   font-weight: 800;
   letter-spacing: 0.2px;
 }
@@ -5990,7 +5990,7 @@ video::-webkit-media-controls-overlay-play-button {
 .trust-badge-text small {
   display: block;
   font-size: 0.76rem;
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-weight: 500;
   margin-top: 2px;
 }
