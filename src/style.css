@@ -13617,17 +13617,18 @@ iframe[title*="Message preview"] {
   }
 
   .service-select-item {
-    padding: 6px 6px !important;
-    border-radius: 10px !important;
-    background: rgba(255, 255, 255, 0.96) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    padding: 8px 8px !important;
+    border-radius: 12px !important;
+    background: rgba(13, 22, 44, 0.92) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     box-sizing: border-box !important;
+    color: #ffffff !important;
   }
 
   .service-card-bg-img {
@@ -13638,54 +13639,56 @@ iframe[title*="Message preview"] {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    margin-bottom: 1px !important;
+    margin-bottom: 2px !important;
   }
 
   .service-badge {
-    font-size: 0.52rem !important;
-    padding: 1px 4px !important;
-    border-radius: 4px !important;
+    font-size: 0.58rem !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
     line-height: 1 !important;
+    font-weight: 700 !important;
   }
 
   .service-check-indicator {
-    width: 13px !important;
-    height: 13px !important;
+    width: 15px !important;
+    height: 15px !important;
     border-radius: 50% !important;
-    font-size: 0.55rem !important;
+    font-size: 0.6rem !important;
   }
 
   .service-card-header {
     display: flex !important;
     align-items: center !important;
-    gap: 5px !important;
+    gap: 6px !important;
     margin: 0 !important;
   }
 
   .service-icon-box {
-    width: 24px !important;
-    height: 24px !important;
-    min-width: 24px !important;
-    border-radius: 6px !important;
-    background: #f0fdf4 !important;
-    color: #16a34a !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    border-radius: 8px !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #38bdf8 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
   }
 
   .service-icon-box svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 15px !important;
+    height: 15px !important;
   }
 
   .service-title-group h4 {
-    color: #0f172a !important;
-    font-size: 0.72rem !important;
+    color: #ffffff !important;
+    font-size: 0.78rem !important;
     font-weight: 800 !important;
-    line-height: 1.15 !important;
+    line-height: 1.2 !important;
     margin: 0 !important;
-    text-shadow: none !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   }
 
   .service-title-group .service-sub,
@@ -13700,9 +13703,9 @@ iframe[title*="Message preview"] {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    border-top: 1px solid #f1f5f9 !important;
-    padding-top: 2px !important;
-    margin: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding-top: 3px !important;
+    margin-top: 2px !important;
   }
 
   .service-meta-row .meta-pill.price {
@@ -13710,14 +13713,14 @@ iframe[title*="Message preview"] {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    color: #059669 !important;
-    font-size: 0.65rem !important;
+    color: #38bdf8 !important;
+    font-size: 0.68rem !important;
     font-weight: 700 !important;
   }
 
   .service-meta-row .meta-pill.price strong {
-    color: #059669 !important;
-    font-size: 0.72rem !important;
+    color: #38bdf8 !important;
+    font-size: 0.78rem !important;
     font-weight: 800 !important;
   }
 
@@ -13727,17 +13730,18 @@ iframe[title*="Message preview"] {
 
   /* Selected Card on Mobile */
   .service-select-item.selected {
-    background: #ecfdf5 !important;
-    border: 2px solid #10b981 !important;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+    background: rgba(2, 132, 199, 0.28) !important;
+    border: 2px solid #38bdf8 !important;
+    box-shadow: 0 0 18px rgba(2, 132, 199, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   }
 
   .service-select-item.selected .service-title-group h4 {
-    color: #065f46 !important;
+    color: #ffffff !important;
   }
 
   .service-select-item.selected .service-icon-box {
-    background: #10b981 !important;
+    background: #0284c7 !important;
+    border-color: #38bdf8 !important;
     color: #ffffff !important;
   }
 
