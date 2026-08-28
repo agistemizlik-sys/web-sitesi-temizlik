@@ -3192,7 +3192,27 @@
                 <span class="footer-contact-val">@relaxaxserwis</span>
               </a>
             </div>
-            <div class="footer-copy" id="fCopyLbl">© 2026 RELAXAX. Tüm hakları saklıdır.</div>
+
+            <!-- Operational & Portal Sub Links -->
+            <div class="footer-sub-links-row" style="display:flex; justify-content:center; align-items:center; gap:16px; margin-top:10px; font-size:0.75rem; color:#64748b; flex-wrap:wrap;">
+              <a href="/admin" onclick="if(typeof window.openAuthModalGlobal==='function'){window.openAuthModalGlobal('admin_login','admin'); return false;}" style="color:#64748b; text-decoration:none; display:inline-flex; align-items:center; gap:4px; opacity:0.8; transition:color 0.2s;" onmouseover="this.style.color='#fbbf24'" onmouseout="this.style.color='#64748b'">
+                <span>🔒 Yönetici Girişi</span>
+              </a>
+              <span style="opacity:0.3;">•</span>
+              <a href="/staff" onclick="if(typeof window.openAuthModalGlobal==='function'){window.openAuthModalGlobal('staff_login','staff'); return false;}" style="color:#64748b; text-decoration:none; display:inline-flex; align-items:center; gap:4px; opacity:0.8; transition:color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">
+                <span>🧹 Temizlik Uzmanı Girişi</span>
+              </a>
+              <span style="opacity:0.3;">•</span>
+              <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('terms');} return false;" style="color:#64748b; text-decoration:none; opacity:0.8; transition:color 0.2s;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">
+                <span>Kullanıcı Sözleşmesi</span>
+              </a>
+              <span style="opacity:0.3;">•</span>
+              <a href="#" onclick="if(typeof openLegalModal==='function'){openLegalModal('kvkk');} return false;" style="color:#64748b; text-decoration:none; opacity:0.8; transition:color 0.2s;" onmouseover="this.style.color='#cbd5e1'" onmouseout="this.style.color='#64748b'">
+                <span>KVKK Gizlilik Politikası</span>
+              </a>
+            </div>
+
+            <div class="footer-copy" id="fCopyLbl" style="margin-top:8px;">© 2026 RELAXAX. Tüm hakları saklıdır.</div>
           </div>
 
         <!-- Mobile Floating Sticky Checkout Bar -->
