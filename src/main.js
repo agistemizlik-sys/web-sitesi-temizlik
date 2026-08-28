@@ -3899,6 +3899,18 @@ function initApp() {
   const cityParam = urlParams.get('city');
   const langParam = urlParams.get('lang');
 
+  const panelParam = urlParams.get('panel') || urlParams.get('auth') || urlParams.get('tab');
+  if (panelParam) {
+    setTimeout(() => {
+      if (typeof window.openAuthModalGlobal === 'function') {
+        if (panelParam === 'admin') window.openAuthModalGlobal('admin_dashboard');
+        else if (panelParam === 'staff') window.openAuthModalGlobal('staff_dashboard');
+        else if (panelParam === 'apply') window.openAuthModalGlobal('staff_apply');
+        else window.openAuthModalGlobal(panelParam);
+      }
+    }, 400);
+  }
+
   if (cityParam) {
     skipPortalDirectToCity(cityParam);
   } else if (langParam) {
