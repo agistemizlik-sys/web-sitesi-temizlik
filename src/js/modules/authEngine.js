@@ -1053,8 +1053,8 @@ export function setAuthRoleMode(role) {
     if (btnRoleCust) btnRoleCust.classList.remove('active');
     if (btnRoleStaff) btnRoleStaff.classList.remove('active');
     if (btnRoleAdmin) btnRoleAdmin.classList.add('active');
-    if (badgeModal) badgeModal.textContent = '👑 RELAXAX YÖNETİCİ & KATALOG MERKEZİ';
-    if (titleModal) titleModal.textContent = 'Yönetici & Ürün/Hizmet Paneli';
+    if (badgeModal) badgeModal.textContent = '👑 RELAXAX YÖNETİM MASASI';
+    if (titleModal) titleModal.textContent = 'Yönetici Girişi & Operasyon';
 
     document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
@@ -1070,8 +1070,8 @@ export function setAuthRoleMode(role) {
     if (btnRoleCust) btnRoleCust.classList.remove('active');
     if (btnRoleStaff) btnRoleStaff.classList.add('active');
     if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
-    if (badgeModal) badgeModal.textContent = '⚡ RELAXAX PERSONEL & UZMAN MERKEZİ';
-    if (titleModal) titleModal.textContent = 'Temizlik Uzmanı & Görev Paneli';
+    if (badgeModal) badgeModal.textContent = '⚡ RELAXAX TEMİZLİK UZMANI';
+    if (titleModal) titleModal.textContent = 'Uzman Girişi & Görevlerim';
 
     document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'flex');
@@ -1087,17 +1087,21 @@ export function setAuthRoleMode(role) {
     if (btnRoleCust) btnRoleCust.classList.add('active');
     if (btnRoleStaff) btnRoleStaff.classList.remove('active');
     if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
-    if (badgeModal) badgeModal.textContent = '✨ RELAXAX MÜŞTERİ MERKEZİ';
-    if (titleModal) titleModal.textContent = 'Müşteri Hesabı & Rezervasyonlarım';
-
-    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'flex');
-    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
     
     const user = getCurrentUser();
     if (user && user.role === 'customer') {
+      if (badgeModal) badgeModal.textContent = '👤 RELAXAX HESABIM';
+      if (titleModal) titleModal.textContent = 'Hesabım & Siparişlerim';
+      document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'flex');
+      document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
       switchAuthTab('profile');
     } else {
+      if (badgeModal) badgeModal.textContent = '✨ RELAXAX ÜYELİK & GİRİŞ';
+      if (titleModal) titleModal.textContent = 'Giriş Yap / Kayıt Ol';
+      document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
       switchAuthTab('login');
     }
   }
