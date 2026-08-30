@@ -3097,67 +3097,76 @@
           </form>
 
           <!-- Başarı Ekranı -->
+          <!-- Başarı & Bekleme Ekranı (Zero-Simulation Pending / Approved States) -->
           <div class="reveal-success-state" id="bookingSuccessState" hidden>
             <div class="success-video-badge-wrap">
               <video id="successGrandmotherVideo" class="success-grandmother-video" src="/videos/grandmother.mp4" poster="/images/grandmother_poster.webp" muted playsinline loop autoplay></video>
-              <div class="success-check-bubble">✓</div>
+              <div class="success-check-bubble" id="successStatusBubble">⏳</div>
             </div>
-            <h3 id="lblBookingSuccessTitle">SİPARİŞİNİZ ONAYLANMIŞTIR!</h3>
+            
+            <div class="pending-status-pill" id="pendingStatusPill" style="background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.4); color: #fbbf24; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <span class="acc-pulse-dot" style="background: #fbbf24; box-shadow: 0 0 10px #fbbf24;"></span>
+              <span id="pendingStatusPillText">YÖNETİCİ ONAYI BEKLENİYOR</span>
+            </div>
+
+            <h3 id="lblBookingSuccessTitle">SİPARİŞ TALEBİNİZ ALINDI!</h3>
+            
             <div class="success-res-code" id="successResCode" style="font-size: 1.1rem; font-weight: 800; color: #fbbf24; margin: 8px 0 12px; background: rgba(251, 191, 36, 0.12); padding: 8px 16px; border-radius: 12px; border: 1px dashed rgba(251, 191, 36, 0.3); display: inline-block;">
               <span id="lblResCodePrefix">Sipariş / Rezervasyon Kodu:</span> <span id="resCodeNum">#RLX-849201</span>
             </div>
-            <p id="lblBookingSuccessText">Siparişiniz başarıyla alınmış ve onaylanmıştır. Temizlik ekibimiz seçtiğiniz randevu tarihinde adresinizde olacaktır. Dilerseniz WhatsApp üzerinden anında teyit alabilir veya dekontunuzu iletebilirsiniz.</p>
+            
+            <p id="lblBookingSuccessText">Sipariş talebiniz operasyon merkezimize başarıyla iletilmiştir. Yetkili yöneticimiz bölgenizdeki en uygun temizlik uzmanını atayıp onayladığında bu ekran otomatik olarak güncellenecektir.</p>
 
-            <!-- 🚗 ATANAN TEMİZLİK UZMANI & CANLI MESAFE RADARI -->
+            <!-- 🚗 ATANAN TEMİZLİK UZMANI & CANLI MESAFE RADARI (Dynamic Pending / Assigned Mode) -->
             <div class="assigned-cleaner-card" id="assignedCleanerCard">
-              <div class="acc-top-badge">
-                <span class="acc-pulse-dot"></span>
-                <strong>CANLI TEMİZLİK UZMANI EŞLEŞTİRİLDİ</strong>
-                <span class="acc-distance-pill" id="accDistancePill">📍 ~1.4 km mesafede (~8 dk)</span>
+              <div class="acc-top-badge" id="accTopBadge">
+                <span class="acc-pulse-dot" id="accTopBadgeDot"></span>
+                <strong id="accTopBadgeTitle">OPERASYON MERKEZİ ATAMA BEKLİYOR</strong>
+                <span class="acc-distance-pill" id="accDistancePill">⏳ Ortalama Onay: ~2-5 dk</span>
               </div>
 
-              <div class="acc-profile-row">
+              <div class="acc-profile-row" id="accProfileRow">
                 <div class="acc-avatar-wrap">
-                  <div class="acc-avatar-img" id="accCleanerAvatar">👩‍💼</div>
-                  <span class="acc-online-indicator" title="Çevrimiçi & Göreve Hazır"></span>
+                  <div class="acc-avatar-img" id="accCleanerAvatar">⏳</div>
+                  <span class="acc-online-indicator" id="accOnlineIndicator" style="background: #fbbf24; box-shadow: 0 0 8px #fbbf24;" title="İnceleniyor"></span>
                 </div>
                 <div class="acc-info">
                   <div class="acc-name-row">
-                    <h4 id="accCleanerName">Ayşe K.</h4>
-                    <span class="acc-verified-badge" title="Adli Sicil & Hijyen Sertifikalı">✓ Doğrulanmış Uzman</span>
+                    <h4 id="accCleanerName">Temizlik Uzmanı Atanıyor...</h4>
+                    <span class="acc-verified-badge" id="accVerifiedBadge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);">⏳ Yönetici Onayı Bekleniyor</span>
                   </div>
-                  <div class="acc-meta-row">
-                    <span class="acc-rating" id="accCleanerRating">★ 4.98 (142 Yorum)</span>
-                    <span class="acc-exp" id="accCleanerExp">6 Yıl Deneyim</span>
+                  <div class="acc-meta-row" id="accMetaRow">
+                    <span class="acc-rating" id="accCleanerRating">📋 Rezervasyon Masada İnceleniyor</span>
+                    <span class="acc-exp" id="accCleanerExp">Canlı Bildirim Aktif</span>
                   </div>
-                  <p class="acc-location" id="accCleanerLocation">📍 Şu anki konumu: Kadıköy / Moda — Ekipmanları ve Kärcher buharlı seti hazırlandı.</p>
+                  <p class="acc-location" id="accCleanerLocation">📍 Siparişiniz sistem yöneticisi masasında onaylandığında, atanan uzmanın adı, iletişim bilgileri ve canlı konumu burada belirecektir.</p>
                 </div>
               </div>
 
               <!-- Live GPS Status Progress Bar -->
               <div class="acc-route-tracker">
                 <div class="acc-route-steps">
-                  <div class="acc-step active">
+                  <div class="acc-step active pulse" id="accStep1">
                     <span class="acc-step-icon">📋</span>
-                    <span class="acc-step-txt">Sipariş Onaylandı</span>
+                    <span class="acc-step-txt" id="accStep1Txt">Talep Alındı</span>
                   </div>
-                  <div class="acc-step active pulse">
+                  <div class="acc-step" id="accStep2">
                     <span class="acc-step-icon">🚗</span>
-                    <span class="acc-step-txt" id="accStatusStepTxt">Yola Çıkıyor (~1.4 km)</span>
+                    <span class="acc-step-txt" id="accStep2Txt">Onay & Yola Çıkış</span>
                   </div>
-                  <div class="acc-step">
+                  <div class="acc-step" id="accStep3">
                     <span class="acc-step-icon">✨</span>
-                    <span class="acc-step-txt">Temizlikte</span>
+                    <span class="acc-step-txt" id="accStep3Txt">Temizlikte</span>
                   </div>
-                  <div class="acc-step">
+                  <div class="acc-step" id="accStep4">
                     <span class="acc-step-icon">🏆</span>
-                    <span class="acc-step-txt">Teslim Edildi</span>
+                    <span class="acc-step-txt" id="accStep4Txt">Tamamlandı</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Cleaner Direct Contact Buttons -->
-              <div class="acc-contact-actions">
+              <!-- Cleaner Direct Contact Buttons (Hidden during pending, visible upon admin approval) -->
+              <div class="acc-contact-actions" id="accContactActions" style="display: none;">
                 <a href="#" id="accCallBtn" class="btn-acc-contact call">
                   <span>📞 Uzmanı Doğrudan Ara</span>
                 </a>
@@ -3169,7 +3178,7 @@
 
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap;">
               <a href="#" id="btnSuccessWhatsApp" target="_blank" rel="noopener noreferrer" class="wizard-whatsapp-help-btn" style="margin: 0; padding: 14px 24px; font-size: 1rem;">
-                <span>💬 WhatsApp Sipariş Teyidi & Dekont İlet</span>
+                <span>💬 WhatsApp Operasyon Hattına Yaz</span>
               </a>
               <button type="button" class="success-ok-btn" id="successOkBtn" style="margin: 0; padding: 14px 28px;">TAMAM</button>
             </div>

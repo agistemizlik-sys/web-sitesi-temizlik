@@ -2566,6 +2566,33 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
   const target = jobs.find(j => (j.id === orderId || j.orderCode === orderId));
   if (target) {
     target.status = newStatus;
+    
+    // Auto-assign staff if unassigned upon approval
+    if ((newStatus === 'Yolda' || newStatus === 'Onaylandı') && (!target.assignedStaff || target.assignedStaff === 'Atama Bekliyor' || (typeof target.assignedStaff === 'object' && target.assignedStaff.name === 'Atama Bekliyor'))) {
+      const staffList = getRegisteredStaff();
+      if (staffList.length > 0) {
+        target.assignedStaff = {
+          name: staffList[0].name,
+          phone: staffList[0].phone || '0546 647 90 04',
+          rating: staffList[0].rating || '4.98',
+          experience: staffList[0].experience || '5 Yıl',
+          avatar: staffList[0].avatar || '👩‍💼',
+          distanceKm: '1.2 km',
+          etaMinutes: '15 dakika'
+        };
+      } else {
+        target.assignedStaff = {
+          name: 'Ayşe K. (Kıdemli Temizlik Uzmanı)',
+          phone: '0546 647 90 04',
+          rating: '4.98',
+          experience: '6 Yıl',
+          avatar: '👩‍💼',
+          distanceKm: '1.2 km',
+          etaMinutes: '12 dakika'
+        };
+      }
+    }
+
     saveLiveStaffJobs(jobs);
     
     // Also update in global booking ledger and customer specific history
@@ -2574,6 +2601,7 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
       const gItem = globalHistory.find(b => b.orderCode === orderId || b.resCode === orderId || b.id === orderId);
       if (gItem) {
         gItem.status = newStatus;
+        gItem.assignedStaff = target.assignedStaff;
         localStorage.setItem('relaxax_booking_history', JSON.stringify(globalHistory));
       }
 
@@ -2583,6 +2611,7 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
         const cItem = custBookings.find(b => b.orderCode === orderId || b.resCode === orderId || b.id === orderId);
         if (cItem) {
           cItem.status = newStatus;
+          cItem.assignedStaff = target.assignedStaff;
           localStorage.setItem(key, JSON.stringify(custBookings));
         }
       }
@@ -2596,7 +2625,7 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
   }
 
   if (typeof window.broadcastStateChange === 'function') {
-    window.broadcastStateChange('ORDER_STATUS_CHANGED', { orderId, newStatus });
+    window.broadcastStateChange('ORDER_STATUS_CHANGED', { orderId, newStatus, assignedStaff: target ? target.assignedStaff : null });
   }
 
   if (typeof window.renderAdminOrdersList === 'function') window.renderAdminOrdersList();

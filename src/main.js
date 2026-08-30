@@ -10653,11 +10653,11 @@ function setupBookingReveal() {
       window.triggerRoseGrandBlossom();
     }
 
-    // Instant GSAP Transition to Success State Screen
+    // Instant GSAP Transition to Pending Waiting State Screen
     const targetFormEl = document.getElementById('bookingForm');
     const targetSuccessEl = document.getElementById('bookingSuccessState');
 
-    // Display global success toast
+    // Display global pending toast
     let toast = document.getElementById('relaxaxGlobalToast');
     if (!toast) {
       toast = document.createElement('div');
@@ -10665,15 +10665,105 @@ function setupBookingReveal() {
       toast.className = 'relaxax-toast';
       document.body.appendChild(toast);
     }
-    toast.className = 'relaxax-toast success';
-    toast.innerHTML = `<span style="font-size:1.3rem;">🎉</span> <span><strong>${isPl ? 'Twoje zamówienie zostało potwierdzone!' : 'Siparişiniz Onaylanmıştır!'}</strong> (#${resCode})</span>`;
+    toast.className = 'relaxax-toast';
+    toast.style.background = 'rgba(15, 23, 42, 0.95)';
+    toast.style.border = '1px solid rgba(251, 191, 36, 0.4)';
+    toast.style.color = '#fbbf24';
+    toast.innerHTML = `<span style="font-size:1.3rem;">⏳</span> <span><strong>${isPl ? 'Zamówienie przyjęte!' : 'Sipariş Talebiniz Alındı!'}</strong> (#${resCode}) — ${isPl ? 'Oczekuje na potwierdzenie' : 'Yönetici Onayı Bekleniyor'}</span>`;
     toast.classList.add('show');
     if (window.formToastTimeout) clearTimeout(window.formToastTimeout);
     window.formToastTimeout = setTimeout(() => {
       toast.classList.remove('show');
     }, 6000);
 
+    // 1. Render PENDING / WAITING STATE (Bekleme Ekranı)
     if (targetSuccessEl) {
+      const bubbleEl = targetSuccessEl.querySelector('#successStatusBubble');
+      if (bubbleEl) bubbleEl.textContent = '⏳';
+
+      const statusPill = targetSuccessEl.querySelector('#pendingStatusPill');
+      if (statusPill) {
+        statusPill.style.background = 'rgba(251, 191, 36, 0.15)';
+        statusPill.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+        statusPill.style.color = '#fbbf24';
+      }
+
+      const statusPillTxt = targetSuccessEl.querySelector('#pendingStatusPillText');
+      if (statusPillTxt) {
+        statusPillTxt.textContent = isPl ? 'OCZEKUJE NA POTWIERDZENIE DYSPOZYTORA' : 'YÖNETİCİ ONAYI BEKLENİYOR';
+      }
+
+      const h3Title = targetSuccessEl.querySelector('#lblBookingSuccessTitle') || targetSuccessEl.querySelector('h3');
+      if (h3Title) {
+        h3Title.textContent = isPl ? 'ZAMÓWIENIE PRZYJĘTE • OCZEKUJE NA POTWIERDZENIE' : 'SİPARİŞ TALEBİNİZ ALINDI!';
+      }
+      const pDesc = targetSuccessEl.querySelector('#lblBookingSuccessText') || targetSuccessEl.querySelector('p');
+      if (pDesc) {
+        pDesc.textContent = isPl
+          ? 'Twoje zamówienie zostało pomyślnie przesłane do centrum operacyjnego. Po zatwierdzeniu przez dyspozytora i wyznaczeniu personelu ten ekran zaktualizuje się automatycznie.'
+          : 'Sipariş talebiniz operasyon merkezimize başarıyla iletilmiştir. Yetkili yöneticimiz bölgenizdeki en uygun temizlik uzmanını atayıp onayladığında bu ekran otomatik olarak güncellenecektir.';
+      }
+
+      const resCodeNum = targetSuccessEl.querySelector('#resCodeNum');
+      if (resCodeNum) resCodeNum.textContent = `#${resCode}`;
+
+      // Reset cleaner card to pending state
+      const accTopBadgeTitle = document.getElementById('accTopBadgeTitle');
+      const accDistancePill = document.getElementById('accDistancePill');
+      const accCleanerAvatar = document.getElementById('accCleanerAvatar');
+      const accCleanerName = document.getElementById('accCleanerName');
+      const accCleanerRating = document.getElementById('accCleanerRating');
+      const accCleanerExp = document.getElementById('accCleanerExp');
+      const accCleanerLocation = document.getElementById('accCleanerLocation');
+      const accContactActions = document.getElementById('accContactActions');
+      const accStep1 = document.getElementById('accStep1');
+      const accStep2 = document.getElementById('accStep2');
+      const accStep3 = document.getElementById('accStep3');
+      const accStep4 = document.getElementById('accStep4');
+
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = isPl ? 'DYSPOZYCJA W TOKU' : 'OPERASYON MERKEZİ ATAMA BEKLİYOR';
+      if (accDistancePill) accDistancePill.textContent = isPl ? '⏳ Średni czas: ~2-5 min' : '⏳ Ortalama Onay: ~2-5 dk';
+      if (accCleanerAvatar) accCleanerAvatar.textContent = '⏳';
+      if (accCleanerName) accCleanerName.textContent = isPl ? 'Dobieranie personelu sprzątającego...' : 'Temizlik Uzmanı Atanıyor...';
+      if (accCleanerRating) accCleanerRating.textContent = isPl ? '📋 Zgłoszenie w weryfikacji' : '📋 Rezervasyon Masada İnceleniyor';
+      if (accCleanerExp) accCleanerExp.textContent = isPl ? 'Powiadomienia na żywo' : 'Canlı Bildirim Aktif';
+      if (accCleanerLocation) accCleanerLocation.textContent = isPl
+        ? `📍 Rejon: ${district || ''}, ${city || 'Warszawa'} — Po zatwierdzeniu dane personelu i status pojawią się w tym miejscu.`
+        : `📍 Siparişiniz sistem yöneticisi masasında onaylandığında, atanan uzmanın adı, iletişim bilgileri ve canlı konumu burada belirecektir.`;
+      
+      if (accContactActions) accContactActions.style.display = 'none';
+
+      if (accStep1) accStep1.className = 'acc-step active pulse';
+      if (accStep2) accStep2.className = 'acc-step';
+      if (accStep3) accStep3.className = 'acc-step';
+      if (accStep4) accStep4.className = 'acc-step';
+
+      const btnSuccessWa = document.getElementById('btnSuccessWhatsApp');
+      if (btnSuccessWa) {
+        const waPendingTxt = encodeURIComponent(`Merhaba, web sitenizden #${resCode} numaralı temizlik sipariş talebimi oluşturdum. Durumu hakkında bilgi almak istiyorum.`);
+        btnSuccessWa.href = `https://wa.me/905466479004?text=${waPendingTxt}`;
+      }
+    }
+
+    // Function to render APPROVED State when Admin clicks "Onayla & Yola Çıkar"
+    const renderOrderApprovedState = (jobData) => {
+      if (!targetSuccessEl) return;
+
+      const bubbleEl = targetSuccessEl.querySelector('#successStatusBubble');
+      if (bubbleEl) bubbleEl.textContent = '✓';
+
+      const statusPill = targetSuccessEl.querySelector('#pendingStatusPill');
+      if (statusPill) {
+        statusPill.style.background = 'rgba(16, 185, 129, 0.15)';
+        statusPill.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        statusPill.style.color = '#34d399';
+      }
+
+      const statusPillTxt = targetSuccessEl.querySelector('#pendingStatusPillText');
+      if (statusPillTxt) {
+        statusPillTxt.textContent = isPl ? 'ZAMÓWIENIE POTWIERDZONE & W DRODZE' : 'SİPARİŞ ONAYLANDI & EKİP YOLDA';
+      }
+
       const h3Title = targetSuccessEl.querySelector('#lblBookingSuccessTitle') || targetSuccessEl.querySelector('h3');
       if (h3Title) {
         h3Title.textContent = isPl ? 'TWOJE ZAMÓWIENIE ZOSTAŁO POTWIERDZONE!' : 'SİPARİŞİNİZ ONAYLANMIŞTIR!';
@@ -10681,52 +10771,96 @@ function setupBookingReveal() {
       const pDesc = targetSuccessEl.querySelector('#lblBookingSuccessText') || targetSuccessEl.querySelector('p');
       if (pDesc) {
         pDesc.textContent = isPl
-          ? 'Twoje zamówienie zostało pomyślnie złożone i potwierdzone. Nasz zespół przybędzie pod wskazany adres w wybranym terminie.'
-          : 'Siparişiniz başarıyla alınmış ve onaylanmıştır. Temizlik ekibimiz seçtiğiniz randevu tarihinde adresinizde olacaktır.';
+          ? 'Twoje zamówienie zostało zatwierdzone przez dyspozytora. Nasz personel wyruszył w drogę pod Twój adres.'
+          : 'Siparişiniz operasyon yöneticisi tarafından onaylanmış ve bölge temizlik uzmanı yola çıkmıştır. Canlı takip detayları aşağıdadır:';
       }
-    }
-    // Render Assigned Cleaner & Distance Details onto Success Screen
-    try {
-      const assignedCleaner = (typeof window.matchAndAssignCleaner === 'function')
-        ? window.matchAndAssignCleaner(city, district)
-        : {
-            name: 'Ayşe K.',
-            phone: '0532 999 88 77',
-            rating: '4.98',
-            experience: '6 Yıl',
-            avatar: '👩‍💼',
-            location: `${district ? district + ', ' : ''}${city || 'İstanbul'}`,
-            distanceKm: '1.4 km',
-            etaMinutes: '8 dakika',
-            status: 'Yolda'
-          };
 
-      leadPayload.assignedStaff = assignedCleaner;
+      const staffInfo = (typeof jobData.assignedStaff === 'object' && jobData.assignedStaff) ? jobData.assignedStaff : {
+        name: (typeof jobData.assignedStaff === 'string' && jobData.assignedStaff !== 'Atama Bekliyor') ? jobData.assignedStaff : 'Ayşe K. (Kıdemli Temizlik Uzmanı)',
+        phone: '0546 647 90 04',
+        rating: '4.98',
+        experience: '6 Yıl',
+        avatar: '👩‍💼',
+        distanceKm: '1.2 km',
+        etaMinutes: '12 dakika'
+      };
 
+      const accTopBadgeTitle = document.getElementById('accTopBadgeTitle');
       const accDistancePill = document.getElementById('accDistancePill');
       const accCleanerAvatar = document.getElementById('accCleanerAvatar');
       const accCleanerName = document.getElementById('accCleanerName');
       const accCleanerRating = document.getElementById('accCleanerRating');
       const accCleanerExp = document.getElementById('accCleanerExp');
       const accCleanerLocation = document.getElementById('accCleanerLocation');
-      const accStatusStepTxt = document.getElementById('accStatusStepTxt');
+      const accContactActions = document.getElementById('accContactActions');
+      const accStep1 = document.getElementById('accStep1');
+      const accStep2 = document.getElementById('accStep2');
       const accCallBtn = document.getElementById('accCallBtn');
       const accWaBtn = document.getElementById('accWaBtn');
 
-      if (accDistancePill) accDistancePill.textContent = `📍 ~${assignedCleaner.distanceKm} mesafede (~${assignedCleaner.etaMinutes})`;
-      if (accCleanerAvatar) accCleanerAvatar.textContent = assignedCleaner.avatar || '👩‍💼';
-      if (accCleanerName) accCleanerName.textContent = assignedCleaner.name;
-      if (accCleanerRating) accCleanerRating.textContent = `★ ${assignedCleaner.rating} (140+ Yorum)`;
-      if (accCleanerExp) accCleanerExp.textContent = `${assignedCleaner.experience} Deneyim`;
-      if (accCleanerLocation) accCleanerLocation.textContent = `📍 Bulunduğu Bölge: ${assignedCleaner.location} — Ekipmanlar ve Kärcher buharlı seti hazırlandı, randevunuz onaylandı.`;
-      if (accStatusStepTxt) accStatusStepTxt.textContent = `Yola Çıkıyor (~${assignedCleaner.distanceKm})`;
-      if (accCallBtn) accCallBtn.href = `tel:${assignedCleaner.phone}`;
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = isPl ? 'PERSONEL PRZYPISANY' : 'CANLI TEMİZLİK UZMANI EŞLEŞTİRİLDİ';
+      if (accDistancePill) accDistancePill.textContent = `📍 ~${staffInfo.distanceKm || '1.2 km'} mesafede (~${staffInfo.etaMinutes || '12 dk'})`;
+      if (accCleanerAvatar) accCleanerAvatar.textContent = staffInfo.avatar || '👩‍💼';
+      if (accCleanerName) accCleanerName.textContent = staffInfo.name;
+      if (accCleanerRating) accCleanerRating.textContent = `★ ${staffInfo.rating || '4.98'} (140+ Yorum)`;
+      if (accCleanerExp) accCleanerExp.textContent = `${staffInfo.experience || '6 Yıl'} Deneyim`;
+      if (accCleanerLocation) accCleanerLocation.textContent = `📍 Bulunduğu Bölge: ${district || ''}, ${city || 'İstanbul'} — Ekipmanlar ve buharlı set hazırlandı, randevunuz onaylandı.`;
+      
+      if (accContactActions) accContactActions.style.display = 'flex';
+      if (accCallBtn) accCallBtn.href = `tel:${staffInfo.phone || '05466479004'}`;
       if (accWaBtn) {
-        const waCleanerText = encodeURIComponent(`Merhaba ${assignedCleaner.name}, #${resCode} numaralı temizlik randevum onaylandı. Bilgi almak istiyorum.`);
-        accWaBtn.href = `https://wa.me/90${assignedCleaner.phone.replace(/\D/g, '')}?text=${waCleanerText}`;
+        const waMsg = encodeURIComponent(`Merhaba ${staffInfo.name}, #${resCode} numaralı onaylanan temizlik randevum hakkında bilgi almak istiyorum.`);
+        accWaBtn.href = `https://wa.me/90${(staffInfo.phone || '05466479004').replace(/\D/g, '')}?text=${waMsg}`;
       }
-    } catch (e) {
-      console.warn("[CLEANER ASSIGN] Error rendering assigned cleaner card:", e);
+
+      if (accStep1) accStep1.className = 'acc-step active';
+      if (accStep2) accStep2.className = 'acc-step active pulse';
+
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+
+      // Toast notification for real-time approval
+      toast.className = 'relaxax-toast success';
+      toast.style.background = 'rgba(6, 78, 59, 0.95)';
+      toast.style.border = '1px solid rgba(16, 185, 129, 0.5)';
+      toast.style.color = '#ffffff';
+      toast.innerHTML = `<span style="font-size:1.3rem;">🎉</span> <span><strong>${isPl ? 'Zamówienie zatwierdzone!' : 'Siparişiniz Onaylandı!'}</strong> (#${resCode}) — Uzmanınız yola çıktı.</span>`;
+      toast.classList.add('show');
+    };
+
+    // 2. Start Live Real-Time Listener for Admin Approval
+    let isAlreadyApproved = false;
+    const checkLiveApproval = () => {
+      if (isAlreadyApproved) return true;
+      try {
+        const jobs = JSON.parse(localStorage.getItem('relaxax_staff_live_jobs') || '[]');
+        const targetJob = jobs.find(j => (j.id === resCode || j.orderCode === resCode || j.resCode === resCode));
+        if (targetJob && (targetJob.status === 'Onaylandı' || targetJob.status === 'Yolda' || targetJob.status === 'Tamamlandı')) {
+          isAlreadyApproved = true;
+          renderOrderApprovedState(targetJob);
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    };
+
+    const approvalHeartbeat = setInterval(() => {
+      if (checkLiveApproval()) {
+        clearInterval(approvalHeartbeat);
+      }
+    }, 1500);
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'relaxax_staff_live_jobs' || e.key === 'relaxax_booking_history') {
+        if (checkLiveApproval()) clearInterval(approvalHeartbeat);
+      }
+    });
+
+    if (typeof window.listenToStateChange === 'function') {
+      window.listenToStateChange('ORDER_STATUS_CHANGED', (data) => {
+        if (data && (data.orderId === resCode || data.id === resCode)) {
+          checkLiveApproval();
+        }
+      });
     }
 
     if (targetFormEl) {
@@ -10754,10 +10888,6 @@ function setupBookingReveal() {
             window.triggerDust(cx, cy);
             setTimeout(() => window.triggerDust(cx, cy), 150);
           }
-          // Auto-open WhatsApp confirmation after 1.2 second delay
-          setTimeout(() => {
-            try { window.open(waFullUrl, '_blank', 'noopener,noreferrer'); } catch (e) { /* blocked popup fallback */ }
-          }, 1200);
         }}
       );
     }
