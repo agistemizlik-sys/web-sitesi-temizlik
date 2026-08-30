@@ -1054,7 +1054,7 @@ export function setAuthRoleMode(role) {
     if (btnRoleStaff) btnRoleStaff.classList.remove('active');
     if (btnRoleAdmin) btnRoleAdmin.classList.add('active');
     if (badgeModal) badgeModal.textContent = '👑 RELAXAX YÖNETİM MASASI';
-    if (titleModal) titleModal.textContent = 'Yönetici Girişi & Operasyon';
+    if (titleModal) titleModal.textContent = 'Yönetici & Operasyon Masası';
 
     document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
@@ -1070,8 +1070,8 @@ export function setAuthRoleMode(role) {
     if (btnRoleCust) btnRoleCust.classList.remove('active');
     if (btnRoleStaff) btnRoleStaff.classList.add('active');
     if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
-    if (badgeModal) badgeModal.textContent = '⚡ RELAXAX TEMİZLİK UZMANI';
-    if (titleModal) titleModal.textContent = 'Uzman Girişi & Görevlerim';
+    if (badgeModal) badgeModal.textContent = '🧹 TEMİZLİK UZMANI MASASI';
+    if (titleModal) titleModal.textContent = 'Temizlik Uzmanı Görev Paneli';
 
     document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'flex');
@@ -1090,15 +1090,15 @@ export function setAuthRoleMode(role) {
     
     const user = getCurrentUser();
     if (user && user.role === 'customer') {
-      if (badgeModal) badgeModal.textContent = '👤 RELAXAX HESABIM';
+      if (badgeModal) badgeModal.textContent = '👤 HESAP YÖNETİMİ';
       if (titleModal) titleModal.textContent = 'Hesabım & Siparişlerim';
       document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'flex');
       document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
       switchAuthTab('profile');
     } else {
-      if (badgeModal) badgeModal.textContent = '✨ RELAXAX ÜYELİK & GİRİŞ';
-      if (titleModal) titleModal.textContent = 'Giriş Yap / Kayıt Ol';
+      if (badgeModal) badgeModal.textContent = '🔐 GÜVENLİ HESAP GİRİŞİ';
+      if (titleModal) titleModal.textContent = 'Giriş Yap veya Kayıt Ol';
       document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');

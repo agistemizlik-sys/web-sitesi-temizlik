@@ -19072,12 +19072,208 @@ html[dir="rtl"] .counter-btn.plus {
   font-size: 18px;
 }
 
+/* ==========================================================================
+   46. 📱 ENTERPRISE MOBILE RESPONSIVENESS & REAL WEB AUTH UX ENGINE
+   ========================================================================== */
 
+/* Universal mobile viewport protection */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    -webkit-text-size-adjust: 100% !important;
+    touch-action: manipulation;
+  }
 
+  /* Safe area padding for modern iOS and Android notch devices */
+  body {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 
+  /* Mobile Auth Modal & Real Account View */
+  .rx-auth-modal-overlay {
+    padding: 10px !important;
+    align-items: flex-end !important;
+  }
 
+  .rx-auth-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    max-height: 92dvh !important;
+    border-radius: 24px 24px 16px 16px !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
 
+  .auth-modal-body {
+    padding: 16px 16px 24px !important;
+    max-height: calc(92vh - 120px) !important;
+    max-height: calc(92dvh - 120px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
 
+  .auth-tabs-nav {
+    padding: 8px 12px 0 !important;
+    gap: 4px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
 
+  .auth-tab-btn {
+    flex: 1 !important;
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+    font-size: 0.82rem !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
 
+  /* Inputs on mobile: 16px font-size prevents iOS Safari auto-zoom glitch */
+  .auth-input-wrap input,
+  .auth-select,
+  .tms-search-input,
+  .wizard-step-input {
+    font-size: 16px !important;
+    min-height: 48px !important;
+  }
 
+  .btn-auth-submit {
+    min-height: 50px !important;
+    font-size: 1rem !important;
+  }
+
+  .auth-social-buttons-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .btn-social-auth {
+    min-height: 46px !important;
+    font-size: 0.88rem !important;
+  }
+
+  /* User profile subtabs on mobile */
+  .portal-subnav {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none !important;
+  }
+
+  .portal-subnav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .portal-subnav-btn {
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 0.78rem !important;
+    min-height: 40px !important;
+  }
+
+  /* User booking cards on mobile */
+  .user-booking-card {
+    padding: 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .ub-actions-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .btn-reorder-booking,
+  .btn-order-support {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 8px 6px !important;
+    font-size: 0.74rem !important;
+  }
+
+  /* Top Floating Navbar Mobile Optimization */
+  .rx-floating-nav-bar {
+    top: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: calc(100% - 16px) !important;
+    max-width: 100% !important;
+  }
+
+  .c-floating-navbar {
+    padding: 6px 10px !important;
+    gap: 6px !important;
+    justify-content: space-between !important;
+  }
+
+  .c-nav-brand-wrap {
+    padding: 4px 8px !important;
+  }
+
+  .c-nav-brand-wrap .c-nav-theme-badge {
+    font-size: 0.85rem !important;
+  }
+
+  /* Hide non-essential pill items on tight mobile viewports to prevent navbar squishing */
+  .c-nav-dropdown-wrap,
+  .c-nav-lang-wrap,
+  #cNavCityMapBtn,
+  #cNavProductsBtn,
+  #cNavVipConciergeBtn {
+    display: none !important;
+  }
+
+  /* Keep brand, price calc, auth and hamburger menu visible */
+  #cNavPriceCalcBtn {
+    display: flex !important;
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .c-nav-auth-btn {
+    display: flex !important;
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+  }
+
+  #cNavWhatsappBtn {
+    display: none !important;
+  }
+
+  .mobile-menu-toggle {
+    display: flex !important;
+    padding: 6px 10px !important;
+  }
+
+  /* Floating voice / action button position adjustment */
+  .rx-floating-voice-btn {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    right: 16px !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ub-actions-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .c-nav-brand-wrap .c-nav-theme-badge {
+    display: inline-block !important;
+    font-size: 0.8rem !important;
+  }
+
+  #cNavPriceCalcBtn .c-nav-btn-text {
+    display: none !important;
+  }
+
+  #cNavPriceCalcBtn {
+    padding: 6px 8px !important;
+  }
+}
