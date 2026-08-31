@@ -3619,6 +3619,12 @@
         <button type="button" class="auth-tab-btn" id="tabAuthRegisterBtn">
           <span>✨ Kayıt Ol (%15 İndirim)</span>
         </button>
+        <button type="button" class="auth-tab-btn" id="tabAuthDistributorBtn" onclick="if(typeof openDistributorPortal==='function'){closeCorporateModal('authModal');openDistributorPortal();}">
+          <span>🏢 Distribütör Masası</span>
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabAuthAffiliateBtn" onclick="if(typeof openAffiliatePortal==='function'){closeCorporateModal('authModal');openAffiliatePortal();}">
+          <span>💎 İş Ortaklığı & Affiliate</span>
+        </button>
 
         <!-- Logged In Role-Specific Tabs -->
         <button type="button" class="auth-tab-btn customer-only-tab" id="tabAuthProfileBtn" style="display:none;">
