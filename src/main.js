@@ -11662,6 +11662,10 @@ function openPortalGateway() {
 }
 
 function setupResizeObserver() {
+  if (typeof ScrollTrigger !== 'undefined' && ScrollTrigger.config) {
+    ScrollTrigger.config({ ignoreMobileResize: true });
+  }
+
   let debounceTimeout = null;
   const observer = new ResizeObserver(() => {
     if (debounceTimeout) clearTimeout(debounceTimeout);
@@ -11670,12 +11674,14 @@ function setupResizeObserver() {
       cachedWindowWidth = currentWidth;
       cachedWindowHeight = window.innerHeight;
       
-      // Only refresh ScrollTrigger if horizontal width changed (helps mobile scrolling with address bar)
-      if (currentWidth !== lastWidth) {
+      // Only refresh ScrollTrigger if horizontal width changed and on desktop
+      if (Math.abs(currentWidth - lastWidth) > 60 && currentWidth > 768) {
         lastWidth = currentWidth;
-        ScrollTrigger.refresh();
+        if (typeof ScrollTrigger !== 'undefined' && ScrollTrigger.refresh) {
+          ScrollTrigger.refresh();
+        }
       }
-    }, 200);
+    }, 250);
   });
   observer.observe(document.body);
 }
