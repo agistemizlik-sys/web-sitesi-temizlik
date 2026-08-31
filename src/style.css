@@ -19687,3 +19687,149 @@ html[dir="rtl"] .counter-btn.plus {
   }
 }
 
+/* ==========================================================================
+   📱 ULTRA-FLAWLESS MOBILE RESPONSIVENESS MASTER OVERRIDES
+   ========================================================================== */
+html, body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  position: relative !important;
+  -webkit-text-size-adjust: 100% !important;
+}
+
+@media (max-width: 480px) {
+  /* Prevent Any Layout Overflow */
+  *, *::before, *::after {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Wizard Step Mobile Spacing */
+  .reveal-wrapper {
+    padding: 8px 6px 90px !important;
+  }
+
+  .wizard-step-container {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .wizard-step-title {
+    font-size: 1.15rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .wizard-step-desc {
+    font-size: 0.82rem !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Booking Input Fields */
+  .form-group-clean {
+    margin-bottom: 10px !important;
+  }
+
+  .form-group-clean label {
+    font-size: 0.78rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .input-clean,
+  .rx-input,
+  select.input-clean {
+    height: 46px !important;
+    min-height: 46px !important;
+    font-size: 16px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Quick Address Multi-Columns to clean Stack */
+  .address-detail-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Room Counter Touch Usability */
+  .room-counter-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .room-counter-item {
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .btn-counter-ctrl {
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 1.25rem !important;
+    border-radius: 10px !important;
+  }
+
+  /* Frequency & Date Selector Chips */
+  .frequency-pills-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .freq-pill {
+    padding: 10px 8px !important;
+    font-size: 0.78rem !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Extras Selection Grid */
+  .extras-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .extras-item-card {
+    padding: 10px 8px !important;
+    border-radius: 12px !important;
+    min-height: 72px !important;
+  }
+
+  .extras-item-title {
+    font-size: 0.78rem !important;
+  }
+
+  .extras-item-price {
+    font-size: 0.72rem !important;
+  }
+
+  /* Booking Success Waiting State Mobile Card */
+  .bss-content-card {
+    padding: 18px 14px !important;
+    border-radius: 16px !important;
+    margin: 10px auto !important;
+  }
+
+  .bss-title {
+    font-size: 1.15rem !important;
+  }
+
+  .assigned-cleaner-card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .acc-contact-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .btn-acc-action {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+  }
+}
+
