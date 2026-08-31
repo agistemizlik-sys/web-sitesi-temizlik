@@ -54,6 +54,7 @@
 }
 
 html {
+  background-color: #030712;
   scroll-behavior: auto;
   scrollbar-width: none;
 }
