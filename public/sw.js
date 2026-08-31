@@ -3,10 +3,11 @@
  * Stale-While-Revalidate & Cache First Asset Caching Engine
  */
 
-const CACHE_NAME = 'relaxax-pwa-v2.5.0';
+const CACHE_NAME = 'relaxax-pwa-v2.6.0';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/favicon.svg',
   '/site.webmanifest'
 ];
@@ -38,7 +39,7 @@ self.addEventListener('fetch', (event) => {
   // Skip caching for API endpoints
   if (url.pathname.startsWith('/api/')) return;
 
-  // Stale-While-Revalidate for HTML, CSS, JS, and Images
+  // Stale-While-Revalidate for static assets + Offline Navigation Fallback
   event.respondWith(
     caches.open(CACHE_NAME).then(async (cache) => {
       const cachedResponse = await cache.match(event.request);
@@ -49,7 +50,13 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => cachedResponse);
+        .catch(async () => {
+          if (event.request.mode === 'navigate') {
+            const fallback = await cache.match('/offline.html');
+            if (fallback) return fallback;
+          }
+          return cachedResponse;
+        });
 
       return cachedResponse || fetchPromise;
     })
