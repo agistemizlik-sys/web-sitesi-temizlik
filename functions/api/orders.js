@@ -50,12 +50,44 @@ export async function onRequestGet(context) {
         } catch (e) {}
       }
 
-      // Check remote panel sync-all on 64.177.116.243
+      // Check direct CleanPro panel order status at 64.177.116.243
       try {
         const ctrl = new AbortController();
         const tid = setTimeout(() => ctrl.abort(), 2000);
-        const panelRes = await fetch('http://64.177.116.243/api/sync-all', { signal: ctrl.signal });
+        const statusRes = await fetch(`http://64.177.116.243/api/order/status?code=${encodeURIComponent(cleanCode)}`, { signal: ctrl.signal });
         clearTimeout(tid);
+        if (statusRes.ok) {
+          const sData = await statusRes.json();
+          if (sData && sData.success && (sData.status === 'approved' || sData.status === 'confirmed' || sData.status === 'in_progress' || sData.status === 'completed' || sData.assignedStaff)) {
+            const updated = {
+              ...(order || {}),
+              orderCode: cleanCode,
+              id: cleanCode,
+              status: (sData.status === 'completed' ? 'Tamamlandı' : 'Yolda'),
+              assignedStaff: sData.assignedStaff || {
+                name: 'Saha Temizlik Uzmanı',
+                phone: '0546 647 90 04',
+                rating: '4.98',
+                experience: '5 Yıl',
+                avatar: '👩‍💼',
+                distanceKm: '1.2 km',
+                etaMinutes: '12 dakika'
+              }
+            };
+            return new Response(JSON.stringify({ success: true, order: updated }), {
+              status: 200,
+              headers: corsHeaders
+            });
+          }
+        }
+      } catch(err) {}
+
+      // Fallback: Check remote panel sync-all on 64.177.116.243
+      try {
+        const ctrl2 = new AbortController();
+        const tid2 = setTimeout(() => ctrl2.abort(), 2000);
+        const panelRes = await fetch('http://64.177.116.243/api/sync-all', { signal: ctrl2.signal });
+        clearTimeout(tid2);
         if (panelRes.ok) {
           const pData = await panelRes.json();
           if (pData && Array.isArray(pData.leads)) {

@@ -136,9 +136,26 @@ export async function onRequest(context) {
       };
 
       const env = context.env;
+      const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
       if (env && env.LEADS_KV) {
         await env.LEADS_KV.put(`review:${reviewItem.id}`, JSON.stringify(reviewItem), { expirationTtl: 86400 * 365 });
       }
+
+      // Forward to CleanPro Company Panel at 64.177.116.243
+      try {
+        const panelReviewP = fetch('http://64.177.116.243/api/reviews/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'User-Agent': 'Cloudflare-ReviewRelay' },
+          body: JSON.stringify({
+            customerName: reviewItem.author,
+            orderCode: reviewItem.orderCode,
+            rating: reviewItem.rating,
+            comment: reviewItem.text,
+            date: reviewItem.createdAt.substring(0, 10)
+          })
+        }).catch(() => {});
+        if (waitUntil) waitUntil(panelReviewP);
+      } catch(e) {}
 
       return new Response(JSON.stringify({
         success: true,
