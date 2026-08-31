@@ -12493,4 +12493,46 @@ if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || wi
   });
 }
 
+// -------------------------------------------------------------
+// 📱 SMART MOBILE BOTTOM DOCK CONTROLLER
+// -------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  const mbd = document.getElementById('mobileBottomStickyBar');
+  const mbdBookBtn = document.getElementById('mbdBookBtn');
+  const mbdPricePreview = document.getElementById('mbdPricePreview');
+  const mbdBtnTitle = document.getElementById('mbdBtnTitle');
+
+  if (mbdBookBtn) {
+    mbdBookBtn.addEventListener('click', () => {
+      const isPl = STATE && STATE.language === 'pl';
+      if (typeof window.triggerPricingCalculate === 'function') {
+        window.triggerPricingCalculate();
+      } else {
+        const form = document.getElementById('bookingForm') || document.getElementById('bookingReveal');
+        if (form) {
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  }
+
+  // Hide mobile bottom dock when inside active booking wizard or modal
+  const updateMbdVisibility = () => {
+    if (!mbd) return;
+    const revealOpen = document.body.classList.contains('booking-reveal-active');
+    const modalOpen = !!document.querySelector('.rx-corporate-modal:not(.hidden), .auth-modal-backdrop:not(.hidden), .portal-stage:not([style*="display: none"])');
+    const successOpen = document.getElementById('bookingSuccessState')?.style.display === 'flex';
+
+    if (revealOpen || modalOpen || successOpen) {
+      mbd.classList.add('hide-mbd');
+    } else {
+      mbd.classList.remove('hide-mbd');
+    }
+  };
+
+  window.addEventListener('scroll', updateMbdVisibility, { passive: true });
+  window.addEventListener('resize', updateMbdVisibility, { passive: true });
+  setInterval(updateMbdVisibility, 800);
+});
+
 

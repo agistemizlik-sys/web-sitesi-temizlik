@@ -19458,3 +19458,135 @@ html[dir="rtl"] .counter-btn.plus {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ==========================================================================
+   📱 ULTRA-RESPONSIVE MOBILE ENHANCEMENTS & SMART BOTTOM DOCK
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* iOS Safari Auto-Zoom Prevention (16px minimum input font-size) */
+  input, select, textarea, .rx-input, .input-clean {
+    font-size: 16px !important;
+  }
+
+  /* Universal Touch Optimization */
+  button, a, input, select, .btn-counter-ctrl, .date-chip-item, .time-shortcut-chip, .freq-pill, .cso-country-card {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  button:active, .btn-counter-ctrl:active, .date-chip-item:active {
+    transform: scale(0.96) !important;
+  }
+
+  /* Mobile Bottom Sticky Dock */
+  .mobile-bottom-dock {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9998;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: rgba(3, 7, 18, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  }
+
+  .mobile-bottom-dock.hide-mbd {
+    transform: translate3d(0, 100%, 0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mbd-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  .mbd-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .mbd-btn:active {
+    transform: scale(0.96);
+  }
+
+  .mbd-btn-call {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    flex: 0 0 auto;
+  }
+
+  .mbd-btn-call i {
+    color: #38bdf8;
+  }
+
+  .mbd-btn-wa {
+    background: rgba(37, 211, 102, 0.15);
+    border: 1px solid rgba(37, 211, 102, 0.35);
+    color: #25d366;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    flex: 0 0 auto;
+  }
+
+  .mbd-btn-book {
+    flex: 1;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    color: #ffffff;
+    padding: 8px 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
+  }
+
+  .mbd-book-icon {
+    font-size: 1.1rem;
+  }
+
+  .mbd-book-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+  }
+
+  .mbd-book-text strong {
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+
+  .mbd-book-text small {
+    font-size: 0.68rem;
+    color: #bae6fd;
+  }
+
+  /* Bottom sheet modal styling for mobile */
+  .rx-corporate-modal-dialog,
+  .rx-vip-modal-dialog,
+  .auth-modal-card {
+    max-height: 88dvh !important;
+    border-radius: 20px 20px 0 0 !important;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
