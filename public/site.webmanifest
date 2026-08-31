@@ -7,8 +7,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f7f6f2",
-  "theme_color": "#f7f6f2",
+  "background_color": "#030712",
+  "theme_color": "#030712",
   "icons": [
     {
       "src": "/favicon-96.png",
@@ -31,14 +31,21 @@
   ],
   "shortcuts": [
     {
-      "name": "Hemen Rezervasyon Yap",
-      "short_name": "Rezervasyon",
+      "name": "Hemen Fiyat Hesapla & Randevu Al",
+      "short_name": "Randevu Al",
       "description": "Hızlı online temizlik randevusu oluştur",
       "url": "/?action=booking",
       "icons": [{ "src": "/favicon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "WhatsApp Sipariş Hattı",
+      "name": "Hesabım & Sipariş Takibi",
+      "short_name": "Hesabım",
+      "description": "Geçmiş ve aktif temizlik siparişlerinizi yönetin",
+      "url": "/?action=auth&tab=profile",
+      "icons": [{ "src": "/favicon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "WhatsApp Destek Hattı",
       "short_name": "WhatsApp",
       "description": "Doğrudan müşteri temsilcisine bağlan",
       "url": "https://wa.me/905466479004",
