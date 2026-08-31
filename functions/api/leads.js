@@ -17,6 +17,7 @@ import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, sa
  */
 
 const PANEL_ENDPOINTS = [
+  "http://64.177.116.243/api/webhook/lead",
   "https://panel.relaxax.com/api/leads",
   "https://backend-api.relaxaxserwis.workers.dev/api/leads"
 ];
@@ -254,6 +255,8 @@ export async function onRequestPost(context) {
         billingAddress: sanitizeStr(leadData.company.billingAddress || '', 300)
       } : null,
       
+      status: sanitizeStr(leadData.status || 'Beklemede', 30),
+      assignedStaff: sanitizeStr(leadData.assignedStaff || 'Atama Bekliyor', 100),
       source: sanitizeStr(leadData.source || 'web_portal_form', 60),
       geo: {
         ip: clientIp,
@@ -294,7 +297,44 @@ export async function onRequestPost(context) {
     }
 
     // 3. Multi-Tier Panel Endpoint Synchronization
-    const finalJsonBody = JSON.stringify(normalizedPayload);
+    const panelPayload = {
+      id: normalizedPayload.id,
+      orderCode: normalizedPayload.resCode,
+      resCode: normalizedPayload.resCode,
+      fullName: normalizedPayload.customerName,
+      name: normalizedPayload.customerName,
+      phone: normalizedPayload.customerPhone,
+      customerPhone: normalizedPayload.customerPhone,
+      email: normalizedPayload.customerEmail,
+      customerEmail: normalizedPayload.customerEmail,
+      city: normalizedPayload.city,
+      district: normalizedPayload.district,
+      customerAddress: normalizedPayload.customerAddress,
+      address: normalizedPayload.customerAddress,
+      serviceType: normalizedPayload.serviceType,
+      service: normalizedPayload.serviceType,
+      propertyDetails: `${normalizedPayload.rooms || 2}+1 Daire (${normalizedPayload.squareMeters || 85} m²)`,
+      rooms: normalizedPayload.rooms,
+      baths: normalizedPayload.baths,
+      squareMeters: normalizedPayload.squareMeters,
+      estimatedPrice: normalizedPayload.price,
+      price: normalizedPayload.price,
+      finalPrice: normalizedPayload.finalPrice,
+      date: normalizedPayload.date,
+      time: normalizedPayload.time,
+      preferredDate: normalizedPayload.preferredDate,
+      preferredTime: normalizedPayload.preferredTime,
+      extras: normalizedPayload.extras,
+      notes: normalizedPayload.notes,
+      message: normalizedPayload.notes,
+      status: "pending_approval",
+      currentStep: "WAITING_APPROVAL",
+      assignedStaff: null,
+      source: "relaxax.com / Canlı Sipariş Formu",
+      createdAt: normalizedPayload.createdAt
+    };
+
+    const finalJsonBody = JSON.stringify(panelPayload);
     let successResponse = null;
     let syncedEndpoint = null;
     const syncErrors = [];

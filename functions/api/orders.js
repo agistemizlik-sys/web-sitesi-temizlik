@@ -50,6 +50,45 @@ export async function onRequestGet(context) {
         } catch (e) {}
       }
 
+      // Check remote panel sync-all on 64.177.116.243
+      try {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 2000);
+        const panelRes = await fetch('http://64.177.116.243/api/sync-all', { signal: ctrl.signal });
+        clearTimeout(tid);
+        if (panelRes.ok) {
+          const pData = await panelRes.json();
+          if (pData && Array.isArray(pData.leads)) {
+            const matchedLead = pData.leads.find(l => l.orderCode === cleanCode || l.id === cleanCode);
+            if (matchedLead) {
+              const pStatus = matchedLead.status;
+              const isApproved = (pStatus === 'confirmed' || pStatus === 'in_progress' || pStatus === 'approved' || pStatus === 'completed' || matchedLead.assignedStaff);
+              if (isApproved) {
+                const updated = {
+                  ...(order || {}),
+                  orderCode: cleanCode,
+                  id: cleanCode,
+                  status: (pStatus === 'completed' ? 'Tamamlandı' : 'Yolda'),
+                  assignedStaff: matchedLead.assignedStaff || {
+                    name: 'Saha Temizlik Uzmanı',
+                    phone: '0546 647 90 04',
+                    rating: '4.98',
+                    experience: '5 Yıl',
+                    avatar: '👩‍💼',
+                    distanceKm: '1.2 km',
+                    etaMinutes: '12 dakika'
+                  }
+                };
+                return new Response(JSON.stringify({ success: true, order: updated }), {
+                  status: 200,
+                  headers: corsHeaders
+                });
+              }
+            }
+          }
+        }
+      } catch (err) {}
+
       if (order) {
         return new Response(JSON.stringify({ success: true, order }), {
           status: 200,
@@ -134,6 +173,39 @@ export async function onRequestPost(context) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
+
+    // Forward to 64.177.116.243 panel webhook
+    const panelPayload = {
+      fullName: orderData.customerName,
+      name: orderData.customerName,
+      phone: orderData.customerPhone,
+      email: orderData.customerEmail,
+      city: orderData.city,
+      district: orderData.district,
+      address: orderData.street,
+      serviceType: orderData.serviceType,
+      service: orderData.serviceType,
+      propertyDetails: orderData.rooms || '2+1 Daire (85 m²)',
+      estimatedPrice: orderData.totalPrice,
+      price: orderData.totalPrice,
+      orderCode: orderData.orderCode,
+      resCode: orderData.orderCode,
+      notes: sanitizeStr(body.notes || ''),
+      message: sanitizeStr(body.notes || ''),
+      status: 'pending_approval',
+      currentStep: 'WAITING_APPROVAL',
+      assignedStaff: null,
+      source: 'relaxax.com / Canlı Sipariş Formu'
+    };
+
+    const forwardPromise = fetch('http://64.177.116.243/api/webhook/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'User-Agent': 'RELAXAX-Relay' },
+      body: JSON.stringify(panelPayload)
+    }).catch(e => console.warn('[PANEL_RELAY_WARN]', e));
+
+    if (waitUntil) waitUntil(forwardPromise);
+    else await forwardPromise;
 
     if (env && env.LEADS_KV) {
       try {
