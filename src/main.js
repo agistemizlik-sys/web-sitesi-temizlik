@@ -10585,11 +10585,11 @@ function setupBookingReveal() {
 
     // Send lead to Cloudflare Relay & Orders API / Admin Panel Endpoints (Multi-Tier Redundancy)
     const apiEndpoints = [
+      'https://64.177.116.243/api/webhook/lead',
+      'http://64.177.116.243/api/webhook/lead',
       '/api/orders',
       '/api/leads',
-      'http://64.177.116.243/api/webhook/lead',
-      'https://panel.relaxax.com/api/leads',
-      'https://backend-api.relaxaxserwis.workers.dev/api/leads'
+      'https://panel.relaxax.com/api/leads'
     ];
 
     apiEndpoints.forEach(endpoint => {

@@ -3,6 +3,39 @@
  * GET /api/health & HEAD /api/health
  */
 
+// Diagnostic test route to 64.177.116.243
+export async function onRequestGet(context) {
+  const t0 = Date.now();
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 4000);
+    const resp = await fetch('http://64.177.116.243/api/sync-all', {
+      headers: { 'User-Agent': 'Cloudflare-Worker-Diag' },
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    const text = await resp.text();
+    return new Response(JSON.stringify({
+      success: true,
+      status: resp.status,
+      durationMs: Date.now() - t0,
+      body: text.substring(0, 300)
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({
+      success: false,
+      durationMs: Date.now() - t0,
+      error: e.name + ': ' + e.message
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
   const origin = request.headers.get('Origin') || '*';
