@@ -12519,6 +12519,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize Dynamic Live Social Proof & Trust Notification Engine
   initSocialProofEngine();
+
+  // -------------------------------------------------------------
+  // ⭐ INTERACTIVE REVIEW & SATISFACTION FEEDBACK CONTROLLER
+  // -------------------------------------------------------------
+  let selectedRatingVal = 5;
+  const rfmModal = document.getElementById('reviewFeedbackModal');
+  const starContainer = document.getElementById('rfmStarContainer');
+  const ratingLabel = document.getElementById('rfmRatingLabel');
+  const submitReviewBtn = document.getElementById('btnSubmitReviewFeedback');
+  const commentInput = document.getElementById('rfmComment');
+
+  const ratingDescriptions = {
+    1: '1.0 — Beklentimi Karşılamadı',
+    2: '2.0 — Geliştirilmeli',
+    3: '3.0 — Ortalama',
+    4: '4.0 — Çok İyi & Temiz',
+    5: '5.0 — Kusursuz & Mükemmel!'
+  };
+
+  if (starContainer) {
+    const stars = starContainer.querySelectorAll('.rfm-star');
+    stars.forEach(s => {
+      s.addEventListener('click', () => {
+        const val = parseInt(s.getAttribute('data-val') || '5', 10);
+        selectedRatingVal = val;
+        stars.forEach(st => {
+          const stVal = parseInt(st.getAttribute('data-val') || '0', 10);
+          if (stVal <= val) {
+            st.classList.add('active');
+            st.style.color = '#fbbf24';
+          } else {
+            st.classList.remove('active');
+            st.style.color = '#475569';
+          }
+        });
+        if (ratingLabel) ratingLabel.textContent = ratingDescriptions[val] || `${val}.0`;
+        if (typeof window.playTickSound === 'function') window.playTickSound();
+      });
+    });
+  }
+
+  // Toggle Tags
+  document.querySelectorAll('.rfm-tag').forEach(tagBtn => {
+    tagBtn.addEventListener('click', () => {
+      tagBtn.classList.toggle('active');
+      if (typeof window.playTickSound === 'function') window.playTickSound();
+    });
+  });
+
+  if (submitReviewBtn) {
+    submitReviewBtn.addEventListener('click', async () => {
+      submitReviewBtn.disabled = true;
+      submitReviewBtn.innerHTML = '<span>⏳ Kaydediliyor...</span>';
+
+      const activeTags = Array.from(document.querySelectorAll('.rfm-tag.active')).map(t => t.textContent.trim());
+      const comment = (commentInput ? commentInput.value.trim() : '') + (activeTags.length ? ` [${activeTags.join(', ')}]` : '');
+
+      const userSession = safeStorageGet(CONSTANTS.STORAGE_KEYS.USER_SESSION, {});
+      const authorName = userSession.name || 'Değerli Müşteri';
+      const city = userSession.city || STATE.selectedCity || 'İstanbul';
+
+      try {
+        await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            author: authorName,
+            rating: selectedRatingVal,
+            text: comment,
+            city: city
+          })
+        });
+      } catch(e) {}
+
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+
+      alert(`🌟 Teşekkürler ${authorName}!\n\nDeğerlendirmeniz ve ${selectedRatingVal} yıldızınız başarıyla kaydedildi.\n\n🎁 Hesabınıza sonraki randevunuzda geçerli +50 TL İndirim Kuponu (YILDIZ50) ve +25 VIP Sadakat Puanı tanımlandı!`);
+
+      if (rfmModal) rfmModal.style.display = 'none';
+      submitReviewBtn.disabled = false;
+      submitReviewBtn.innerHTML = '<span>🌟 Puanı Gönder & 50 TL İndirim Kazan</span>';
+    });
+  }
+
+  window.openReviewModalGlobal = function() {
+    if (rfmModal) rfmModal.style.display = 'flex';
+  };
 });
 
 

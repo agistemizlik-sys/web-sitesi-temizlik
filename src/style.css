@@ -19833,3 +19833,36 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   ⭐ CUSTOMER REVIEW & SATISFACTION FEEDBACK MODAL STYLING
+   ========================================================================== */
+.rfm-star {
+  color: #475569;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.rfm-star.active,
+.rfm-star:hover {
+  color: #fbbf24 !important;
+  transform: scale(1.15);
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+}
+.rfm-tag {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+.rfm-tag.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+}
+
+

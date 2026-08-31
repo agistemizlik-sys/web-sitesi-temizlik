@@ -6276,6 +6276,62 @@
     </div>
   </div>
 
+  <!-- 🌟 RELAXAX INTERACTIVE CUSTOMER SATISFACTION & RATING MODAL -->
+  <div class="rx-corporate-modal-overlay" id="reviewFeedbackModal" role="dialog" aria-modal="true" aria-labelledby="rfmTitle" style="display:none;">
+    <div class="rx-corporate-modal-backdrop" onclick="document.getElementById('reviewFeedbackModal').style.display='none';"></div>
+    <div class="rx-corporate-modal-dialog" style="max-width: 540px; background: #0b1329; border: 1px solid rgba(56,189,248,0.3); border-radius: 20px; padding: 24px; color: #fff;">
+      <div class="rx-cmodal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.8rem;">⭐</span>
+          <div>
+            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; letter-spacing: 1px;">MÜŞTERİ MEMNUNİYET & DEĞERLENDİRME</span>
+            <h4 id="rfmTitle" style="margin: 0; font-size: 1.25rem; color: #ffffff;">Hizmeti Değerlendir & Puan Ver</h4>
+          </div>
+        </div>
+        <button type="button" class="rx-cmodal-close-btn" onclick="document.getElementById('reviewFeedbackModal').style.display='none';" aria-label="Kapat" style="background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer;">&times;</button>
+      </div>
+
+      <div class="rx-cmodal-body" style="padding-top: 18px;">
+        <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.4; margin-bottom: 16px;">
+          Aldığınız temizlik hizmetini puanlayarak sonraki rezervasyonunuzda geçerli <strong>+50 TL İndirim Kuponu (YILDIZ50)</strong> ve <strong>+25 VIP Sadakat Puanı</strong> kazanın!
+        </p>
+
+        <!-- Star Rating Selector -->
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div id="rfmStarContainer" style="display: inline-flex; gap: 8px; font-size: 2.2rem; cursor: pointer;">
+            <span class="rfm-star active" data-val="1" style="color:#fbbf24;">★</span>
+            <span class="rfm-star active" data-val="2" style="color:#fbbf24;">★</span>
+            <span class="rfm-star active" data-val="3" style="color:#fbbf24;">★</span>
+            <span class="rfm-star active" data-val="4" style="color:#fbbf24;">★</span>
+            <span class="rfm-star active" data-val="5" style="color:#fbbf24;">★</span>
+          </div>
+          <div id="rfmRatingLabel" style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; margin-top: 6px;">5.0 — Mükemmel Hizmet!</div>
+        </div>
+
+        <!-- Quick Compliment Tags -->
+        <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 8px; font-weight: 600;">Hizmette En Çok Neyi Beğendiniz?</label>
+        <div class="rfm-tags-grid" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+          <button type="button" class="rfm-tag active" data-tag="⚡ Tam Vaktinde Geldi">⚡ Tam Vaktinde Geldi</button>
+          <button type="button" class="rfm-tag active" data-tag="✨ Kusursuz Hijyen">✨ Kusursuz Hijyen</button>
+          <button type="button" class="rfm-tag active" data-tag="👩‍💼 Güler Yüzlü Uzman">👩‍💼 Güler Yüzlü Uzman</button>
+          <button type="button" class="rfm-tag active" data-tag="🌿 Ekolojik Parfüm">🌿 Ekolojik Parfüm</button>
+          <button type="button" class="rfm-tag" data-tag="🏆 10/10 İşçilik">🏆 10/10 İşçilik</button>
+        </div>
+
+        <!-- Feedback Textarea -->
+        <div class="auth-field-group" style="margin-bottom: 16px;">
+          <label for="rfmComment" style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 6px;">Düşünceleriniz (İsteğe Bağlı):</label>
+          <textarea id="rfmComment" rows="3" class="input-clean" placeholder="Temizlik ekibimiz hakkında yorumunuzu yazabilirsiniz..." style="width: 100%; border-radius: 10px; padding: 10px;"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="button" id="btnSubmitReviewFeedback" class="btn-save-address" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; background: linear-gradient(135deg, #0284c7, #0369a1); border: 1px solid rgba(56,189,248,0.4); color: #fff; font-weight: 700;">
+          <span>🌟 Puanı Gönder & 50 TL İndirim Kazan</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 🎙️ RELAXAX INTERACTIVE VOICE CONSULTATION ASSISTANT HUD -->
   <div class="rx-voice-assistant-hud" id="voiceAssistantHud" style="display:none;" role="dialog" aria-labelledby="voiceHudTitle">
     <div class="rx-vah-header">
