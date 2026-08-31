@@ -1226,18 +1226,18 @@ export function matchAndAssignCleaner(city = 'Istanbul', district = '') {
 export function addBookingToUser(bookingData) {
   if (!bookingData) return;
   
-  if (!bookingData.assignedStaff) {
-    bookingData.assignedStaff = matchAndAssignCleaner(bookingData.city, bookingData.district);
-  }
-
-  const orderStatus = bookingData.status || 'Beklemede';
+  // New bookings ALWAYS start in 'Beklemede' (Pending Dispatcher Approval) and 'Atama Bekliyor'
+  const orderStatus = 'Beklemede';
+  bookingData.status = 'Beklemede';
+  bookingData.assignedStaff = 'Atama Bekliyor';
 
   // 1. Add to Global Bookings Ledger
   try {
     const globalHistory = JSON.parse(localStorage.getItem('relaxax_booking_history') || '[]');
     const globalEntry = {
       ...bookingData,
-      status: orderStatus,
+      status: 'Beklemede',
+      assignedStaff: 'Atama Bekliyor',
       createdAt: new Date().toISOString()
     };
     globalHistory.unshift(globalEntry);
@@ -1253,14 +1253,15 @@ export function addBookingToUser(bookingData) {
       const existing = JSON.parse(localStorage.getItem(key) || '[]');
       existing.unshift({
         ...bookingData,
-        status: orderStatus,
+        status: 'Beklemede',
+        assignedStaff: 'Atama Bekliyor',
         createdAt: new Date().toISOString()
       });
       localStorage.setItem(key, JSON.stringify(existing.slice(0, 30)));
     } catch(e) {}
   }
 
-  // 3. Automatically dispatch into Staff & Admin Live Jobs Queue
+  // 3. Automatically dispatch into Staff & Admin Live Jobs Queue as Pending
   try {
     const jobs = getLiveStaffJobs();
     const newJob = {
@@ -1276,8 +1277,8 @@ export function addBookingToUser(bookingData) {
       date: bookingData.date || bookingData.preferredDate || 'Bugün',
       time: bookingData.time || bookingData.preferredTime || '09:00',
       finalPrice: bookingData.finalPrice || (bookingData.price ? bookingData.price + ' TL' : '2.450,00 TL'),
-      status: orderStatus,
-      assignedStaff: bookingData.assignedStaff,
+      status: 'Beklemede',
+      assignedStaff: 'Atama Bekliyor',
       notes: bookingData.notes || 'Hassas eşyalara özen gösterilsin.',
       timestamp: Date.now()
     };
@@ -1286,7 +1287,7 @@ export function addBookingToUser(bookingData) {
   } catch (e) {}
 
   if (typeof window.broadcastStateChange === 'function') {
-    window.broadcastStateChange('ORDER_STATUS_CHANGED', { orderCode: bookingData.orderCode || bookingData.resCode, status: orderStatus });
+    window.broadcastStateChange('ORDER_STATUS_CHANGED', { orderCode: bookingData.orderCode || bookingData.resCode, status: 'Beklemede' });
   }
 }
 
@@ -2073,6 +2074,39 @@ export function renderAdminDashboard() {
   window._adminCurrentFilter = 'ALL';
   window._adminSearchQuery = '';
 
+  // Background live Edge KV sync
+  if (!window._adminEdgeSyncing) {
+    window._adminEdgeSyncing = true;
+    fetch('/api/orders')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        window._adminEdgeSyncing = false;
+        if (data && data.success && Array.isArray(data.orders)) {
+          const localJobs = getLiveStaffJobs();
+          const merged = [...localJobs];
+          let updated = false;
+          data.orders.forEach(rem => {
+            const code = rem.orderCode || rem.id;
+            const idx = merged.findIndex(j => (j.id === code || j.orderCode === code));
+            if (idx >= 0) {
+              merged[idx] = { ...merged[idx], ...rem };
+              updated = true;
+            } else {
+              merged.unshift(rem);
+              updated = true;
+            }
+          });
+          if (updated) {
+            saveLiveStaffJobs(merged.slice(0, 100));
+            if (typeof window.renderAdminOrdersList === 'function') {
+              window.renderAdminOrdersList();
+            }
+          }
+        }
+      })
+      .catch(() => { window._adminEdgeSyncing = false; });
+  }
+
   window.renderAdminOrdersList = function() {
     if (!allOrdersList) return;
     let filtered = getLiveStaffJobs();
@@ -2616,6 +2650,17 @@ window.updateOrderStatusGlobal = function(orderId, newStatus) {
         }
       }
     } catch(e) {}
+
+    // Dispatch remote PATCH to Edge KV API
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: orderId,
+        status: newStatus,
+        assignedStaff: target.assignedStaff
+      })
+    }).catch(() => {});
   }
 
   if (newStatus === 'Tamamlandı') {

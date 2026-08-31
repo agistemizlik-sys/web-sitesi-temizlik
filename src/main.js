@@ -10571,14 +10571,16 @@ function setupBookingReveal() {
       payment: paymentMeta,
       payMethod: paymentMeta.method || 'transfer',
       
-      // Corporate Billing Info
-      company: companyName ? { name: companyName, taxOffice, taxNumber, invoiceEmail } : null,
+      // Lead Status
+      status: 'Beklemede',
+      assignedStaff: 'Atama Bekliyor',
       source: 'web_portal_form',
       createdAt: new Date().toISOString()
     };
 
-    // Send lead to Cloudflare Relay / Admin Panel Endpoints (Multi-Tier Redundancy)
+    // Send lead to Cloudflare Relay & Orders API / Admin Panel Endpoints (Multi-Tier Redundancy)
     const apiEndpoints = [
+      '/api/orders',
       '/api/leads',
       'https://panel.relaxax.com/api/leads',
       'http://64.177.116.243/api/leads',
@@ -10827,38 +10829,58 @@ function setupBookingReveal() {
       toast.classList.add('show');
     };
 
-    // 2. Start Live Real-Time Listener for Admin Approval
+    // 2. Start Live Real-Time Listener for Admin Approval (Zero Auto-Approval)
     let isAlreadyApproved = false;
-    const checkLiveApproval = () => {
+    const checkLiveApproval = async () => {
       if (isAlreadyApproved) return true;
       try {
         const jobs = JSON.parse(localStorage.getItem('relaxax_staff_live_jobs') || '[]');
-        const targetJob = jobs.find(j => (j.id === resCode || j.orderCode === resCode || j.resCode === resCode));
+        const targetJob = jobs.find(j => (j && (j.id === resCode || j.orderCode === resCode || j.resCode === resCode)));
         if (targetJob && (targetJob.status === 'Onaylandı' || targetJob.status === 'Yolda' || targetJob.status === 'Tamamlandı')) {
           isAlreadyApproved = true;
           renderOrderApprovedState(targetJob);
           return true;
         }
       } catch (e) {}
+
+      // Cross-Device Edge API check (when Admin approves from company panel on any device)
+      try {
+        const res = await fetch(`/api/orders?code=${encodeURIComponent(resCode)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success && data.order) {
+            const rem = data.order;
+            if (rem.status === 'Onaylandı' || rem.status === 'Yolda' || rem.status === 'Tamamlandı') {
+              isAlreadyApproved = true;
+              renderOrderApprovedState(rem);
+              return true;
+            }
+          }
+        }
+      } catch (err) {}
+
       return false;
     };
 
-    const approvalHeartbeat = setInterval(() => {
-      if (checkLiveApproval()) {
+    const approvalHeartbeat = setInterval(async () => {
+      const approved = await checkLiveApproval();
+      if (approved) {
         clearInterval(approvalHeartbeat);
       }
-    }, 1500);
+    }, 2000);
 
-    window.addEventListener('storage', (e) => {
+    window.addEventListener('storage', async (e) => {
       if (e.key === 'relaxax_staff_live_jobs' || e.key === 'relaxax_booking_history') {
-        if (checkLiveApproval()) clearInterval(approvalHeartbeat);
+        const approved = await checkLiveApproval();
+        if (approved) clearInterval(approvalHeartbeat);
       }
     });
 
     if (typeof window.listenToStateChange === 'function') {
-      window.listenToStateChange('ORDER_STATUS_CHANGED', (data) => {
-        if (data && (data.orderId === resCode || data.id === resCode)) {
-          checkLiveApproval();
+      window.listenToStateChange('ORDER_STATUS_CHANGED', async (data) => {
+        if (data && (data.orderId === resCode || data.id === resCode || data.orderCode === resCode)) {
+          const approved = await checkLiveApproval();
+          if (approved) clearInterval(approvalHeartbeat);
         }
       });
     }
