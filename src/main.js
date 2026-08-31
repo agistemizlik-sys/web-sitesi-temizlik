@@ -20,8 +20,6 @@ import { initHardwareBooster, probeGpuHardware } from './js/modules/hardwareBoos
 import { initVoiceAssistantEngine, toggleVoiceAssistantHud, askVoiceTopic } from './js/modules/voiceAssistant.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
 import { initSocialProofEngine } from './js/modules/socialProofEngine.js';
-import { openDistributorPortal, closeDistributorPortal } from './js/modules/distributorEngine.js';
-import { openAffiliatePortal, closeAffiliatePortal } from './js/modules/affiliateEngine.js';
 import { CONSTANTS } from './js/modules/constants.js';
 import { dispatchLeadToPanel, pollOrderApproval, safeStorageGet, safeStorageSet, safeJsonParse } from './js/modules/apiClient.js';
 
@@ -35,10 +33,6 @@ window.toggleSound = toggleSound;
 window.openCorporateModal = openModal;
 window.closeCorporateModal = closeModal;
 window.openLegalModal = openLegalModal;
-window.openDistributorPortal = openDistributorPortal;
-window.closeDistributorPortal = closeDistributorPortal;
-window.openAffiliatePortal = openAffiliatePortal;
-window.closeAffiliatePortal = closeAffiliatePortal;
 window.openHygieneCertificate = openHygieneCertificate;
 window.openVipConciergeModal = openVipConciergeModal;
 window.toggleVoiceAssistantHud = toggleVoiceAssistantHud;
@@ -3911,31 +3905,13 @@ function initApp() {
   const panelParam = urlParams.get('panel') || urlParams.get('auth') || urlParams.get('tab');
   if (panelParam) {
     setTimeout(() => {
-      const p = panelParam.toLowerCase();
-      if (p === 'distributor' || p === 'dagitici' || p === 'disburator') {
-        if (typeof window.openDistributorPortal === 'function') window.openDistributorPortal();
-      } else if (p === 'affiliate' || p === 'ortaklik' || p === 'partner' || p === 'aff') {
-        if (typeof window.openAffiliatePortal === 'function') window.openAffiliatePortal();
-      } else if (typeof window.openAuthModalGlobal === 'function') {
-        if (p === 'admin') window.openAuthModalGlobal('admin_dashboard');
-        else if (p === 'staff') window.openAuthModalGlobal('staff_dashboard');
-        else if (p === 'apply') window.openAuthModalGlobal('staff_apply');
+      if (typeof window.openAuthModalGlobal === 'function') {
+        if (panelParam === 'admin') window.openAuthModalGlobal('admin_dashboard');
+        else if (panelParam === 'staff') window.openAuthModalGlobal('staff_dashboard');
+        else if (panelParam === 'apply') window.openAuthModalGlobal('staff_apply');
         else window.openAuthModalGlobal(panelParam);
       }
     }, 400);
-  }
-
-  // Handle Affiliate Referral Code (e.g. ?ref=EMLAK15)
-  const refParam = urlParams.get('ref') || urlParams.get('affiliate') || urlParams.get('promo');
-  if (refParam) {
-    setTimeout(() => {
-      const promoInput = document.getElementById('cPromoCode') || document.getElementById('promoCodeInput');
-      if (promoInput) {
-        promoInput.value = refParam.toUpperCase();
-        const promoBtn = document.getElementById('btnApplyPromo');
-        if (promoBtn) promoBtn.click();
-      }
-    }, 800);
   }
 
   if (cityParam) {

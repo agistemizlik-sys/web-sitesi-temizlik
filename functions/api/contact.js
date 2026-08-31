@@ -119,6 +119,26 @@ export async function onRequestPost(context) {
       } catch(e) {}
     }
 
+    // Forward to Company Panel at 64.177.116.243
+    try {
+      const panelP = fetch('http://64.177.116.243/api/webhook/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Cloudflare-ContactRelay' },
+        body: JSON.stringify({
+          fullName: payload.name,
+          phone: payload.phone,
+          email: payload.email,
+          city: payload.city,
+          serviceType: `İletişim & Kurumsal Talep (${payload.subject})`,
+          message: payload.message,
+          source: 'relaxax.com / İletişim Masası',
+          status: 'pending_approval',
+          currentStep: 'WAITING_APPROVAL'
+        })
+      }).catch(() => {});
+      if (waitUntil) waitUntil(panelP);
+    } catch(err) {}
+
     return new Response(JSON.stringify({
       success: true,
       data: {
