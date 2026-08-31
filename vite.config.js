@@ -12,4 +12,23 @@ export default defineConfig({
       'Expires': '0',
     },
   },
+  build: {
+    emptyOutDir: false,
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) {
+            return 'vendor-three';
+          }
+          if (id.includes('node_modules/gsap')) {
+            return 'vendor-gsap';
+          }
+          if (id.includes('node_modules/lenis')) {
+            return 'vendor-lenis';
+          }
+        }
+      }
+    }
+  }
 });
