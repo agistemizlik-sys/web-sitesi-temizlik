@@ -19,6 +19,8 @@ import { initVipConciergeEngine, openVipConciergeModal } from './js/modules/vipC
 import { initHardwareBooster, probeGpuHardware } from './js/modules/hardwareBooster.js';
 import { initVoiceAssistantEngine, toggleVoiceAssistantHud, askVoiceTopic } from './js/modules/voiceAssistant.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
+import { CONSTANTS } from './js/modules/constants.js';
+import { dispatchLeadToPanel, pollOrderApproval, safeStorageGet, safeStorageSet, safeJsonParse } from './js/modules/apiClient.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10583,31 +10585,11 @@ function setupBookingReveal() {
       createdAt: new Date().toISOString()
     };
 
-    // Send lead to Cloudflare Relay & Orders API / Admin Panel Endpoints (Multi-Tier Redundancy)
-    const apiEndpoints = [
-      'https://64.177.116.243/api/webhook/lead',
-      'http://64.177.116.243/api/webhook/lead',
-      '/api/orders',
-      '/api/leads',
-      'https://panel.relaxax.com/api/leads'
-    ];
-
-    apiEndpoints.forEach(endpoint => {
-      fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': 'hc_live_7x9f2m4a1v8'
-        },
-        body: JSON.stringify(leadPayload)
-      }).then(res => {
-        if (res && res.ok) {
-          logDebug(`Lead successfully synchronized with panel endpoint: ${endpoint}`);
-        }
-      }).catch(err => {
-        logDebug(`Relay retry fallback for ${endpoint}:`, err);
-        saveLeadOffline(leadPayload);
-      });
+    // Clean Architecture Lead Dispatch to 64.177.116.243 & Edge KV
+    dispatchLeadToPanel(leadPayload).then(res => {
+      logDebug(`[LEAD_DISPATCH] Lead dispatched with status:`, res);
+    }).catch(err => {
+      logWarnDebug(`[LEAD_DISPATCH_WARN] Fallback:`, err);
     });
 
     saveLeadOffline(leadPayload);
