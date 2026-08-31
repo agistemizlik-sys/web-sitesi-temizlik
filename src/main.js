@@ -10841,31 +10841,44 @@ function setupBookingReveal() {
       try {
         const jobs = JSON.parse(localStorage.getItem('relaxax_staff_live_jobs') || '[]');
         const targetJob = jobs.find(j => (j && (j.id === resCode || j.orderCode === resCode || j.resCode === resCode)));
-        if (targetJob && (targetJob.status === 'Onaylandı' || targetJob.status === 'Yolda' || targetJob.status === 'Tamamlandı')) {
+        if (targetJob && (targetJob.status === 'Onaylandı' || targetJob.status === 'approved' || targetJob.status === 'Yolda' || targetJob.status === 'Tamamlandı')) {
           isAlreadyApproved = true;
           renderOrderApprovedState(targetJob);
           return true;
         }
       } catch (e) {}
 
-      // Cross-Device Edge API check (when Admin approves from company panel on any device)
+      // Cross-Device Live CleanPro API check
       try {
-        const res = await fetch(`/api/orders?code=${encodeURIComponent(resCode)}`);
+        const res = await fetch(`http://64.177.116.243/api/order/status?code=${encodeURIComponent(resCode)}`);
         if (res.ok) {
           const data = await res.json();
-          if (data && data.success && data.order) {
-            const rem = data.order;
-            if (rem.status === 'Onaylandı' || rem.status === 'Yolda' || rem.status === 'Tamamlandı') {
-              isAlreadyApproved = true;
-              renderOrderApprovedState(rem);
-              return true;
-            }
+          if (data && data.success && (data.status === 'approved' || data.status === 'Onaylandı' || data.status === 'Yolda')) {
+            isAlreadyApproved = true;
+            renderOrderApprovedState(data);
+            return true;
           }
         }
       } catch (err) {}
 
       return false;
     };
+
+    // 📡 Canlı Server-Sent Events (SSE) Dinleyicisi (Şirket Paneli Onayı için)
+    try {
+      const liveSse = new EventSource('http://64.177.116.243/api/stream');
+      liveSse.addEventListener('ORDER_APPROVED', (e) => {
+        try {
+          const sseData = JSON.parse(e.data);
+          if (sseData && (sseData.orderCode === resCode || sseData.leadId === resCode)) {
+            isAlreadyApproved = true;
+            renderOrderApprovedState(sseData);
+            liveSse.close();
+            if (approvalHeartbeat) clearInterval(approvalHeartbeat);
+          }
+        } catch (parseErr) {}
+      });
+    } catch(sseErr) {}
 
     const approvalHeartbeat = setInterval(async () => {
       const approved = await checkLiveApproval();
@@ -10877,7 +10890,7 @@ function setupBookingReveal() {
     window.addEventListener('storage', async (e) => {
       if (e.key === 'relaxax_staff_live_jobs' || e.key === 'relaxax_booking_history') {
         const approved = await checkLiveApproval();
-        if (approved) clearInterval(approvalHeartbeat);
+        if (approved && approvalHeartbeat) clearInterval(approvalHeartbeat);
       }
     });
 
@@ -10885,7 +10898,7 @@ function setupBookingReveal() {
       window.listenToStateChange('ORDER_STATUS_CHANGED', async (data) => {
         if (data && (data.orderId === resCode || data.id === resCode || data.orderCode === resCode)) {
           const approved = await checkLiveApproval();
-          if (approved) clearInterval(approvalHeartbeat);
+          if (approved && approvalHeartbeat) clearInterval(approvalHeartbeat);
         }
       });
     }
