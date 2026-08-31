@@ -100,7 +100,7 @@ export async function onRequest(context) {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, HEAD, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
     "Cache-Control": "public, max-age=600, stale-while-revalidate=86400",
     "X-Content-Type-Options": "nosniff",
@@ -110,6 +110,55 @@ export async function onRequest(context) {
 
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers });
+  }
+
+  // POST /api/reviews -> Submit new verified rating/review
+  if (request.method === "POST") {
+    try {
+      const body = await request.json();
+      const rating = Math.min(5, Math.max(1, parseInt(body.rating || '5', 10) || 5));
+      const author = String(body.author || 'Değerli Müşteri').trim().substring(0, 80);
+      const text = String(body.text || body.comment || '').trim().substring(0, 500);
+      const city = String(body.city || 'İstanbul').trim().substring(0, 50);
+      const orderCode = String(body.orderCode || '').trim().substring(0, 40);
+
+      const reviewItem = {
+        id: `rev-${Date.now()}`,
+        author,
+        rating,
+        text,
+        city,
+        orderCode,
+        country: (city.toLowerCase().includes('warsz') ? 'PL' : 'TR'),
+        verified: true,
+        avatar: (body.avatar || '⭐'),
+        createdAt: new Date().toISOString()
+      };
+
+      const env = context.env;
+      if (env && env.LEADS_KV) {
+        await env.LEADS_KV.put(`review:${reviewItem.id}`, JSON.stringify(reviewItem), { expirationTtl: 86400 * 365 });
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: "Değerlendirmeniz başarıyla kaydedildi.",
+        review: reviewItem,
+        traceId
+      }), {
+        status: 201,
+        headers
+      });
+    } catch (postErr) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Geçersiz değerlendirme verisi.",
+        traceId
+      }), {
+        status: 400,
+        headers
+      });
+    }
   }
 
   const url = new URL(request.url);

@@ -1,46 +1,12 @@
 /**
- * RELAXAX Enterprise Backend Health Check & Telemetry Endpoint
+ * @fileoverview RELAXAX Enterprise Backend Health Check & Telemetry Endpoint
  * GET /api/health & HEAD /api/health
  */
-
-// Diagnostic test route to 64.177.116.243
-export async function onRequestGet(context) {
-  const t0 = Date.now();
-  try {
-    const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), 4000);
-    const resp = await fetch('http://64.177.116.243/api/sync-all', {
-      headers: { 'User-Agent': 'Cloudflare-Worker-Diag' },
-      signal: ctrl.signal
-    });
-    clearTimeout(tid);
-    const text = await resp.text();
-    return new Response(JSON.stringify({
-      success: true,
-      status: resp.status,
-      durationMs: Date.now() - t0,
-      body: text.substring(0, 300)
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({
-      success: false,
-      durationMs: Date.now() - t0,
-      error: e.name + ': ' + e.message
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
 
 export async function onRequest(context) {
   const { request, env } = context;
   const origin = request.headers.get('Origin') || '*';
-
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
+  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')))
     ? origin
     : '*';
 
@@ -51,62 +17,59 @@ export async function onRequest(context) {
     "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
     "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
     "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
+    "X-Frame-Options": "SAMEORIGIN"
   };
 
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers });
   }
 
-  const cf = request.cf || {};
-  const traceId = `hlth-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
+  const t0 = Date.now();
+  let panelStatus = 'UNKNOWN';
+  let panelLatencyMs = 0;
 
-  const responsePayload = {
-    status: "healthy",
-    code: 200,
-    service: "RELAXAX Global Edge Serverless Engine",
-    version: "3.5.0-enterprise",
-    timestamp: new Date().toISOString(),
-    traceId,
-    runtime: {
-      platform: "cloudflare_pages_functions",
-      datacenter: cf.colo || "EDGE-GLOBAL",
-      country: cf.country || "GLOBAL",
-      city: cf.city || "EDGE",
-      timezone: cf.timezone || "UTC",
-      httpProtocol: cf.httpProtocol || "HTTP/2",
-      asn: cf.asn || null,
-      asOrganization: cf.asOrganization || null
-    },
-    capabilities: {
-      multiTierRelay: true,
-      directPanelSync: true,
-      kvPersistence: Boolean(env && env.LEADS_KV),
-      serverSideConversions: Boolean(env && env.META_PIXEL_ID && env.META_CAPI_ACCESS_TOKEN),
-      geoEnrichment: true,
-      dynamicPrerender: true,
-      cryptographicQuoteVerification: true
-    },
-    endpoints: [
-      { path: "/api/leads", methods: ["POST", "OPTIONS"], desc: "Lead dispatch, validation, multi-channel notification & KV persistence relay" },
-      { path: "/api/quote", methods: ["POST", "OPTIONS"], desc: "Authoritative server-side price calculation & HMAC cryptographic quote token generator" },
-      { path: "/api/promo", methods: ["POST", "OPTIONS"], desc: "Multi-currency discount & coupon code verification engine with anti brute-force" },
-      { path: "/api/availability", methods: ["GET", "POST", "OPTIONS"], desc: "Real-time date and hourly time-slot capacity engine" },
-      { path: "/api/contact", methods: ["POST", "OPTIONS"], desc: "Customer support tickets, B2B commercial quotes & franchise applications" },
-      { path: "/api/reviews", methods: ["GET", "HEAD", "OPTIONS"], desc: "Verified customer ratings, sentiment score & localized reviews catalog" },
-      { path: "/api/newsletter", methods: ["POST", "OPTIONS"], desc: "VIP Hygiene Club coupon generation & email collector" },
-      { path: "/api/services", methods: ["GET", "HEAD", "OPTIONS"], desc: "Multi-currency service catalog, extras & regional pricing tables" },
-      { path: "/api/conversion", methods: ["POST", "OPTIONS"], desc: "Server-side Meta Conversions API & GA4 Measurement Protocol relay" },
-      { path: "/api/health", methods: ["GET", "HEAD", "OPTIONS"], desc: "System diagnostics, capability flags & edge status monitor" }
-    ]
-  };
-
-  if (request.method === "HEAD") {
-    return new Response(null, { status: 200, headers });
+  // Probe Company Panel at 64.177.116.243
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 2500);
+    const probeStart = Date.now();
+    const panelResp = await fetch('http://64.177.116.243/api/sync-all', {
+      headers: { 'User-Agent': 'Cloudflare-Worker-HealthProbe' },
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    panelLatencyMs = Date.now() - probeStart;
+    panelStatus = panelResp.ok ? 'CONNECTED_AND_SYNCED' : `HTTP_${panelResp.status}`;
+  } catch (err) {
+    panelStatus = `FAILED (${err.message || 'TIMEOUT'})`;
   }
 
-  return new Response(JSON.stringify(responsePayload, null, 2), {
+  const cfData = request.cf || {};
+
+  const healthPayload = {
+    status: 'UP_AND_HEALTHY',
+    service: 'RELAXAX Enterprise Edge Gateway',
+    version: 'v2.5.0-clean',
+    timestamp: new Date().toISOString(),
+    panelIntegration: {
+      targetServer: 'http://64.177.116.243/',
+      status: panelStatus,
+      latencyMs: panelLatencyMs
+    },
+    edge: {
+      colo: cfData.colo || 'LOCAL_EDGE',
+      country: cfData.country || 'TR',
+      city: cfData.city || 'Istanbul',
+      httpProtocol: cfData.httpProtocol || 'HTTP/2'
+    },
+    kvStorage: {
+      leadsKvBound: !!(env && env.LEADS_KV),
+      status: (env && env.LEADS_KV) ? 'CONNECTED' : 'STANDBY_HYBRID'
+    },
+    totalDurationMs: Date.now() - t0
+  };
+
+  return new Response(JSON.stringify(healthPayload, null, 2), {
     status: 200,
     headers
   });
