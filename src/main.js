@@ -19,6 +19,7 @@ import { initVipConciergeEngine, openVipConciergeModal } from './js/modules/vipC
 import { initHardwareBooster, probeGpuHardware } from './js/modules/hardwareBooster.js';
 import { initVoiceAssistantEngine, toggleVoiceAssistantHud, askVoiceTopic } from './js/modules/voiceAssistant.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
+import { initSocialProofEngine } from './js/modules/socialProofEngine.js';
 import { CONSTANTS } from './js/modules/constants.js';
 import { dispatchLeadToPanel, pollOrderApproval, safeStorageGet, safeStorageSet, safeJsonParse } from './js/modules/apiClient.js';
 
@@ -12515,6 +12516,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', updateMbdVisibility, { passive: true });
   window.addEventListener('resize', updateMbdVisibility, { passive: true });
   setInterval(updateMbdVisibility, 800);
+
+  // Initialize Dynamic Live Social Proof & Trust Notification Engine
+  initSocialProofEngine();
 });
 
 
