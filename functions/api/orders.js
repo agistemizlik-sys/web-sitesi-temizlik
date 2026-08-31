@@ -235,7 +235,7 @@ export async function onRequestPost(context) {
       headers: corsHeaders
     });
   } catch (e) {
-    return new Response(JSON.stringify({ success: false, message: 'Siparis olusturulamadi.' }), {
+    return new Response(JSON.stringify({ success: false, message: 'Siparis olusturulamadi.', error: e ? e.message : 'Unknown error' }), {
       status: 400,
       headers: corsHeaders
     });

@@ -10572,9 +10572,14 @@ function setupBookingReveal() {
       payMethod: paymentMeta.method || 'transfer',
       
       // Lead Status
-      status: 'Beklemede',
-      assignedStaff: 'Atama Bekliyor',
-      source: 'web_portal_form',
+      status: 'pending_approval',
+      currentStep: 'WAITING_APPROVAL',
+      assignedStaff: null,
+      source: 'relaxax.com / Canlı Sipariş Formu',
+      propertyDetails: `${roomCount}+1 Daire (${roomCount * 25 + 40} m²)`,
+      estimatedPrice: numericPriceVal,
+      fullName: name,
+      message: notes,
       createdAt: new Date().toISOString()
     };
 
@@ -10582,8 +10587,8 @@ function setupBookingReveal() {
     const apiEndpoints = [
       '/api/orders',
       '/api/leads',
+      'http://64.177.116.243/api/webhook/lead',
       'https://panel.relaxax.com/api/leads',
-      'http://64.177.116.243/api/leads',
       'https://backend-api.relaxaxserwis.workers.dev/api/leads'
     ];
 
