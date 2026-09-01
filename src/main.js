@@ -3333,7 +3333,7 @@ function setupPortalIntroClick() {
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
-    img.src = `/videos/book_frames/f_${numStr}.webp`;
+    img.src = `/videos/book_journey/f_${numStr}.webp`;
     img.onload = () => {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
       if (i - 1 === currentTargetFrame && ctx && canvas) {
