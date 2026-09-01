@@ -3398,7 +3398,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/book_journey/f_${numStr}.webp?v=master_blend_20260901_final`;
+    img.src = `/videos/book_journey/f_${numStr}.webp?v=flawless_portal_v3`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
