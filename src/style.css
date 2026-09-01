@@ -19900,31 +19900,15 @@ html, body {
 }
 
 .banner-pole-left {
-  left: 4vw;
-  width: 200px;
-  z-index: 6;
-}
-
-.banner-pole-left-near {
-  left: 14vw;
-  width: 160px;
-  top: 8vh;
-  z-index: 5;
-  opacity: 0.85;
+  left: 2.5vw;
+  width: 170px;
+  z-index: 8;
 }
 
 .banner-pole-right {
-  right: 4vw;
-  width: 200px;
-  z-index: 6;
-}
-
-.banner-pole-right-near {
-  right: 14vw;
-  width: 160px;
-  top: 8vh;
-  z-index: 5;
-  opacity: 0.85;
+  right: 2.5vw;
+  width: 170px;
+  z-index: 8;
 }
 
 /* Pole & Finials */
