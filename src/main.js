@@ -3354,8 +3354,9 @@ function setupPortalIntroClick() {
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY;
-    scrollVelocity += delta * 0.0018;
-    scrollVelocity = Math.max(-0.16, Math.min(0.16, scrollVelocity));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0014));
+    scrollVelocity += delta * 0.0008;
+    scrollVelocity = Math.max(-0.10, Math.min(0.10, scrollVelocity));
   };
 
   window.addEventListener('wheel', onWheel, { passive: true });
@@ -3378,8 +3379,8 @@ function setupPortalIntroClick() {
     const deltaY = touchStartY - currentY;
     
     // Add touch delta to progress with natural momentum
-    scrollVelocity += (deltaY / 120) * 0.85;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 140));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 130));
+    scrollVelocity += (deltaY / 100) * 0.80;
     touchStartY = currentY;
   };
 
@@ -3390,9 +3391,11 @@ function setupPortalIntroClick() {
   // Keyboard navigation
   const onKeyDown = (e) => {
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      scrollVelocity += 0.12;
+      targetProgress = Math.min(1.0, targetProgress + 0.16);
+      scrollVelocity += 0.08;
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      scrollVelocity -= 0.12;
+      targetProgress = Math.max(0.0, targetProgress - 0.16);
+      scrollVelocity -= 0.08;
     }
   };
 
@@ -3401,8 +3404,8 @@ function setupPortalIntroClick() {
     if (triggered) return;
     // Scroll-driven forward/backward movement
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
-    scrollVelocity *= 0.84; // Smooth exponential friction
-    currentProgress += (targetProgress - currentProgress) * 0.16;
+    scrollVelocity *= 0.82; // Smooth exponential friction
+    currentProgress += (targetProgress - currentProgress) * 0.20;
 
     // Render corresponding frame onto Canvas
     const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
@@ -3435,7 +3438,7 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (currentProgress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.80) {
+      } else if (currentProgress < 0.70) {
         hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
@@ -3452,13 +3455,13 @@ function setupPortalIntroClick() {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // Flags & Country Portals: Emerge ONLY at the END where we glide into the meadow landscape (0.80 -> 1.0)
+    // Flags & Country Portals: Emerge smoothly between 0.65 and 0.90
     let flagOpacity = 0;
     let flagYShift = 45;
     let flagScale = 0.85;
 
-    if (currentProgress > 0.78) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.78) / 0.16); // 0 to 1 between progress 0.78 and 0.94
+    if (currentProgress > 0.65) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.65) / 0.25);
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.85 + normalizedP * 0.15;
@@ -3467,14 +3470,14 @@ function setupPortalIntroClick() {
     if (poleLeft) {
       poleLeft.style.opacity = flagOpacity.toFixed(3);
       poleLeft.style.visibility = flagOpacity > 0.05 ? 'visible' : 'hidden';
-      poleLeft.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
+      poleLeft.style.pointerEvents = flagOpacity > 0.3 ? 'auto' : 'none';
       poleLeft.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
     if (poleRight) {
       poleRight.style.opacity = flagOpacity.toFixed(3);
       poleRight.style.visibility = flagOpacity > 0.05 ? 'visible' : 'hidden';
-      poleRight.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
+      poleRight.style.pointerEvents = flagOpacity > 0.3 ? 'auto' : 'none';
       poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
