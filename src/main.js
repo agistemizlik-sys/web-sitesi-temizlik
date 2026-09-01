@@ -3337,33 +3337,14 @@ function setupPortalIntroClick() {
     updateDuration();
   }
 
-  // Calculate normalized scroll progress (0.0 to 1.0)
-  const calculateScrollProgress = () => {
-    if (!heroTrack) return 0;
-    const rect = heroTrack.getBoundingClientRect();
-    const trackHeight = heroTrack.offsetHeight;
-    const windowHeight = window.innerHeight;
-    const totalScrollable = trackHeight - windowHeight;
-
-    if (totalScrollable <= 0) return 0;
-    const scrolled = -rect.top;
-    return Math.max(0, Math.min(1.0, scrolled / totalScrollable));
+  // Direct Wheel / Trackpad Scroll Engine
+  const onWheel = (e) => {
+    if (triggered) return;
+    const delta = e.deltaY;
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0012));
   };
 
-  const onScroll = () => {
-    targetProgress = calculateScrollProgress();
-  };
-
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
-
-  // Mouse move subtle camera tilt
-  const onMouseMove = (e) => {
-    if (!introVideo) return;
-    const nx = (e.clientX / window.innerWidth - 0.5) * 8;
-    const ny = (e.clientY / window.innerHeight - 0.5) * 8;
-    introVideo.style.transform = `scale(${(1.0 + currentProgress * 0.22).toFixed(3)}) translate3d(${nx.toFixed(1)}px, ${ny.toFixed(1)}px, 0)`;
-  };
+  window.addEventListener('wheel', onWheel, { passive: true });
 
   // Touch handlers for mobile devices
   let touchStartY = 0;
@@ -3377,12 +3358,12 @@ function setupPortalIntroClick() {
   };
 
   const onTouchMove = (e) => {
-    if (!isTouching || !e.touches || !e.touches[0]) return;
+    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
     
     // Add touch delta to progress
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 450));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 320));
     touchStartY = currentY;
   };
 
@@ -3392,36 +3373,36 @@ function setupPortalIntroClick() {
 
   // Keyboard navigation
   const onKeyDown = (e) => {
-    if (e.code === 'ArrowDown' || e.code === 'PageDown') {
+    if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
       targetProgress = Math.min(1.0, targetProgress + 0.15);
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
       targetProgress = Math.max(0, targetProgress - 0.15);
     }
   };
 
-  // Main Render Loop for buttery smooth 60fps / 120fps scrubbing
+  // Main Render Loop for buttery smooth 60fps / 120fps scrubbing & first-person walking
   const renderLoop = () => {
     // Damped interpolation for cinematic motion
-    currentProgress += (targetProgress - currentProgress) * 0.12;
+    currentProgress += (targetProgress - currentProgress) * 0.10;
 
     if (progressBar) {
       progressBar.style.width = `${(currentProgress * 100).toFixed(1)}%`;
     }
 
     if (hudText) {
-      if (currentProgress < 0.08) {
+      if (currentProgress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.92) {
+      } else if (currentProgress < 0.68) {
         hudText.textContent = `İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
-        hudText.textContent = '✨ SİTEYE GİRİŞ YAPILIYOR...';
+        hudText.textContent = '🚩 ÜLKENİZİ SEÇİN (TÜRKİYE / POLONYA)';
       }
     }
 
     // Scrub video currentTime
     if (videoDuration > 0) {
       const targetTime = currentProgress * videoDuration;
-      if (Math.abs(targetTime - lastTimeApplied) > 0.02) {
+      if (Math.abs(targetTime - lastTimeApplied) > 0.015) {
         lastTimeApplied = targetTime;
         try {
           introVideo.currentTime = Math.min(videoDuration - 0.04, Math.max(0, targetTime));
@@ -3429,13 +3410,21 @@ function setupPortalIntroClick() {
       }
     }
 
-    // Flag & Prompt Appearance Curve: embedded towards the END of the landscape journey (0.50 -> 0.85 -> 1.0)
+    // First-Person Walking Bob & Camera Sway Effect
+    const walkPhase = currentProgress * 42;
+    const walkBobY = Math.sin(walkPhase) * 3.8;
+    const walkSwayX = Math.cos(walkPhase * 0.5) * 2.0;
+    const depthScale = 1.0 + currentProgress * 0.12;
+
+    introVideo.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
+
+    // Flags & Country Portals: Emerge ONLY at the END in the final landscape (0.65 -> 1.0)
     let flagOpacity = 0;
     let flagYShift = 45;
     let flagScale = 0.82;
 
-    if (currentProgress > 0.48) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.48) / 0.32); // 0 to 1 between progress 0.48 and 0.80
+    if (currentProgress > 0.62) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.62) / 0.26); // 0 to 1 between progress 0.62 and 0.88
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.82 + normalizedP * 0.18;
@@ -3443,20 +3432,14 @@ function setupPortalIntroClick() {
 
     if (poleLeft) {
       poleLeft.style.opacity = flagOpacity.toFixed(3);
-      poleLeft.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
+      poleLeft.style.pointerEvents = flagOpacity > 0.5 ? 'auto' : 'none';
       poleLeft.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
     if (poleRight) {
       poleRight.style.opacity = flagOpacity.toFixed(3);
-      poleRight.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
+      poleRight.style.pointerEvents = flagOpacity > 0.5 ? 'auto' : 'none';
       poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
-    }
-
-    const centerPrompt = document.getElementById('bookCenterPrompt');
-    if (centerPrompt) {
-      centerPrompt.style.opacity = flagOpacity.toFixed(3);
-      centerPrompt.style.transform = `translate(-50%, ${flagYShift.toFixed(1)}px)`;
     }
 
     animFrameId = requestAnimationFrame(renderLoop);
@@ -3464,10 +3447,9 @@ function setupPortalIntroClick() {
 
   animFrameId = requestAnimationFrame(renderLoop);
 
-  introStage.addEventListener('touchstart', onTouchStart, { passive: true });
-  introStage.addEventListener('touchmove', onTouchMove, { passive: true });
-  introStage.addEventListener('touchend', onTouchEnd, { passive: true });
-  introStage.addEventListener('mousemove', onMouseMove, { passive: true });
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: true });
+  window.addEventListener('touchend', onTouchEnd, { passive: true });
   document.addEventListener('keydown', onKeyDown, { passive: true });
 
   // 2. Main entrance trigger handler
