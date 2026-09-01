@@ -3322,23 +3322,26 @@ function setupPortalIntroClick() {
   const ctx = canvas ? canvas.getContext('2d') : null;
   const TOTAL_FRAMES = 100;
   const frameImages = [];
-  let lastRenderedFrame = -1;
+  let renderedFrameIndex = -1;
 
   if (canvas) {
     canvas.width = 1280;
     canvas.height = 720;
   }
 
-  // Preload all 80 high-res WebP frames for zero-latency scroll scrubbing
+  // Preload all 100 high-res WebP frames for zero-latency scroll scrubbing
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.src = `/videos/book_frames/f_${numStr}.webp`;
     img.onload = () => {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
-      if ((i - 1 === currentTargetFrame || lastRenderedFrame === -1) && ctx && canvas) {
+      if (i - 1 === currentTargetFrame && ctx && canvas) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        lastRenderedFrame = i - 1;
+        renderedFrameIndex = i - 1;
+      } else if (renderedFrameIndex === -1 && i === 1 && ctx && canvas) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        renderedFrameIndex = 0;
       }
     };
     frameImages.push(img);
@@ -3411,11 +3414,11 @@ function setupPortalIntroClick() {
     const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
     const activeImg = frameImages[frameIndex];
     if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
-      if (frameIndex !== lastRenderedFrame) {
+      if (frameIndex !== renderedFrameIndex) {
         ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
-        lastRenderedFrame = frameIndex;
+        renderedFrameIndex = frameIndex;
       }
-    } else if (ctx && canvas) {
+    } else if (ctx && canvas && renderedFrameIndex !== frameIndex) {
       // Find nearest loaded frame to guarantee continuous visual feedback
       for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
         const prev = frameImages[frameIndex - offset];
