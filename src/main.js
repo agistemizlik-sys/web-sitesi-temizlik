@@ -3316,10 +3316,68 @@ function setupPortalIntroClick() {
   const frameImages = [];
   let lastDrawnImage = null;
 
-  if (canvas) {
-    canvas.width = 1280;
-    canvas.height = 720;
-  }
+  // ── High-DPI Retina Canvas Buffer & Aspect-Ratio Cover Renderer ──
+  const resizeCanvas = () => {
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const targetW = Math.round(w * dpr);
+    const targetH = Math.round(h * dpr);
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+    if (ctx) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+    }
+  };
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    renderFrame(currentProgress);
+  });
+  resizeCanvas();
+
+  // Draw image with perfect aspect-ratio cover math (no distortion, 100% crisp)
+  const drawImageCover = (img, alpha = 1.0) => {
+    if (!img || !img.complete || img.naturalWidth <= 0 || !ctx || !canvas) return;
+    const cw = canvas.width;
+    const ch = canvas.height;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    const canvasRatio = cw / ch;
+    const imageRatio = iw / ih;
+
+    let rw, rh, ox, oy;
+    if (canvasRatio > imageRatio) {
+      rw = cw;
+      rh = cw / imageRatio;
+      ox = 0;
+      oy = (ch - rh) / 2;
+    } else {
+      rh = ch;
+      rw = ch * imageRatio;
+      ox = (cw - rw) / 2;
+      oy = 0;
+    }
+
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, ox, oy, rw, rh);
+  };
+
+  // Magical floating golden dust particles inside the book
+  const magicalParticles = Array.from({ length: 42 }, (_, idx) => ({
+    x: 0.35 + Math.random() * 0.30,
+    y: 0.30 + Math.random() * 0.45,
+    size: 1.5 + Math.random() * 3.0,
+    speedY: 0.15 + Math.random() * 0.25,
+    swaySpeed: 1.5 + Math.random() * 2.0,
+    phase: Math.random() * Math.PI * 2,
+    baseAlpha: 0.4 + Math.random() * 0.6
+  }));
 
   // Preload all 100 high-res WebP frames for zero-latency scroll scrubbing
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
@@ -3329,10 +3387,10 @@ function setupPortalIntroClick() {
     img.onload = () => {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
       if (i - 1 === currentTargetFrame && ctx && canvas) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        drawImageCover(img, 1.0);
         lastDrawnImage = img;
       } else if (!lastDrawnImage && i === 1 && ctx && canvas) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        drawImageCover(img, 1.0);
         lastDrawnImage = img;
       }
     };
@@ -3360,13 +3418,11 @@ function setupPortalIntroClick() {
 
     if (ctx && canvas) {
       if (imgA && imgA.complete && imgA.naturalWidth > 0) {
-        ctx.globalAlpha = 1.0;
-        ctx.drawImage(imgA, 0, 0, canvas.width, canvas.height);
+        drawImageCover(imgA, 1.0);
 
         // Sub-frame cross-fade for seamless book opening & page flipping transitions
         if (blendFactor > 0.03 && imgB && imgB.complete && imgB.naturalWidth > 0 && imgA !== imgB) {
-          ctx.globalAlpha = blendFactor;
-          ctx.drawImage(imgB, 0, 0, canvas.width, canvas.height);
+          drawImageCover(imgB, blendFactor);
           ctx.globalAlpha = 1.0;
         }
       } else {
@@ -3374,37 +3430,58 @@ function setupPortalIntroClick() {
         for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
           const prev = frameImages[frameIndexA - offset];
           if (prev && prev.complete && prev.naturalWidth > 0) {
-            ctx.globalAlpha = 1.0;
-            ctx.drawImage(prev, 0, 0, canvas.width, canvas.height);
+            drawImageCover(prev, 1.0);
             break;
           }
           const next = frameImages[frameIndexA + offset];
           if (next && next.complete && next.naturalWidth > 0) {
-            ctx.globalAlpha = 1.0;
-            ctx.drawImage(next, 0, 0, canvas.width, canvas.height);
+            drawImageCover(next, 1.0);
             break;
           }
         }
       }
 
       // 2. Realistic Book Atmospheric Lighting & Optical Page Bloom Overlay
-      // Phase A: Golden Light Glow Leaking from Opening Pages (0.20 - 0.55)
-      if (progress >= 0.20 && progress <= 0.60) {
-        const glowPhase = progress < 0.42 ? (progress - 0.20) / 0.22 : (0.60 - progress) / 0.18;
-        const glowAlpha = Math.max(0, Math.min(0.24, glowPhase * 0.24));
+      // Phase A: Golden Light Glow & Floating Sparkle Dust from Opening Pages (0.20 - 0.60)
+      if (progress >= 0.18 && progress <= 0.62) {
+        const glowPhase = progress < 0.40 ? (progress - 0.18) / 0.22 : (0.62 - progress) / 0.22;
+        const glowAlpha = Math.max(0, Math.min(0.28, glowPhase * 0.28));
 
         if (glowAlpha > 0.01) {
           const radialGlow = ctx.createRadialGradient(
             canvas.width * 0.5, canvas.height * 0.52, 10,
-            canvas.width * 0.5, canvas.height * 0.52, canvas.width * 0.42
+            canvas.width * 0.5, canvas.height * 0.52, canvas.width * 0.45
           );
           radialGlow.addColorStop(0, `rgba(251, 191, 36, ${glowAlpha.toFixed(3)})`);
-          radialGlow.addColorStop(0.5, `rgba(245, 158, 11, ${(glowAlpha * 0.45).toFixed(3)})`);
+          radialGlow.addColorStop(0.45, `rgba(245, 158, 11, ${(glowAlpha * 0.5).toFixed(3)})`);
           radialGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
           ctx.globalAlpha = 1.0;
           ctx.fillStyle = radialGlow;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Render shimmering magical dust particles
+          magicalParticles.forEach((p, idx) => {
+            const particleY = (p.y - (progress * p.speedY * 2)) % 1.0;
+            const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
+            const actualX = (p.x + Math.sin(progress * 15 + p.phase) * 0.04) * canvas.width;
+            const pAlpha = p.baseAlpha * glowPhase;
+
+            if (pAlpha > 0.05) {
+              const particleGrad = ctx.createRadialGradient(
+                actualX, actualY, 0,
+                actualX, actualY, p.size * (window.devicePixelRatio || 1)
+              );
+              particleGrad.addColorStop(0, `rgba(255, 255, 255, ${pAlpha.toFixed(2)})`);
+              particleGrad.addColorStop(0.4, `rgba(251, 191, 36, ${(pAlpha * 0.9).toFixed(2)})`);
+              particleGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+
+              ctx.fillStyle = particleGrad;
+              ctx.beginPath();
+              ctx.arc(actualX, actualY, p.size * (window.devicePixelRatio || 1), 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
         }
       }
 
