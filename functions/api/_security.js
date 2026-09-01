@@ -96,7 +96,6 @@ export function hasCommandInjection(value) {
   return RCE_PATTERNS.some(regex => regex.test(str));
 }
 
-/**
 const SSRF_PATTERNS = [
   /(169\.254\.169\.254|metadata\.google\.internal|127\.0\.0\.1|localhost|0\.0\.0\.0|::1)/i,
   /(file:\/\/|gopher:\/\/|dict:\/\/|ldap:\/\/|tftp:\/\/)/i

@@ -144,3 +144,8 @@ export async function onRequestPost(context) {
     });
   }
 }
+
+export async function onRequest(context) {
+  if (context.request.method === "POST") return onRequestPost(context);
+  return onRequestGet(context);
+}
