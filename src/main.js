@@ -4797,6 +4797,17 @@ function setupPortalGateway() {
           targetCity = 'Warszawa';
         }
 
+        const mapStageEl = document.querySelector('.portal-map-selector-stage');
+        if (mapStageEl) {
+          mapStageEl.style.setProperty('display', 'block', 'important');
+          mapStageEl.style.setProperty('visibility', 'visible', 'important');
+          mapStageEl.style.setProperty('pointer-events', 'all', 'important');
+          mapStageEl.style.setProperty('opacity', '1', 'important');
+          setTimeout(() => {
+            try { mapStageEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(e){}
+          }, 50);
+        }
+
         if (country === 'pl') {
           if (typeof showCityPreviewFn === 'function') {
             showCityPreviewFn('Warszawa', mini);
