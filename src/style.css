@@ -57,6 +57,8 @@ html {
   background-color: #030712;
   scroll-behavior: auto;
   scrollbar-width: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html::-webkit-scrollbar {

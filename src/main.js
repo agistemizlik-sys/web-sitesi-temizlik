@@ -3353,6 +3353,12 @@ function setupPortalIntroClick() {
     resizeCanvas();
     renderFrame(currentProgress);
   }, { passive: true });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      resizeCanvas();
+      renderFrame(currentProgress);
+    }, 150);
+  }, { passive: true });
   resizeCanvas();
 
   // Draw image with perfect aspect-ratio cover math (100% natural, crisp, unadulterated)
