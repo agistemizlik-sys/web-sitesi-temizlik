@@ -3350,12 +3350,12 @@ function setupPortalIntroClick() {
   let scrollVelocity = 0;
   let animFrameId = null;
 
-  // Direct Wheel / Trackpad Scroll Engine with Smooth Inertia
+  // Direct Wheel / Trackpad Scroll Engine with Smooth Inertia & Fast Responsiveness
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY;
-    scrollVelocity += delta * 0.00075;
-    scrollVelocity = Math.max(-0.08, Math.min(0.08, scrollVelocity));
+    scrollVelocity += delta * 0.0018;
+    scrollVelocity = Math.max(-0.16, Math.min(0.16, scrollVelocity));
   };
 
   window.addEventListener('wheel', onWheel, { passive: true });
@@ -3376,9 +3376,9 @@ function setupPortalIntroClick() {
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
     
-    // Add touch delta to progress with momentum
-    scrollVelocity += (deltaY / 200) * 0.45;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 240));
+    // Add touch delta to progress with natural momentum
+    scrollVelocity += (deltaY / 140) * 0.70;
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 160));
     touchStartY = currentY;
   };
 
@@ -3389,9 +3389,9 @@ function setupPortalIntroClick() {
   // Keyboard navigation
   const onKeyDown = (e) => {
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      scrollVelocity += 0.05;
+      scrollVelocity += 0.12;
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      scrollVelocity -= 0.05;
+      scrollVelocity -= 0.12;
     }
   };
 
