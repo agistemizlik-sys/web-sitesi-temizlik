@@ -19899,16 +19899,49 @@ html, body {
   transition: transform 0.1s linear;
 }
 
+.banner-pole-wrapper.planted-in-grass {
+  top: auto !important;
+  bottom: 5vh !important;
+  height: 480px !important;
+}
+
 .banner-pole-left {
-  left: 2.5vw;
+  left: 3vw;
   width: 170px;
   z-index: 8;
 }
 
 .banner-pole-right {
-  right: 2.5vw;
+  right: 3vw;
   width: 170px;
   z-index: 8;
+}
+
+/* Grass Mound & Earth Socket planted in the Meadow */
+.banner-grass-mound {
+  position: absolute;
+  bottom: -8px;
+  width: 90px;
+  height: 26px;
+  background: radial-gradient(ellipse at 50% 60%, rgba(20, 83, 45, 0.98) 0%, rgba(5, 46, 22, 0.9) 60%, transparent 100%);
+  border-radius: 50%;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), 0 0 20px rgba(34, 197, 94, 0.35);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.banner-pole-left .banner-grass-mound {
+  left: -40px;
+}
+
+.banner-pole-right .banner-grass-mound {
+  right: -40px;
+}
+
+.grass-blades {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 25%, rgba(74, 222, 128, 0.6), transparent 75%);
 }
 
 /* Pole & Finials */
