@@ -3470,10 +3470,26 @@ function setupPortalIntroClick() {
       poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
-    animFrameId = requestAnimationFrame(renderLoop);
+    if (!triggered) {
+      animFrameId = requestAnimationFrame(renderLoop);
+    }
   };
 
   animFrameId = requestAnimationFrame(renderLoop);
+
+  window._dismissIntroHero = () => {
+    triggered = true;
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      heroTrack.style.transition = 'opacity 0.25s ease';
+      heroTrack.style.opacity = '0';
+      heroTrack.style.pointerEvents = 'none';
+      setTimeout(() => {
+        heroTrack.style.setProperty('display', 'none', 'important');
+      }, 250);
+    }
+  };
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: true });
@@ -4855,14 +4871,17 @@ function setupPortalGateway() {
     const code = (countryCode === 'pl' || countryCode === 'poland') ? 'pl' : 'tr';
 
     // 1. Immediately dismiss book scroll hero track
+    if (typeof window._dismissIntroHero === 'function') {
+      window._dismissIntroHero();
+    }
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
-      heroTrack.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      heroTrack.style.transition = 'opacity 0.25s ease';
       heroTrack.style.opacity = '0';
       heroTrack.style.pointerEvents = 'none';
       setTimeout(() => {
         heroTrack.style.setProperty('display', 'none', 'important');
-      }, 350);
+      }, 200);
     }
 
     const introStage = document.getElementById('portal-intro-stage');
