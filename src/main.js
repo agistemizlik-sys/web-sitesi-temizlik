@@ -3563,49 +3563,81 @@ function setupPortalIntroClick() {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 5. Slogans (DOM State Diffing)
-    const getSloganOpacity = (p, start, peak, end) => {
-      if (p < start || p > end) return 0;
-      if (p <= peak) {
-        const t = (p - start) / (peak - start);
-        return 1.0 - Math.pow(1.0 - t, 2);
-      } else {
-        const t = (end - p) / (end - peak);
-        return 1.0 - Math.pow(1.0 - t, 2);
+    // 5. Splittable Manuscript Slogans (Split in half and fly to screen edges tied to scroll)
+    const updateSplittableSlogan = (boxId, leftId, rightId, subId, p, start, enterPeak, exitStart, end) => {
+      const box = document.getElementById(boxId);
+      if (!box) return;
+
+      if (p < start || p > end) {
+        if (box.style.visibility !== 'hidden') {
+          box.style.visibility = 'hidden';
+          box.style.opacity = '0';
+        }
+        return;
+      }
+
+      box.style.visibility = 'visible';
+
+      let leftTx = 0;
+      let rightTx = 0;
+      let leftRot = 0;
+      let rightRot = 0;
+      let wordOp = 1.0;
+      let subOp = 1.0;
+      let subTy = 0;
+
+      if (p < enterPeak) {
+        // Softly entering and merging into center
+        const t = (p - start) / (enterPeak - start);
+        const easeT = 1.0 - Math.pow(1.0 - t, 2);
+        wordOp = easeT;
+        subOp = easeT;
+        leftTx = (1.0 - easeT) * -35;
+        rightTx = (1.0 - easeT) * 35;
+        subTy = (1.0 - easeT) * 15;
+      } else if (p > exitStart) {
+        // Splitting into two halves and flying outward to screen edges!
+        const t = (p - exitStart) / (end - exitStart);
+        const easeT = Math.pow(t, 1.8);
+        wordOp = Math.max(0, 1.0 - easeT * 1.25);
+        subOp = Math.max(0, 1.0 - easeT * 2.2);
+        leftTx = -easeT * 60; // 60vw left
+        rightTx = easeT * 60; // 60vw right
+        leftRot = -easeT * 9;
+        rightRot = easeT * 9;
+        subTy = easeT * 35;
+      }
+
+      box.style.opacity = '1';
+
+      const leftEl = document.getElementById(leftId);
+      const rightEl = document.getElementById(rightId);
+      const subEl = document.getElementById(subId);
+
+      if (leftEl) {
+        const unit = p > exitStart ? 'vw' : 'px';
+        leftEl.style.transform = `translate3d(${leftTx.toFixed(2)}${unit}, 0, 0) rotateZ(${leftRot.toFixed(2)}deg)`;
+        leftEl.style.opacity = wordOp.toFixed(2);
+      }
+      if (rightEl) {
+        const unit = p > exitStart ? 'vw' : 'px';
+        rightEl.style.transform = `translate3d(${rightTx.toFixed(2)}${unit}, 0, 0) rotateZ(${rightRot.toFixed(2)}deg)`;
+        rightEl.style.opacity = wordOp.toFixed(2);
+      }
+      if (subEl) {
+        subEl.style.transform = `translate3d(0, ${subTy.toFixed(2)}px, 0)`;
+        subEl.style.opacity = subOp.toFixed(2);
       }
     };
 
-    const s1 = document.getElementById('slogan1');
-    const s2 = document.getElementById('slogan2');
-    const s3 = document.getElementById('slogan3');
+    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.08, 0.16, 0.26, 0.36);
+    updateSplittableSlogan('slogan2', 'slogan2Left', 'slogan2Right', 'slogan2Sub', progress, 0.36, 0.44, 0.54, 0.64);
+    updateSplittableSlogan('slogan3', 'slogan3Left', 'slogan3Right', 'slogan3Sub', progress, 0.64, 0.70, 0.76, 0.84);
 
-    const op1 = Math.round(getSloganOpacity(progress, 0.12, 0.24, 0.36) * 100) / 100;
-    const op2 = Math.round(getSloganOpacity(progress, 0.35, 0.48, 0.60) * 100) / 100;
-    const op3 = Math.round(getSloganOpacity(progress, 0.58, 0.68, 0.76) * 100) / 100;
-
-    if (s1 && op1 !== lastS1Op) {
-      s1.style.opacity = op1.toFixed(2);
-      s1.style.transform = `translate(-50%, calc(-50% + ${(1 - op1) * 16}px)) scale(${(0.95 + op1 * 0.05).toFixed(2)})`;
-      s1.style.visibility = op1 > 0.01 ? 'visible' : 'hidden';
-      lastS1Op = op1;
-    }
-    if (s2 && op2 !== lastS2Op) {
-      s2.style.opacity = op2.toFixed(2);
-      s2.style.transform = `translate(-50%, calc(-50% + ${(1 - op2) * 16}px)) scale(${(0.95 + op2 * 0.05).toFixed(2)})`;
-      s2.style.visibility = op2 > 0.01 ? 'visible' : 'hidden';
-      lastS2Op = op2;
-    }
-    if (s3 && op3 !== lastS3Op) {
-      s3.style.opacity = op3.toFixed(2);
-      s3.style.transform = `translate(-50%, calc(-50% + ${(1 - op3) * 16}px)) scale(${(0.95 + op3 * 0.05).toFixed(2)})`;
-      s3.style.visibility = op3 > 0.01 ? 'visible' : 'hidden';
-      lastS3Op = op3;
-    }
-
-    // 6. Interactive Click Hotspots for the Video Banners (Visible when banners settle: progress > 0.75)
+    // 6. Interactive Click Hotspots for the Video Banners (Visible when banners settle: progress > 0.80)
     let bannerOpacity = 0;
-    if (progress > 0.74) {
-      const rawDrop = Math.min(1.0, (progress - 0.74) / 0.16);
+    if (progress > 0.80) {
+      const rawDrop = Math.min(1.0, (progress - 0.80) / 0.15);
       bannerOpacity = 1.0 - Math.pow(1.0 - rawDrop, 2);
     }
 

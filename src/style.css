@@ -20050,7 +20050,7 @@ html, body {
 }
 
 /* ==========================================================================
-   ✨ LUXURY CINEMATIC STORYTELLING SLOGANS (CHIC FROSTED GOLD GLASS)
+   ✨ LUXURY CINEMATIC STORYTELLING SLOGANS (SPLITTABLE MANUSCRIPT TYPOGRAPHY)
    ========================================================================== */
 .cinematic-slogans-layer {
   position: absolute;
@@ -20062,62 +20062,123 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.slogan-badge-box {
+.slogan-manuscript-box {
   position: absolute;
-  top: 45%;
+  top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 90vw;
-  width: max-content;
-  background: rgba(15, 23, 42, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(251, 191, 36, 0.55);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(251, 191, 36, 0.25);
-  border-radius: 40px;
-  padding: 16px 36px;
+  max-width: 92vw;
+  width: 100%;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   opacity: 0;
   visibility: hidden;
   will-change: transform, opacity;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  contain: layout style;
+  pointer-events: none;
 }
 
-.slogan-sparkle {
-  font-size: 1.4rem;
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.8));
-  margin-bottom: 2px;
+.slogan-split-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(8px, 2vw, 24px);
+  width: 100%;
 }
 
-.slogan-quote {
-  margin: 0;
-  font-family: var(--font-serif, "Cinzel", "Playfair Display", Georgia, serif);
-  font-size: clamp(1.15rem, 2.4vw, 1.85rem);
+.slogan-word-left,
+.slogan-word-right {
+  display: inline-block;
+  will-change: transform, opacity;
+  line-height: 1.25;
+}
+
+/* 📜 THEME 1: ANCIENT GOLD-LEAF BOOK MANUSCRIPT (Gilded Inscription on Parchment) */
+.slogan-book-theme .slogan-word-left,
+.slogan-book-theme .slogan-word-right {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.85rem, 4.4vw, 3.8rem);
   font-weight: 700;
   font-style: italic;
   letter-spacing: 0.02em;
-  color: #ffffff;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8), 0 0 24px rgba(251, 191, 36, 0.35);
-  line-height: 1.35;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef08a 25%, #d97706 60%, #78350f 95%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 3px rgba(45, 18, 2, 0.7)) drop-shadow(0 0 20px rgba(251, 191, 36, 0.5));
 }
 
-.slogan-sub {
+.slogan-book-theme .slogan-manuscript-sub {
   font-family: var(--font-sans, system-ui, sans-serif);
-  color: #fbbf24;
-  font-size: clamp(0.68rem, 1.1vw, 0.82rem);
-  letter-spacing: 0.22em;
-  font-weight: 700;
+  font-size: clamp(0.70rem, 1.1vw, 0.88rem);
+  letter-spacing: 0.32em;
+  font-weight: 800;
+  color: #b45309;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 0 14px rgba(251, 191, 36, 0.6);
+  margin-top: 14px;
   text-transform: uppercase;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-  margin-top: 4px;
+}
+
+/* 🌿 THEME 2: MAJESTIC VALLEY FLIGHT */
+.slogan-valley-theme .slogan-word-left,
+.slogan-valley-theme .slogan-word-right {
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.75rem, 4.0vw, 3.4rem);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #fef08a 30%, #fbbf24 65%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.65));
+}
+
+.slogan-valley-theme .slogan-manuscript-sub {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: clamp(0.68rem, 1.0vw, 0.84rem);
+  letter-spacing: 0.28em;
+  font-weight: 800;
+  color: #fbbf24;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 15px rgba(251, 191, 36, 0.6);
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
+/* 🌸 THEME 3: CELESTIAL SUNRISE CLOUDS & PETALS */
+.slogan-cloud-theme .slogan-word-left,
+.slogan-cloud-theme .slogan-word-right {
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.75rem, 4.0vw, 3.4rem);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 30%, #fde047 65%, #ea580c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.65));
+}
+
+.slogan-cloud-theme .slogan-manuscript-sub {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: clamp(0.68rem, 1.0vw, 0.84rem);
+  letter-spacing: 0.28em;
+  font-weight: 800;
+  color: #fde047;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 15px rgba(251, 191, 36, 0.6);
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
+.sub-flourish {
+  color: #fbbf24;
+  font-size: 0.9em;
+  padding: 0 4px;
 }
 
 /* ==========================================================================
