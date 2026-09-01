@@ -3497,6 +3497,34 @@ function setupPortalIntroClick() {
     }
   };
 
+  const handleSelectTR = (e) => {
+    if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+    if (typeof selectCountryGlobal === 'function') {
+      selectCountryGlobal('tr');
+    } else if (typeof window.selectCountryGlobal === 'function') {
+      window.selectCountryGlobal('tr');
+    }
+  };
+
+  const handleSelectPL = (e) => {
+    if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+    if (typeof selectCountryGlobal === 'function') {
+      selectCountryGlobal('pl');
+    } else if (typeof window.selectCountryGlobal === 'function') {
+      window.selectCountryGlobal('pl');
+    }
+  };
+
+  if (poleLeft) {
+    poleLeft.addEventListener('click', handleSelectTR);
+    poleLeft.addEventListener('touchend', handleSelectTR);
+  }
+
+  if (poleRight) {
+    poleRight.addEventListener('click', handleSelectPL);
+    poleRight.addEventListener('touchend', handleSelectPL);
+  }
+
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: true });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
