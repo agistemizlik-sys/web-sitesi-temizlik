@@ -20103,12 +20103,116 @@ html, body {
   filter: blur(0.5px);
 }
 
-/* ── SATIN VELVET HERALDIC BANNER FABRIC ── */
-.banner-fabric {
+/* ── HORIZONTAL BRASS ARM / CROSSBAR ── */
+.banner-horizontal-crossbar {
+  position: absolute;
+  top: 18px;
+  height: 8px;
+  background: linear-gradient(180deg, #fef08a 0%, #d97706 45%, #78350f 100%);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.65);
+  z-index: 5;
+}
+
+.banner-pole-left .banner-horizontal-crossbar {
+  left: 0;
+  width: 200px;
+}
+
+.banner-pole-right .banner-horizontal-crossbar {
+  right: 0;
+  width: 200px;
+}
+
+.crossbar-finial {
+  position: absolute;
+  top: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fbbf24 40%, #78350f 100%);
+  box-shadow: 0 0 10px rgba(251,191,36,0.75);
+}
+
+.banner-pole-left .crossbar-finial {
+  right: -8px;
+}
+
+.banner-pole-right .crossbar-finial {
+  left: -8px;
+}
+
+/* ── 🪢 TOP SUSPENSION ROPES (FLAGS HANG DOWNWARDS ON BRAIDED ROPES) ── */
+.banner-top-suspension-ropes {
   position: absolute;
   top: 24px;
-  width: 190px;
-  height: 290px;
+  height: 42px;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.banner-pole-left .banner-top-suspension-ropes {
+  left: 10px;
+  width: 180px;
+}
+
+.banner-pole-right .banner-top-suspension-ropes {
+  right: 10px;
+  width: 180px;
+}
+
+.top-hanging-rope {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rope-left-anchor {
+  left: 22px;
+}
+
+.rope-right-anchor {
+  right: 22px;
+}
+
+.rope-bracket-ring {
+  width: 10px;
+  height: 6px;
+  border: 2px solid #fbbf24;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(251,191,36,0.8);
+}
+
+.rope-braided-line {
+  width: 3.5px;
+  height: 32px;
+  background: repeating-linear-gradient(180deg, 
+    #78350f 0px, 
+    #d97706 2px, 
+    #fef08a 4px, 
+    #b45309 6px, 
+    #451a03 8px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+  border-radius: 1px;
+}
+
+.rope-banner-eyelet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff, #fbbf24, #78350f);
+  box-shadow: 0 0 6px rgba(251,191,36,0.7);
+}
+
+/* ── SATIN VELVET HERALDIC BANNER (SUSPENDED IN MID-AIR ON ROPES) ── */
+.banner-fabric {
+  position: absolute;
+  top: 62px; /* Suspended downwards by the ropes from the crossbar */
+  width: 180px;
+  height: 260px;
   border-radius: 4px 4px 22px 4px;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0,0,0,0.3);
   overflow: hidden;
@@ -20119,15 +20223,39 @@ html, body {
 
 .banner-pole-left .banner-fabric {
   left: 10px;
-  transform-origin: left top;
-  animation: realisticFlagWave 4.5s ease-in-out infinite alternate;
+  transform-origin: center top;
+  animation: suspendedFlagSway 4.5s ease-in-out infinite alternate;
 }
 
 .banner-pole-right .banner-fabric {
   right: 10px;
-  transform-origin: right top;
+  transform-origin: center top;
   border-radius: 4px 4px 4px 22px;
-  animation: realisticFlagWaveRight 4.8s ease-in-out infinite alternate;
+  animation: suspendedFlagSwayRight 4.8s ease-in-out infinite alternate;
+}
+
+@keyframes suspendedFlagSway {
+  0% {
+    transform: perspective(700px) rotateZ(-2deg) rotateY(4deg);
+  }
+  50% {
+    transform: perspective(700px) rotateZ(1.5deg) rotateY(-3deg);
+  }
+  100% {
+    transform: perspective(700px) rotateZ(-1.5deg) rotateY(2deg);
+  }
+}
+
+@keyframes suspendedFlagSwayRight {
+  0% {
+    transform: perspective(700px) rotateZ(2deg) rotateY(-4deg);
+  }
+  50% {
+    transform: perspective(700px) rotateZ(-1.5deg) rotateY(3deg);
+  }
+  100% {
+    transform: perspective(700px) rotateZ(1.5deg) rotateY(-2deg);
+  }
 }
 
 .banner-fabric:hover {
@@ -20167,37 +20295,13 @@ html, body {
   z-index: 4;
 }
 
-@keyframes realisticFlagWave {
-  0% {
-    transform: perspective(700px) rotateY(0deg) skewY(0deg);
-  }
-  50% {
-    transform: perspective(700px) rotateY(10deg) skewY(-2deg);
-  }
-  100% {
-    transform: perspective(700px) rotateY(-7deg) skewY(1.5deg);
-  }
-}
-
-@keyframes realisticFlagWaveRight {
-  0% {
-    transform: perspective(700px) rotateY(0deg) skewY(0deg);
-  }
-  50% {
-    transform: perspective(700px) rotateY(-10deg) skewY(2deg);
-  }
-  100% {
-    transform: perspective(700px) rotateY(7deg) skewY(-1.5deg);
-  }
-}
-
 /* ── 🎗️ DANGLING BRAIDED GOLD ROPES & ROYAL TASSELS (HANGING FROM BELOW) ── */
 .banner-bottom-dangling-ropes {
   position: absolute;
-  top: 312px;
+  top: 320px; /* Directly below the 62px top + 260px banner-fabric */
   left: 10px;
-  width: 190px;
-  height: 70px;
+  width: 180px;
+  height: 65px;
   pointer-events: none;
   z-index: 6;
 }
