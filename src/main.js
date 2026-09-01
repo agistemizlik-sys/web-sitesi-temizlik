@@ -3340,90 +3340,14 @@ function setupPortalIntroClick() {
   }
 
   let triggered = false;
-  let targetProgress = 0;
-  let currentProgress = 0;
-  let scrollVelocity = 0;
-  let animFrameId = null;
+  let currentProgress = 0; // Strictly controlled by user scroll (0.0 to 1.0)
 
-  // Expose global scroll progress helpers for interactive controls & automation
-  window._setProgress = (p, instant = false) => {
-    targetProgress = Math.max(0, Math.min(1.0, p));
-    if (instant) {
-      currentProgress = targetProgress;
-      scrollVelocity = 0;
-    }
-  };
-  window._getProgress = () => currentProgress;
-
-  const onWheel = (e) => {
+  // Pure 1-to-1 Frame Renderer (Called ONLY on user scroll/interaction)
+  const renderFrame = (progress) => {
     if (triggered) return;
-    const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0016));
-    scrollVelocity += delta * 0.0010;
-    scrollVelocity = Math.max(-0.12, Math.min(0.12, scrollVelocity));
-  };
 
-  const heroTrackEl = document.getElementById('book-scroll-hero-track');
-  if (heroTrackEl) {
-    heroTrackEl.addEventListener('wheel', onWheel, { passive: true });
-  }
-  window.addEventListener('wheel', onWheel, { passive: true });
-  document.addEventListener('wheel', onWheel, { passive: true });
-
-  // Touch handlers for mobile devices
-  let touchStartY = 0;
-  let isTouching = false;
-
-  const onTouchStart = (e) => {
-    if (e.touches && e.touches[0]) {
-      touchStartY = e.touches[0].clientY;
-      isTouching = true;
-    }
-  };
-
-  const onTouchMove = (e) => {
-    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
-    if (e.cancelable) e.preventDefault();
-    const currentY = e.touches[0].clientY;
-    const deltaY = touchStartY - currentY;
-    
-    // Add touch delta to progress with natural momentum
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 130));
-    scrollVelocity += (deltaY / 100) * 0.80;
-    touchStartY = currentY;
-  };
-
-  const onTouchEnd = () => {
-    isTouching = false;
-  };
-
-  if (heroTrackEl) {
-    heroTrackEl.addEventListener('touchstart', onTouchStart, { passive: true });
-    heroTrackEl.addEventListener('touchmove', onTouchMove, { passive: false });
-    heroTrackEl.addEventListener('touchend', onTouchEnd, { passive: true });
-  }
-
-  // Keyboard navigation
-  const onKeyDown = (e) => {
-    if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      targetProgress = Math.min(1.0, targetProgress + 0.16);
-      scrollVelocity += 0.08;
-    } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      targetProgress = Math.max(0.0, targetProgress - 0.16);
-      scrollVelocity -= 0.08;
-    }
-  };
-
-  // Main Render Loop for buttery smooth 60fps / 120fps video & flags synchronization
-  const renderLoop = () => {
-    if (triggered) return;
-    // Scroll-driven forward/backward movement
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
-    scrollVelocity *= 0.82; // Smooth exponential friction
-    currentProgress += (targetProgress - currentProgress) * 0.20;
-
-    // Render corresponding frame onto Canvas
-    const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
+    // 1. Render active frame onto Canvas
+    const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(progress * (TOTAL_FRAMES - 1))));
     const activeImg = frameImages[frameIndex];
     if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
       if (lastDrawnImage !== activeImg) {
@@ -3431,7 +3355,7 @@ function setupPortalIntroClick() {
         lastDrawnImage = activeImg;
       }
     } else if (ctx && canvas) {
-      // Find nearest loaded frame to guarantee continuous visual feedback
+      // Find nearest loaded frame
       for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
         const prev = frameImages[frameIndex - offset];
         if (prev && prev.complete && prev.naturalWidth > 0) {
@@ -3452,37 +3376,38 @@ function setupPortalIntroClick() {
       }
     }
 
+    // 2. HUD & Progress bar
     if (progressBar) {
-      progressBar.style.width = `${(currentProgress * 100).toFixed(1)}%`;
+      progressBar.style.width = `${(progress * 100).toFixed(1)}%`;
     }
 
     if (hudText) {
-      if (currentProgress < 0.06) {
+      if (progress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.70) {
-        hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
+      } else if (progress < 0.65) {
+        hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(progress * 100)}`;
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       }
     }
 
-    // First-Person Walking Bob & Camera Sway Effect
-    const walkPhase = currentProgress * 44;
+    // 3. First-Person Camera Motion Bob
+    const walkPhase = progress * 44;
     const walkBobY = Math.sin(walkPhase) * 3.6;
     const walkSwayX = Math.cos(walkPhase * 0.5) * 1.8;
-    const depthScale = 1.0 + currentProgress * 0.10;
+    const depthScale = 1.0 + progress * 0.08;
 
     if (canvas) {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // Flags & Country Portals: Emerge smoothly between 0.65 and 0.90
+    // 4. Flags emerge between 0.65 and 0.90
     let flagOpacity = 0;
     let flagYShift = 45;
     let flagScale = 0.85;
 
-    if (currentProgress > 0.65) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.65) / 0.25);
+    if (progress > 0.65) {
+      const normalizedP = Math.min(1.0, (progress - 0.65) / 0.25);
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.85 + normalizedP * 0.15;
@@ -3501,17 +3426,85 @@ function setupPortalIntroClick() {
       poleRight.style.pointerEvents = flagOpacity > 0.3 ? 'auto' : 'none';
       poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
+  };
 
-    if (!triggered) {
-      animFrameId = requestAnimationFrame(renderLoop);
+  // Expose global scroll progress helpers for interactive controls & automation
+  window._setProgress = (p) => {
+    currentProgress = Math.max(0, Math.min(1.0, p));
+    renderFrame(currentProgress);
+  };
+  window._getProgress = () => currentProgress;
+
+  // ── 1-TO-1 STRICT SCROLL WHEEL HANDLER (ZERO SELF-MOVEMENT) ──────
+  const onWheel = (e) => {
+    if (triggered) return;
+    const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
+    // 1 standard wheel notch (~100px) moves ~2.5% of journey (2.5 frames)
+    const step = (delta / 100) * 0.025;
+    currentProgress = Math.max(0, Math.min(1.0, currentProgress + step));
+    renderFrame(currentProgress);
+  };
+
+  const heroTrackEl = document.getElementById('book-scroll-hero-track');
+  if (heroTrackEl) {
+    heroTrackEl.addEventListener('wheel', onWheel, { passive: true });
+  }
+  window.addEventListener('wheel', onWheel, { passive: true });
+  document.addEventListener('wheel', onWheel, { passive: true });
+
+  // ── 1-TO-1 STRICT TOUCH DRAG HANDLERS (MOBILE) ───────────────────
+  let touchStartY = 0;
+  let isTouching = false;
+
+  const onTouchStart = (e) => {
+    if (e.touches && e.touches[0]) {
+      touchStartY = e.touches[0].clientY;
+      isTouching = true;
     }
   };
 
-  animFrameId = requestAnimationFrame(renderLoop);
+  const onTouchMove = (e) => {
+    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
+    if (e.cancelable) e.preventDefault();
+    const currentY = e.touches[0].clientY;
+    const deltaY = touchStartY - currentY; // positive when dragging up (moving forward)
+    
+    // 1 screen height swipe (800px) moves ~85% of journey
+    const step = deltaY / ((window.innerHeight || 800) * 0.85);
+    currentProgress = Math.max(0, Math.min(1.0, currentProgress + step));
+    touchStartY = currentY;
+    renderFrame(currentProgress);
+  };
+
+  const onTouchEnd = () => {
+    isTouching = false;
+  };
+
+  if (heroTrackEl) {
+    heroTrackEl.addEventListener('touchstart', onTouchStart, { passive: true });
+    heroTrackEl.addEventListener('touchmove', onTouchMove, { passive: false });
+    heroTrackEl.addEventListener('touchend', onTouchEnd, { passive: true });
+  }
+
+  // ── 1-TO-1 KEYBOARD HANDLER ──────────────────────────────────────
+  const onKeyDown = (e) => {
+    if (triggered) return;
+    if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
+      currentProgress = Math.min(1.0, currentProgress + 0.05);
+      renderFrame(currentProgress);
+    } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
+      currentProgress = Math.max(0.0, currentProgress - 0.05);
+      renderFrame(currentProgress);
+    }
+  };
+
+  document.addEventListener('keydown', onKeyDown, { passive: true });
+
+  // Initial draw on page load
+  renderFrame(0);
 
   window._dismissIntroHero = () => {
     triggered = true;
-    if (animFrameId) cancelAnimationFrame(animFrameId);
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
       heroTrack.style.setProperty('display', 'none', 'important');
