@@ -369,8 +369,8 @@
       if (isMobile) {
         function switchMobileVideos() {
           var vIntro = document.getElementById('portalIntroVideo');
-          if (vIntro && vIntro.getAttribute('src') !== '/videos/giris_ekrani_mobil.mp4') {
-            vIntro.src = '/videos/giris_ekrani_mobil.mp4';
+          if (vIntro && vIntro.getAttribute('src') !== '/videos/book_intro.mp4') {
+            vIntro.src = '/videos/book_intro.mp4';
             vIntro.play().catch(function(){});
           }
           var vIvy = document.getElementById('servicesIvyVideo');
@@ -488,7 +488,7 @@
           var intro = document.getElementById('portalIntroVideo');
           if (intro) {
             attachSeamlessLoop(intro);
-            var targetIntro = isMob ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
+            var targetIntro = '/videos/book_intro.mp4';
             if (intro.getAttribute('src') !== targetIntro) {
               intro.setAttribute('src', targetIntro);
               intro.muted = true;
