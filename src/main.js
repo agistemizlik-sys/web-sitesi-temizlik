@@ -3316,6 +3316,7 @@ function setupPortalIntroClick() {
     introVideo.setAttribute('src', targetSrc);
     introVideo.load();
   }
+  try { introVideo.pause(); } catch(e){}
 
   let triggered = false;
   let targetProgress = 0;
@@ -3327,6 +3328,7 @@ function setupPortalIntroClick() {
   const updateDuration = () => {
     if (introVideo.duration && isFinite(introVideo.duration)) {
       videoDuration = introVideo.duration;
+      try { introVideo.pause(); } catch(e){}
     }
   };
 
