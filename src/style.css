@@ -20121,7 +20121,7 @@ html, body {
 }
 
 /* ==========================================================================
-   🪢 ROYAL 3D HERALDIC BANNERS (EXACT USER SPECIFICATION)
+   🪢 VIDEO-BOUND INTERACTIVE BANNER HOTSPOTS (OVERLAYING THE VIDEO BANNERS)
    ========================================================================== */
 .parallax-banners-layer {
   position: absolute;
@@ -20131,100 +20131,91 @@ html, body {
   pointer-events: none;
   z-index: 10;
   overflow: hidden;
-  perspective: 1200px;
 }
 
-.royal-banner-card {
+.video-banner-hotspot {
   position: absolute;
-  top: 9vh;
-  width: clamp(210px, 20vw, 290px);
+  top: 18vh;
+  width: clamp(140px, 24vw, 300px);
+  height: clamp(240px, 60vh, 500px);
+  pointer-events: auto;
+  z-index: 12;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  pointer-events: auto;
-  z-index: 12;
+  justify-content: flex-end;
+  padding-bottom: 8%;
   will-change: transform, opacity;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
-  filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.65));
+  transform: translate3d(0, 0, 0);
+  contain: layout style;
 }
 
-.royal-banner-card:hover {
-  transform: scale(1.04) translateY(-6px) !important;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.45));
+.hotspot-card-left {
+  left: 9vw;
 }
 
-.banner-card-left {
-  left: 6vw;
-  transform-origin: center -15vh;
+.hotspot-card-right {
+  right: 9vw;
 }
 
-.banner-card-right {
-  right: 6vw;
-  transform-origin: center -15vh;
-}
-
-/* Long Sky Hanging Ropes */
-.royal-sky-ropes {
+.hotspot-hover-aura {
   position: absolute;
-  bottom: 96%;
-  left: 0;
-  right: 0;
-  height: 150vh;
-  pointer-events: none;
-}
-
-.sky-rope-strand {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: repeating-linear-gradient(180deg, 
-    #78350f 0px, 
-    #d97706 3px, 
-    #fef08a 6px, 
-    #b45309 9px, 
-    #451a03 12px);
-  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5), 0 3px 6px rgba(0,0,0,0.6);
-  border-radius: 2px;
-}
-
-.banner-card-left .sky-rope-strand.rope-pos-1 { left: 24%; }
-.banner-card-left .sky-rope-strand.rope-pos-2 { right: 18%; }
-
-.banner-card-right .sky-rope-strand.rope-pos-1 { left: 18%; }
-.banner-card-right .sky-rope-strand.rope-pos-2 { right: 24%; }
-
-.royal-banner-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  filter: contrast(1.05) saturate(1.08);
-  animation: royalBannerWindSway 5.5s ease-in-out infinite alternate;
-}
-
-@keyframes royalBannerWindSway {
-  0% { transform: perspective(800px) rotateZ(-1.2deg) rotateY(2.5deg); }
-  50% { transform: perspective(800px) rotateZ(1.2deg) rotateY(-2.5deg); }
-  100% { transform: perspective(800px) rotateZ(-0.8deg) rotateY(1.8deg); }
-}
-
-.royal-banner-btn-hotspot {
-  position: absolute;
-  bottom: 23%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 58%;
-  height: 9%;
-  border-radius: 30px;
-  pointer-events: auto;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: -10px;
+  border-radius: 28px;
+  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.25) 0%, transparent 70%);
   opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.video-banner-hotspot:hover .hotspot-hover-aura {
+  opacity: 1;
+}
+
+.hotspot-pulse-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #b91c1c;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-weight: 800;
+  font-size: clamp(0.75rem, 1.2vw, 0.92rem);
+  padding: 8px 22px;
+  border-radius: 24px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 15px rgba(251, 191, 36, 0.4);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  pointer-events: auto;
+}
+
+.hotspot-pulse-btn.hotspot-btn-pl {
+  background: #ffffff;
+  color: #991b1b;
+}
+
+.video-banner-hotspot:hover .hotspot-pulse-btn {
+  transform: scale(1.10) translateY(-3px);
+  background: #fbbf24;
+  color: #0f172a;
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.7);
+}
+
+@media (max-width: 768px) {
+  .video-banner-hotspot {
+    top: 14vh !important;
+    width: clamp(120px, 38vw, 160px) !important;
+    height: clamp(200px, 50vh, 320px) !important;
+  }
+  .hotspot-card-left {
+    left: 4vw !important;
+  }
+  .hotspot-card-right {
+    right: 4vw !important;
+  }
+  .hotspot-pulse-btn {
+    font-size: 0.72rem !important;
+    padding: 6px 14px !important;
+  }
 }
 
 /* Fabric Texture & Shading */

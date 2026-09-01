@@ -3312,7 +3312,7 @@ function setupPortalIntroClick() {
   if (!introStage || !canvas) return;
 
   const ctx = canvas.getContext('2d');
-  const TOTAL_FRAMES = 100;
+  const TOTAL_FRAMES = 115;
   const frameImages = [];
   let lastDrawnImage = null;
 
@@ -3579,9 +3579,9 @@ function setupPortalIntroClick() {
     const s2 = document.getElementById('slogan2');
     const s3 = document.getElementById('slogan3');
 
-    const op1 = Math.round(getSloganOpacity(progress, 0.20, 0.32, 0.44) * 100) / 100;
-    const op2 = Math.round(getSloganOpacity(progress, 0.43, 0.56, 0.68) * 100) / 100;
-    const op3 = Math.round(getSloganOpacity(progress, 0.67, 0.76, 0.84) * 100) / 100;
+    const op1 = Math.round(getSloganOpacity(progress, 0.12, 0.24, 0.36) * 100) / 100;
+    const op2 = Math.round(getSloganOpacity(progress, 0.35, 0.48, 0.60) * 100) / 100;
+    const op3 = Math.round(getSloganOpacity(progress, 0.58, 0.68, 0.76) * 100) / 100;
 
     if (s1 && op1 !== lastS1Op) {
       s1.style.opacity = op1.toFixed(2);
@@ -3602,17 +3602,11 @@ function setupPortalIntroClick() {
       lastS3Op = op3;
     }
 
-    // 6. Flags Drop Down at the VERY END of the scroll journey (progress: 0.84 to 1.00)
+    // 6. Interactive Click Hotspots for the Video Banners (Visible when banners settle: progress > 0.75)
     let bannerOpacity = 0;
-    let dropTranslateY = -125;
-    let bannerScale = 0.90;
-
-    if (progress > 0.84) {
-      const rawDrop = Math.min(1.0, (progress - 0.84) / 0.15);
-      const easedDrop = 1.0 - Math.pow(1.0 - rawDrop, 3);
-      bannerOpacity = Math.min(1.0, easedDrop * 1.5);
-      dropTranslateY = (1.0 - easedDrop) * (-125);
-      bannerScale = 0.90 + easedDrop * 0.10;
+    if (progress > 0.74) {
+      const rawDrop = Math.min(1.0, (progress - 0.74) / 0.16);
+      bannerOpacity = 1.0 - Math.pow(1.0 - rawDrop, 2);
     }
 
     const roundedBannerOp = Math.round(bannerOpacity * 100) / 100;
@@ -3621,13 +3615,11 @@ function setupPortalIntroClick() {
         poleLeft.style.opacity = bannerOpacity.toFixed(2);
         poleLeft.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
         poleLeft.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
-        poleLeft.style.transform = `translate3d(0, ${dropTranslateY.toFixed(1)}vh, 0) scale(${bannerScale.toFixed(2)})`;
       }
       if (poleRight) {
         poleRight.style.opacity = bannerOpacity.toFixed(2);
         poleRight.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
         poleRight.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
-        poleRight.style.transform = `translate3d(0, ${dropTranslateY.toFixed(1)}vh, 0) scale(${bannerScale.toFixed(2)})`;
       }
       lastBannerOp = roundedBannerOp;
     }
