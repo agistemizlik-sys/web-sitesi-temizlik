@@ -4968,6 +4968,12 @@ function setupPortalGateway() {
     try {
       if (typeof closeBookingScreen === 'function') closeBookingScreen();
       if (typeof closeServicesModal === 'function') closeServicesModal();
+      if (portalStageEl) {
+        portalStageEl.style.setProperty('display', 'flex', 'important');
+        portalStageEl.style.setProperty('opacity', '1', 'important');
+        portalStageEl.style.setProperty('visibility', 'visible', 'important');
+        portalStageEl.style.setProperty('pointer-events', 'all', 'important');
+      }
       if (window.history && window.history.pushState) window.history.pushState({ stage: 'map' }, '');
 
       STATE.language = code;
