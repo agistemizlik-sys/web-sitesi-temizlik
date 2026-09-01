@@ -3535,10 +3535,24 @@ function setupPortalIntroClick() {
       introStage.style.setProperty('opacity', '0', 'important');
       introStage.style.setProperty('pointer-events', 'none', 'important');
     }
-    if (typeof selectCountryGlobal === 'function') {
-      selectCountryGlobal('tr');
-    } else if (typeof window.selectCountryGlobal === 'function') {
+    const portalStageEl = document.getElementById('portal-stage');
+    if (portalStageEl) {
+      portalStageEl.style.setProperty('display', 'flex', 'important');
+      portalStageEl.style.setProperty('opacity', '1', 'important');
+      portalStageEl.style.setProperty('visibility', 'visible', 'important');
+      portalStageEl.style.setProperty('pointer-events', 'all', 'important');
+    }
+    const mapStageEl = document.querySelector('.portal-map-selector-stage');
+    if (mapStageEl) {
+      mapStageEl.style.setProperty('display', 'block', 'important');
+      mapStageEl.style.setProperty('visibility', 'visible', 'important');
+      mapStageEl.style.setProperty('pointer-events', 'all', 'important');
+      mapStageEl.style.setProperty('opacity', '1', 'important');
+    }
+    if (typeof window.selectCountryGlobal === 'function') {
       window.selectCountryGlobal('tr');
+    } else if (typeof selectCountryGlobal === 'function') {
+      selectCountryGlobal('tr');
     } else if (typeof window.selectCountry === 'function') {
       window.selectCountry('tr');
     }
@@ -3559,10 +3573,24 @@ function setupPortalIntroClick() {
       introStage.style.setProperty('opacity', '0', 'important');
       introStage.style.setProperty('pointer-events', 'none', 'important');
     }
-    if (typeof selectCountryGlobal === 'function') {
-      selectCountryGlobal('pl');
-    } else if (typeof window.selectCountryGlobal === 'function') {
+    const portalStageEl = document.getElementById('portal-stage');
+    if (portalStageEl) {
+      portalStageEl.style.setProperty('display', 'flex', 'important');
+      portalStageEl.style.setProperty('opacity', '1', 'important');
+      portalStageEl.style.setProperty('visibility', 'visible', 'important');
+      portalStageEl.style.setProperty('pointer-events', 'all', 'important');
+    }
+    const mapStageEl = document.querySelector('.portal-map-selector-stage');
+    if (mapStageEl) {
+      mapStageEl.style.setProperty('display', 'block', 'important');
+      mapStageEl.style.setProperty('visibility', 'visible', 'important');
+      mapStageEl.style.setProperty('pointer-events', 'all', 'important');
+      mapStageEl.style.setProperty('opacity', '1', 'important');
+    }
+    if (typeof window.selectCountryGlobal === 'function') {
       window.selectCountryGlobal('pl');
+    } else if (typeof selectCountryGlobal === 'function') {
+      selectCountryGlobal('pl');
     } else if (typeof window.selectCountry === 'function') {
       window.selectCountry('pl');
     }
