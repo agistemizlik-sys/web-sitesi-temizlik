@@ -19886,6 +19886,16 @@ html, body {
   will-change: transform;
 }
 
+.portal-intro-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  pointer-events: none !important;
+  will-change: transform;
+}
+
 /* Banner Poles */
 .banner-pole-wrapper {
   position: absolute;

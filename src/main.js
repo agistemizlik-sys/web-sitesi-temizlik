@@ -3410,11 +3410,17 @@ function setupPortalIntroClick() {
         ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
         lastRenderedFrame = frameIndex;
       }
-    } else if (ctx && canvas && lastRenderedFrame === -1) {
-      // Draw first available loaded frame
-      for (let k = 0; k < TOTAL_FRAMES; k++) {
-        if (frameImages[k] && frameImages[k].complete && frameImages[k].naturalWidth > 0) {
-          ctx.drawImage(frameImages[k], 0, 0, canvas.width, canvas.height);
+    } else if (ctx && canvas) {
+      // Find nearest loaded frame to guarantee continuous visual feedback
+      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+        const prev = frameImages[frameIndex - offset];
+        if (prev && prev.complete && prev.naturalWidth > 0) {
+          ctx.drawImage(prev, 0, 0, canvas.width, canvas.height);
+          break;
+        }
+        const next = frameImages[frameIndex + offset];
+        if (next && next.complete && next.naturalWidth > 0) {
+          ctx.drawImage(next, 0, 0, canvas.width, canvas.height);
           break;
         }
       }
