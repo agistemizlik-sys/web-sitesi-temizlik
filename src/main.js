@@ -3322,26 +3322,30 @@ function setupPortalIntroClick() {
   let targetProgress = 0;
   let currentProgress = 0;
   let scrollVelocity = 0;
-  let videoDuration = 10.005; // Default to actual video duration immediately
+  let isUserInteracting = false;
+  let videoDuration = 10.005; // Actual video duration
   let animFrameId = null;
   let lastTimeApplied = -1;
 
-  const updateDuration = () => {
+  const startPlayback = () => {
     if (introVideo.duration && isFinite(introVideo.duration) && introVideo.duration > 0) {
       videoDuration = introVideo.duration;
-      try { introVideo.pause(); } catch(e){}
     }
+    introVideo.muted = true;
+    introVideo.playsInline = true;
+    const p = introVideo.play();
+    if (p !== undefined) p.catch(() => {});
   };
 
-  introVideo.addEventListener('loadedmetadata', updateDuration);
-  introVideo.addEventListener('canplay', updateDuration);
-  if (introVideo.duration && isFinite(introVideo.duration) && introVideo.duration > 0) {
-    updateDuration();
-  }
+  introVideo.addEventListener('loadedmetadata', startPlayback);
+  introVideo.addEventListener('canplay', startPlayback);
+  startPlayback();
 
   // Direct Wheel / Trackpad Scroll Engine with Smooth Inertia
   const onWheel = (e) => {
     if (triggered) return;
+    isUserInteracting = true;
+    try { introVideo.pause(); } catch(err){}
     const delta = e.deltaY;
     scrollVelocity += delta * 0.00045;
     scrollVelocity = Math.max(-0.06, Math.min(0.06, scrollVelocity));
@@ -3357,6 +3361,8 @@ function setupPortalIntroClick() {
     if (e.touches && e.touches[0]) {
       touchStartY = e.touches[0].clientY;
       isTouching = true;
+      isUserInteracting = true;
+      try { introVideo.pause(); } catch(err){}
     }
   };
 
@@ -3378,20 +3384,44 @@ function setupPortalIntroClick() {
   // Keyboard navigation
   const onKeyDown = (e) => {
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
+      isUserInteracting = true;
+      try { introVideo.pause(); } catch(err){}
       scrollVelocity += 0.035;
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
+      isUserInteracting = true;
+      try { introVideo.pause(); } catch(err){}
       scrollVelocity -= 0.035;
     }
   };
 
-  // Main Render Loop for buttery smooth 60fps / 120fps scrubbing & first-person walking
+  // Main Render Loop for buttery smooth 60fps / 120fps video & flags synchronization
   const renderLoop = () => {
-    // Apply inertia physics
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
-    scrollVelocity *= 0.86; // Smooth friction decay
+    if (isUserInteracting) {
+      // User manual scroll mode
+      targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
+      scrollVelocity *= 0.86;
+      currentProgress += (targetProgress - currentProgress) * 0.14;
 
-    // Damped interpolation for cinematic motion
-    currentProgress += (targetProgress - currentProgress) * 0.14;
+      const targetTime = currentProgress * videoDuration;
+      if (Math.abs(targetTime - lastTimeApplied) > 0.010) {
+        lastTimeApplied = targetTime;
+        try {
+          const safeTime = Math.min(videoDuration - 0.02, Math.max(0, targetTime));
+          introVideo.currentTime = safeTime;
+        } catch(err) {}
+      }
+    } else {
+      // Continuous video playback mode
+      if (introVideo.duration && isFinite(introVideo.duration)) {
+        currentProgress = Math.max(0, Math.min(1.0, introVideo.currentTime / videoDuration));
+        targetProgress = currentProgress;
+        
+        // When reaching the final landscape meadow, hold on the majestic view
+        if (introVideo.currentTime >= (videoDuration - 0.10)) {
+          try { introVideo.pause(); } catch(e){}
+        }
+      }
+    }
 
     if (progressBar) {
       progressBar.style.width = `${(currentProgress * 100).toFixed(1)}%`;
@@ -3400,28 +3430,14 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (currentProgress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.85) {
+      } else if (currentProgress < 0.84) {
         hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       }
     }
 
-    // Scrub video currentTime inside the video
-    const targetTime = currentProgress * videoDuration;
-    if (Math.abs(targetTime - lastTimeApplied) > 0.010) {
-      lastTimeApplied = targetTime;
-      try {
-        const safeTime = Math.min(videoDuration - 0.02, Math.max(0, targetTime));
-        if (typeof introVideo.fastSeek === 'function') {
-          introVideo.fastSeek(safeTime);
-        } else {
-          introVideo.currentTime = safeTime;
-        }
-      } catch(err) {}
-    }
-
-    // First-Person Walking Bob & Camera Sway Effect (Walking directly inside the video)
+    // First-Person Walking Bob & Camera Sway Effect
     const walkPhase = currentProgress * 44;
     const walkBobY = Math.sin(walkPhase) * 3.6;
     const walkSwayX = Math.cos(walkPhase * 0.5) * 1.8;
@@ -3429,13 +3445,13 @@ function setupPortalIntroClick() {
 
     introVideo.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
 
-    // Flags & Country Portals: Emerge ONLY at the END where we glide into the landscape (0.85 -> 1.0)
+    // Flags & Country Portals: Emerge ONLY at the END where we glide into the meadow landscape (0.84 -> 1.0)
     let flagOpacity = 0;
     let flagYShift = 45;
     let flagScale = 0.85;
 
-    if (currentProgress > 0.84) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.84) / 0.13); // 0 to 1 between progress 0.84 and 0.97
+    if (currentProgress > 0.82) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.82) / 0.14); // 0 to 1 between progress 0.82 and 0.96
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.85 + normalizedP * 0.15;
