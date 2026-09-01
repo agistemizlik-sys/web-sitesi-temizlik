@@ -3320,7 +3320,7 @@ function setupPortalIntroClick() {
 
   const canvas = document.getElementById('portalIntroCanvas');
   const ctx = canvas ? canvas.getContext('2d') : null;
-  const TOTAL_FRAMES = 80;
+  const TOTAL_FRAMES = 100;
   const frameImages = [];
   let lastRenderedFrame = -1;
 
