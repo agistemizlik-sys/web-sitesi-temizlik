@@ -20180,11 +20180,11 @@ html, body {
 }
 
 .hotspot-card-left {
-  left: calc(22.2% - clamp(90px, 11vw, 140px));
+  left: calc(16.4% - clamp(75px, 9vw, 120px));
 }
 
 .hotspot-card-right {
-  right: calc(22.2% - clamp(90px, 11vw, 140px));
+  right: calc(16.4% - clamp(75px, 9vw, 120px));
 }
 
 /* 🌟 Luxury Clickable Button Pill Directly Covering Flag Buttons */
