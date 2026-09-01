@@ -19865,4 +19865,270 @@ html, body {
   color: #38bdf8;
 }
 
+/* ==========================================================================
+   🚩 FIRST-PERSON BOOK SCROLL TRACK & 3D PARALLAX FLAGS
+   ========================================================================== */
+.book-scroll-hero-track {
+  position: relative;
+  width: 100%;
+  height: 260vh;
+  background: #020617;
+}
+
+.book-sticky-viewport {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+  will-change: transform;
+}
+
+/* Banner Poles */
+.banner-pole-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transition: transform 0.1s linear;
+}
+
+.banner-pole-left {
+  left: 4vw;
+  width: 200px;
+  z-index: 6;
+}
+
+.banner-pole-left-near {
+  left: 14vw;
+  width: 160px;
+  top: 8vh;
+  z-index: 5;
+  opacity: 0.85;
+}
+
+.banner-pole-right {
+  right: 4vw;
+  width: 200px;
+  z-index: 6;
+}
+
+.banner-pole-right-near {
+  right: 14vw;
+  width: 160px;
+  top: 8vh;
+  z-index: 5;
+  opacity: 0.85;
+}
+
+/* Pole & Finials */
+.banner-pole {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: linear-gradient(90deg, #78350f 0%, #d97706 40%, #b45309 70%, #451a03 100%);
+  border-radius: 4px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.6);
+}
+
+.banner-pole-left .banner-pole,
+.banner-pole-left-near .banner-pole {
+  left: 0;
+}
+
+.banner-pole-right .banner-pole,
+.banner-pole-right-near .banner-pole {
+  right: 0;
+}
+
+.banner-pole.brass {
+  background: linear-gradient(90deg, #ca8a04 0%, #fef08a 45%, #eab308 75%, #713f12 100%);
+  width: 8px;
+}
+
+.banner-finial {
+  position: absolute;
+  top: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fef08a, #d97706, #78350f);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+  z-index: 2;
+}
+
+.banner-pole-left .banner-finial,
+.banner-pole-left-near .banner-finial {
+  left: -6px;
+}
+
+.banner-pole-right .banner-finial,
+.banner-pole-right-near .banner-finial {
+  right: -6px;
+}
+
+/* Fabric & Realistic Wind Wave Animation */
+.banner-fabric {
+  position: absolute;
+  top: 24px;
+  width: 180px;
+  height: 280px;
+  border-radius: 4px 4px 20px 4px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  transform-origin: left top;
+  overflow: hidden;
+  animation: realisticFlagWave 4s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.banner-pole-left .banner-fabric,
+.banner-pole-left-near .banner-fabric {
+  left: 10px;
+  transform-origin: left top;
+}
+
+.banner-pole-right .banner-fabric,
+.banner-pole-right-near .banner-fabric {
+  right: 10px;
+  transform-origin: right top;
+  border-radius: 4px 4px 4px 20px;
+  animation: realisticFlagWaveRight 4.2s ease-in-out infinite alternate;
+}
+
+@keyframes realisticFlagWave {
+  0% {
+    transform: perspective(600px) rotateY(0deg) skewY(0deg);
+  }
+  50% {
+    transform: perspective(600px) rotateY(12deg) skewY(-2.5deg);
+  }
+  100% {
+    transform: perspective(600px) rotateY(-8deg) skewY(2deg);
+  }
+}
+
+@keyframes realisticFlagWaveRight {
+  0% {
+    transform: perspective(600px) rotateY(0deg) skewY(0deg);
+  }
+  50% {
+    transform: perspective(600px) rotateY(-12deg) skewY(2.5deg);
+  }
+  100% {
+    transform: perspective(600px) rotateY(8deg) skewY(-2deg);
+  }
+}
+
+/* Fabric Texture & Shading */
+.fabric-shadow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 40%, rgba(0,0,0,0.4) 100%),
+              repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0px, transparent 12px, rgba(255,255,255,0.06) 24px);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.fabric-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.banner-fabric-tr {
+  background: linear-gradient(180deg, #e11d48 0%, #be123c 100%);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.banner-fabric-pl {
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 50%, #dc2626 50%, #b91c1c 100%);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.banner-fabric-pl .banner-title {
+  color: #0f172a !important;
+}
+
+.banner-fabric-gold {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #fbbf24;
+}
+
+.banner-fabric-luxury {
+  background: linear-gradient(180deg, #0369a1 0%, #0c4a6e 100%);
+  border: 2px solid #38bdf8;
+}
+
+.flag-symbol, .banner-crest {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+
+.banner-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.banner-title.gold {
+  color: #fbbf24;
+}
+
+.banner-sub {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@media (max-width: 768px) {
+  .banner-pole-left-near, .banner-pole-right-near {
+    display: none !important;
+  }
+  .banner-pole-left {
+    left: 2vw;
+    width: 130px;
+  }
+  .banner-pole-right {
+    right: 2vw;
+    width: 130px;
+  }
+  .banner-fabric {
+    width: 120px;
+    height: 190px;
+  }
+  .flag-symbol, .banner-crest {
+    font-size: 1.5rem;
+  }
+  .banner-title {
+    font-size: 0.75rem;
+  }
+  .banner-sub {
+    font-size: 0.55rem;
+  }
+}
+
+
 

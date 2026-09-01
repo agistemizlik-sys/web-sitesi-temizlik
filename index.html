@@ -402,15 +402,89 @@
   <!-- Top-level Global Ambient Dust & Atmospheric Particles Canvas -->
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
-  <div id="portal-intro-stage" class="portal-intro-stage" aria-label="Giriş Ekranı - Siteye Giriş Yapmak İçin Dokunun veya Kaydırın" role="button" tabindex="0" onclick="window.forceDismissIntro(event);" onpointerdown="window.forceDismissIntro(event);" ontouchend="window.forceDismissIntro(event);">
-    <video id="portalIntroVideo" class="portal-intro-video" src="/videos/book_intro.mp4" autoplay muted loop playsinline webkit-playsinline preload="auto" style="pointer-events: none; object-position: center center;" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
-    
-    <!-- Direct High-Z-Index Touch & Click Barrier with Pulse Badge -->
-    <div class="portal-intro-click-barrier" id="portalIntroClickBarrier" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 56px; pointer-events: auto;">
-      <div class="portal-intro-enter-badge" id="portalIntroEnterBadge" style="background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251, 191, 36, 0.7); color: #fbbf24; padding: 14px 32px; border-radius: 50px; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.05em; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 25px rgba(251,191,36,0.35); pointer-events: auto; animation: pulseGlow 2s infinite; transition: all 0.2s ease;">
-        <span id="portalIntroBadgeText">📖 DOKUNUN VEYA KAYDIRIN ➔</span>
+  <!-- 📖 IMMERSIVE FIRST-PERSON SCROLL JOURNEY & PARALLAX FLAME STAGE -->
+  <div id="book-scroll-hero-track" class="book-scroll-hero-track" style="position: relative; width: 100%; height: 260vh; z-index: 1000;">
+    <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport" style="position: sticky; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; will-change: transform;">
+      <video id="portalIntroVideo" class="portal-intro-video" src="/videos/book_intro.mp4" muted playsinline webkit-playsinline preload="auto" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; object-position: center center;" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
+      
+      <!-- 🚩 REALISTIC HTML/CSS/JS PARALLAX FLAG & BANNER LAYER -->
+      <div class="parallax-banners-layer" id="parallaxBannersLayer" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; overflow: hidden; perspective: 1200px;">
+        
+        <!-- Left Side Flag Pole & Flag (Turkey 🇹🇷 / CleanPro Royal) -->
+        <div class="banner-pole-wrapper banner-pole-left" id="bannerPoleLeft">
+          <div class="banner-finial"></div>
+          <div class="banner-pole"></div>
+          <div class="banner-fabric banner-fabric-tr">
+            <div class="fabric-shadow"></div>
+            <div class="fabric-content">
+              <span class="flag-symbol">🇹🇷</span>
+              <div class="banner-title">TÜRKİYE</div>
+              <small class="banner-sub">RELAXAX CLEANING</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Left Near Secondary Streamer -->
+        <div class="banner-pole-wrapper banner-pole-left-near" id="bannerPoleLeftNear">
+          <div class="banner-finial gold"></div>
+          <div class="banner-pole brass"></div>
+          <div class="banner-fabric banner-fabric-gold">
+            <div class="fabric-shadow"></div>
+            <div class="fabric-content">
+              <span class="banner-crest">👑</span>
+              <div class="banner-title gold">PREMIER</div>
+              <small class="banner-sub">5★ HOUSEKEEPING</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side Flag Pole & Flag (Poland 🇵🇱 / CleanPro Polska) -->
+        <div class="banner-pole-wrapper banner-pole-right" id="bannerPoleRight">
+          <div class="banner-finial"></div>
+          <div class="banner-pole"></div>
+          <div class="banner-fabric banner-fabric-pl">
+            <div class="fabric-shadow"></div>
+            <div class="fabric-content">
+              <span class="flag-symbol">🇵🇱</span>
+              <div class="banner-title">POLSKA</div>
+              <small class="banner-sub">RELAXAX WARSZAWA</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Near Secondary Streamer -->
+        <div class="banner-pole-wrapper banner-pole-right-near" id="bannerPoleRightNear">
+          <div class="banner-finial gold"></div>
+          <div class="banner-pole brass"></div>
+          <div class="banner-fabric banner-fabric-luxury">
+            <div class="fabric-shadow"></div>
+            <div class="fabric-content">
+              <span class="banner-crest">🛡️</span>
+              <div class="banner-title gold">%100 HİJYEN</div>
+              <small class="banner-sub">PREMIUM SERVICE</small>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <!-- Cinematic Ambient Vignette & Light Beam Overlay -->
+      <div class="cinematic-atmosphere-vignette" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, transparent 45%, rgba(2,6,23,0.45) 80%, rgba(2,6,23,0.85) 100%); z-index: 6;"></div>
+
+      <!-- Scroll Progress HUD & Prompt -->
+      <div class="scroll-journey-hud" id="scrollJourneyHud" style="position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; transition: opacity 0.3s ease;">
+        <div class="sjh-badge" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.6); color: #fbbf24; padding: 10px 24px; border-radius: 40px; font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 20px rgba(251,191,36,0.25);">
+          <span class="sjh-icon">🧭</span>
+          <span id="sjhText">AŞAĞI KAYDIRIN & İLERLEYİN</span>
+          <span class="sjh-arrow" style="animation: bounceDown 1.5s infinite;">↓</span>
+        </div>
+        <div class="sjh-progress-bar-wrap" style="width: 160px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 9999px; overflow: hidden;">
+          <div id="sjhProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #fbbf24); transition: width 0.1s linear;"></div>
+        </div>
+      </div>
+
     </div>
+  </div>
 
     <script>
       (function(){

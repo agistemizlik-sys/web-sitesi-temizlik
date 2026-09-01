@@ -3297,43 +3297,83 @@ function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
 }
 
 function setupPortalIntroClick() {
+  const heroTrack = document.getElementById('book-scroll-hero-track');
   const introStage = document.getElementById('portal-intro-stage');
   const introVideo = document.getElementById('portalIntroVideo');
-  const badgeText = document.getElementById('portalIntroBadgeText');
-  const enterBadge = document.getElementById('portalIntroEnterBadge');
-  if (!introStage) return;
+  const progressBar = document.getElementById('sjhProgressBar');
+  const hudText = document.getElementById('sjhText');
+  const hud = document.getElementById('scrollJourneyHud');
+  
+  const poleLeft = document.getElementById('bannerPoleLeft');
+  const poleLeftNear = document.getElementById('bannerPoleLeftNear');
+  const poleRight = document.getElementById('bannerPoleRight');
+  const poleRightNear = document.getElementById('bannerPoleRightNear');
 
-  if (introVideo) {
-    const targetSrc = '/videos/book_intro.mp4';
-    if (introVideo.getAttribute('src') !== targetSrc) {
-      introVideo.setAttribute('src', targetSrc);
-      introVideo.load();
-    }
-    introVideo.play().catch(() => {});
+  if (!introStage || !introVideo) return;
+
+  const targetSrc = '/videos/book_intro.mp4';
+  if (introVideo.getAttribute('src') !== targetSrc) {
+    introVideo.setAttribute('src', targetSrc);
+    introVideo.load();
   }
 
   let triggered = false;
-  let progress = 0;
   let targetProgress = 0;
+  let currentProgress = 0;
+  let videoDuration = 0;
   let animFrameId = null;
+  let lastTimeApplied = -1;
 
-  // 1. Declare event handler functions first to prevent Temporal Dead Zone (TDZ) ReferenceErrors
-  const onMouseMove = (e) => {
-    if (triggered || !introVideo) return;
-    const nx = (e.clientX / window.innerWidth - 0.5) * 12;
-    const ny = (e.clientY / window.innerHeight - 0.5) * 12;
-    const currentScale = 1.0 + progress * 0.35;
-    introVideo.style.transform = `scale(${currentScale}) translate3d(${nx}px, ${ny}px, 0)`;
+  const updateDuration = () => {
+    if (introVideo.duration && isFinite(introVideo.duration)) {
+      videoDuration = introVideo.duration;
+    }
   };
 
+  introVideo.addEventListener('loadedmetadata', updateDuration);
+  if (introVideo.duration && isFinite(introVideo.duration)) {
+    updateDuration();
+  }
+
+  // Calculate normalized scroll progress (0.0 to 1.0)
+  const calculateScrollProgress = () => {
+    if (!heroTrack) return 0;
+    const rect = heroTrack.getBoundingClientRect();
+    const trackHeight = heroTrack.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const totalScrollable = trackHeight - windowHeight;
+
+    if (totalScrollable <= 0) return 0;
+    const scrolled = -rect.top;
+    return Math.max(0, Math.min(1.0, scrolled / totalScrollable));
+  };
+
+  const onScroll = () => {
+    if (triggered) return;
+    targetProgress = calculateScrollProgress();
+    if (targetProgress >= 0.94) {
+      onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
+    }
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+
+  // Mouse move subtle camera tilt
+  const onMouseMove = (e) => {
+    if (triggered || !introVideo) return;
+    const nx = (e.clientX / window.innerWidth - 0.5) * 10;
+    const ny = (e.clientY / window.innerHeight - 0.5) * 10;
+    introVideo.style.transform = `scale(${(1.0 + currentProgress * 0.25).toFixed(3)}) translate3d(${nx.toFixed(1)}px, ${ny.toFixed(1)}px, 0)`;
+  };
+
+  // Touch handlers for mobile devices
   let touchStartY = 0;
-  let touchStartX = 0;
   let isTouching = false;
 
   const onTouchStart = (e) => {
     if (e.touches && e.touches[0]) {
       touchStartY = e.touches[0].clientY;
-      touchStartX = e.touches[0].clientX;
       isTouching = true;
     }
   };
@@ -3341,79 +3381,128 @@ function setupPortalIntroClick() {
   const onTouchMove = (e) => {
     if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
     const currentY = e.touches[0].clientY;
-    const deltaY = touchStartY - currentY; // positive when dragging up
-    const dragDistance = Math.abs(deltaY);
+    const deltaY = touchStartY - currentY;
+    
+    // Add touch delta to progress
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 400));
+    touchStartY = currentY;
 
-    // Update progress based on drag distance
-    targetProgress = Math.min(1.0, Math.max(0, dragDistance / 180));
-
-    if (dragDistance > 60 || targetProgress >= 0.75) {
+    if (targetProgress >= 0.92) {
       onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
     }
   };
 
-  const onTouchEnd = (e) => {
+  const onTouchEnd = () => {
     isTouching = false;
-    if (!triggered && targetProgress > 0.25) {
-      const coords = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 };
-      onTriggerIntro(coords);
-    }
   };
 
-  let wheelAccum = 0;
-  const onWheel = (e) => {
-    if (triggered) return;
-    const delta = Math.abs(e.deltaY) + Math.abs(e.deltaX);
-    wheelAccum += delta;
-    targetProgress = Math.min(1.0, wheelAccum / 220);
-
-    if (wheelAccum > 80 || targetProgress >= 0.75) {
-      onTriggerIntro(e);
-    }
-  };
-
-  // Smooth scrubbing interpolation loop
-  const updateScrubLoop = () => {
-    if (triggered) return;
-    progress += (targetProgress - progress) * 0.2;
-
-    if (introVideo && introVideo.duration && isFinite(introVideo.duration)) {
-      const targetTime = progress * introVideo.duration;
-      if (Math.abs(introVideo.currentTime - targetTime) > 0.05 && introVideo.paused) {
-        try { introVideo.currentTime = targetTime; } catch(err) {}
-      }
-      const scale = 1.0 + progress * 0.35;
-      introVideo.style.transform = `scale(${scale.toFixed(3)}) translate3d(0, 0, 0)`;
-    }
-
-    if (badgeText && progress > 0.08) {
-      const pct = Math.round(progress * 100);
-      badgeText.textContent = `📖 Kitap Açılıyor... %${pct} ➔`;
-    }
-
-    animFrameId = requestAnimationFrame(updateScrubLoop);
-  };
-  animFrameId = requestAnimationFrame(updateScrubLoop);
-
+  // Keyboard navigation
   const onKeyDown = (e) => {
     if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowDown' || e.code === 'PageDown') {
-      onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
+      targetProgress = Math.min(1.0, targetProgress + 0.25);
+      if (targetProgress >= 0.85) {
+        onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
+      }
     }
   };
+
+  // Main Render Loop for buttery smooth 60fps / 120fps scrubbing
+  const renderLoop = () => {
+    if (triggered) return;
+
+    // Damped interpolation for cinematic motion
+    currentProgress += (targetProgress - currentProgress) * 0.12;
+
+    if (progressBar) {
+      progressBar.style.width = `${(currentProgress * 100).toFixed(1)}%`;
+    }
+
+    if (hudText) {
+      if (currentProgress < 0.08) {
+        hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
+      } else if (currentProgress < 0.90) {
+        hudText.textContent = `İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
+      } else {
+        hudText.textContent = '✨ SİTEYE GİRİŞ YAPILIYOR...';
+      }
+    }
+
+    // Scrub video currentTime
+    if (videoDuration > 0) {
+      const targetTime = currentProgress * videoDuration;
+      if (Math.abs(targetTime - lastTimeApplied) > 0.02) {
+        lastTimeApplied = targetTime;
+        try {
+          introVideo.currentTime = Math.min(videoDuration - 0.04, Math.max(0, targetTime));
+        } catch(err) {}
+      }
+    }
+
+    // 3D Parallax Perspective for Left & Right Flags
+    const p = currentProgress;
+    if (poleLeft) {
+      const xShift = -p * 180;
+      const zShift = -p * 200;
+      const scale = 1.0 + p * 0.35;
+      const opacity = Math.max(0.1, 1.0 - p * 0.7);
+      poleLeft.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, ${zShift.toFixed(1)}px) scale(${scale.toFixed(2)})`;
+      poleLeft.style.opacity = opacity.toFixed(2);
+    }
+
+    if (poleLeftNear) {
+      const xShift = -p * 240;
+      const scale = 1.0 + p * 0.5;
+      const opacity = Math.max(0, 0.85 - p * 1.1);
+      poleLeftNear.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, 0) scale(${scale.toFixed(2)})`;
+      poleLeftNear.style.opacity = opacity.toFixed(2);
+    }
+
+    if (poleRight) {
+      const xShift = p * 180;
+      const zShift = -p * 200;
+      const scale = 1.0 + p * 0.35;
+      const opacity = Math.max(0.1, 1.0 - p * 0.7);
+      poleRight.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, ${zShift.toFixed(1)}px) scale(${scale.toFixed(2)})`;
+      poleRight.style.opacity = opacity.toFixed(2);
+    }
+
+    if (poleRightNear) {
+      const xShift = p * 240;
+      const scale = 1.0 + p * 0.5;
+      const opacity = Math.max(0, 0.85 - p * 1.1);
+      poleRightNear.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, 0) scale(${scale.toFixed(2)})`;
+      poleRightNear.style.opacity = opacity.toFixed(2);
+    }
+
+    animFrameId = requestAnimationFrame(renderLoop);
+  };
+
+  animFrameId = requestAnimationFrame(renderLoop);
 
   const cleanupIntroListeners = () => {
     if (animFrameId) cancelAnimationFrame(animFrameId);
     try {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
       introStage.removeEventListener('click', onTriggerIntro);
       introStage.removeEventListener('pointerdown', onTriggerIntro);
       introStage.removeEventListener('touchstart', onTouchStart);
       introStage.removeEventListener('touchend', onTouchEnd);
       introStage.removeEventListener('touchmove', onTouchMove);
       introStage.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('wheel', onWheel);
       document.removeEventListener('keydown', onKeyDown);
     } catch(err) {}
   };
+
+  // Direct Click or Completion Trigger
+  introStage.addEventListener('click', (e) => {
+    onTriggerIntro(e);
+  });
+  introStage.addEventListener('touchstart', onTouchStart, { passive: true });
+  introStage.addEventListener('touchmove', onTouchMove, { passive: true });
+  introStage.addEventListener('touchend', onTouchEnd, { passive: true });
+  introStage.addEventListener('mousemove', onMouseMove, { passive: true });
+  document.addEventListener('keydown', onKeyDown, { passive: true });
 
   // 2. Main entrance trigger handler
   function onTriggerIntro(e) {
@@ -3427,7 +3516,7 @@ function setupPortalIntroClick() {
     cleanupIntroListeners();
 
     if (window.playTickSound) {
-      try { window.playTickSound(); } catch(e) {}
+      try { window.playTickSound(); } catch(err) {}
     }
 
     document.body.classList.remove('portal-intro-mode');
