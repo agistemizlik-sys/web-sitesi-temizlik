@@ -3321,6 +3321,7 @@ function setupPortalIntroClick() {
   let triggered = false;
   let targetProgress = 0;
   let currentProgress = 0;
+  let scrollVelocity = 0;
   let videoDuration = 10.005; // Default to actual video duration immediately
   let animFrameId = null;
   let lastTimeApplied = -1;
@@ -3338,11 +3339,12 @@ function setupPortalIntroClick() {
     updateDuration();
   }
 
-  // Direct Wheel / Trackpad Scroll Engine
+  // Direct Wheel / Trackpad Scroll Engine with Smooth Inertia
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0020));
+    scrollVelocity += delta * 0.00045;
+    scrollVelocity = Math.max(-0.06, Math.min(0.06, scrollVelocity));
   };
 
   window.addEventListener('wheel', onWheel, { passive: true });
@@ -3363,8 +3365,9 @@ function setupPortalIntroClick() {
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
     
-    // Add touch delta to progress
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 240));
+    // Add touch delta to progress with momentum
+    scrollVelocity += (deltaY / 260) * 0.35;
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 300));
     touchStartY = currentY;
   };
 
@@ -3375,16 +3378,20 @@ function setupPortalIntroClick() {
   // Keyboard navigation
   const onKeyDown = (e) => {
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      targetProgress = Math.min(1.0, targetProgress + 0.15);
+      scrollVelocity += 0.035;
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      targetProgress = Math.max(0, targetProgress - 0.15);
+      scrollVelocity -= 0.035;
     }
   };
 
   // Main Render Loop for buttery smooth 60fps / 120fps scrubbing & first-person walking
   const renderLoop = () => {
+    // Apply inertia physics
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
+    scrollVelocity *= 0.86; // Smooth friction decay
+
     // Damped interpolation for cinematic motion
-    currentProgress += (targetProgress - currentProgress) * 0.12;
+    currentProgress += (targetProgress - currentProgress) * 0.14;
 
     if (progressBar) {
       progressBar.style.width = `${(currentProgress * 100).toFixed(1)}%`;
@@ -3393,16 +3400,16 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (currentProgress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.86) {
-        hudText.textContent = `İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
+      } else if (currentProgress < 0.85) {
+        hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
-        hudText.textContent = '🚩 ÜLKENİZİ SEÇİN (TÜRKİYE / POLONYA)';
+        hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       }
     }
 
     // Scrub video currentTime inside the video
     const targetTime = currentProgress * videoDuration;
-    if (Math.abs(targetTime - lastTimeApplied) > 0.012) {
+    if (Math.abs(targetTime - lastTimeApplied) > 0.010) {
       lastTimeApplied = targetTime;
       try {
         const safeTime = Math.min(videoDuration - 0.02, Math.max(0, targetTime));
@@ -3415,20 +3422,20 @@ function setupPortalIntroClick() {
     }
 
     // First-Person Walking Bob & Camera Sway Effect (Walking directly inside the video)
-    const walkPhase = currentProgress * 42;
-    const walkBobY = Math.sin(walkPhase) * 3.5;
+    const walkPhase = currentProgress * 44;
+    const walkBobY = Math.sin(walkPhase) * 3.6;
     const walkSwayX = Math.cos(walkPhase * 0.5) * 1.8;
     const depthScale = 1.0 + currentProgress * 0.10;
 
     introVideo.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
 
-    // Flags & Country Portals: Emerge ONLY at the END where we glide into the landscape (0.86 -> 1.0)
+    // Flags & Country Portals: Emerge ONLY at the END where we glide into the landscape (0.85 -> 1.0)
     let flagOpacity = 0;
     let flagYShift = 45;
     let flagScale = 0.85;
 
-    if (currentProgress > 0.85) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.85) / 0.12); // 0 to 1 between progress 0.85 and 0.97
+    if (currentProgress > 0.84) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.84) / 0.13); // 0 to 1 between progress 0.84 and 0.97
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.85 + normalizedP * 0.15;
