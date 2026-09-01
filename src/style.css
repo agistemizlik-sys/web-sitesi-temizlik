@@ -20196,30 +20196,30 @@ html, body {
 
 .video-banner-hotspot {
   position: absolute;
-  top: 5vh;
-  width: clamp(200px, 28vw, 400px);
-  height: clamp(320px, 78vh, 620px);
+  top: 14vh;
+  width: clamp(170px, 25vw, 340px);
+  height: clamp(280px, 68vh, 520px);
   pointer-events: auto;
   z-index: 12;
-  border-radius: 24px;
+  border-radius: 20px;
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 6%;
+  padding-bottom: 9%;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   contain: layout style;
 }
 
 .hotspot-card-left {
-  left: clamp(14%, 18.5vw, 23%);
+  left: clamp(6%, 10.5vw, 15%);
 }
 
 .hotspot-card-right {
-  right: clamp(14%, 18.5vw, 23%);
+  right: clamp(6%, 10.5vw, 15%);
 }
 
 .hotspot-hover-aura {
