@@ -3312,7 +3312,7 @@ function setupPortalIntroClick() {
   if (!introStage || !canvas) return;
 
   const ctx = canvas.getContext('2d');
-  const TOTAL_FRAMES = 120;
+  const TOTAL_FRAMES = 140;
   const frameImages = [];
   let lastDrawnImage = null;
 
@@ -3398,7 +3398,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/book_journey/f_${numStr}.webp?v=flawless_portal_v3`;
+    img.src = `/videos/book_journey/f_${numStr}.webp?v=real_authentic_flags_v5`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
