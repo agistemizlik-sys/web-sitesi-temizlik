@@ -20124,26 +20124,41 @@ html, body {
   .banner-pole-left-near, .banner-pole-right-near {
     display: none !important;
   }
+  .banner-pole-wrapper.planted-in-grass {
+    bottom: 14vh !important;
+    height: 320px !important;
+  }
   .banner-pole-left {
     left: 2vw;
-    width: 130px;
+    width: 120px;
   }
   .banner-pole-right {
     right: 2vw;
-    width: 130px;
+    width: 120px;
   }
   .banner-fabric {
-    width: 120px;
-    height: 190px;
+    width: 110px;
+    height: 175px;
+  }
+  .banner-grass-mound {
+    width: 65px !important;
+    height: 18px !important;
+    bottom: -6px !important;
+  }
+  .banner-pole-left .banner-grass-mound {
+    left: -28px !important;
+  }
+  .banner-pole-right .banner-grass-mound {
+    right: -28px !important;
   }
   .flag-symbol, .banner-crest {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   .banner-title {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
   .banner-sub {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
   }
 }
 
@@ -20202,9 +20217,9 @@ html, body {
     top: 12% !important;
   }
   .banner-portal-btn {
-    font-size: 0.68rem !important;
-    padding: 6px 12px !important;
-    margin-top: 8px !important;
+    font-size: 0.66rem !important;
+    padding: 5px 10px !important;
+    margin-top: 6px !important;
   }
 }
 
