@@ -488,26 +488,8 @@
 
     <script>
       (function(){
-        var introDismissed = false;
-        window.forceDismissIntro = function(e) {
-          if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-          if (introDismissed) return;
-          introDismissed = true;
-
-          var stage = document.getElementById('portal-intro-stage');
-          if (stage) {
-            stage.style.pointerEvents = 'none';
-            stage.style.opacity = '0';
-            stage.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            stage.style.transform = 'scale(1.03)';
-            setTimeout(function(){
-              if (stage.parentNode) stage.parentNode.removeChild(stage);
-            }, 350);
-          }
-
-          document.body.classList.remove('portal-intro-mode');
-          document.body.classList.add('flag-selection-mode');
-
+        // Smooth scroll tracker initialization helper
+        window.dismissIntroScreen = function() {
           var cso = document.getElementById('country-selector-overlay');
           if (cso) {
             cso.classList.remove('cso-hidden');
@@ -516,25 +498,7 @@
             cso.style.opacity = '1';
             cso.style.pointerEvents = 'all';
           }
-
-          if (typeof window.dismissIntroScreen === 'function') {
-            try { window.dismissIntroScreen(e); } catch(err){}
-          }
         };
-
-        // Click on document body as universal fallback
-        window.addEventListener('click', function() {
-          if (document.body.classList.contains('portal-intro-mode')) {
-            window.forceDismissIntro();
-          }
-        }, { once: true });
-
-        // Keydown fallback
-        window.addEventListener('keydown', function() {
-          if (document.body.classList.contains('portal-intro-mode')) {
-            window.forceDismissIntro();
-          }
-        }, { once: true });
 
         function attachSeamlessLoop(video) {
           if (!video) return;
