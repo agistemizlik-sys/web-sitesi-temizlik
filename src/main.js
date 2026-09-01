@@ -3349,11 +3349,7 @@ function setupPortalIntroClick() {
   };
 
   const onScroll = () => {
-    if (triggered) return;
     targetProgress = calculateScrollProgress();
-    if (targetProgress >= 0.94) {
-      onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
-    }
   };
 
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -3361,10 +3357,10 @@ function setupPortalIntroClick() {
 
   // Mouse move subtle camera tilt
   const onMouseMove = (e) => {
-    if (triggered || !introVideo) return;
-    const nx = (e.clientX / window.innerWidth - 0.5) * 10;
-    const ny = (e.clientY / window.innerHeight - 0.5) * 10;
-    introVideo.style.transform = `scale(${(1.0 + currentProgress * 0.25).toFixed(3)}) translate3d(${nx.toFixed(1)}px, ${ny.toFixed(1)}px, 0)`;
+    if (!introVideo) return;
+    const nx = (e.clientX / window.innerWidth - 0.5) * 8;
+    const ny = (e.clientY / window.innerHeight - 0.5) * 8;
+    introVideo.style.transform = `scale(${(1.0 + currentProgress * 0.22).toFixed(3)}) translate3d(${nx.toFixed(1)}px, ${ny.toFixed(1)}px, 0)`;
   };
 
   // Touch handlers for mobile devices
@@ -3379,17 +3375,13 @@ function setupPortalIntroClick() {
   };
 
   const onTouchMove = (e) => {
-    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
+    if (!isTouching || !e.touches || !e.touches[0]) return;
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
     
     // Add touch delta to progress
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 400));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 450));
     touchStartY = currentY;
-
-    if (targetProgress >= 0.92) {
-      onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-    }
   };
 
   const onTouchEnd = () => {
@@ -3398,18 +3390,15 @@ function setupPortalIntroClick() {
 
   // Keyboard navigation
   const onKeyDown = (e) => {
-    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowDown' || e.code === 'PageDown') {
-      targetProgress = Math.min(1.0, targetProgress + 0.25);
-      if (targetProgress >= 0.85) {
-        onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
-      }
+    if (e.code === 'ArrowDown' || e.code === 'PageDown') {
+      targetProgress = Math.min(1.0, targetProgress + 0.15);
+    } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
+      targetProgress = Math.max(0, targetProgress - 0.15);
     }
   };
 
   // Main Render Loop for buttery smooth 60fps / 120fps scrubbing
   const renderLoop = () => {
-    if (triggered) return;
-
     // Damped interpolation for cinematic motion
     currentProgress += (targetProgress - currentProgress) * 0.12;
 
@@ -3420,7 +3409,7 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (currentProgress < 0.08) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.90) {
+      } else if (currentProgress < 0.92) {
         hudText.textContent = `İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
         hudText.textContent = '✨ SİTEYE GİRİŞ YAPILIYOR...';
@@ -3449,14 +3438,6 @@ function setupPortalIntroClick() {
       poleLeft.style.opacity = opacity.toFixed(2);
     }
 
-    if (poleLeftNear) {
-      const xShift = -p * 240;
-      const scale = 1.0 + p * 0.5;
-      const opacity = Math.max(0, 0.85 - p * 1.1);
-      poleLeftNear.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, 0) scale(${scale.toFixed(2)})`;
-      poleLeftNear.style.opacity = opacity.toFixed(2);
-    }
-
     if (poleRight) {
       const xShift = p * 180;
       const zShift = -p * 200;
@@ -3466,38 +3447,11 @@ function setupPortalIntroClick() {
       poleRight.style.opacity = opacity.toFixed(2);
     }
 
-    if (poleRightNear) {
-      const xShift = p * 240;
-      const scale = 1.0 + p * 0.5;
-      const opacity = Math.max(0, 0.85 - p * 1.1);
-      poleRightNear.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, 0) scale(${scale.toFixed(2)})`;
-      poleRightNear.style.opacity = opacity.toFixed(2);
-    }
-
     animFrameId = requestAnimationFrame(renderLoop);
   };
 
   animFrameId = requestAnimationFrame(renderLoop);
 
-  const cleanupIntroListeners = () => {
-    if (animFrameId) cancelAnimationFrame(animFrameId);
-    try {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      introStage.removeEventListener('click', onTriggerIntro);
-      introStage.removeEventListener('pointerdown', onTriggerIntro);
-      introStage.removeEventListener('touchstart', onTouchStart);
-      introStage.removeEventListener('touchend', onTouchEnd);
-      introStage.removeEventListener('touchmove', onTouchMove);
-      introStage.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('keydown', onKeyDown);
-    } catch(err) {}
-  };
-
-  // Direct Click or Completion Trigger
-  introStage.addEventListener('click', (e) => {
-    onTriggerIntro(e);
-  });
   introStage.addEventListener('touchstart', onTouchStart, { passive: true });
   introStage.addEventListener('touchmove', onTouchMove, { passive: true });
   introStage.addEventListener('touchend', onTouchEnd, { passive: true });
