@@ -20135,37 +20135,37 @@ html, body {
 
 .video-banner-hotspot {
   position: absolute;
-  top: 18vh;
-  width: clamp(140px, 24vw, 300px);
-  height: clamp(240px, 60vh, 500px);
+  top: 20vh;
+  width: clamp(160px, 20vw, 280px);
+  height: clamp(260px, 58vh, 480px);
   pointer-events: auto;
   z-index: 12;
-  border-radius: 24px;
+  border-radius: 20px;
   cursor: pointer;
   transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 8%;
+  padding-bottom: 7%;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   contain: layout style;
 }
 
 .hotspot-card-left {
-  left: 9vw;
+  left: 11.5vw;
 }
 
 .hotspot-card-right {
-  right: 9vw;
+  right: 11.5vw;
 }
 
 .hotspot-hover-aura {
   position: absolute;
-  inset: -10px;
+  inset: -14px;
   border-radius: 28px;
-  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.38) 0%, rgba(251, 191, 36, 0.12) 50%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -20176,45 +20176,55 @@ html, body {
 }
 
 .hotspot-pulse-btn {
-  background: rgba(255, 255, 255, 0.95);
-  color: #b91c1c;
+  width: 58%;
+  height: 38px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #ffffff;
   font-family: var(--font-sans, system-ui, sans-serif);
   font-weight: 800;
-  font-size: clamp(0.75rem, 1.2vw, 0.92rem);
-  padding: 8px 22px;
-  border-radius: 24px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 15px rgba(251, 191, 36, 0.4);
+  font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+  border-radius: 22px;
+  border: 1.5px solid rgba(251, 191, 36, 0.6);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 15px rgba(251, 191, 36, 0.35);
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   pointer-events: auto;
 }
 
 .hotspot-pulse-btn.hotspot-btn-pl {
-  background: #ffffff;
-  color: #991b1b;
+  background: rgba(15, 23, 42, 0.72);
+  color: #ffffff;
 }
 
 .video-banner-hotspot:hover .hotspot-pulse-btn {
-  transform: scale(1.10) translateY(-3px);
+  transform: scale(1.08);
   background: #fbbf24;
   color: #0f172a;
-  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.7);
+  border-color: #ffffff;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.85), 0 4px 18px rgba(0,0,0,0.6);
 }
 
 @media (max-width: 768px) {
   .video-banner-hotspot {
-    top: 14vh !important;
-    width: clamp(120px, 38vw, 160px) !important;
+    top: 18vh !important;
+    width: clamp(120px, 36vw, 150px) !important;
     height: clamp(200px, 50vh, 320px) !important;
+    padding-bottom: 5% !important;
   }
   .hotspot-card-left {
-    left: 4vw !important;
+    left: 8vw !important;
   }
   .hotspot-card-right {
-    right: 4vw !important;
+    right: 8vw !important;
   }
   .hotspot-pulse-btn {
+    width: 72% !important;
+    height: 32px !important;
     font-size: 0.72rem !important;
-    padding: 6px 14px !important;
   }
 }
 
