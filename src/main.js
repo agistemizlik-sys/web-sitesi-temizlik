@@ -3630,9 +3630,9 @@ function setupPortalIntroClick() {
       }
     };
 
-    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.08, 0.16, 0.24, 0.35);
-    updateSplittableSlogan('slogan2', 'slogan2Left', 'slogan2Right', 'slogan2Sub', progress, 0.42, 0.50, 0.58, 0.68);
-    updateSplittableSlogan('slogan3', 'slogan3Left', 'slogan3Right', 'slogan3Sub', progress, 0.68, 0.74, 0.80, 0.86);
+    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.06, 0.14, 0.22, 0.32);
+    updateSplittableSlogan('slogan2', 'slogan2Left', 'slogan2Right', 'slogan2Sub', progress, 0.34, 0.42, 0.50, 0.60);
+    updateSplittableSlogan('slogan3', 'slogan3Left', 'slogan3Right', 'slogan3Sub', progress, 0.62, 0.70, 0.76, 0.84);
 
     // 6. Interactive Click Hotspots for the Video Banners (Visible when banners settle: progress > 0.80)
     let bannerOpacity = 0;
