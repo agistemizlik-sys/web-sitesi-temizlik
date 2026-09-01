@@ -20130,5 +20130,67 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   🚩 DIRECT INTERACTIVE COUNTRY PORTAL CARDS & BUTTONS
+   ========================================================================== */
+.banner-interactive-card {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(251, 191, 36, 0.25) !important;
+}
+
+.banner-interactive-card:hover {
+  transform: perspective(600px) scale(1.06) translateY(-4px) !important;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(251, 191, 36, 0.5) !important;
+}
+
+.banner-portal-btn {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #e11d48;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 8px 18px;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.banner-portal-btn.pl-btn {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.banner-interactive-card:hover .banner-portal-btn {
+  transform: scale(1.08);
+  background: #fbbf24;
+  color: #0f172a;
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+}
+
+@media (max-width: 768px) {
+  .book-portal-topbar {
+    padding: 0 16px !important;
+    top: 12px !important;
+  }
+  .book-top-badge {
+    display: none !important;
+  }
+  .book-center-prompt {
+    top: 12% !important;
+  }
+  .banner-portal-btn {
+    font-size: 0.68rem !important;
+    padding: 6px 12px !important;
+    margin-top: 8px !important;
+  }
+}
+
+
 
 

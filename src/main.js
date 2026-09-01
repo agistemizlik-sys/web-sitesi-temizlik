@@ -4867,7 +4867,28 @@ function setupPortalGateway() {
   function selectCountryGlobal(countryCode) {
     const code = (countryCode === 'pl' || countryCode === 'poland') ? 'pl' : 'tr';
 
-    // 1. Immediately hide country selector overlay synchronously
+    // 1. Immediately dismiss book scroll hero track
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      heroTrack.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      heroTrack.style.opacity = '0';
+      heroTrack.style.pointerEvents = 'none';
+      setTimeout(() => {
+        heroTrack.style.setProperty('display', 'none', 'important');
+      }, 350);
+    }
+
+    const introStage = document.getElementById('portal-intro-stage');
+    if (introStage) {
+      introStage.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      introStage.style.opacity = '0';
+      introStage.style.pointerEvents = 'none';
+      setTimeout(() => {
+        introStage.style.setProperty('display', 'none', 'important');
+      }, 350);
+    }
+
+    // 2. Immediately hide country selector overlay synchronously
     const csoOverlayEl = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
     if (csoOverlayEl) {
       csoOverlayEl.classList.add('cso-hidden');
@@ -4875,13 +4896,9 @@ function setupPortalGateway() {
       csoOverlayEl.style.setProperty('opacity', '0', 'important');
       csoOverlayEl.style.setProperty('visibility', 'hidden', 'important');
       csoOverlayEl.style.setProperty('pointer-events', 'none', 'important');
-      const earthVideo = document.getElementById('csoEarthVideo');
-      if (earthVideo && !earthVideo.paused) {
-        try { earthVideo.pause(); } catch(err) {}
-      }
     }
 
-    // 2. Immediately reveal portal stage & map stage
+    // 3. Immediately reveal portal stage & map stage
     document.body.classList.add('flag-selection-mode');
     document.body.classList.remove('portal-intro-mode');
 

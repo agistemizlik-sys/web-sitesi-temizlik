@@ -402,80 +402,77 @@
   <!-- Top-level Global Ambient Dust & Atmospheric Particles Canvas -->
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
-  <!-- 📖 IMMERSIVE FIRST-PERSON SCROLL JOURNEY & PARALLAX FLAME STAGE -->
-  <div id="book-scroll-hero-track" class="book-scroll-hero-track" style="position: relative; width: 100%; height: 260vh; z-index: 1000;">
+  <!-- 📖 IMMERSIVE FIRST-PERSON BOOK SCROLL & DIRECT COUNTRY PORTAL TRACK -->
+  <div id="book-scroll-hero-track" class="book-scroll-hero-track" style="position: relative; width: 100%; height: 240vh; z-index: 1000;">
     <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport" style="position: sticky; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; will-change: transform;">
       <video id="portalIntroVideo" class="portal-intro-video" src="/videos/book_intro.mp4" muted playsinline webkit-playsinline preload="auto" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; object-position: center center;" x5-video-player-type="h5" x5-video-player-fullscreen="true"></video>
-      
-      <!-- 🚩 REALISTIC HTML/CSS/JS PARALLAX FLAG & BANNER LAYER -->
-      <div class="parallax-banners-layer" id="parallaxBannersLayer" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; overflow: hidden; perspective: 1200px;">
+
+      <!-- 👑 Top Luxury Header Bar -->
+      <header class="book-portal-topbar" style="position: absolute; top: 20px; left: 0; right: 0; z-index: 12; display: flex; justify-content: space-between; align-items: center; padding: 0 28px; pointer-events: auto;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="/images/logo_leaf.svg" alt="RELAXAX" style="width: 32px; height: 32px; filter: drop-shadow(0 0 12px rgba(251,191,36,0.8));" />
+          <span style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 800; letter-spacing: 0.15em; color: #ffffff; text-shadow: 0 0 16px rgba(251,191,36,0.6);">RELAXAX</span>
+        </div>
+        <div class="book-top-badge" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(251,191,36,0.4); color: #fbbf24; padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+          <span>✨</span>
+          <span>PREMIER HOUSEKEEPING PROTOCOL</span>
+        </div>
+      </header>
+
+      <!-- 🚩 REALISTIC INTERACTIVE 3D PARALLAX FLAGS & DIRECT COUNTRY SELECTION PORTALS -->
+      <div class="parallax-banners-layer" id="parallaxBannersLayer" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto; z-index: 10; overflow: hidden; perspective: 1200px;">
         
-        <!-- Left Side Flag Pole & Flag (Turkey 🇹🇷 / CleanPro Royal) -->
-        <div class="banner-pole-wrapper banner-pole-left" id="bannerPoleLeft">
+        <!-- LEFT: 🇹🇷 TÜRKİYE DIRECT PORTAL -->
+        <div class="banner-pole-wrapper banner-pole-left" id="bannerPoleLeft" role="button" tabindex="0" aria-label="Türkiye Hizmetlerine Giriş Yap" onclick="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('tr');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('tr');}" ontouchend="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('tr');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('tr');}" style="cursor: pointer; pointer-events: auto;">
           <div class="banner-finial"></div>
           <div class="banner-pole"></div>
-          <div class="banner-fabric banner-fabric-tr">
+          <div class="banner-fabric banner-fabric-tr banner-interactive-card">
             <div class="fabric-shadow"></div>
             <div class="fabric-content">
               <span class="flag-symbol">🇹🇷</span>
               <div class="banner-title">TÜRKİYE</div>
-              <small class="banner-sub">RELAXAX CLEANING</small>
+              <small class="banner-sub">81 İLDE PREMİUM TEMİZLİK</small>
+              <div class="banner-portal-btn">
+                <span>Giriş Yap ➔</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Left Near Secondary Streamer -->
-        <div class="banner-pole-wrapper banner-pole-left-near" id="bannerPoleLeftNear">
-          <div class="banner-finial gold"></div>
-          <div class="banner-pole brass"></div>
-          <div class="banner-fabric banner-fabric-gold">
-            <div class="fabric-shadow"></div>
-            <div class="fabric-content">
-              <span class="banner-crest">👑</span>
-              <div class="banner-title gold">PREMIER</div>
-              <small class="banner-sub">5★ HOUSEKEEPING</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Side Flag Pole & Flag (Poland 🇵🇱 / CleanPro Polska) -->
-        <div class="banner-pole-wrapper banner-pole-right" id="bannerPoleRight">
+        <!-- RIGHT: 🇵🇱 POLSKA DIRECT PORTAL -->
+        <div class="banner-pole-wrapper banner-pole-right" id="bannerPoleRight" role="button" tabindex="0" aria-label="Wybierz Polskę i Warszawę" onclick="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('pl');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('pl');}" ontouchend="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('pl');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('pl');}" style="cursor: pointer; pointer-events: auto;">
           <div class="banner-finial"></div>
           <div class="banner-pole"></div>
-          <div class="banner-fabric banner-fabric-pl">
+          <div class="banner-fabric banner-fabric-pl banner-interactive-card">
             <div class="fabric-shadow"></div>
             <div class="fabric-content">
               <span class="flag-symbol">🇵🇱</span>
-              <div class="banner-title">POLSKA</div>
-              <small class="banner-sub">RELAXAX WARSZAWA</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Near Secondary Streamer -->
-        <div class="banner-pole-wrapper banner-pole-right-near" id="bannerPoleRightNear">
-          <div class="banner-finial gold"></div>
-          <div class="banner-pole brass"></div>
-          <div class="banner-fabric banner-fabric-luxury">
-            <div class="fabric-shadow"></div>
-            <div class="fabric-content">
-              <span class="banner-crest">🛡️</span>
-              <div class="banner-title gold">%100 HİJYEN</div>
-              <small class="banner-sub">PREMIUM SERVICE</small>
+              <div class="banner-title" style="color:#0f172a !important;">POLSKA</div>
+              <small class="banner-sub" style="color:#475569 !important;">WARSZAWA & CAŁA POLSKA</small>
+              <div class="banner-portal-btn pl-btn">
+                <span>Wybierz ➔</span>
+              </div>
             </div>
           </div>
         </div>
 
       </div>
 
-      <!-- Cinematic Ambient Vignette & Light Beam Overlay -->
+      <!-- Center Title Prompt -->
+      <div class="book-center-prompt" style="position: absolute; top: 16%; left: 50%; transform: translateX(-50%); z-index: 8; text-align: center; pointer-events: none; width: 90%; max-width: 620px;">
+        <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; letter-spacing: 2px; text-transform: uppercase;">WELCOME • HOŞ GELDİNİZ</span>
+        <h1 style="font-family: var(--font-serif); font-size: clamp(1.6rem, 3.5vw, 2.5rem); font-weight: 800; color: #ffffff; margin: 6px 0 8px; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">Hizmet Bölgenizi Seçiniz</h1>
+        <p style="font-size: 0.9rem; color: #cbd5e1; text-shadow: 0 2px 8px rgba(0,0,0,0.8); margin: 0;">Lütfen Türkiye veya Polonya bayrağına dokunun veya sayfayı aşağı kaydırın.</p>
+      </div>
+
+      <!-- Cinematic Ambient Vignette Overlay -->
       <div class="cinematic-atmosphere-vignette" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, transparent 45%, rgba(2,6,23,0.45) 80%, rgba(2,6,23,0.85) 100%); z-index: 6;"></div>
 
       <!-- Scroll Progress HUD & Prompt -->
-      <div class="scroll-journey-hud" id="scrollJourneyHud" style="position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; transition: opacity 0.3s ease;">
+      <div class="scroll-journey-hud" id="scrollJourneyHud" style="position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 11; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; transition: opacity 0.3s ease;">
         <div class="sjh-badge" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.6); color: #fbbf24; padding: 10px 24px; border-radius: 40px; font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 20px rgba(251,191,36,0.25);">
           <span class="sjh-icon">🧭</span>
-          <span id="sjhText">AŞAĞI KAYDIRIN & İLERLEYİN</span>
+          <span id="sjhText">BAYRAĞA DOKUNUN VEYA KAYDIRIN</span>
           <span class="sjh-arrow" style="animation: bounceDown 1.5s infinite;">↓</span>
         </div>
         <div class="sjh-progress-bar-wrap" style="width: 160px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 9999px; overflow: hidden;">
@@ -611,206 +608,8 @@
     </div>
 
 
-    <!-- ── COUNTRY SELECTOR OVERLAY (AIRPORT / WORLD TRAVEL AESTHETIC) ─────────────────────────────────────── -->
-    <div id="country-selector-overlay" class="country-selector-overlay" aria-label="Ülke Seçimi">
-      <!-- Background Earth Atmosphere Graphic & Video Layer -->
-      <div class="cso-earth-bg" aria-hidden="true">
-        <video class="cso-earth-video" id="csoEarthVideo" autoplay muted loop playsinline poster="/images/earth_horizon_bg.jpg">
-          <source src="/videos/earth_rotating.mp4" type="video/mp4">
-        </video>
-        <div class="cso-earth-overlay-gradient"></div>
-      </div>
-      <div class="cso-ambient" aria-hidden="true"></div>
-
-      <!-- Top Bar with RELAXAX Logo & Language Selector -->
-      <header class="cso-topbar">
-        <div class="cso-brand-logo">
-          <img src="/images/logo_leaf.svg" class="cso-logo-icon-img" alt="RELAXAX Logo" style="width: 28px; height: 28px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.8)); vertical-align: middle; margin-right: 6px;" />
-          <span class="cso-logo-text" style="font-family: var(--font-serif); font-size: 1.35rem; font-weight: 800; letter-spacing: 0.15em; color: #ffffff; text-shadow: 0 0 14px rgba(251, 191, 36, 0.6);">RELAXAX</span>
-        </div>
-        <div class="cso-lang-wrapper" id="csoLangDropdown">
-          <button type="button" class="cso-lang-pill-btn" id="csoLangPillBtn" aria-expanded="false" aria-label="Dil seçimi">
-            <svg class="cso-lang-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            <span id="csoCurrentLangText">English</span>
-            <svg class="cso-lang-caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          </button>
-          <div class="cso-lang-popover" id="csoLangPopover">
-            <button type="button" class="cso-lang-option" data-lang="tr">
-              <span class="cso-opt-flag">🇹🇷</span>
-              <span class="cso-opt-name">Türkçe</span>
-            </button>
-            <button type="button" class="cso-lang-option active" data-lang="en">
-              <span class="cso-opt-flag">🇬🇧</span>
-              <span class="cso-opt-name">English</span>
-            </button>
-            <button type="button" class="cso-lang-option" data-lang="pl">
-              <span class="cso-opt-flag">🇵🇱</span>
-              <span class="cso-opt-name">Polski</span>
-            </button>
-            <button type="button" class="cso-lang-option" data-lang="de">
-              <span class="cso-opt-flag">🇩🇪</span>
-              <span class="cso-opt-name">Deutsch</span>
-            </button>
-            <button type="button" class="cso-lang-option" data-lang="ru">
-              <span class="cso-opt-flag">🇷🇺</span>
-              <span class="cso-opt-name">Русский</span>
-            </button>
-            <button type="button" class="cso-lang-option" data-lang="uk">
-              <span class="cso-opt-flag">🇺🇦</span>
-              <span class="cso-opt-name">Українська</span>
-            </button>
-            <button type="button" class="cso-lang-option" data-lang="ar">
-              <span class="cso-opt-flag">🇸🇦</span>
-              <span class="cso-opt-name">العربية</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <!-- Center Content Area -->
-      <section class="cso-center-container" role="region" aria-label="Ülke Seçimi">
-        <!-- Header Text -->
-        <div class="cso-header-block">
-          <div class="cso-eyebrow-accent" id="csoEyebrow">Welcome!</div>
-          <h2 class="cso-headline-title" id="csoMainHeadline">Where in the world are you?</h2>
-          <p class="cso-headline-sub" id="csoMainSub">Select your country to get the best tailored cleaning experience.</p>
-        </div>
-
-        <!-- 2 Arch Capsule Country Cards -->
-        <div class="cso-arch-cards-row">
-          
-          <!-- Card: Türkiye -->
-          <div class="cso-capsule-card" id="csoBtnTurkey" data-country="turkey" role="button" tabindex="0" aria-label="Select Turkey" onclick="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('tr');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('tr');}" ontouchend="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('tr');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('tr');}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();if(typeof selectCountryGlobal==='function'){selectCountryGlobal('tr');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('tr');}}">
-            <div class="cso-capsule-media">
-              <img src="/images/istanbul_day_landmark.jpg" alt="İstanbul, Türkiye" class="cso-capsule-img" loading="eager" />
-              <div class="cso-capsule-img-gradient"></div>
-              <div class="cso-circle-flag-wrap">
-                <svg class="cso-round-flag" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Turkish Flag">
-                  <circle cx="256" cy="256" r="256" fill="#E30A17"/>
-                  <circle cx="210" cy="256" r="130" fill="#ffffff"/>
-                  <circle cx="246" cy="256" r="104" fill="#E30A17"/>
-                  <polygon points="380,256 322,274 340,215 340,297 322,238" fill="#ffffff"/>
-                </svg>
-              </div>
-            </div>
-            <div class="cso-capsule-info">
-              <h2 class="cso-capsule-title">Turkey</h2>
-              <p class="cso-capsule-desc">Discover bespoke services & offerings in Turkey.</p>
-              <div class="cso-capsule-circle-btn" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card: Polska / Polonya -->
-          <div class="cso-capsule-card" id="csoBtnPoland" data-country="poland" role="button" tabindex="0" aria-label="Select Poland" onclick="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('pl');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('pl');}" ontouchend="if(typeof selectCountryGlobal==='function'){selectCountryGlobal('pl');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('pl');}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();if(typeof selectCountryGlobal==='function'){selectCountryGlobal('pl');}else if(typeof window.selectCountryGlobal==='function'){window.selectCountryGlobal('pl');}}">
-            <div class="cso-capsule-media">
-              <img src="/images/warszawa_day_landmark.jpg" alt="Warszawa, Polska" class="cso-capsule-img" loading="eager" />
-              <div class="cso-capsule-img-gradient"></div>
-              <div class="cso-circle-flag-wrap">
-                <svg class="cso-round-flag" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Polish Flag">
-                  <defs>
-                    <clipPath id="csoPlClip">
-                      <circle cx="256" cy="256" r="256" />
-                    </clipPath>
-                  </defs>
-                  <g clip-path="url(#csoPlClip)">
-                    <rect width="512" height="256" fill="#ffffff"/>
-                    <rect y="256" width="512" height="256" fill="#DC143C"/>
-                  </g>
-                </svg>
-              </div>
-            </div>
-            <div class="cso-capsule-info">
-              <h2 class="cso-capsule-title">Poland</h2>
-              <p class="cso-capsule-desc">Explore tailored cleaning solutions in Warsaw.</p>
-              <div class="cso-capsule-circle-btn" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Helper All Countries Link with Divider -->
-        <div class="cso-other-countries-bar">
-          <span class="cso-other-line"></span>
-          <div class="cso-other-pill">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#38bdf8" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            <span class="cso-other-text">Looking for another country?</span>
-            <button type="button" class="cso-other-btn" id="csoOtherCountriesBtn">View all countries &gt;</button>
-          </div>
-          <span class="cso-other-line"></span>
-        </div>
-      </main>
-
-      <!-- Bottom Floating Trust / Feature Bar -->
-      <footer class="cso-bottom-trust-bar">
-        <div class="cso-trust-cell">
-          <div class="cso-trust-icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <div class="cso-trust-meta">
-            <h4 class="cso-trust-heading">Secure & Private</h4>
-            <p class="cso-trust-caption">Your data is completely safe</p>
-          </div>
-        </div>
-
-        <div class="cso-trust-cell">
-          <div class="cso-trust-icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-          </div>
-          <div class="cso-trust-meta">
-            <h4 class="cso-trust-heading">Localized Experience</h4>
-            <p class="cso-trust-caption">Tailored content for your region</p>
-          </div>
-        </div>
-
-        <div class="cso-trust-cell">
-          <div class="cso-trust-icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2">
-              <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
-              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
-            </svg>
-          </div>
-          <div class="cso-trust-meta">
-            <h4 class="cso-trust-heading">24/7 Support</h4>
-            <p class="cso-trust-caption">Always here for your requests</p>
-          </div>
-        </div>
-
-        <div class="cso-trust-cell">
-          <div class="cso-trust-icon-box">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2">
-              <circle cx="12" cy="8" r="7"/>
-              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
-            </svg>
-          </div>
-          <div class="cso-trust-meta">
-            <h4 class="cso-trust-heading">Quality Service</h4>
-            <p class="cso-trust-caption">Committed to highest standards</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-    <!-- ── END COUNTRY SELECTOR OVERLAY ─────────────────────────────────── -->
+    <!-- ── COUNTRY SELECTOR OVERLAY PERMANENTLY REMOVED: INTEGRATED INTO BOOK INTRO ─────────────────── -->
+    <div id="country-selector-overlay" class="country-selector-overlay cso-hidden" style="display: none !important; opacity: 0 !important; pointer-events: none !important; visibility: hidden !important;" aria-hidden="true"></div>
 
     <!-- İnteraktif Neon Türkiye Haritası Geçidi -->
     <!-- İnteraktif Türkiye Haritası Şehir Seçim Geçidi -->
