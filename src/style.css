@@ -20101,84 +20101,24 @@ html, body {
 }
 
 /* 📜 THEME 1: ANCIENT GOLD-LEAF BOOK MANUSCRIPT (Gilded Inscription on Parchment) */
+.slogan-book-theme {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .slogan-book-theme .slogan-word-left,
 .slogan-book-theme .slogan-word-right {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-size: clamp(1.85rem, 4.4vw, 3.8rem);
+  font-family: 'Cinzel', 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.4rem, 2.8vw, 2.4rem);
   font-weight: 700;
-  font-style: italic;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef08a 25%, #d97706 60%, #78350f 95%);
+  font-style: normal;
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef08a 30%, #f59e0b 70%, #92400e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 3px rgba(45, 18, 2, 0.7)) drop-shadow(0 0 20px rgba(251, 191, 36, 0.5));
-}
-
-.slogan-book-theme .slogan-manuscript-sub {
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: clamp(0.70rem, 1.1vw, 0.88rem);
-  letter-spacing: 0.32em;
-  font-weight: 800;
-  color: #b45309;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 0 14px rgba(251, 191, 36, 0.6);
-  margin-top: 14px;
-  text-transform: uppercase;
-}
-
-/* 🌿 THEME 2: MAJESTIC VALLEY FLIGHT */
-.slogan-valley-theme .slogan-word-left,
-.slogan-valley-theme .slogan-word-right {
-  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.75rem, 4.0vw, 3.4rem);
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #ffffff 0%, #fef08a 30%, #fbbf24 65%, #b45309 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.65));
-}
-
-.slogan-valley-theme .slogan-manuscript-sub {
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: clamp(0.68rem, 1.0vw, 0.84rem);
-  letter-spacing: 0.28em;
-  font-weight: 800;
-  color: #fbbf24;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 15px rgba(251, 191, 36, 0.6);
-  margin-top: 12px;
-  text-transform: uppercase;
-}
-
-/* 🌸 THEME 3: CELESTIAL SUNRISE CLOUDS & PETALS */
-.slogan-cloud-theme .slogan-word-left,
-.slogan-cloud-theme .slogan-word-right {
-  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.75rem, 4.0vw, 3.4rem);
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 30%, #fde047 65%, #ea580c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.65));
-}
-
-.slogan-cloud-theme .slogan-manuscript-sub {
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: clamp(0.68rem, 1.0vw, 0.84rem);
-  letter-spacing: 0.28em;
-  font-weight: 800;
-  color: #fde047;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 15px rgba(251, 191, 36, 0.6);
-  margin-top: 12px;
-  text-transform: uppercase;
-}
-
-.sub-flourish {
-  color: #fbbf24;
-  font-size: 0.9em;
-  padding: 0 4px;
+  filter: drop-shadow(0 2px 4px rgba(45, 18, 2, 0.8)) drop-shadow(0 0 22px rgba(251, 191, 36, 0.55));
+  text-shadow: none;
 }
 
 /* ==========================================================================

@@ -3536,17 +3536,15 @@ function setupPortalIntroClick() {
       }
     }
 
+    if (hud) {
+      const showHud = progress >= 0.75;
+      hud.style.opacity = showHud ? '1' : '0';
+      hud.style.visibility = showHud ? 'visible' : 'hidden';
+      hud.style.transition = 'opacity 0.4s ease, visibility 0.4s ease';
+    }
+
     if (hudText) {
-      let targetText = '';
-      if (progress < 0.20) {
-        targetText = '📖 KAPALI KİTAP: AŞAĞI KAYDIRARAK AÇIN';
-      } else if (progress < 0.48) {
-        targetText = '✨ TEMİZLİĞİ BİZİMLE HİSSEDİN';
-      } else if (progress < 0.82) {
-        targetText = '🌿 KUSURSUZ HUZUR VE HİJYEN';
-      } else {
-        targetText = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
-      }
+      const targetText = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       if (targetText !== lastHudText) {
         hudText.textContent = targetText;
         lastHudText = targetText;
@@ -3563,7 +3561,7 @@ function setupPortalIntroClick() {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 5. Splittable Manuscript Slogans (Split in half and fly to screen edges tied to scroll)
+    // 5. Splittable Manuscript Slogan (Single refined book inscription)
     const updateSplittableSlogan = (boxId, leftId, rightId, subId, p, start, enterPeak, exitStart, end) => {
       const box = document.getElementById(boxId);
       if (!box) return;
@@ -3583,36 +3581,29 @@ function setupPortalIntroClick() {
       let leftRot = 0;
       let rightRot = 0;
       let wordOp = 1.0;
-      let subOp = 1.0;
-      let subTy = 0;
 
       if (p < enterPeak) {
         // Softly entering and merging into center
         const t = (p - start) / (enterPeak - start);
         const easeT = 1.0 - Math.pow(1.0 - t, 2);
         wordOp = easeT;
-        subOp = easeT;
-        leftTx = (1.0 - easeT) * -35;
-        rightTx = (1.0 - easeT) * 35;
-        subTy = (1.0 - easeT) * 15;
+        leftTx = (1.0 - easeT) * -25;
+        rightTx = (1.0 - easeT) * 25;
       } else if (p > exitStart) {
         // Splitting into two halves and flying outward to screen edges!
         const t = (p - exitStart) / (end - exitStart);
         const easeT = Math.pow(t, 1.8);
         wordOp = Math.max(0, 1.0 - easeT * 1.25);
-        subOp = Math.max(0, 1.0 - easeT * 2.2);
-        leftTx = -easeT * 60; // 60vw left
-        rightTx = easeT * 60; // 60vw right
-        leftRot = -easeT * 9;
-        rightRot = easeT * 9;
-        subTy = easeT * 35;
+        leftTx = -easeT * 55; // 55vw left
+        rightTx = easeT * 55; // 55vw right
+        leftRot = -easeT * 7;
+        rightRot = easeT * 7;
       }
 
       box.style.opacity = '1';
 
       const leftEl = document.getElementById(leftId);
       const rightEl = document.getElementById(rightId);
-      const subEl = document.getElementById(subId);
 
       if (leftEl) {
         const unit = p > exitStart ? 'vw' : 'px';
@@ -3624,14 +3615,9 @@ function setupPortalIntroClick() {
         rightEl.style.transform = `translate3d(${rightTx.toFixed(2)}${unit}, 0, 0) rotateZ(${rightRot.toFixed(2)}deg)`;
         rightEl.style.opacity = wordOp.toFixed(2);
       }
-      if (subEl) {
-        subEl.style.transform = `translate3d(0, ${subTy.toFixed(2)}px, 0)`;
-        subEl.style.opacity = subOp.toFixed(2);
-      }
     };
 
-    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.06, 0.14, 0.24, 0.34);
-    updateSplittableSlogan('slogan2', 'slogan2Left', 'slogan2Right', 'slogan2Sub', progress, 0.34, 0.42, 0.48, 0.58);
+    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.05, 0.12, 0.18, 0.28);
 
     // 6. Interactive Click Hotspots for the Video Banners (Visible when banners settle: progress > 0.80)
     let bannerOpacity = 0;
