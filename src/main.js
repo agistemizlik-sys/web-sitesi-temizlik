@@ -3393,11 +3393,15 @@ function setupPortalIntroClick() {
     baseAlpha: 0.4 + Math.random() * 0.6
   }));
 
-  // Preload all 100 high-res WebP frames for zero-latency scroll scrubbing
+  // Preload and hardware-decode all frames to prevent any on-scroll image decoding hiccups
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
+    img.decoding = 'async';
     img.src = `/videos/book_journey/f_${numStr}.webp`;
+    if (typeof img.decode === 'function') {
+      img.decode().catch(() => {});
+    }
     img.onload = () => {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
       if (i - 1 === currentTargetFrame && ctx && canvas) {
