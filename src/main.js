@@ -3353,16 +3353,26 @@ function setupPortalIntroClick() {
   let scrollVelocity = 0;
   let animFrameId = null;
 
-  // Direct Wheel / Trackpad Scroll Engine with Smooth Inertia & Fast Responsiveness
+  // Expose global scroll progress helpers for interactive controls & automation
+  window._setProgress = (p) => {
+    targetProgress = Math.max(0, Math.min(1.0, p));
+  };
+  window._getProgress = () => currentProgress;
+
   const onWheel = (e) => {
     if (triggered) return;
-    const delta = e.deltaY;
+    const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0014));
     scrollVelocity += delta * 0.0008;
     scrollVelocity = Math.max(-0.10, Math.min(0.10, scrollVelocity));
   };
 
+  const heroTrackEl = document.getElementById('book-scroll-hero-track');
+  if (heroTrackEl) {
+    heroTrackEl.addEventListener('wheel', onWheel, { passive: true });
+  }
   window.addEventListener('wheel', onWheel, { passive: true });
+  document.addEventListener('wheel', onWheel, { passive: true });
 
   // Touch handlers for mobile devices
   let touchStartY = 0;
@@ -3390,6 +3400,12 @@ function setupPortalIntroClick() {
   const onTouchEnd = () => {
     isTouching = false;
   };
+
+  if (heroTrackEl) {
+    heroTrackEl.addEventListener('touchstart', onTouchStart, { passive: true });
+    heroTrackEl.addEventListener('touchmove', onTouchMove, { passive: false });
+    heroTrackEl.addEventListener('touchend', onTouchEnd, { passive: true });
+  }
 
   // Keyboard navigation
   const onKeyDown = (e) => {
