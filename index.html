@@ -517,18 +517,16 @@
           
           var intro = document.getElementById('portalIntroVideo');
           if (intro) {
-            attachSeamlessLoop(intro);
             var targetIntro = '/videos/book_intro.mp4';
             if (intro.getAttribute('src') !== targetIntro) {
               intro.setAttribute('src', targetIntro);
-              intro.muted = true;
-              intro.playsInline = true;
-              intro.setAttribute('muted', '');
-              intro.setAttribute('playsinline', '');
-              intro.setAttribute('webkit-playsinline', '');
-              var p1 = intro.play();
-              if (p1 !== undefined) p1.catch(function(){});
             }
+            intro.muted = true;
+            intro.playsInline = true;
+            intro.setAttribute('muted', '');
+            intro.setAttribute('playsinline', '');
+            intro.setAttribute('webkit-playsinline', '');
+            try { intro.pause(); intro.currentTime = 0; } catch(e){}
           }
 
           var earth = document.getElementById('csoEarthVideo');
