@@ -3321,19 +3321,20 @@ function setupPortalIntroClick() {
   let triggered = false;
   let targetProgress = 0;
   let currentProgress = 0;
-  let videoDuration = 0;
+  let videoDuration = 10.005; // Default to actual video duration immediately
   let animFrameId = null;
   let lastTimeApplied = -1;
 
   const updateDuration = () => {
-    if (introVideo.duration && isFinite(introVideo.duration)) {
+    if (introVideo.duration && isFinite(introVideo.duration) && introVideo.duration > 0) {
       videoDuration = introVideo.duration;
       try { introVideo.pause(); } catch(e){}
     }
   };
 
   introVideo.addEventListener('loadedmetadata', updateDuration);
-  if (introVideo.duration && isFinite(introVideo.duration)) {
+  introVideo.addEventListener('canplay', updateDuration);
+  if (introVideo.duration && isFinite(introVideo.duration) && introVideo.duration > 0) {
     updateDuration();
   }
 
@@ -3341,7 +3342,7 @@ function setupPortalIntroClick() {
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0012));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0020));
   };
 
   window.addEventListener('wheel', onWheel, { passive: true });
@@ -3363,7 +3364,7 @@ function setupPortalIntroClick() {
     const deltaY = touchStartY - currentY;
     
     // Add touch delta to progress
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 320));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 240));
     touchStartY = currentY;
   };
 
@@ -3383,7 +3384,7 @@ function setupPortalIntroClick() {
   // Main Render Loop for buttery smooth 60fps / 120fps scrubbing & first-person walking
   const renderLoop = () => {
     // Damped interpolation for cinematic motion
-    currentProgress += (targetProgress - currentProgress) * 0.10;
+    currentProgress += (targetProgress - currentProgress) * 0.12;
 
     if (progressBar) {
       progressBar.style.width = `${(currentProgress * 100).toFixed(1)}%`;
@@ -3392,53 +3393,58 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (currentProgress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.68) {
+      } else if (currentProgress < 0.86) {
         hudText.textContent = `İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
         hudText.textContent = '🚩 ÜLKENİZİ SEÇİN (TÜRKİYE / POLONYA)';
       }
     }
 
-    // Scrub video currentTime
-    if (videoDuration > 0) {
-      const targetTime = currentProgress * videoDuration;
-      if (Math.abs(targetTime - lastTimeApplied) > 0.015) {
-        lastTimeApplied = targetTime;
-        try {
-          introVideo.currentTime = Math.min(videoDuration - 0.04, Math.max(0, targetTime));
-        } catch(err) {}
-      }
+    // Scrub video currentTime inside the video
+    const targetTime = currentProgress * videoDuration;
+    if (Math.abs(targetTime - lastTimeApplied) > 0.012) {
+      lastTimeApplied = targetTime;
+      try {
+        const safeTime = Math.min(videoDuration - 0.02, Math.max(0, targetTime));
+        if (typeof introVideo.fastSeek === 'function') {
+          introVideo.fastSeek(safeTime);
+        } else {
+          introVideo.currentTime = safeTime;
+        }
+      } catch(err) {}
     }
 
-    // First-Person Walking Bob & Camera Sway Effect
+    // First-Person Walking Bob & Camera Sway Effect (Walking directly inside the video)
     const walkPhase = currentProgress * 42;
-    const walkBobY = Math.sin(walkPhase) * 3.8;
-    const walkSwayX = Math.cos(walkPhase * 0.5) * 2.0;
-    const depthScale = 1.0 + currentProgress * 0.12;
+    const walkBobY = Math.sin(walkPhase) * 3.5;
+    const walkSwayX = Math.cos(walkPhase * 0.5) * 1.8;
+    const depthScale = 1.0 + currentProgress * 0.10;
 
     introVideo.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
 
-    // Flags & Country Portals: Emerge ONLY at the END in the final landscape (0.65 -> 1.0)
+    // Flags & Country Portals: Emerge ONLY at the END where we glide into the landscape (0.86 -> 1.0)
     let flagOpacity = 0;
     let flagYShift = 45;
-    let flagScale = 0.82;
+    let flagScale = 0.85;
 
-    if (currentProgress > 0.82) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.82) / 0.15); // 0 to 1 between progress 0.82 and 0.97
+    if (currentProgress > 0.85) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.85) / 0.12); // 0 to 1 between progress 0.85 and 0.97
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
-      flagScale = 0.82 + normalizedP * 0.18;
+      flagScale = 0.85 + normalizedP * 0.15;
     }
 
     if (poleLeft) {
       poleLeft.style.opacity = flagOpacity.toFixed(3);
-      poleLeft.style.pointerEvents = flagOpacity > 0.5 ? 'auto' : 'none';
+      poleLeft.style.visibility = flagOpacity > 0.05 ? 'visible' : 'hidden';
+      poleLeft.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
       poleLeft.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
     if (poleRight) {
       poleRight.style.opacity = flagOpacity.toFixed(3);
-      poleRight.style.pointerEvents = flagOpacity > 0.5 ? 'auto' : 'none';
+      poleRight.style.visibility = flagOpacity > 0.05 ? 'visible' : 'hidden';
+      poleRight.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
       poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
