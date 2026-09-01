@@ -3456,32 +3456,32 @@ function setupPortalIntroClick() {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 5. Flags Emerge with Soft Cubic Easing between 0.58 and 0.88
-    let flagOpacity = 0;
-    let flagYShift = 50;
-    let flagScale = 0.82;
+    // 5. Scroll-Bound Drop Down from the Sky via Ropes (0.58 to 0.95)
+    let bannerOpacity = 0;
+    let dropTranslateY = -125; // starts high up above viewport in vh
+    let bannerScale = 0.90;
 
     if (progress > 0.58) {
-      const rawP = Math.min(1.0, (progress - 0.58) / 0.28);
-      // Soft organic cubic-ease-out curve
-      const easedP = 1.0 - Math.pow(1.0 - rawP, 3);
-      flagOpacity = easedP;
-      flagYShift = (1.0 - easedP) * 50;
-      flagScale = 0.82 + easedP * 0.18;
+      const rawDrop = Math.min(1.0, (progress - 0.58) / 0.34);
+      // Organic gravity drop curve with soft cushion settle
+      const easedDrop = 1.0 - Math.pow(1.0 - rawDrop, 3);
+      bannerOpacity = Math.min(1.0, easedDrop * 1.5);
+      dropTranslateY = (1.0 - easedDrop) * (-125); // -125vh down to 0vh
+      bannerScale = 0.90 + easedDrop * 0.10;
     }
 
     if (poleLeft) {
-      poleLeft.style.opacity = flagOpacity.toFixed(3);
-      poleLeft.style.visibility = flagOpacity > 0.02 ? 'visible' : 'hidden';
-      poleLeft.style.pointerEvents = flagOpacity > 0.35 ? 'auto' : 'none';
-      poleLeft.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
+      poleLeft.style.opacity = bannerOpacity.toFixed(3);
+      poleLeft.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
+      poleLeft.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
+      poleLeft.style.transform = `translate3d(0, ${dropTranslateY.toFixed(2)}vh, 0) scale(${bannerScale.toFixed(3)})`;
     }
 
     if (poleRight) {
-      poleRight.style.opacity = flagOpacity.toFixed(3);
-      poleRight.style.visibility = flagOpacity > 0.02 ? 'visible' : 'hidden';
-      poleRight.style.pointerEvents = flagOpacity > 0.35 ? 'auto' : 'none';
-      poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
+      poleRight.style.opacity = bannerOpacity.toFixed(3);
+      poleRight.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
+      poleRight.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
+      poleRight.style.transform = `translate3d(0, ${dropTranslateY.toFixed(2)}vh, 0) scale(${bannerScale.toFixed(3)})`;
     }
   };
 
