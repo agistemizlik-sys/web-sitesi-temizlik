@@ -3322,7 +3322,7 @@ function setupPortalIntroClick() {
   const ctx = canvas ? canvas.getContext('2d') : null;
   const TOTAL_FRAMES = 100;
   const frameImages = [];
-  let renderedFrameIndex = -1;
+  let lastDrawnImage = null;
 
   if (canvas) {
     canvas.width = 1280;
@@ -3338,10 +3338,10 @@ function setupPortalIntroClick() {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
       if (i - 1 === currentTargetFrame && ctx && canvas) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        renderedFrameIndex = i - 1;
-      } else if (renderedFrameIndex === -1 && i === 1 && ctx && canvas) {
+        lastDrawnImage = img;
+      } else if (!lastDrawnImage && i === 1 && ctx && canvas) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        renderedFrameIndex = 0;
+        lastDrawnImage = img;
       }
     };
     frameImages.push(img);
@@ -3414,21 +3414,27 @@ function setupPortalIntroClick() {
     const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
     const activeImg = frameImages[frameIndex];
     if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
-      if (frameIndex !== renderedFrameIndex) {
+      if (lastDrawnImage !== activeImg) {
         ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
-        renderedFrameIndex = frameIndex;
+        lastDrawnImage = activeImg;
       }
-    } else if (ctx && canvas && renderedFrameIndex !== frameIndex) {
+    } else if (ctx && canvas) {
       // Find nearest loaded frame to guarantee continuous visual feedback
       for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
         const prev = frameImages[frameIndex - offset];
         if (prev && prev.complete && prev.naturalWidth > 0) {
-          ctx.drawImage(prev, 0, 0, canvas.width, canvas.height);
+          if (lastDrawnImage !== prev) {
+            ctx.drawImage(prev, 0, 0, canvas.width, canvas.height);
+            lastDrawnImage = prev;
+          }
           break;
         }
         const next = frameImages[frameIndex + offset];
         if (next && next.complete && next.naturalWidth > 0) {
-          ctx.drawImage(next, 0, 0, canvas.width, canvas.height);
+          if (lastDrawnImage !== next) {
+            ctx.drawImage(next, 0, 0, canvas.width, canvas.height);
+            lastDrawnImage = next;
+          }
           break;
         }
       }
