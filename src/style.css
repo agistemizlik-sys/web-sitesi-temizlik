@@ -20199,20 +20199,37 @@ html, body {
 
 @media (max-width: 768px) {
   .video-banner-hotspot {
-    top: 14vh !important;
-    width: clamp(120px, 36vw, 150px) !important;
-    height: clamp(200px, 50vh, 320px) !important;
-    padding-bottom: 7% !important;
+    top: 10vh !important;
+    width: clamp(140px, 42vw, 190px) !important;
+    height: clamp(260px, 62vh, 480px) !important;
+    padding-bottom: 8% !important;
+    border-radius: 18px !important;
   }
   .hotspot-card-left {
-    left: 7vw !important;
+    left: 4vw !important;
   }
   .hotspot-card-right {
-    right: 7vw !important;
+    right: 4vw !important;
   }
   .hotspot-pulse-btn {
-    width: 60% !important;
-    height: 30px !important;
+    width: 70% !important;
+    height: 34px !important;
+  }
+  .scroll-journey-hud {
+    bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
+    width: 90vw !important;
+    max-width: 360px !important;
+  }
+  .sjh-badge {
+    padding: 8px 16px !important;
+    font-size: 0.78rem !important;
+  }
+  #sjhText {
+    font-size: 0.76rem !important;
+    letter-spacing: 0.02em !important;
+  }
+  .sjh-progress-bar-wrap {
+    width: 120px !important;
   }
 }
 

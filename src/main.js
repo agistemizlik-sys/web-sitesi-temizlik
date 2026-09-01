@@ -3355,7 +3355,7 @@ function setupPortalIntroClick() {
   }, { passive: true });
   resizeCanvas();
 
-  // Draw image with perfect aspect-ratio cover math (no distortion, 100% crisp)
+  // Draw image with perfect aspect-ratio cover math and responsive mobile framing
   const drawImageCover = (img, alpha = 1.0) => {
     if (!img || !img.complete || img.naturalWidth <= 0 || !ctx || !canvas) return;
     const cw = canvas.width;
@@ -3373,10 +3373,19 @@ function setupPortalIntroClick() {
       ox = 0;
       oy = (ch - rh) / 2;
     } else {
-      rh = ch;
-      rw = ch * imageRatio;
-      ox = (cw - rw) / 2;
-      oy = 0;
+      // Portrait Screen (Mobile Phone)
+      // When banners appear (currentProgress > 0.45), ensure banners fit inside mobile width
+      if (canvasRatio < 0.85 && currentProgress > 0.45) {
+        rw = Math.min(ch * imageRatio, cw * 1.60);
+        rh = rw / imageRatio;
+        ox = (cw - rw) / 2;
+        oy = (ch - rh) * 0.45;
+      } else {
+        rh = ch;
+        rw = ch * imageRatio;
+        ox = (cw - rw) / 2;
+        oy = 0;
+      }
     }
 
     ctx.globalAlpha = alpha;
