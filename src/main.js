@@ -3354,17 +3354,21 @@ function setupPortalIntroClick() {
   let animFrameId = null;
 
   // Expose global scroll progress helpers for interactive controls & automation
-  window._setProgress = (p) => {
+  window._setProgress = (p, instant = false) => {
     targetProgress = Math.max(0, Math.min(1.0, p));
+    if (instant) {
+      currentProgress = targetProgress;
+      scrollVelocity = 0;
+    }
   };
   window._getProgress = () => currentProgress;
 
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0014));
-    scrollVelocity += delta * 0.0008;
-    scrollVelocity = Math.max(-0.10, Math.min(0.10, scrollVelocity));
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + delta * 0.0016));
+    scrollVelocity += delta * 0.0010;
+    scrollVelocity = Math.max(-0.12, Math.min(0.12, scrollVelocity));
   };
 
   const heroTrackEl = document.getElementById('book-scroll-hero-track');
