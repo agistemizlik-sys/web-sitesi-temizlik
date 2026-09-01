@@ -3345,66 +3345,118 @@ function setupPortalIntroClick() {
   let isDamping = false;
   let dampingRafId = null;
 
-  // Pure Frame Renderer
+  // Pure Frame Renderer with Dual-Frame Temporal Blending & Realistic Optical Lighting
   const renderFrame = (progress) => {
     if (triggered) return;
 
-    // 1. Render active frame onto Canvas
-    const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(progress * (TOTAL_FRAMES - 1))));
-    const activeImg = frameImages[frameIndex];
-    if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
-      if (lastDrawnImage !== activeImg) {
-        ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
-        lastDrawnImage = activeImg;
-      }
-    } else if (ctx && canvas) {
-      // Find nearest loaded frame
-      for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
-        const prev = frameImages[frameIndex - offset];
-        if (prev && prev.complete && prev.naturalWidth > 0) {
-          if (lastDrawnImage !== prev) {
-            ctx.drawImage(prev, 0, 0, canvas.width, canvas.height);
-            lastDrawnImage = prev;
-          }
-          break;
+    // 1. Dual-Frame Smooth Sub-Frame Interpolation (Cinema-grade motion blur & temporal continuity)
+    const exactFrame = progress * (TOTAL_FRAMES - 1);
+    const frameIndexA = Math.floor(exactFrame);
+    const frameIndexB = Math.min(TOTAL_FRAMES - 1, frameIndexA + 1);
+    const blendFactor = exactFrame - frameIndexA; // 0.0 to 1.0 between adjacent frames
+
+    const imgA = frameImages[frameIndexA];
+    const imgB = frameImages[frameIndexB];
+
+    if (ctx && canvas) {
+      if (imgA && imgA.complete && imgA.naturalWidth > 0) {
+        ctx.globalAlpha = 1.0;
+        ctx.drawImage(imgA, 0, 0, canvas.width, canvas.height);
+
+        // Sub-frame cross-fade for seamless book opening & page flipping transitions
+        if (blendFactor > 0.03 && imgB && imgB.complete && imgB.naturalWidth > 0 && imgA !== imgB) {
+          ctx.globalAlpha = blendFactor;
+          ctx.drawImage(imgB, 0, 0, canvas.width, canvas.height);
+          ctx.globalAlpha = 1.0;
         }
-        const next = frameImages[frameIndex + offset];
-        if (next && next.complete && next.naturalWidth > 0) {
-          if (lastDrawnImage !== next) {
-            ctx.drawImage(next, 0, 0, canvas.width, canvas.height);
-            lastDrawnImage = next;
+      } else {
+        // Fallback: search nearest loaded frame
+        for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+          const prev = frameImages[frameIndexA - offset];
+          if (prev && prev.complete && prev.naturalWidth > 0) {
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(prev, 0, 0, canvas.width, canvas.height);
+            break;
           }
-          break;
+          const next = frameImages[frameIndexA + offset];
+          if (next && next.complete && next.naturalWidth > 0) {
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(next, 0, 0, canvas.width, canvas.height);
+            break;
+          }
+        }
+      }
+
+      // 2. Realistic Book Atmospheric Lighting & Optical Page Bloom Overlay
+      // Phase A: Golden Light Glow Leaking from Opening Pages (0.20 - 0.55)
+      if (progress >= 0.20 && progress <= 0.60) {
+        const glowPhase = progress < 0.42 ? (progress - 0.20) / 0.22 : (0.60 - progress) / 0.18;
+        const glowAlpha = Math.max(0, Math.min(0.24, glowPhase * 0.24));
+
+        if (glowAlpha > 0.01) {
+          const radialGlow = ctx.createRadialGradient(
+            canvas.width * 0.5, canvas.height * 0.52, 10,
+            canvas.width * 0.5, canvas.height * 0.52, canvas.width * 0.42
+          );
+          radialGlow.addColorStop(0, `rgba(251, 191, 36, ${glowAlpha.toFixed(3)})`);
+          radialGlow.addColorStop(0.5, `rgba(245, 158, 11, ${(glowAlpha * 0.45).toFixed(3)})`);
+          radialGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.globalAlpha = 1.0;
+          ctx.fillStyle = radialGlow;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      // Phase B: Page Dive Cloud Mist / Sunburst Veil (0.52 - 0.74) -> Seamlessly washes into meadow sunlight
+      if (progress >= 0.52 && progress <= 0.74) {
+        const mistPhase = progress < 0.63 ? (progress - 0.52) / 0.11 : (0.74 - progress) / 0.11;
+        const mistAlpha = Math.max(0, Math.min(0.20, mistPhase * 0.20));
+
+        if (mistAlpha > 0.01) {
+          const sunburst = ctx.createRadialGradient(
+            canvas.width * 0.5, canvas.height * 0.46, 30,
+            canvas.width * 0.5, canvas.height * 0.46, canvas.width * 0.55
+          );
+          sunburst.addColorStop(0, `rgba(255, 255, 245, ${mistAlpha.toFixed(3)})`);
+          sunburst.addColorStop(0.6, `rgba(254, 243, 199, ${(mistAlpha * 0.5).toFixed(3)})`);
+          sunburst.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.globalAlpha = 1.0;
+          ctx.fillStyle = sunburst;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
       }
     }
 
-    // 2. HUD & Progress bar
+    // 3. HUD & Progress bar with contextual storytelling micro-copy
     if (progressBar) {
       progressBar.style.width = `${(progress * 100).toFixed(1)}%`;
     }
 
     if (hudText) {
-      if (progress < 0.06) {
-        hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (progress < 0.60) {
-        hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(progress * 100)}`;
+      if (progress < 0.18) {
+        hudText.textContent = '📖 KAPALI KİTAP: AŞAĞI KAYDIRARAK AÇIN';
+      } else if (progress < 0.50) {
+        hudText.textContent = `✨ BÜYÜLÜ SAYFALAR ARALANIYOR... %${Math.round(progress * 100)}`;
+      } else if (progress < 0.68) {
+        hudText.textContent = `🌀 DÜNYAYA GEÇİŞ YAPILIYOR... %${Math.round(progress * 100)}`;
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       }
     }
 
-    // 3. First-Person Camera Motion Bob (Natural human cadence)
+    // 4. First-Person Camera Motion Bob (Natural human cadence & optical depth)
     const walkPhase = progress * 40;
     const walkBobY = Math.sin(walkPhase) * 3.2;
     const walkSwayX = Math.cos(walkPhase * 0.5) * 1.5;
-    const depthScale = 1.0 + progress * 0.08;
+    const depthScale = 1.0 + Math.pow(progress, 1.3) * 0.08;
 
     if (canvas) {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 4. Flags Emerge with Soft Cubic Easing between 0.58 and 0.88
+    // 5. Flags Emerge with Soft Cubic Easing between 0.58 and 0.88
     let flagOpacity = 0;
     let flagYShift = 50;
     let flagScale = 0.82;
