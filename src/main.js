@@ -3355,7 +3355,7 @@ function setupPortalIntroClick() {
   }, { passive: true });
   resizeCanvas();
 
-  // Draw image with perfect aspect-ratio cover math and responsive mobile framing
+  // Draw image with perfect aspect-ratio cover math (100% natural, crisp, unadulterated)
   const drawImageCover = (img, alpha = 1.0) => {
     if (!img || !img.complete || img.naturalWidth <= 0 || !ctx || !canvas) return;
     const cw = canvas.width;
@@ -3373,19 +3373,10 @@ function setupPortalIntroClick() {
       ox = 0;
       oy = (ch - rh) / 2;
     } else {
-      // Portrait Screen (Mobile Phone)
-      // When banners appear (currentProgress > 0.45), ensure banners fit inside mobile width
-      if (canvasRatio < 0.85 && currentProgress > 0.45) {
-        rw = Math.min(ch * imageRatio, cw * 1.60);
-        rh = rw / imageRatio;
-        ox = (cw - rw) / 2;
-        oy = (ch - rh) * 0.45;
-      } else {
-        rh = ch;
-        rw = ch * imageRatio;
-        ox = (cw - rw) / 2;
-        oy = 0;
-      }
+      rh = ch;
+      rw = ch * imageRatio;
+      ox = (cw - rw) / 2;
+      oy = (ch - rh) / 2;
     }
 
     ctx.globalAlpha = alpha;
@@ -3407,7 +3398,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/book_journey/f_${numStr}.webp?v=user_original_banner_v7`;
+    img.src = `/videos/book_journey/f_${numStr}.webp?v=pure_original_master_v10`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
