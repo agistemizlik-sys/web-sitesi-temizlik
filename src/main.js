@@ -3398,6 +3398,7 @@ function setupPortalIntroClick() {
 
   // Main Render Loop for buttery smooth 60fps / 120fps video & flags synchronization
   const renderLoop = () => {
+    if (triggered) return;
     // Scroll-driven forward/backward movement
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
     scrollVelocity *= 0.84; // Smooth exponential friction
@@ -3489,12 +3490,9 @@ function setupPortalIntroClick() {
     if (animFrameId) cancelAnimationFrame(animFrameId);
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
-      heroTrack.style.transition = 'opacity 0.25s ease';
-      heroTrack.style.opacity = '0';
-      heroTrack.style.pointerEvents = 'none';
-      setTimeout(() => {
-        heroTrack.style.setProperty('display', 'none', 'important');
-      }, 250);
+      heroTrack.style.setProperty('display', 'none', 'important');
+      heroTrack.style.setProperty('opacity', '0', 'important');
+      heroTrack.style.setProperty('pointer-events', 'none', 'important');
     }
   };
 
