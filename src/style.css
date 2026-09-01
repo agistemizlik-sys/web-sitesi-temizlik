@@ -20168,7 +20168,12 @@ html, body {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 9%;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   contain: layout style;
@@ -20180,6 +20185,48 @@ html, body {
 
 .hotspot-card-right {
   right: clamp(6%, 10.5vw, 15%);
+}
+
+/* 🌟 Luxury Clickable Button Pill on Flags */
+.banner-click-btn-pill {
+  width: clamp(110px, 58%, 150px);
+  height: 38px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(251, 191, 36, 0.65);
+  color: #fbbf24;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(251, 191, 36, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.video-banner-hotspot:hover .banner-click-btn-pill {
+  opacity: 1;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0f172a;
+  border-color: #fef08a;
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.65), 0 0 25px rgba(254, 240, 138, 0.8);
+}
+
+.banner-click-btn-pill .btn-pill-arrow {
+  transition: transform 0.25s ease;
+}
+
+.video-banner-hotspot:hover .banner-click-btn-pill .btn-pill-arrow {
+  transform: translateX(3px);
 }
 
 .hotspot-hover-aura,
@@ -20201,9 +20248,10 @@ html, body {
   .hotspot-card-right {
     right: 4vw !important;
   }
-  .hotspot-pulse-btn {
-    width: 70% !important;
+  .banner-click-btn-pill {
+    width: 76% !important;
     height: 34px !important;
+    font-size: 0.76rem !important;
   }
   .scroll-journey-hud {
     bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
