@@ -3522,19 +3522,49 @@ function setupPortalIntroClick() {
 
   const handleSelectTR = (e) => {
     if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+    if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      heroTrack.style.setProperty('display', 'none', 'important');
+      heroTrack.style.setProperty('opacity', '0', 'important');
+      heroTrack.style.setProperty('pointer-events', 'none', 'important');
+    }
+    const introStage = document.getElementById('portal-intro-stage');
+    if (introStage) {
+      introStage.style.setProperty('display', 'none', 'important');
+      introStage.style.setProperty('opacity', '0', 'important');
+      introStage.style.setProperty('pointer-events', 'none', 'important');
+    }
     if (typeof selectCountryGlobal === 'function') {
       selectCountryGlobal('tr');
     } else if (typeof window.selectCountryGlobal === 'function') {
       window.selectCountryGlobal('tr');
+    } else if (typeof window.selectCountry === 'function') {
+      window.selectCountry('tr');
     }
   };
 
   const handleSelectPL = (e) => {
     if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+    if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      heroTrack.style.setProperty('display', 'none', 'important');
+      heroTrack.style.setProperty('opacity', '0', 'important');
+      heroTrack.style.setProperty('pointer-events', 'none', 'important');
+    }
+    const introStage = document.getElementById('portal-intro-stage');
+    if (introStage) {
+      introStage.style.setProperty('display', 'none', 'important');
+      introStage.style.setProperty('opacity', '0', 'important');
+      introStage.style.setProperty('pointer-events', 'none', 'important');
+    }
     if (typeof selectCountryGlobal === 'function') {
       selectCountryGlobal('pl');
     } else if (typeof window.selectCountryGlobal === 'function') {
       window.selectCountryGlobal('pl');
+    } else if (typeof window.selectCountry === 'function') {
+      window.selectCountry('pl');
     }
   };
 
