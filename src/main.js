@@ -3423,8 +3423,8 @@ function setupPortalIntroClick() {
     let flagYShift = 45;
     let flagScale = 0.82;
 
-    if (currentProgress > 0.62) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.62) / 0.26); // 0 to 1 between progress 0.62 and 0.88
+    if (currentProgress > 0.82) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.82) / 0.15); // 0 to 1 between progress 0.82 and 0.97
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.82 + normalizedP * 0.18;
