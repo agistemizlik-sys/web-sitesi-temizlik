@@ -3312,7 +3312,7 @@ function setupPortalIntroClick() {
   if (!introStage || !canvas) return;
 
   const ctx = canvas.getContext('2d');
-  const TOTAL_FRAMES = 115;
+  const TOTAL_FRAMES = 120;
   const frameImages = [];
   let lastDrawnImage = null;
 
