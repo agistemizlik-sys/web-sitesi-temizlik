@@ -3335,8 +3335,10 @@ function setupPortalIntroClick() {
     const numStr = String(i).padStart(3, '0');
     img.src = `/videos/book_frames/f_${numStr}.webp`;
     img.onload = () => {
-      if (i === 1 && ctx && canvas && lastRenderedFrame === -1) {
+      const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
+      if ((i - 1 === currentTargetFrame || lastRenderedFrame === -1) && ctx && canvas) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        lastRenderedFrame = i - 1;
       }
     };
     frameImages.push(img);
@@ -3402,11 +3404,19 @@ function setupPortalIntroClick() {
 
     // Render corresponding frame onto Canvas
     const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
-    if (frameIndex !== lastRenderedFrame) {
-      const activeImg = frameImages[frameIndex];
-      if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
+    const activeImg = frameImages[frameIndex];
+    if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
+      if (frameIndex !== lastRenderedFrame) {
         ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
         lastRenderedFrame = frameIndex;
+      }
+    } else if (ctx && canvas && lastRenderedFrame === -1) {
+      // Draw first available loaded frame
+      for (let k = 0; k < TOTAL_FRAMES; k++) {
+        if (frameImages[k] && frameImages[k].complete && frameImages[k].naturalWidth > 0) {
+          ctx.drawImage(frameImages[k], 0, 0, canvas.width, canvas.height);
+          break;
+        }
       }
     }
 
