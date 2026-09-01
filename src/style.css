@@ -20100,29 +20100,48 @@ html, body {
   line-height: 1.25;
 }
 
-/* 📜 THEME 1: ANCIENT GOLD-LEAF BOOK MANUSCRIPT (Gilded Inscription on Parchment) */
+/* 📜 THEME 1: ANCIENT GOLD-LEAF BOOK MANUSCRIPT (Inked Inscription inside Parchment) */
 .slogan-book-theme {
-  top: 50%;
+  top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
+  max-width: clamp(280px, 44vw, 440px);
 }
 
 .slogan-book-theme .slogan-word-left,
 .slogan-book-theme .slogan-word-right {
-  font-family: 'Cinzel', 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.4rem, 2.8vw, 2.4rem);
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.4rem, 2.6vw, 2.3rem);
   font-weight: 700;
-  font-style: normal;
-  letter-spacing: 0.06em;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef08a 30%, #f59e0b 70%, #92400e 100%);
+  font-style: italic;
+  letter-spacing: 0.03em;
+  background: linear-gradient(180deg, #2b1408 0%, #4a210a 35%, #78350f 75%, #b45309 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 4px rgba(45, 18, 2, 0.8)) drop-shadow(0 0 22px rgba(251, 191, 36, 0.55));
+  filter: drop-shadow(0 1px 1px rgba(254, 243, 199, 0.8)) drop-shadow(0 0 14px rgba(251, 191, 36, 0.45));
   text-shadow: none;
 }
 
+.manuscript-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #92400e;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  filter: drop-shadow(0 1px 1px rgba(254, 243, 199, 0.6));
+}
+
+.manuscript-line {
+  width: 28px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b45309, transparent);
+}
+
 /* ==========================================================================
-   🪢 VIDEO-BOUND INTERACTIVE BANNER HOTSPOTS (OVERLAYING THE VIDEO BANNERS)
+   🪢 VIDEO-BOUND INTERACTIVE BANNER HOTSPOTS (DIRECT CLICK, NO HOVER SYMBOLS)
    ========================================================================== */
 .parallax-banners-layer {
   position: absolute;
@@ -20143,12 +20162,11 @@ html, body {
   z-index: 12;
   border-radius: 20px;
   cursor: pointer;
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 9%;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: opacity 0.3s ease;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   contain: layout style;
@@ -20162,39 +20180,9 @@ html, body {
   right: clamp(6%, 10.5vw, 15%);
 }
 
-.hotspot-hover-aura {
-  position: absolute;
-  inset: -15px;
-  border-radius: 28px;
-  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.4) 0%, rgba(251, 191, 36, 0.12) 50%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.video-banner-hotspot:hover .hotspot-hover-aura {
-  opacity: 1;
-}
-
+.hotspot-hover-aura,
 .hotspot-pulse-btn {
-  width: 52%;
-  height: 38px;
-  border-radius: 22px;
-  border: 2px solid transparent;
-  background: transparent;
-  color: transparent;
-  transition: all 0.25s ease;
-  pointer-events: auto;
-}
-
-.hotspot-pulse-btn span {
-  display: none;
-}
-
-.video-banner-hotspot:hover .hotspot-pulse-btn {
-  border-color: #fbbf24;
-  background: rgba(251, 191, 36, 0.22);
-  box-shadow: 0 0 25px rgba(251, 191, 36, 0.9), 0 0 10px rgba(255, 255, 255, 0.8);
+  display: none !important;
 }
 
 @media (max-width: 768px) {
