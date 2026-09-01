@@ -51,15 +51,9 @@ export function isVpnOrProxy(request) {
   if (isTor) return true;
 
   const threatScore = Number(cf.threatScore || 0);
-  if (threatScore >= 40) return true;
+  if (threatScore >= 85) return true;
 
-  const asOrg = (cf.asOrganization || '').toLowerCase();
-  if (asOrg) {
-    const isVpnOrg = KNOWN_VPN_DATACENTER_ORGS.some(org => asOrg.includes(org));
-    if (isVpnOrg) return true;
-  }
-
-  // Check custom header flag
+  // Check explicit test header flag
   if (request.headers.get('X-Force-VPN-Block') === '1') return true;
 
   return false;

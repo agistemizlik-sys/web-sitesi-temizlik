@@ -11368,14 +11368,15 @@ function setupBookingReveal() {
         }
       } catch (e) {}
 
-      // Cross-Device Live CleanPro API check
+      // Cross-Device Live CleanPro API check (via Cloudflare Pages Functions /api/orders)
       try {
-        const res = await fetch(`http://64.177.116.243/api/order/status?code=${encodeURIComponent(resCode)}`);
+        const res = await fetch(`/api/orders?code=${encodeURIComponent(resCode)}`);
         if (res.ok) {
           const data = await res.json();
-          if (data && data.success && (data.status === 'approved' || data.status === 'Onaylandı' || data.status === 'Yolda')) {
+          const order = data.order || data;
+          if (data && data.success && order && (order.status === 'approved' || order.status === 'Onaylandı' || order.status === 'Yolda' || order.status === 'Tamamlandı')) {
             isAlreadyApproved = true;
-            renderOrderApprovedState(data);
+            renderOrderApprovedState(order);
             return true;
           }
         }
@@ -11384,28 +11385,12 @@ function setupBookingReveal() {
       return false;
     };
 
-    // 📡 Canlı Server-Sent Events (SSE) Dinleyicisi (Şirket Paneli Onayı için)
-    try {
-      const liveSse = new EventSource('http://64.177.116.243/api/stream');
-      liveSse.addEventListener('ORDER_APPROVED', (e) => {
-        try {
-          const sseData = JSON.parse(e.data);
-          if (sseData && (sseData.orderCode === resCode || sseData.leadId === resCode)) {
-            isAlreadyApproved = true;
-            renderOrderApprovedState(sseData);
-            liveSse.close();
-            if (approvalHeartbeat) clearInterval(approvalHeartbeat);
-          }
-        } catch (parseErr) {}
-      });
-    } catch(sseErr) {}
-
     const approvalHeartbeat = setInterval(async () => {
       const approved = await checkLiveApproval();
       if (approved) {
         clearInterval(approvalHeartbeat);
       }
-    }, 2000);
+    }, 2500);
 
     window.addEventListener('storage', async (e) => {
       if (e.key === 'relaxax_staff_live_jobs' || e.key === 'relaxax_booking_history') {
