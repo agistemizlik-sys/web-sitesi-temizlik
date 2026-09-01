@@ -3427,24 +3427,34 @@ function setupPortalIntroClick() {
       }
     }
 
-    // 3D Parallax Perspective for Left & Right Flags
-    const p = currentProgress;
+    // Flag & Prompt Appearance Curve: embedded towards the END of the landscape journey (0.50 -> 0.85 -> 1.0)
+    let flagOpacity = 0;
+    let flagYShift = 45;
+    let flagScale = 0.82;
+
+    if (currentProgress > 0.48) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.48) / 0.32); // 0 to 1 between progress 0.48 and 0.80
+      flagOpacity = normalizedP;
+      flagYShift = (1.0 - normalizedP) * 45;
+      flagScale = 0.82 + normalizedP * 0.18;
+    }
+
     if (poleLeft) {
-      const xShift = -p * 180;
-      const zShift = -p * 200;
-      const scale = 1.0 + p * 0.35;
-      const opacity = Math.max(0.1, 1.0 - p * 0.7);
-      poleLeft.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, ${zShift.toFixed(1)}px) scale(${scale.toFixed(2)})`;
-      poleLeft.style.opacity = opacity.toFixed(2);
+      poleLeft.style.opacity = flagOpacity.toFixed(3);
+      poleLeft.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
+      poleLeft.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
     if (poleRight) {
-      const xShift = p * 180;
-      const zShift = -p * 200;
-      const scale = 1.0 + p * 0.35;
-      const opacity = Math.max(0.1, 1.0 - p * 0.7);
-      poleRight.style.transform = `translate3d(${xShift.toFixed(1)}px, 0, ${zShift.toFixed(1)}px) scale(${scale.toFixed(2)})`;
-      poleRight.style.opacity = opacity.toFixed(2);
+      poleRight.style.opacity = flagOpacity.toFixed(3);
+      poleRight.style.pointerEvents = flagOpacity > 0.6 ? 'auto' : 'none';
+      poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
+    }
+
+    const centerPrompt = document.getElementById('bookCenterPrompt');
+    if (centerPrompt) {
+      centerPrompt.style.opacity = flagOpacity.toFixed(3);
+      centerPrompt.style.transform = `translate(-50%, ${flagYShift.toFixed(1)}px)`;
     }
 
     animFrameId = requestAnimationFrame(renderLoop);
