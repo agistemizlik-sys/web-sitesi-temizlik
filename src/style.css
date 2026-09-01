@@ -20050,7 +20050,7 @@ html, body {
 }
 
 /* ==========================================================================
-   🪢 SKY HANGING COUNTRY BANNERS (DROPPING FROM TOP VIA GOLDEN ROPES)
+   🪢 ROYAL 3D HERALDIC BANNERS (EXACT USER SPECIFICATION)
    ========================================================================== */
 .parallax-banners-layer {
   position: absolute;
@@ -20063,40 +20063,46 @@ html, body {
   perspective: 1200px;
 }
 
-.sky-hanging-banner-unit {
+.royal-banner-card {
   position: absolute;
-  top: 14vh;
-  width: 200px;
+  top: 9vh;
+  width: clamp(210px, 20vw, 290px);
   display: flex;
   flex-direction: column;
   align-items: center;
   pointer-events: auto;
   z-index: 12;
   will-change: transform, opacity;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.65));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+  filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.65));
 }
 
-.banner-unit-left {
-  left: 7vw;
+.royal-banner-card:hover {
+  transform: scale(1.04) translateY(-6px) !important;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.45));
+}
+
+.banner-card-left {
+  left: 6vw;
   transform-origin: center -15vh;
 }
 
-.banner-unit-right {
-  right: 7vw;
+.banner-card-right {
+  right: 6vw;
   transform-origin: center -15vh;
 }
 
-/* Long Braided Golden Ropes extending up into the sky */
-.sky-ropes-container {
+/* Long Sky Hanging Ropes */
+.royal-sky-ropes {
   position: absolute;
-  bottom: 100%;
+  bottom: 96%;
   left: 0;
   right: 0;
   height: 150vh;
   pointer-events: none;
 }
 
-.sky-rope-line {
+.sky-rope-strand {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -20107,170 +20113,47 @@ html, body {
     #fef08a 6px, 
     #b45309 9px, 
     #451a03 12px);
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.5), 0 3px 8px rgba(0,0,0,0.7);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.5), 0 3px 6px rgba(0,0,0,0.6);
   border-radius: 2px;
 }
 
-.sky-rope-line.rope-line-left {
-  left: 26px;
-}
+.banner-card-left .sky-rope-strand.rope-pos-1 { left: 24%; }
+.banner-card-left .sky-rope-strand.rope-pos-2 { right: 18%; }
 
-.sky-rope-line.rope-line-right {
-  right: 26px;
-}
+.banner-card-right .sky-rope-strand.rope-pos-1 { left: 18%; }
+.banner-card-right .sky-rope-strand.rope-pos-2 { right: 24%; }
 
-/* Antique Brass Top Crossbar */
-.banner-top-brass-rod {
-  position: relative;
-  width: 216px;
-  height: 10px;
-  background: linear-gradient(180deg, #fef08a 0%, #d97706 45%, #78350f 100%);
-  border-radius: 5px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.7);
-  z-index: 5;
-}
-
-.rod-knob {
-  position: absolute;
-  top: -4px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #fbbf24 45%, #78350f 100%);
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.8), 0 3px 6px rgba(0,0,0,0.6);
-}
-
-.rod-knob.knob-left { left: -8px; }
-.rod-knob.knob-right { right: -8px; }
-
-.rod-ring {
-  position: absolute;
-  top: -3px;
-  width: 12px;
-  height: 16px;
-  border: 2.5px solid #fef08a;
-  border-radius: 4px;
-  background: transparent;
-  box-shadow: 0 0 6px rgba(251, 191, 36, 0.8);
-}
-
-.rod-ring.ring-left { left: 22px; }
-.rod-ring.ring-right { right: 22px; }
-
-/* The Flag Card Fabric */
-.banner-fabric {
-  position: relative;
-  width: 200px;
-  height: 290px;
-  margin-top: -1px;
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0,0,0,0.3);
-  overflow: hidden;
-  will-change: transform;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-  z-index: 5;
-  animation: suspendedFlagBreezeSway 5s ease-in-out infinite alternate;
-}
-
-@keyframes suspendedFlagBreezeSway {
-  0% { transform: perspective(700px) rotateZ(-1.5deg) rotateY(3deg); }
-  50% { transform: perspective(700px) rotateZ(1.5deg) rotateY(-3deg); }
-  100% { transform: perspective(700px) rotateZ(-1deg) rotateY(2deg); }
-}
-
-.banner-fabric:hover {
-  transform: scale(1.03) translateY(-4px);
-  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.7), 0 0 30px rgba(251, 191, 36, 0.35) !important;
-}
-
-.fabric-velvet-sheen {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.22) 0%, transparent 60%),
-              linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(0,0,0,0.35) 100%);
+.royal-banner-img {
+  width: 100%;
+  height: auto;
+  display: block;
   pointer-events: none;
-  z-index: 2;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: contrast(1.05) saturate(1.08);
+  animation: royalBannerWindSway 5.5s ease-in-out infinite alternate;
 }
 
-.fabric-fold-creases {
+@keyframes royalBannerWindSway {
+  0% { transform: perspective(800px) rotateZ(-1.2deg) rotateY(2.5deg); }
+  50% { transform: perspective(800px) rotateZ(1.2deg) rotateY(-2.5deg); }
+  100% { transform: perspective(800px) rotateZ(-0.8deg) rotateY(1.8deg); }
+}
+
+.royal-banner-btn-hotspot {
   position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(90deg, 
-    rgba(0,0,0,0.10) 0px, 
-    transparent 14px, 
-    rgba(255,255,255,0.08) 28px, 
-    transparent 42px);
-  pointer-events: none;
-  z-index: 3;
-}
-
-.fabric-gold-fringe {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: repeating-linear-gradient(90deg, #ca8a04 0px, #fef08a 3px, #78350f 6px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  z-index: 4;
-}
-
-/* Bottom Hanging Tassel */
-.banner-bottom-tassel {
-  position: relative;
+  bottom: 23%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 58%;
+  height: 9%;
+  border-radius: 30px;
+  pointer-events: auto;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: -2px;
-  pointer-events: none;
-  animation: tasselPendulum 3.8s ease-in-out infinite alternate;
-}
-
-.tassel-hanging-cord {
-  width: 3.5px;
-  height: 26px;
-  background: repeating-linear-gradient(180deg, #78350f 0px, #d97706 2px, #fef08a 4px, #b45309 6px);
-  border-radius: 1px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.6);
-}
-
-.tassel-head {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fef08a 30%, #d97706 70%, #78350f 100%);
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.75), 0 3px 6px rgba(0,0,0,0.6);
-  z-index: 2;
-  margin-top: -1px;
-}
-
-.tassel-threads {
-  width: 14px;
-  height: 28px;
-  background: repeating-linear-gradient(90deg, 
-    #78350f 0px, 
-    #d97706 2px, 
-    #fef08a 4px, 
-    #fbbf24 6px, 
-    #b45309 8px);
-  clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
-  border-radius: 0 0 4px 4px;
-  margin-top: -3px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
-  transform-origin: top center;
-  animation: tasselFringeFlicker 3s ease-in-out infinite alternate;
-}
-
-@keyframes tasselPendulum {
-  0% { transform: rotate(-7deg); }
-  50% { transform: rotate(7deg); }
-  100% { transform: rotate(-5deg); }
-}
-
-@keyframes tasselFringeFlicker {
-  0% { transform: scaleX(1) skewX(-2deg); }
-  50% { transform: scaleX(1.05) skewX(2deg); }
-  100% { transform: scaleX(0.95) skewX(-1.5deg); }
+  justify-content: center;
+  opacity: 0;
 }
 
 /* Fabric Texture & Shading */
