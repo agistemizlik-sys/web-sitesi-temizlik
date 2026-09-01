@@ -20086,7 +20086,9 @@ html, body {
   opacity: 0;
   visibility: hidden;
   will-change: transform, opacity;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
 }
 
 .slogan-sparkle {

@@ -3316,14 +3316,29 @@ function setupPortalIntroClick() {
   const frameImages = [];
   let lastDrawnImage = null;
 
-  // ── High-DPI Retina Canvas Buffer & Aspect-Ratio Cover Renderer ──
+  // ── High-Performance Pre-Rendered Offscreen Particle Sprite ──
+  const particleSpriteCanvas = document.createElement('canvas');
+  particleSpriteCanvas.width = 32;
+  particleSpriteCanvas.height = 32;
+  const pctx = particleSpriteCanvas.getContext('2d');
+  if (pctx) {
+    const grad = pctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    grad.addColorStop(0.35, 'rgba(251, 191, 36, 0.9)');
+    grad.addColorStop(0.7, 'rgba(245, 158, 11, 0.4)');
+    grad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    pctx.fillStyle = grad;
+    pctx.beginPath();
+    pctx.arc(16, 16, 16, 0, Math.PI * 2);
+    pctx.fill();
+  }
+
+  // ── Optimized High-DPI Resolution Clamping (Max 1920x1080 for 60+ FPS zero GPU overhead) ──
   const resizeCanvas = () => {
     if (!canvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const targetW = Math.round(w * dpr);
-    const targetH = Math.round(h * dpr);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const targetW = Math.min(1920, Math.round(window.innerWidth * dpr));
+    const targetH = Math.min(1080, Math.round(window.innerHeight * dpr));
 
     if (canvas.width !== targetW || canvas.height !== targetH) {
       canvas.width = targetW;
@@ -3331,13 +3346,13 @@ function setupPortalIntroClick() {
     }
     if (ctx) {
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = 'medium';
     }
   };
   window.addEventListener('resize', () => {
     resizeCanvas();
     renderFrame(currentProgress);
-  });
+  }, { passive: true });
   resizeCanvas();
 
   // Draw image with perfect aspect-ratio cover math (no distortion, 100% crisp)
@@ -3369,12 +3384,11 @@ function setupPortalIntroClick() {
   };
 
   // Magical floating golden dust particles inside the book
-  const magicalParticles = Array.from({ length: 42 }, (_, idx) => ({
+  const magicalParticles = Array.from({ length: 36 }, () => ({
     x: 0.35 + Math.random() * 0.30,
     y: 0.30 + Math.random() * 0.45,
-    size: 1.5 + Math.random() * 3.0,
+    size: 2.5 + Math.random() * 5.0,
     speedY: 0.15 + Math.random() * 0.25,
-    swaySpeed: 1.5 + Math.random() * 2.0,
     phase: Math.random() * Math.PI * 2,
     baseAlpha: 0.4 + Math.random() * 0.6
   }));
@@ -3403,27 +3417,39 @@ function setupPortalIntroClick() {
   let isDamping = false;
   let dampingRafId = null;
 
-  // Pure Frame Renderer with Dual-Frame Temporal Blending & Realistic Optical Lighting
+  // DOM State Cache to eliminate layout thrashing
+  let lastHudText = '';
+  let lastProgressBarW = '';
+  let lastS1Op = -1;
+  let lastS2Op = -1;
+  let lastS3Op = -1;
+  let lastBannerOp = -1;
+
+  // Pure Frame Renderer with Dual-Frame Temporal Blending & High-FPS Optimization
   const renderFrame = (progress) => {
     if (triggered) return;
 
-    // 1. Dual-Frame Smooth Sub-Frame Interpolation (Cinema-grade motion blur & temporal continuity)
+    // 1. Dual-Frame Sub-Frame Interpolation
     const exactFrame = progress * (TOTAL_FRAMES - 1);
     const frameIndexA = Math.floor(exactFrame);
     const frameIndexB = Math.min(TOTAL_FRAMES - 1, frameIndexA + 1);
-    const blendFactor = exactFrame - frameIndexA; // 0.0 to 1.0 between adjacent frames
+    const blendFactor = exactFrame - frameIndexA;
 
     const imgA = frameImages[frameIndexA];
     const imgB = frameImages[frameIndexB];
 
     if (ctx && canvas) {
       if (imgA && imgA.complete && imgA.naturalWidth > 0) {
-        drawImageCover(imgA, 1.0);
-
-        // Sub-frame cross-fade for seamless book opening & page flipping transitions
-        if (blendFactor > 0.03 && imgB && imgB.complete && imgB.naturalWidth > 0 && imgA !== imgB) {
-          drawImageCover(imgB, blendFactor);
-          ctx.globalAlpha = 1.0;
+        if (blendFactor < 0.08) {
+          drawImageCover(imgA, 1.0);
+        } else if (blendFactor > 0.92 && imgB && imgB.complete && imgB.naturalWidth > 0) {
+          drawImageCover(imgB, 1.0);
+        } else {
+          drawImageCover(imgA, 1.0);
+          if (imgB && imgB.complete && imgB.naturalWidth > 0 && imgA !== imgB) {
+            drawImageCover(imgB, blendFactor);
+            ctx.globalAlpha = 1.0;
+          }
         }
       } else {
         // Fallback: search nearest loaded frame
@@ -3447,7 +3473,7 @@ function setupPortalIntroClick() {
         const glowPhase = progress < 0.40 ? (progress - 0.18) / 0.22 : (0.62 - progress) / 0.22;
         const glowAlpha = Math.max(0, Math.min(0.28, glowPhase * 0.28));
 
-        if (glowAlpha > 0.01) {
+        if (glowAlpha > 0.02) {
           const radialGlow = ctx.createRadialGradient(
             canvas.width * 0.5, canvas.height * 0.52, 10,
             canvas.width * 0.5, canvas.height * 0.52, canvas.width * 0.45
@@ -3460,37 +3486,28 @@ function setupPortalIntroClick() {
           ctx.fillStyle = radialGlow;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-          // Render shimmering magical dust particles
-          magicalParticles.forEach((p, idx) => {
+          // Render fast pre-rendered particle sprite
+          magicalParticles.forEach((p) => {
             const particleY = (p.y - (progress * p.speedY * 2)) % 1.0;
             const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
             const actualX = (p.x + Math.sin(progress * 15 + p.phase) * 0.04) * canvas.width;
             const pAlpha = p.baseAlpha * glowPhase;
 
             if (pAlpha > 0.05) {
-              const particleGrad = ctx.createRadialGradient(
-                actualX, actualY, 0,
-                actualX, actualY, p.size * (window.devicePixelRatio || 1)
-              );
-              particleGrad.addColorStop(0, `rgba(255, 255, 255, ${pAlpha.toFixed(2)})`);
-              particleGrad.addColorStop(0.4, `rgba(251, 191, 36, ${(pAlpha * 0.9).toFixed(2)})`);
-              particleGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
-
-              ctx.fillStyle = particleGrad;
-              ctx.beginPath();
-              ctx.arc(actualX, actualY, p.size * (window.devicePixelRatio || 1), 0, Math.PI * 2);
-              ctx.fill();
+              ctx.globalAlpha = pAlpha;
+              ctx.drawImage(particleSpriteCanvas, actualX - p.size, actualY - p.size, p.size * 2, p.size * 2);
             }
           });
+          ctx.globalAlpha = 1.0;
         }
       }
 
-      // Phase B: Page Dive Cloud Mist / Sunburst Veil (0.52 - 0.74) -> Seamlessly washes into meadow sunlight
+      // Phase B: Page Dive Cloud Mist / Sunburst Veil (0.52 - 0.74)
       if (progress >= 0.52 && progress <= 0.74) {
         const mistPhase = progress < 0.63 ? (progress - 0.52) / 0.11 : (0.74 - progress) / 0.11;
         const mistAlpha = Math.max(0, Math.min(0.20, mistPhase * 0.20));
 
-        if (mistAlpha > 0.01) {
+        if (mistAlpha > 0.02) {
           const sunburst = ctx.createRadialGradient(
             canvas.width * 0.5, canvas.height * 0.46, 30,
             canvas.width * 0.5, canvas.height * 0.46, canvas.width * 0.55
@@ -3506,24 +3523,33 @@ function setupPortalIntroClick() {
       }
     }
 
-    // 3. HUD & Progress bar with contextual storytelling micro-copy
+    // 3. HUD & Progress bar (DOM State Diffing)
     if (progressBar) {
-      progressBar.style.width = `${(progress * 100).toFixed(1)}%`;
-    }
-
-    if (hudText) {
-      if (progress < 0.20) {
-        hudText.textContent = '📖 KAPALI KİTAP: AŞAĞI KAYDIRARAK AÇIN';
-      } else if (progress < 0.48) {
-        hudText.textContent = '✨ TEMİZLİĞİ BİZİMLE HİSSEDİN';
-      } else if (progress < 0.82) {
-        hudText.textContent = '🌿 KUSURSUZ HUZUR VE HİJYEN';
-      } else {
-        hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
+      const curW = `${(progress * 100).toFixed(1)}%`;
+      if (curW !== lastProgressBarW) {
+        progressBar.style.width = curW;
+        lastProgressBarW = curW;
       }
     }
 
-    // 4. First-Person Camera Motion Bob (Natural human cadence & optical depth)
+    if (hudText) {
+      let targetText = '';
+      if (progress < 0.20) {
+        targetText = '📖 KAPALI KİTAP: AŞAĞI KAYDIRARAK AÇIN';
+      } else if (progress < 0.48) {
+        targetText = '✨ TEMİZLİĞİ BİZİMLE HİSSEDİN';
+      } else if (progress < 0.82) {
+        targetText = '🌿 KUSURSUZ HUZUR VE HİJYEN';
+      } else {
+        targetText = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
+      }
+      if (targetText !== lastHudText) {
+        hudText.textContent = targetText;
+        lastHudText = targetText;
+      }
+    }
+
+    // 4. First-Person Camera Motion Bob
     const walkPhase = progress * 40;
     const walkBobY = Math.sin(walkPhase) * 3.2;
     const walkSwayX = Math.cos(walkPhase * 0.5) * 1.5;
@@ -3533,7 +3559,7 @@ function setupPortalIntroClick() {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 5. Luxury Storytelling Slogans on Chic Frosted Gold Backdrop (Before flags appear)
+    // 5. Slogans (DOM State Diffing)
     const getSloganOpacity = (p, start, peak, end) => {
       if (p < start || p > end) return 0;
       if (p <= peak) {
@@ -3549,52 +3575,57 @@ function setupPortalIntroClick() {
     const s2 = document.getElementById('slogan2');
     const s3 = document.getElementById('slogan3');
 
-    const op1 = getSloganOpacity(progress, 0.20, 0.32, 0.44);
-    const op2 = getSloganOpacity(progress, 0.43, 0.56, 0.68);
-    const op3 = getSloganOpacity(progress, 0.67, 0.76, 0.84);
+    const op1 = Math.round(getSloganOpacity(progress, 0.20, 0.32, 0.44) * 100) / 100;
+    const op2 = Math.round(getSloganOpacity(progress, 0.43, 0.56, 0.68) * 100) / 100;
+    const op3 = Math.round(getSloganOpacity(progress, 0.67, 0.76, 0.84) * 100) / 100;
 
-    if (s1) {
-      s1.style.opacity = op1.toFixed(3);
-      s1.style.transform = `translate(-50%, calc(-50% + ${(1 - op1) * 16}px)) scale(${(0.95 + op1 * 0.05).toFixed(3)})`;
+    if (s1 && op1 !== lastS1Op) {
+      s1.style.opacity = op1.toFixed(2);
+      s1.style.transform = `translate(-50%, calc(-50% + ${(1 - op1) * 16}px)) scale(${(0.95 + op1 * 0.05).toFixed(2)})`;
       s1.style.visibility = op1 > 0.01 ? 'visible' : 'hidden';
+      lastS1Op = op1;
     }
-    if (s2) {
-      s2.style.opacity = op2.toFixed(3);
-      s2.style.transform = `translate(-50%, calc(-50% + ${(1 - op2) * 16}px)) scale(${(0.95 + op2 * 0.05).toFixed(3)})`;
+    if (s2 && op2 !== lastS2Op) {
+      s2.style.opacity = op2.toFixed(2);
+      s2.style.transform = `translate(-50%, calc(-50% + ${(1 - op2) * 16}px)) scale(${(0.95 + op2 * 0.05).toFixed(2)})`;
       s2.style.visibility = op2 > 0.01 ? 'visible' : 'hidden';
+      lastS2Op = op2;
     }
-    if (s3) {
-      s3.style.opacity = op3.toFixed(3);
-      s3.style.transform = `translate(-50%, calc(-50% + ${(1 - op3) * 16}px)) scale(${(0.95 + op3 * 0.05).toFixed(3)})`;
+    if (s3 && op3 !== lastS3Op) {
+      s3.style.opacity = op3.toFixed(2);
+      s3.style.transform = `translate(-50%, calc(-50% + ${(1 - op3) * 16}px)) scale(${(0.95 + op3 * 0.05).toFixed(2)})`;
       s3.style.visibility = op3 > 0.01 ? 'visible' : 'hidden';
+      lastS3Op = op3;
     }
 
     // 6. Flags Drop Down at the VERY END of the scroll journey (progress: 0.84 to 1.00)
     let bannerOpacity = 0;
-    let dropTranslateY = -125; // starts high up above viewport in vh
+    let dropTranslateY = -125;
     let bannerScale = 0.90;
 
     if (progress > 0.84) {
       const rawDrop = Math.min(1.0, (progress - 0.84) / 0.15);
-      // Organic gravity drop curve with soft cushion settle
       const easedDrop = 1.0 - Math.pow(1.0 - rawDrop, 3);
       bannerOpacity = Math.min(1.0, easedDrop * 1.5);
-      dropTranslateY = (1.0 - easedDrop) * (-125); // -125vh down to 0vh
+      dropTranslateY = (1.0 - easedDrop) * (-125);
       bannerScale = 0.90 + easedDrop * 0.10;
     }
 
-    if (poleLeft) {
-      poleLeft.style.opacity = bannerOpacity.toFixed(3);
-      poleLeft.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
-      poleLeft.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
-      poleLeft.style.transform = `translate3d(0, ${dropTranslateY.toFixed(2)}vh, 0) scale(${bannerScale.toFixed(3)})`;
-    }
-
-    if (poleRight) {
-      poleRight.style.opacity = bannerOpacity.toFixed(3);
-      poleRight.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
-      poleRight.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
-      poleRight.style.transform = `translate3d(0, ${dropTranslateY.toFixed(2)}vh, 0) scale(${bannerScale.toFixed(3)})`;
+    const roundedBannerOp = Math.round(bannerOpacity * 100) / 100;
+    if (roundedBannerOp !== lastBannerOp) {
+      if (poleLeft) {
+        poleLeft.style.opacity = bannerOpacity.toFixed(2);
+        poleLeft.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
+        poleLeft.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
+        poleLeft.style.transform = `translate3d(0, ${dropTranslateY.toFixed(1)}vh, 0) scale(${bannerScale.toFixed(2)})`;
+      }
+      if (poleRight) {
+        poleRight.style.opacity = bannerOpacity.toFixed(2);
+        poleRight.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
+        poleRight.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
+        poleRight.style.transform = `translate3d(0, ${dropTranslateY.toFixed(1)}vh, 0) scale(${bannerScale.toFixed(2)})`;
+      }
+      lastBannerOp = roundedBannerOp;
     }
   };
 
@@ -3614,11 +3645,10 @@ function setupPortalIntroClick() {
         currentProgress = targetProgress;
         renderFrame(currentProgress);
         isDamping = false;
-        return; // Damping finished and settled - 0 CPU, 0 autonomous drift!
+        return;
       }
 
-      // Buttery smooth organic damping interpolation (Lerp factor = 0.16)
-      currentProgress += diff * 0.16;
+      currentProgress += diff * 0.18;
       renderFrame(currentProgress);
       dampingRafId = requestAnimationFrame(dampStep);
     };
@@ -3640,22 +3670,16 @@ function setupPortalIntroClick() {
   };
   window._getProgress = () => currentProgress;
 
-  // ── SCROLL WHEEL HANDLER ──
+  // ── SINGLE OPTIMIZED SCROLL WHEEL HANDLER ──
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
-    // 1 standard wheel tick = ~2.8% of journey
     const step = (delta / 100) * 0.028;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     startDampingLoop();
   };
 
-  const heroTrackEl = document.getElementById('book-scroll-hero-track');
-  if (heroTrackEl) {
-    heroTrackEl.addEventListener('wheel', onWheel, { passive: true });
-  }
   window.addEventListener('wheel', onWheel, { passive: true });
-  document.addEventListener('wheel', onWheel, { passive: true });
 
   // ── TOUCH DRAG HANDLERS (MOBILE) ──
   let touchStartY = 0;
@@ -3670,11 +3694,8 @@ function setupPortalIntroClick() {
 
   const onTouchMove = (e) => {
     if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
-    if (e.cancelable) e.preventDefault();
     const currentY = e.touches[0].clientY;
-    const deltaY = touchStartY - currentY; // positive when dragging up (moving forward)
-    
-    // 1 screen height swipe (800px) moves ~80% of journey
+    const deltaY = touchStartY - currentY;
     const step = deltaY / ((window.innerHeight || 800) * 0.80);
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
@@ -3685,11 +3706,9 @@ function setupPortalIntroClick() {
     isTouching = false;
   };
 
-  if (heroTrackEl) {
-    heroTrackEl.addEventListener('touchstart', onTouchStart, { passive: true });
-    heroTrackEl.addEventListener('touchmove', onTouchMove, { passive: false });
-    heroTrackEl.addEventListener('touchend', onTouchEnd, { passive: true });
-  }
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: true });
+  window.addEventListener('touchend', onTouchEnd, { passive: true });
 
   // ── KEYBOARD HANDLER ──
   const onKeyDown = (e) => {
