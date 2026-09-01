@@ -3299,7 +3299,7 @@ function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
 function setupPortalIntroClick() {
   const heroTrack = document.getElementById('book-scroll-hero-track');
   const introStage = document.getElementById('portal-intro-stage');
-  const introVideo = document.getElementById('portalIntroVideo');
+  const canvas = document.getElementById('portalIntroCanvas');
   const progressBar = document.getElementById('sjhProgressBar');
   const hudText = document.getElementById('sjhText');
   const hud = document.getElementById('scrollJourneyHud');
@@ -3309,17 +3309,9 @@ function setupPortalIntroClick() {
   const poleRight = document.getElementById('bannerPoleRight');
   const poleRightNear = document.getElementById('bannerPoleRightNear');
 
-  if (!introStage || !introVideo) return;
+  if (!introStage || !canvas) return;
 
-  const targetSrc = '/videos/book_intro.mp4';
-  if (introVideo.getAttribute('src') !== targetSrc) {
-    introVideo.setAttribute('src', targetSrc);
-    introVideo.load();
-  }
-  try { introVideo.pause(); } catch(e){}
-
-  const canvas = document.getElementById('portalIntroCanvas');
-  const ctx = canvas ? canvas.getContext('2d') : null;
+  const ctx = canvas.getContext('2d');
   const TOTAL_FRAMES = 100;
   const frameImages = [];
   let lastDrawnImage = null;
