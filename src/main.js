@@ -3299,58 +3299,101 @@ function runLiquifyScreenWipe(introStage, introVideo, clickCoords, onComplete) {
 function setupPortalIntroClick() {
   const introStage = document.getElementById('portal-intro-stage');
   const introVideo = document.getElementById('portalIntroVideo');
+  const badgeText = document.getElementById('portalIntroBadgeText');
+  const enterBadge = document.getElementById('portalIntroEnterBadge');
   if (!introStage) return;
 
-  const isMobile = window.innerWidth <= 768;
   if (introVideo) {
-    const targetSrc = isMobile ? '/videos/giris_ekrani_mobil.mp4' : '/videos/giris_ekrani.mp4';
+    const targetSrc = '/videos/book_intro.mp4';
     if (introVideo.getAttribute('src') !== targetSrc) {
       introVideo.setAttribute('src', targetSrc);
       introVideo.load();
-      introVideo.play().catch(() => {});
     }
+    introVideo.play().catch(() => {});
   }
 
   let triggered = false;
-  let autoTimer = null;
+  let progress = 0;
+  let targetProgress = 0;
+  let animFrameId = null;
 
   // 1. Declare event handler functions first to prevent Temporal Dead Zone (TDZ) ReferenceErrors
   const onMouseMove = (e) => {
     if (triggered || !introVideo) return;
-    const nx = (e.clientX / window.innerWidth - 0.5) * 14;
-    const ny = (e.clientY / window.innerHeight - 0.5) * 14;
-    introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
+    const nx = (e.clientX / window.innerWidth - 0.5) * 12;
+    const ny = (e.clientY / window.innerHeight - 0.5) * 12;
+    const currentScale = 1.0 + progress * 0.35;
+    introVideo.style.transform = `scale(${currentScale}) translate3d(${nx}px, ${ny}px, 0)`;
   };
 
   let touchStartY = 0;
   let touchStartX = 0;
+  let isTouching = false;
+
   const onTouchStart = (e) => {
     if (e.touches && e.touches[0]) {
       touchStartY = e.touches[0].clientY;
       touchStartX = e.touches[0].clientX;
+      isTouching = true;
     }
   };
 
   const onTouchMove = (e) => {
-    if (e.touches && e.touches[0]) {
-      const nx = (e.touches[0].clientX / window.innerWidth - 0.5) * 14;
-      const ny = (e.touches[0].clientY / window.innerHeight - 0.5) * 14;
-      if (introVideo) introVideo.style.transform = `scale(1.03) translate3d(${nx}px, ${ny}px, 0)`;
-      const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-      if (deltaY > 15) {
-        onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
-      }
+    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
+    const currentY = e.touches[0].clientY;
+    const deltaY = touchStartY - currentY; // positive when dragging up
+    const dragDistance = Math.abs(deltaY);
+
+    // Update progress based on drag distance
+    targetProgress = Math.min(1.0, Math.max(0, dragDistance / 180));
+
+    if (dragDistance > 60 || targetProgress >= 0.75) {
+      onTriggerIntro({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
     }
   };
 
-  let wheelDeltaAccum = 0;
+  const onTouchEnd = (e) => {
+    isTouching = false;
+    if (!triggered && targetProgress > 0.25) {
+      const coords = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : { clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 };
+      onTriggerIntro(coords);
+    }
+  };
+
+  let wheelAccum = 0;
   const onWheel = (e) => {
     if (triggered) return;
-    wheelDeltaAccum += Math.abs(e.deltaY) + Math.abs(e.deltaX);
-    if (wheelDeltaAccum > 10 || Math.abs(e.deltaY) > 8) {
+    const delta = Math.abs(e.deltaY) + Math.abs(e.deltaX);
+    wheelAccum += delta;
+    targetProgress = Math.min(1.0, wheelAccum / 220);
+
+    if (wheelAccum > 80 || targetProgress >= 0.75) {
       onTriggerIntro(e);
     }
   };
+
+  // Smooth scrubbing interpolation loop
+  const updateScrubLoop = () => {
+    if (triggered) return;
+    progress += (targetProgress - progress) * 0.2;
+
+    if (introVideo && introVideo.duration && isFinite(introVideo.duration)) {
+      const targetTime = progress * introVideo.duration;
+      if (Math.abs(introVideo.currentTime - targetTime) > 0.05 && introVideo.paused) {
+        try { introVideo.currentTime = targetTime; } catch(err) {}
+      }
+      const scale = 1.0 + progress * 0.35;
+      introVideo.style.transform = `scale(${scale.toFixed(3)}) translate3d(0, 0, 0)`;
+    }
+
+    if (badgeText && progress > 0.08) {
+      const pct = Math.round(progress * 100);
+      badgeText.textContent = `📖 Kitap Açılıyor... %${pct} ➔`;
+    }
+
+    animFrameId = requestAnimationFrame(updateScrubLoop);
+  };
+  animFrameId = requestAnimationFrame(updateScrubLoop);
 
   const onKeyDown = (e) => {
     if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowDown' || e.code === 'PageDown') {
@@ -3359,17 +3402,17 @@ function setupPortalIntroClick() {
   };
 
   const cleanupIntroListeners = () => {
+    if (animFrameId) cancelAnimationFrame(animFrameId);
     try {
       introStage.removeEventListener('click', onTriggerIntro);
       introStage.removeEventListener('pointerdown', onTriggerIntro);
       introStage.removeEventListener('touchstart', onTouchStart);
-      introStage.removeEventListener('touchend', onTriggerIntro);
+      introStage.removeEventListener('touchend', onTouchEnd);
       introStage.removeEventListener('touchmove', onTouchMove);
       introStage.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('wheel', onWheel);
       document.removeEventListener('keydown', onKeyDown);
     } catch(err) {}
-    if (autoTimer) clearTimeout(autoTimer);
   };
 
   // 2. Main entrance trigger handler
