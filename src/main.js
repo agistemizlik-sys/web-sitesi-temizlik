@@ -3340,9 +3340,12 @@ function setupPortalIntroClick() {
   }
 
   let triggered = false;
-  let currentProgress = 0; // Strictly controlled by user scroll (0.0 to 1.0)
+  let targetProgress = 0;
+  let currentProgress = 0;
+  let isDamping = false;
+  let dampingRafId = null;
 
-  // Pure 1-to-1 Frame Renderer (Called ONLY on user scroll/interaction)
+  // Pure Frame Renderer
   const renderFrame = (progress) => {
     if (triggered) return;
 
@@ -3384,65 +3387,102 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (progress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (progress < 0.65) {
+      } else if (progress < 0.60) {
         hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(progress * 100)}`;
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       }
     }
 
-    // 3. First-Person Camera Motion Bob
-    const walkPhase = progress * 44;
-    const walkBobY = Math.sin(walkPhase) * 3.6;
-    const walkSwayX = Math.cos(walkPhase * 0.5) * 1.8;
+    // 3. First-Person Camera Motion Bob (Natural human cadence)
+    const walkPhase = progress * 40;
+    const walkBobY = Math.sin(walkPhase) * 3.2;
+    const walkSwayX = Math.cos(walkPhase * 0.5) * 1.5;
     const depthScale = 1.0 + progress * 0.08;
 
     if (canvas) {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 4. Flags emerge between 0.65 and 0.90
+    // 4. Flags Emerge with Soft Cubic Easing between 0.58 and 0.88
     let flagOpacity = 0;
-    let flagYShift = 45;
-    let flagScale = 0.85;
+    let flagYShift = 50;
+    let flagScale = 0.82;
 
-    if (progress > 0.65) {
-      const normalizedP = Math.min(1.0, (progress - 0.65) / 0.25);
-      flagOpacity = normalizedP;
-      flagYShift = (1.0 - normalizedP) * 45;
-      flagScale = 0.85 + normalizedP * 0.15;
+    if (progress > 0.58) {
+      const rawP = Math.min(1.0, (progress - 0.58) / 0.28);
+      // Soft organic cubic-ease-out curve
+      const easedP = 1.0 - Math.pow(1.0 - rawP, 3);
+      flagOpacity = easedP;
+      flagYShift = (1.0 - easedP) * 50;
+      flagScale = 0.82 + easedP * 0.18;
     }
 
     if (poleLeft) {
       poleLeft.style.opacity = flagOpacity.toFixed(3);
-      poleLeft.style.visibility = flagOpacity > 0.05 ? 'visible' : 'hidden';
-      poleLeft.style.pointerEvents = flagOpacity > 0.3 ? 'auto' : 'none';
+      poleLeft.style.visibility = flagOpacity > 0.02 ? 'visible' : 'hidden';
+      poleLeft.style.pointerEvents = flagOpacity > 0.35 ? 'auto' : 'none';
       poleLeft.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
 
     if (poleRight) {
       poleRight.style.opacity = flagOpacity.toFixed(3);
-      poleRight.style.visibility = flagOpacity > 0.05 ? 'visible' : 'hidden';
-      poleRight.style.pointerEvents = flagOpacity > 0.3 ? 'auto' : 'none';
+      poleRight.style.visibility = flagOpacity > 0.02 ? 'visible' : 'hidden';
+      poleRight.style.pointerEvents = flagOpacity > 0.35 ? 'auto' : 'none';
       poleRight.style.transform = `translate3d(0, ${flagYShift.toFixed(1)}px, 0) scale(${flagScale.toFixed(3)})`;
     }
   };
 
+  // ── SOFT LERP DAMPING ENGINE (Purely driven by user scroll target) ──
+  const startDampingLoop = () => {
+    if (isDamping) return;
+    isDamping = true;
+
+    const dampStep = () => {
+      if (triggered) {
+        isDamping = false;
+        return;
+      }
+
+      const diff = targetProgress - currentProgress;
+      if (Math.abs(diff) < 0.0008) {
+        currentProgress = targetProgress;
+        renderFrame(currentProgress);
+        isDamping = false;
+        return; // Damping finished and settled - 0 CPU, 0 autonomous drift!
+      }
+
+      // Buttery smooth organic damping interpolation (Lerp factor = 0.16)
+      currentProgress += diff * 0.16;
+      renderFrame(currentProgress);
+      dampingRafId = requestAnimationFrame(dampStep);
+    };
+
+    dampingRafId = requestAnimationFrame(dampStep);
+  };
+
   // Expose global scroll progress helpers for interactive controls & automation
-  window._setProgress = (p) => {
-    currentProgress = Math.max(0, Math.min(1.0, p));
-    renderFrame(currentProgress);
+  window._setProgress = (p, instant = false) => {
+    targetProgress = Math.max(0, Math.min(1.0, p));
+    if (instant) {
+      currentProgress = targetProgress;
+      if (dampingRafId) cancelAnimationFrame(dampingRafId);
+      isDamping = false;
+      renderFrame(currentProgress);
+    } else {
+      startDampingLoop();
+    }
   };
   window._getProgress = () => currentProgress;
 
-  // ── 1-TO-1 STRICT SCROLL WHEEL HANDLER (ZERO SELF-MOVEMENT) ──────
+  // ── SCROLL WHEEL HANDLER ──
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
-    // 1 standard wheel notch (~100px) moves ~2.5% of journey (2.5 frames)
-    const step = (delta / 100) * 0.025;
-    currentProgress = Math.max(0, Math.min(1.0, currentProgress + step));
-    renderFrame(currentProgress);
+    // 1 standard wheel tick = ~2.8% of journey
+    const step = (delta / 100) * 0.028;
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
+    startDampingLoop();
   };
 
   const heroTrackEl = document.getElementById('book-scroll-hero-track');
@@ -3452,7 +3492,7 @@ function setupPortalIntroClick() {
   window.addEventListener('wheel', onWheel, { passive: true });
   document.addEventListener('wheel', onWheel, { passive: true });
 
-  // ── 1-TO-1 STRICT TOUCH DRAG HANDLERS (MOBILE) ───────────────────
+  // ── TOUCH DRAG HANDLERS (MOBILE) ──
   let touchStartY = 0;
   let isTouching = false;
 
@@ -3469,11 +3509,11 @@ function setupPortalIntroClick() {
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY; // positive when dragging up (moving forward)
     
-    // 1 screen height swipe (800px) moves ~85% of journey
-    const step = deltaY / ((window.innerHeight || 800) * 0.85);
-    currentProgress = Math.max(0, Math.min(1.0, currentProgress + step));
+    // 1 screen height swipe (800px) moves ~80% of journey
+    const step = deltaY / ((window.innerHeight || 800) * 0.80);
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
-    renderFrame(currentProgress);
+    startDampingLoop();
   };
 
   const onTouchEnd = () => {
@@ -3486,15 +3526,15 @@ function setupPortalIntroClick() {
     heroTrackEl.addEventListener('touchend', onTouchEnd, { passive: true });
   }
 
-  // ── 1-TO-1 KEYBOARD HANDLER ──────────────────────────────────────
+  // ── KEYBOARD HANDLER ──
   const onKeyDown = (e) => {
     if (triggered) return;
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      currentProgress = Math.min(1.0, currentProgress + 0.05);
-      renderFrame(currentProgress);
+      targetProgress = Math.min(1.0, targetProgress + 0.06);
+      startDampingLoop();
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      currentProgress = Math.max(0.0, currentProgress - 0.05);
-      renderFrame(currentProgress);
+      targetProgress = Math.max(0.0, targetProgress - 0.06);
+      startDampingLoop();
     }
   };
 
@@ -3505,6 +3545,7 @@ function setupPortalIntroClick() {
 
   window._dismissIntroHero = () => {
     triggered = true;
+    if (dampingRafId) cancelAnimationFrame(dampingRafId);
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
       heroTrack.style.setProperty('display', 'none', 'important');
