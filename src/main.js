@@ -3373,12 +3373,13 @@ function setupPortalIntroClick() {
 
   const onTouchMove = (e) => {
     if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
+    if (e.cancelable) e.preventDefault();
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
     
     // Add touch delta to progress with natural momentum
-    scrollVelocity += (deltaY / 140) * 0.70;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 160));
+    scrollVelocity += (deltaY / 120) * 0.85;
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 140));
     touchStartY = currentY;
   };
 
@@ -3526,7 +3527,7 @@ function setupPortalIntroClick() {
   }
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   document.addEventListener('keydown', onKeyDown, { passive: true });
 

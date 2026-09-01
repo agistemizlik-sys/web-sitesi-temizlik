@@ -20135,40 +20135,49 @@ html, body {
     display: none !important;
   }
   .banner-pole-wrapper.planted-in-grass {
-    bottom: 14vh !important;
-    height: 320px !important;
+    bottom: 12vh !important;
+    height: clamp(240px, 35vh, 290px) !important;
   }
   .banner-pole-left {
-    left: 2vw;
-    width: 120px;
+    left: 1.5vw !important;
+    width: clamp(95px, 28vw, 120px) !important;
   }
   .banner-pole-right {
-    right: 2vw;
-    width: 120px;
+    right: 1.5vw !important;
+    width: clamp(95px, 28vw, 120px) !important;
   }
   .banner-fabric {
-    width: 110px;
-    height: 175px;
+    width: clamp(90px, 26vw, 115px) !important;
+    height: clamp(140px, 22vh, 170px) !important;
+    padding: 8px 6px !important;
   }
   .banner-grass-mound {
-    width: 65px !important;
-    height: 18px !important;
+    width: 60px !important;
+    height: 16px !important;
     bottom: -6px !important;
   }
   .banner-pole-left .banner-grass-mound {
-    left: -28px !important;
+    left: -26px !important;
   }
   .banner-pole-right .banner-grass-mound {
-    right: -28px !important;
+    right: -26px !important;
   }
   .flag-symbol, .banner-crest {
-    font-size: 1.4rem;
+    font-size: 1.25rem !important;
+    margin-bottom: 2px !important;
   }
   .banner-title {
-    font-size: 0.72rem;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
   }
   .banner-sub {
-    font-size: 0.52rem;
+    display: none !important;
+  }
+  .scroll-journey-hud {
+    bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+  }
+  #sjhText {
+    font-size: 0.72rem !important;
   }
 }
 
