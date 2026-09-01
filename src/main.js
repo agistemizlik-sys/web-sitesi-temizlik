@@ -3318,35 +3318,41 @@ function setupPortalIntroClick() {
   }
   try { introVideo.pause(); } catch(e){}
 
+  const canvas = document.getElementById('portalIntroCanvas');
+  const ctx = canvas ? canvas.getContext('2d') : null;
+  const TOTAL_FRAMES = 80;
+  const frameImages = [];
+  let lastRenderedFrame = -1;
+
+  if (canvas) {
+    canvas.width = 1280;
+    canvas.height = 720;
+  }
+
+  // Preload all 80 high-res WebP frames for zero-latency scroll scrubbing
+  for (let i = 1; i <= TOTAL_FRAMES; i++) {
+    const img = new Image();
+    const numStr = String(i).padStart(3, '0');
+    img.src = `/videos/book_frames/f_${numStr}.webp`;
+    img.onload = () => {
+      if (i === 1 && ctx && canvas && lastRenderedFrame === -1) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+    };
+    frameImages.push(img);
+  }
+
   let triggered = false;
   let targetProgress = 0;
   let currentProgress = 0;
   let scrollVelocity = 0;
-  let videoDuration = 10.005; // Actual video duration
   let animFrameId = null;
-  let lastTimeApplied = -1;
-
-  const initVideo = () => {
-    if (introVideo.duration && isFinite(introVideo.duration) && introVideo.duration > 0) {
-      videoDuration = introVideo.duration;
-    }
-    introVideo.muted = true;
-    introVideo.playsInline = true;
-    try {
-      introVideo.pause();
-      introVideo.currentTime = 0;
-    } catch(e){}
-  };
-
-  introVideo.addEventListener('loadedmetadata', initVideo);
-  introVideo.addEventListener('canplay', initVideo);
-  initVideo();
 
   // Direct Wheel / Trackpad Scroll Engine with Smooth Inertia
   const onWheel = (e) => {
     if (triggered) return;
     const delta = e.deltaY;
-    scrollVelocity += delta * 0.00065;
+    scrollVelocity += delta * 0.00075;
     scrollVelocity = Math.max(-0.08, Math.min(0.08, scrollVelocity));
   };
 
@@ -3369,8 +3375,8 @@ function setupPortalIntroClick() {
     const deltaY = touchStartY - currentY;
     
     // Add touch delta to progress with momentum
-    scrollVelocity += (deltaY / 220) * 0.40;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 260));
+    scrollVelocity += (deltaY / 200) * 0.45;
+    targetProgress = Math.max(0, Math.min(1.0, targetProgress + deltaY / 240));
     touchStartY = currentY;
   };
 
@@ -3381,9 +3387,9 @@ function setupPortalIntroClick() {
   // Keyboard navigation
   const onKeyDown = (e) => {
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      scrollVelocity += 0.045;
+      scrollVelocity += 0.05;
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      scrollVelocity -= 0.045;
+      scrollVelocity -= 0.05;
     }
   };
 
@@ -3392,20 +3398,16 @@ function setupPortalIntroClick() {
     // Scroll-driven forward/backward movement
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + scrollVelocity));
     scrollVelocity *= 0.84; // Smooth exponential friction
-    currentProgress += (targetProgress - currentProgress) * 0.15;
+    currentProgress += (targetProgress - currentProgress) * 0.16;
 
-    // Apply exact currentTime to video
-    const targetTime = currentProgress * videoDuration;
-    if (Math.abs(targetTime - lastTimeApplied) > 0.008) {
-      lastTimeApplied = targetTime;
-      try {
-        const safeTime = Math.min(videoDuration - 0.02, Math.max(0, targetTime));
-        if (typeof introVideo.fastSeek === 'function') {
-          introVideo.fastSeek(safeTime);
-        } else {
-          introVideo.currentTime = safeTime;
-        }
-      } catch(err) {}
+    // Render corresponding frame onto Canvas
+    const frameIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
+    if (frameIndex !== lastRenderedFrame) {
+      const activeImg = frameImages[frameIndex];
+      if (activeImg && activeImg.complete && activeImg.naturalWidth > 0 && ctx && canvas) {
+        ctx.drawImage(activeImg, 0, 0, canvas.width, canvas.height);
+        lastRenderedFrame = frameIndex;
+      }
     }
 
     if (progressBar) {
@@ -3415,7 +3417,7 @@ function setupPortalIntroClick() {
     if (hudText) {
       if (currentProgress < 0.06) {
         hudText.textContent = 'AŞAĞI KAYDIRIN & İLERLEYİN';
-      } else if (currentProgress < 0.82) {
+      } else if (currentProgress < 0.80) {
         hudText.textContent = `🚶‍♂️ MANZARAYA İLERLENİYOR... %${Math.round(currentProgress * 100)}`;
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
@@ -3428,15 +3430,17 @@ function setupPortalIntroClick() {
     const walkSwayX = Math.cos(walkPhase * 0.5) * 1.8;
     const depthScale = 1.0 + currentProgress * 0.10;
 
-    introVideo.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
+    if (canvas) {
+      canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
+    }
 
-    // Flags & Country Portals: Emerge ONLY at the END where we glide into the meadow landscape (0.82 -> 1.0)
+    // Flags & Country Portals: Emerge ONLY at the END where we glide into the meadow landscape (0.80 -> 1.0)
     let flagOpacity = 0;
     let flagYShift = 45;
     let flagScale = 0.85;
 
-    if (currentProgress > 0.80) {
-      const normalizedP = Math.min(1.0, (currentProgress - 0.80) / 0.15); // 0 to 1 between progress 0.80 and 0.95
+    if (currentProgress > 0.78) {
+      const normalizedP = Math.min(1.0, (currentProgress - 0.78) / 0.16); // 0 to 1 between progress 0.78 and 0.94
       flagOpacity = normalizedP;
       flagYShift = (1.0 - normalizedP) * 45;
       flagScale = 0.85 + normalizedP * 0.15;
