@@ -3759,6 +3759,9 @@ function setupPortalIntroClick() {
 
   const handleSelectTR = (e) => {
     if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+    if (typeof synth !== 'undefined' && synth) {
+      try { synth.playClick(); } catch(err){}
+    }
     if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
@@ -3797,6 +3800,9 @@ function setupPortalIntroClick() {
 
   const handleSelectPL = (e) => {
     if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+    if (typeof synth !== 'undefined' && synth) {
+      try { synth.playClick(); } catch(err){}
+    }
     if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
