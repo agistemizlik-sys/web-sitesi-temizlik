@@ -3435,12 +3435,12 @@ function setupPortalIntroClick() {
     }
 
     if (hudText) {
-      if (progress < 0.18) {
+      if (progress < 0.20) {
         hudText.textContent = '📖 KAPALI KİTAP: AŞAĞI KAYDIRARAK AÇIN';
-      } else if (progress < 0.50) {
-        hudText.textContent = `✨ BÜYÜLÜ SAYFALAR ARALANIYOR... %${Math.round(progress * 100)}`;
-      } else if (progress < 0.68) {
-        hudText.textContent = `🌀 DÜNYAYA GEÇİŞ YAPILIYOR... %${Math.round(progress * 100)}`;
+      } else if (progress < 0.48) {
+        hudText.textContent = '✨ TEMİZLİĞİ BİZİMLE HİSSEDİN';
+      } else if (progress < 0.82) {
+        hudText.textContent = '🌿 KUSURSUZ HUZUR VE HİJYEN';
       } else {
         hudText.textContent = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
       }
@@ -3456,13 +3456,49 @@ function setupPortalIntroClick() {
       canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
     }
 
-    // 5. Scroll-Bound Drop Down from the Sky via Ropes (0.58 to 0.95)
+    // 5. Luxury Storytelling Slogans on Chic Frosted Gold Backdrop (Before flags appear)
+    const getSloganOpacity = (p, start, peak, end) => {
+      if (p < start || p > end) return 0;
+      if (p <= peak) {
+        const t = (p - start) / (peak - start);
+        return 1.0 - Math.pow(1.0 - t, 2);
+      } else {
+        const t = (end - p) / (end - peak);
+        return 1.0 - Math.pow(1.0 - t, 2);
+      }
+    };
+
+    const s1 = document.getElementById('slogan1');
+    const s2 = document.getElementById('slogan2');
+    const s3 = document.getElementById('slogan3');
+
+    const op1 = getSloganOpacity(progress, 0.20, 0.32, 0.44);
+    const op2 = getSloganOpacity(progress, 0.43, 0.56, 0.68);
+    const op3 = getSloganOpacity(progress, 0.67, 0.76, 0.84);
+
+    if (s1) {
+      s1.style.opacity = op1.toFixed(3);
+      s1.style.transform = `translate(-50%, calc(-50% + ${(1 - op1) * 16}px)) scale(${(0.95 + op1 * 0.05).toFixed(3)})`;
+      s1.style.visibility = op1 > 0.01 ? 'visible' : 'hidden';
+    }
+    if (s2) {
+      s2.style.opacity = op2.toFixed(3);
+      s2.style.transform = `translate(-50%, calc(-50% + ${(1 - op2) * 16}px)) scale(${(0.95 + op2 * 0.05).toFixed(3)})`;
+      s2.style.visibility = op2 > 0.01 ? 'visible' : 'hidden';
+    }
+    if (s3) {
+      s3.style.opacity = op3.toFixed(3);
+      s3.style.transform = `translate(-50%, calc(-50% + ${(1 - op3) * 16}px)) scale(${(0.95 + op3 * 0.05).toFixed(3)})`;
+      s3.style.visibility = op3 > 0.01 ? 'visible' : 'hidden';
+    }
+
+    // 6. Flags Drop Down at the VERY END of the scroll journey (progress: 0.84 to 1.00)
     let bannerOpacity = 0;
     let dropTranslateY = -125; // starts high up above viewport in vh
     let bannerScale = 0.90;
 
-    if (progress > 0.58) {
-      const rawDrop = Math.min(1.0, (progress - 0.58) / 0.34);
+    if (progress > 0.84) {
+      const rawDrop = Math.min(1.0, (progress - 0.84) / 0.15);
       // Organic gravity drop curve with soft cushion settle
       const easedDrop = 1.0 - Math.pow(1.0 - rawDrop, 3);
       bannerOpacity = Math.min(1.0, easedDrop * 1.5);
