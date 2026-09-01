@@ -3515,13 +3515,15 @@ function setupPortalIntroClick() {
   };
 
   if (poleLeft) {
-    poleLeft.addEventListener('click', handleSelectTR);
-    poleLeft.addEventListener('touchend', handleSelectTR);
+    poleLeft.onclick = handleSelectTR;
+    poleLeft.addEventListener('click', handleSelectTR, true);
+    poleLeft.addEventListener('touchend', handleSelectTR, true);
   }
 
   if (poleRight) {
-    poleRight.addEventListener('click', handleSelectPL);
-    poleRight.addEventListener('touchend', handleSelectPL);
+    poleRight.onclick = handleSelectPL;
+    poleRight.addEventListener('click', handleSelectPL, true);
+    poleRight.addEventListener('touchend', handleSelectPL, true);
   }
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -4909,22 +4911,16 @@ function setupPortalGateway() {
     }
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
-      heroTrack.style.transition = 'opacity 0.25s ease';
-      heroTrack.style.opacity = '0';
-      heroTrack.style.pointerEvents = 'none';
-      setTimeout(() => {
-        heroTrack.style.setProperty('display', 'none', 'important');
-      }, 200);
+      heroTrack.style.setProperty('display', 'none', 'important');
+      heroTrack.style.setProperty('opacity', '0', 'important');
+      heroTrack.style.setProperty('pointer-events', 'none', 'important');
     }
 
     const introStage = document.getElementById('portal-intro-stage');
     if (introStage) {
-      introStage.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-      introStage.style.opacity = '0';
-      introStage.style.pointerEvents = 'none';
-      setTimeout(() => {
-        introStage.style.setProperty('display', 'none', 'important');
-      }, 350);
+      introStage.style.setProperty('display', 'none', 'important');
+      introStage.style.setProperty('opacity', '0', 'important');
+      introStage.style.setProperty('pointer-events', 'none', 'important');
     }
 
     // 2. Immediately hide country selector overlay synchronously
