@@ -4,6 +4,7 @@
  */
 
 import { CONSTANTS } from './constants.js';
+import { getSecurityHeaders } from './csrfEngine.js';
 
 /**
  * Safely parses JSON string with fallback.
@@ -51,7 +52,7 @@ export function safeStorageGet(key, fallback) {
 }
 
 /**
- * Executes a resilient fetch with configurable timeout.
+ * Executes a resilient fetch with configurable timeout and automatic Anti-CSRF injection.
  * @param {string} url - Request URL
  * @param {RequestInit} [options] - Fetch options
  * @param {number} [timeoutMs] - Abort timeout in milliseconds
@@ -60,11 +61,21 @@ export function safeStorageGet(key, fallback) {
 export async function timedFetch(url, options = {}, timeoutMs = CONSTANTS.TIMEOUTS.API_FETCH_MS) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  let fetchOptions = { ...options, signal: controller.signal };
+  if (typeof url === 'string' && url.startsWith('/api/')) {
+    const mergedHeaders = new Headers(options.headers || {});
+    const secHeaders = getSecurityHeaders();
+    for (const [k, v] of Object.entries(secHeaders)) {
+      if (!mergedHeaders.has(k)) {
+        mergedHeaders.set(k, v);
+      }
+    }
+    fetchOptions.headers = mergedHeaders;
+  }
+
   try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
+    const response = await fetch(url, fetchOptions);
     return response;
   } finally {
     clearTimeout(timeoutId);
