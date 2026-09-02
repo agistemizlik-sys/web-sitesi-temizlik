@@ -4760,7 +4760,7 @@ function showComingSoonNotice(cityKey, displayName, transCity) {
         </div>
         <p class="cs-toast-text">${noticeText}</p>
       </div>
-      <button class="cs-toast-close" onclick="document.getElementById('comingSoonNoticeToast').classList.remove('active')">&times;</button>
+      <button class="cs-toast-close" onclick="this.closest('.cs-notice-toast')?.classList.remove('active')">&times;</button>
     </div>
   `;
 
@@ -10727,27 +10727,33 @@ function setupBookingReveal() {
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (Date.now() - (draft.timestamp || 0) < 86400000) {
-        if (draft.name && document.getElementById('cName')) document.getElementById('cName').value = sanitizeInputVal(draft.name, 100);
-        if (draft.phone && document.getElementById('cPhone')) document.getElementById('cPhone').value = sanitizeInputVal(draft.phone, 30);
-        if (draft.email && document.getElementById('cEmail')) document.getElementById('cEmail').value = sanitizeInputVal(draft.email, 100);
-        if (draft.city && document.getElementById('cCity')) {
-          document.getElementById('cCity').value = sanitizeInputVal(draft.city, 50);
-          document.getElementById('cCity').dispatchEvent(new Event('change', { bubbles: true }));
+        const setVal = (id, val, maxLen) => {
+          const el = document.getElementById(id);
+          if (el && val) el.value = sanitizeInputVal(val, maxLen);
+        };
+        setVal('cName', draft.name, 100);
+        setVal('cPhone', draft.phone, 30);
+        setVal('cEmail', draft.email, 100);
+        
+        const cityEl = document.getElementById('cCity');
+        if (draft.city && cityEl) {
+          cityEl.value = sanitizeInputVal(draft.city, 50);
+          cityEl.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        if (draft.district && document.getElementById('cDistrict')) {
+        if (draft.district) {
           setTimeout(() => {
-            if (document.getElementById('cDistrict')) document.getElementById('cDistrict').value = sanitizeInputVal(draft.district, 50);
+            setVal('cDistrict', draft.district, 50);
           }, 50);
         }
-        if (draft.street && document.getElementById('cStreet')) document.getElementById('cStreet').value = sanitizeInputVal(draft.street, 150);
-        if (draft.houseNum && document.getElementById('cHouseNum')) document.getElementById('cHouseNum').value = sanitizeInputVal(draft.houseNum, 20);
-        if (draft.aptNum && document.getElementById('cAptNum')) document.getElementById('cAptNum').value = sanitizeInputVal(draft.aptNum, 20);
-        if (draft.building && document.getElementById('cBuilding')) document.getElementById('cBuilding').value = sanitizeInputVal(draft.building, 50);
-        if (draft.floor && document.getElementById('cFloor')) document.getElementById('cFloor').value = sanitizeInputVal(draft.floor, 20);
-        if (draft.notes && document.getElementById('cNotes')) document.getElementById('cNotes').value = sanitizeInputVal(draft.notes, 500);
-        if (draft.companyName && document.getElementById('cCompanyName')) document.getElementById('cCompanyName').value = sanitizeInputVal(draft.companyName, 120);
-        if (draft.taxOffice && document.getElementById('cTaxOffice')) document.getElementById('cTaxOffice').value = sanitizeInputVal(draft.taxOffice, 80);
-        if (draft.taxNumber && document.getElementById('cTaxNumber')) document.getElementById('cTaxNumber').value = sanitizeInputVal(draft.taxNumber, 30);
+        setVal('cStreet', draft.street, 150);
+        setVal('cHouseNum', draft.houseNum, 20);
+        setVal('cAptNum', draft.aptNum, 20);
+        setVal('cBuilding', draft.building, 50);
+        setVal('cFloor', draft.floor, 20);
+        setVal('cNotes', draft.notes, 500);
+        setVal('cCompanyName', draft.companyName, 120);
+        setVal('cTaxOffice', draft.taxOffice, 80);
+        setVal('cTaxNumber', draft.taxNumber, 30);
       }
     } catch (e) {}
   };
