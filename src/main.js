@@ -5066,11 +5066,21 @@ async function initLeafletMap(country) {
     }).setView([52.2297, 21.0122], 11);
     window.polandMapInstance = polandMapInstance;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // Multi-CDN Ultra-Reliable Dark Tile Provider with Fallback
+    const darkTileLayerPL = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       subdomains: 'abcd',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }).addTo(polandMapInstance);
+    });
+
+    darkTileLayerPL.on('tileerror', () => {
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(polandMapInstance);
+    });
+
+    darkTileLayerPL.addTo(polandMapInstance);
 
     const polandDistricts = [
       { key: 'Srodmiescie', coords: [52.2300, 21.0100], districtName: 'Śródmieście', market: 'mazowsze' },
@@ -5114,6 +5124,15 @@ async function initLeafletMap(country) {
 
     polandMapInstance.fitBounds(L.latLngBounds(polandDistricts.map(c => c.coords)), {
       padding: polandPadding
+    });
+
+    [50, 150, 300, 600, 1200].forEach(delay => {
+      setTimeout(() => {
+        if (polandMapInstance) {
+          polandMapInstance.invalidateSize();
+          updateCachedHotspotCoords();
+        }
+      }, delay);
     });
 
     const updateZoomClass = () => {
