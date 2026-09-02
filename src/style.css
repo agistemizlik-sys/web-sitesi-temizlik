@@ -20235,6 +20235,14 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  .slogan-book-theme {
+    top: 42% !important;
+    max-width: 88vw !important;
+  }
+  .slogan-book-theme .slogan-word-left,
+  .slogan-book-theme .slogan-word-right {
+    font-size: clamp(1.2rem, 5.2vw, 1.55rem) !important;
+  }
   .video-banner-hotspot {
     top: calc((100vh - (142vw / 1.777)) * 0.42 + 2vh) !important;
     width: 44vw !important;
