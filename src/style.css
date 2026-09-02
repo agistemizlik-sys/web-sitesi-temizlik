@@ -19722,6 +19722,41 @@ html[dir="rtl"] .counter-btn.plus {
   color: #ffffff;
 }
 
+/* Offline / Online Network Connectivity Resilience Toast */
+.rx-network-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 10000000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.rx-network-toast.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rx-network-toast.offline {
+  background: rgba(220, 38, 38, 0.95);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  color: #ffffff;
+}
+
+.rx-network-toast.online {
+  background: rgba(16, 185, 129, 0.95);
+  border: 1px solid rgba(52, 211, 153, 0.6);
+  color: #ffffff;
+}
+
 @media (max-width: 768px) {
   .rx-social-proof-toast {
     bottom: calc(72px + env(safe-area-inset-bottom, 0px));

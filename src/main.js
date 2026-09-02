@@ -52,12 +52,44 @@ window.exportDebugReport = exportDebugReport;
 window.logDebug = logDebug;
 window.logErrorDebug = logErrorDebug;
 
-// Global Client Resilience & Error Boundary
+// Global Client Resilience & Defensive Error Boundary
 window.addEventListener('unhandledrejection', (event) => {
   if (event && event.reason) {
     console.warn('[RELAXAX_RESILIENT_LOOP_GUARD]', event.reason);
   }
-  event.preventDefault();
+  if (event && event.preventDefault) event.preventDefault();
+});
+
+window.addEventListener('error', (event) => {
+  if (event && event.error) {
+    console.warn('[RELAXAX_ERROR_GUARD]', event.error.message || event.message);
+  }
+  if (event && event.preventDefault) event.preventDefault();
+});
+
+// Network status recovery listener
+window.addEventListener('offline', () => {
+  let toast = document.getElementById('rx-network-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'rx-network-toast';
+    toast.className = 'rx-network-toast offline';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = '⚠️ İnternet bağlantısı kesildi. Çevrimdışı moddasınız.';
+  setTimeout(() => toast.classList.add('active'), 10);
+});
+
+window.addEventListener('online', () => {
+  const toast = document.getElementById('rx-network-toast');
+  if (toast) {
+    toast.className = 'rx-network-toast online';
+    toast.textContent = '✅ İnternet bağlantınız yeniden kuruldu.';
+    setTimeout(() => {
+      toast.classList.remove('active');
+      setTimeout(() => toast.remove(), 400);
+    }, 2500);
+  }
 });
 
 // Initialize Hardware Booster, Master Loop Engine, Cyber Defense, Push Engine, Voice Assistant, Hygiene Certificates, VIP Concierge & Debug Hardening

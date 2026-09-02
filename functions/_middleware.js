@@ -321,177 +321,183 @@ function buildSnapshotSection(lang, city) {
 }
 
 export async function onRequest(context) {
-  const { request, next } = context;
-  const url = new URL(request.url);
+  try {
+    const { request, next } = context;
+    const url = new URL(request.url);
 
-  // 0. Active Cyber Defense: Honeypot & Deception Probe Trapping
-  if (isHoneypotProbe(url.pathname)) {
-    const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
-    const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
-    alertHoneypotTrigger(context.env, request, url.pathname, waitUntil);
-    return generateDecoyResponse(url.pathname, clientIp);
+    // 0. Active Cyber Defense: Honeypot & Deception Probe Trapping
+    if (isHoneypotProbe(url.pathname)) {
+      const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
+      alertHoneypotTrigger(context.env, request, url.pathname, waitUntil);
+      return generateDecoyResponse(url.pathname, clientIp);
+    }
+
+    // 0B. Anti-VPN / Anti-Tor / Anti-Proxy Shield
+    const isDocRequest = request.method === 'GET' && (url.pathname === '/' || url.pathname.endsWith('.html') || !url.pathname.includes('.'));
+    if (isDocRequest && !url.pathname.startsWith('/api/') && isVpnOrProxy(request)) {
+      const langParam = url.searchParams.get('lang') || 'tr';
+      return generateVpnBlockScreen(langParam);
+    }
+
+    // 0C. Anti-AI Scraping & LLM Cloning Shield
+    const userAgent = request.headers.get('User-Agent') || '';
+    if (AI_SCRAPER_BOT_RE.test(userAgent)) {
+      return new Response(JSON.stringify({
+        status: 403,
+        error: "AI Scraping & Automated Code Synthesis Forbidden",
+        copyright: "RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. All rights reserved.",
+        directive: "All proprietary Three.js 3D shaders, visual assets, algorithms, and business logics of RELAXAX are strictly protected against automated AI extraction under WIPO & DMCA international copyright laws. Unauthorized reproduction, imitation, or LLM training is strictly prohibited.",
+        robots: "noai, noimageai, noindex, nofollow"
+      }, null, 2), {
+        status: 403,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Robots-Tag': 'noindex, nofollow, noai, noimageai, noarchive',
+          'X-AI-Shield': 'Active'
+        }
+      });
+    }
+
+    // 0D. Anti-Scanner & Vulnerability Fuzzer Shield
+    if (isVulnScanner(request)) {
+      return new Response(JSON.stringify({
+        statusCode: 403,
+        error: "Automated vulnerability scanner or fuzzer detected. Access denied.",
+        status: "SECURITY_SCANNER_QUARANTINED"
+      }, null, 2), {
+        status: 403,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Robots-Tag': 'noindex, nofollow',
+          'X-Security-Scan-Shield': 'Active',
+          'X-Tarpit-Penalty': '2000ms'
+        }
+      });
+    }
+
+    // API yolları için kurumsal güvenlik başlıklarını uygula
+    if (url.pathname.startsWith('/api/')) {
+      const apiRes = await next();
+      return applyEnterpriseSecurityHeaders(apiRes);
+    }
+
+    // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)
+    if (url.hostname === 'www.relaxax.com') {
+      url.hostname = 'relaxax.com';
+      return Response.redirect(url.toString(), 301);
+    }
+
+    // API ve statik varlıklar (uzantılı yollar) hiç işlenmeden geçer
+    const isPageRequest =
+      request.method === 'GET' &&
+      !url.pathname.startsWith('/api/') &&
+      (url.pathname === '/' || url.pathname.endsWith('.html') || !url.pathname.includes('.'));
+
+    if (!isPageRequest) return next();
+
+    // Tek sayfalık SPA: kök dışındaki her sayfa yolu 301 ile köke döner.
+    // Pages'in SPA fallback'i her yolu 200 + index.html ile karşıladığından,
+    // rastgele URL'ler aksi halde soft-404 olarak indekslenebilirdi.
+    if (url.pathname !== '/') {
+      return Response.redirect(`${url.origin}/${url.search}`, 301);
+    }
+
+    const response = await next();
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('text/html')) return response;
+
+    const langParam = url.searchParams.get('lang');
+    const cityParam = (url.searchParams.get('city') || '').toLowerCase();
+    const city = CITY_META[cityParam] ? cityParam : null;
+    
+    let lang = 'en';
+    if (langParam && META[langParam]) {
+      lang = langParam;
+    } else if (city && CITY_META[city]) {
+      lang = CITY_META[city].lang;
+    }
+
+    // 1B — HTTP header düzeyinde hreflang + canonical + security headers: her HTML yanıtına
+    const withHeaders = new Response(response.body, response);
+    withHeaders.headers.set('Link', buildLinkHeader(lang, city));
+    withHeaders.headers.set('X-Content-Type-Options', 'nosniff');
+    withHeaders.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    withHeaders.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    withHeaders.headers.append('Vary', 'User-Agent, Accept-Language');
+
+    const isBot = BOT_RE.test(userAgent);
+    if (!isBot) return withHeaders; // İnsan trafiği: SPA aynen servis edilir
+
+    // 1A — Dynamic Prerendering: bot isteğine dil/şehir çözümlenmiş snapshot
+    const meta = city ? CITY_META[city] : META[lang];
+    const pageUrl = variantUrl(lang, city);
+
+    return new HTMLRewriter()
+      .on('html', {
+        element(el) {
+          el.setAttribute('lang', META[lang].htmlLang);
+        },
+      })
+      .on('title', {
+        element(el) {
+          el.setInnerContent(meta.title);
+        },
+      })
+      .on('meta[name="description"]', {
+        element(el) {
+          el.setAttribute('content', meta.description);
+        },
+      })
+      .on('meta[name="twitter:title"]', {
+        element(el) {
+          el.setAttribute('content', meta.title);
+        },
+      })
+      .on('meta[name="twitter:description"]', {
+        element(el) {
+          el.setAttribute('content', meta.description);
+        },
+      })
+      .on('meta[property="og:title"]', {
+        element(el) {
+          el.setAttribute('content', meta.title);
+        },
+      })
+      .on('meta[property="og:description"]', {
+        element(el) {
+          el.setAttribute('content', meta.description);
+        },
+      })
+      .on('meta[property="og:url"]', {
+        element(el) {
+          el.setAttribute('content', pageUrl);
+        },
+      })
+      .on('meta[property="og:locale"]', {
+        element(el) {
+          el.setAttribute('content', META[lang].ogLocale);
+        },
+      })
+      .on('link[rel="canonical"]', {
+        element(el) {
+          el.setAttribute('href', pageUrl);
+        },
+      })
+      .on('script#schema-graph', {
+        element(el) {
+          el.setInnerContent(buildSchemaGraph(lang, city), { html: true });
+        },
+      })
+      .on('body', {
+        element(el) {
+          el.append(buildSnapshotSection(lang, city), { html: true });
+        },
+      })
+      .transform(withHeaders);
+
+  } catch (edgeErr) {
+    console.warn('[EDGE_MIDDLEWARE_FALLBACK]', edgeErr);
+    return context.next();
   }
-
-  // 0B. Anti-VPN / Anti-Tor / Anti-Proxy Shield
-  const isDocRequest = request.method === 'GET' && (url.pathname === '/' || url.pathname.endsWith('.html') || !url.pathname.includes('.'));
-  if (isDocRequest && !url.pathname.startsWith('/api/') && isVpnOrProxy(request)) {
-    const langParam = url.searchParams.get('lang') || 'tr';
-    return generateVpnBlockScreen(langParam);
-  }
-
-  // 0C. Anti-AI Scraping & LLM Cloning Shield
-  const userAgent = request.headers.get('User-Agent') || '';
-  if (AI_SCRAPER_BOT_RE.test(userAgent)) {
-    return new Response(JSON.stringify({
-      status: 403,
-      error: "AI Scraping & Automated Code Synthesis Forbidden",
-      copyright: "RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. All rights reserved.",
-      directive: "All proprietary Three.js 3D shaders, visual assets, algorithms, and business logics of RELAXAX are strictly protected against automated AI extraction under WIPO & DMCA international copyright laws. Unauthorized reproduction, imitation, or LLM training is strictly prohibited.",
-      robots: "noai, noimageai, noindex, nofollow"
-    }, null, 2), {
-      status: 403,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'X-Robots-Tag': 'noindex, nofollow, noai, noimageai, noarchive',
-        'X-AI-Shield': 'Active'
-      }
-    });
-  }
-
-  // 0D. Anti-Scanner & Vulnerability Fuzzer Shield
-  if (isVulnScanner(request)) {
-    return new Response(JSON.stringify({
-      statusCode: 403,
-      error: "Automated vulnerability scanner or fuzzer detected. Access denied.",
-      status: "SECURITY_SCANNER_QUARANTINED"
-    }, null, 2), {
-      status: 403,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'X-Robots-Tag': 'noindex, nofollow',
-        'X-Security-Scan-Shield': 'Active',
-        'X-Tarpit-Penalty': '2000ms'
-      }
-    });
-  }
-
-  // API yolları için kurumsal güvenlik başlıklarını uygula
-  if (url.pathname.startsWith('/api/')) {
-    const apiRes = await next();
-    return applyEnterpriseSecurityHeaders(apiRes);
-  }
-
-  // Host kanonikleştirme: www → apex 301 (yinelenen içerik + link equity bölünmesini önler)
-  if (url.hostname === 'www.relaxax.com') {
-    url.hostname = 'relaxax.com';
-    return Response.redirect(url.toString(), 301);
-  }
-
-  // API ve statik varlıklar (uzantılı yollar) hiç işlenmeden geçer
-  const isPageRequest =
-    request.method === 'GET' &&
-    !url.pathname.startsWith('/api/') &&
-    (url.pathname === '/' || url.pathname.endsWith('.html') || !url.pathname.includes('.'));
-
-  if (!isPageRequest) return next();
-
-  // Tek sayfalık SPA: kök dışındaki her sayfa yolu 301 ile köke döner.
-  // Pages'in SPA fallback'i her yolu 200 + index.html ile karşıladığından,
-  // rastgele URL'ler aksi halde soft-404 olarak indekslenebilirdi.
-  if (url.pathname !== '/') {
-    return Response.redirect(`${url.origin}/${url.search}`, 301);
-  }
-
-  const response = await next();
-  const contentType = response.headers.get('content-type') || '';
-  if (!contentType.includes('text/html')) return response;
-
-  const langParam = url.searchParams.get('lang');
-  const cityParam = (url.searchParams.get('city') || '').toLowerCase();
-  const city = CITY_META[cityParam] ? cityParam : null;
-  
-  let lang = 'en';
-  if (langParam && META[langParam]) {
-    lang = langParam;
-  } else if (city && CITY_META[city]) {
-    lang = CITY_META[city].lang;
-  }
-
-  // 1B — HTTP header düzeyinde hreflang + canonical + security headers: her HTML yanıtına
-  const withHeaders = new Response(response.body, response);
-  withHeaders.headers.set('Link', buildLinkHeader(lang, city));
-  withHeaders.headers.set('X-Content-Type-Options', 'nosniff');
-  withHeaders.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  withHeaders.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  withHeaders.headers.append('Vary', 'User-Agent, Accept-Language');
-
-  const isBot = BOT_RE.test(userAgent);
-  if (!isBot) return withHeaders; // İnsan trafiği: SPA aynen servis edilir
-
-  // 1A — Dynamic Prerendering: bot isteğine dil/şehir çözümlenmiş snapshot
-  const meta = city ? CITY_META[city] : META[lang];
-  const pageUrl = variantUrl(lang, city);
-
-  return new HTMLRewriter()
-    .on('html', {
-      element(el) {
-        el.setAttribute('lang', META[lang].htmlLang);
-      },
-    })
-    .on('title', {
-      element(el) {
-        el.setInnerContent(meta.title);
-      },
-    })
-    .on('meta[name="description"]', {
-      element(el) {
-        el.setAttribute('content', meta.description);
-      },
-    })
-    .on('meta[name="twitter:title"]', {
-      element(el) {
-        el.setAttribute('content', meta.title);
-      },
-    })
-    .on('meta[name="twitter:description"]', {
-      element(el) {
-        el.setAttribute('content', meta.description);
-      },
-    })
-    .on('meta[property="og:title"]', {
-      element(el) {
-        el.setAttribute('content', meta.title);
-      },
-    })
-    .on('meta[property="og:description"]', {
-      element(el) {
-        el.setAttribute('content', meta.description);
-      },
-    })
-    .on('meta[property="og:url"]', {
-      element(el) {
-        el.setAttribute('content', pageUrl);
-      },
-    })
-    .on('meta[property="og:locale"]', {
-      element(el) {
-        el.setAttribute('content', META[lang].ogLocale);
-      },
-    })
-    .on('link[rel="canonical"]', {
-      element(el) {
-        el.setAttribute('href', pageUrl);
-      },
-    })
-    .on('script#schema-graph', {
-      element(el) {
-        el.setInnerContent(buildSchemaGraph(lang, city), { html: true });
-      },
-    })
-    .on('body', {
-      element(el) {
-        el.append(buildSnapshotSection(lang, city), { html: true });
-      },
-    })
-    .transform(withHeaders);
 }
