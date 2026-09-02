@@ -198,7 +198,7 @@ select option {
   height: 100vh;
   height: 100dvh;
   z-index: 99999;
-  background: linear-gradient(180deg, #fbfaf7 0%, #f3f1ea 100%);
+  background: radial-gradient(circle at 50% 20%, #0f1c3f 0%, #080d1e 100%);
   overflow-y: auto;
   overflow-x: hidden;
   transition: opacity 0.8s var(--ease-smooth), transform 0.8s var(--ease-smooth);
@@ -3427,21 +3427,22 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   transition: border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
 }
 
-/* Leaflet map container */
+/* Leaflet map container - Luxury Dark Theme */
 .portal-leaflet-map {
   width: 100%;
-  height: 650px;
-  background: #eef0f2 !important;
-  border-radius: 12px;
-  border: 1px solid var(--clr-line);
+  height: 520px;
+  background: #0b1329 !important;
+  border-radius: 18px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
   position: relative;
   overflow: hidden;
   z-index: 5;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 768px) {
   .portal-leaflet-map {
-    height: 500px;
+    height: 440px;
   }
 
   /* Tighter map frame so the 6 city buttons sit closer to the fold */
@@ -3455,9 +3456,9 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   }
 }
 
-/* Gently desaturate the light basemap so pins carry the color */
+/* Beautiful dark-mode neon styling for map tiles */
 .portal-leaflet-map .leaflet-tile-container {
-  filter: saturate(0.85);
+  filter: brightness(0.85) contrast(1.1) saturate(1.2);
 }
 
 /* Custom Marker Overrides: clean container for reticle markers */
@@ -4581,7 +4582,7 @@ img, video, .card-bg-image {
 
 /* Map wrapper, gateway card, and cinema video GPU layer variables are fully inherited from Section 4 */
 
-/* Audio toggle — quiet white pill */
+/* Audio toggle — Dark Glassmorphic Pill */
 .portal-audio-toggle {
   position: absolute;
   bottom: 30px;
@@ -4589,28 +4590,32 @@ img, video, .card-bg-image {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--clr-surface);
-  border: 1px solid var(--clr-line);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 99px;
   padding: 7px 14px;
-  color: var(--clr-muted);
+  color: #cbd5e1;
   font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   z-index: 1002;
-  box-shadow: 0 2px 8px rgba(27, 29, 34, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   transition: all 0.3s var(--ease-smooth);
 }
 
 .portal-audio-toggle:hover {
-  color: var(--clr-ink);
-  border-color: var(--clr-line-strong);
-  box-shadow: var(--shadow-card);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.25);
+  transform: translateY(-1px);
 }
 
 .portal-audio-toggle.muted {
-  color: #a6aab4;
+  color: #64748b;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 1024px) {
@@ -10374,27 +10379,6 @@ body.wizard-modal-open .custom-tawk-launcher-dock {
   font-weight: 600;
 }
 
-.tms-reset-map-btn {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  z-index: 1000;
-  background: rgba(13, 22, 44, 0.95);
-  backdrop-filter: blur(12px);
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-.tms-reset-map-btn:hover {
-  color: #ffffff;
-  border-color: #38bdf8;
-}
-
 /* Right Selected City Card */
 .portal-preview-panel {
   position: relative !important;
@@ -10679,46 +10663,37 @@ body.wizard-modal-open .custom-tawk-launcher-dock {
   color: #38bdf8;
 }
 
-/* Floating Bottom Right Inset Graphic Box */
+/* Floating Bottom Right Reset / View All Button */
 .tms-map-inset-box {
   position: absolute;
   right: 14px;
   bottom: 14px;
   z-index: 1000;
-  width: 155px;
-  height: 90px;
-  background: rgba(13, 22, 44, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 14px;
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding: 8px;
 }
 
 .tms-reset-map-btn {
-  width: 100%;
-  padding: 6px 8px;
-  background: rgba(19, 31, 60, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 16px;
-  font-size: 0.72rem;
+  padding: 8px 14px;
+  background: rgba(13, 22, 44, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 12px;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #e2e8f0;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
+
 .tms-reset-map-btn:hover {
-  background: rgba(2, 132, 199, 0.25);
+  background: rgba(14, 165, 233, 0.25);
   border-color: #38bdf8;
-  color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 /* 6. Popular Cities Section */
