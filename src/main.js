@@ -3825,12 +3825,17 @@ function setupPortalIntroClick() {
     if (typeof synth !== 'undefined' && synth) {
       try { synth.playClick(); } catch(err){}
     }
-    if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
-      heroTrack.style.setProperty('display', 'none', 'important');
-      heroTrack.style.setProperty('opacity', '0', 'important');
-      heroTrack.style.setProperty('pointer-events', 'none', 'important');
+      heroTrack.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+      heroTrack.style.opacity = '0';
+      heroTrack.style.transform = 'scale(1.05)';
+      heroTrack.style.pointerEvents = 'none';
+      setTimeout(() => {
+        if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
+      }, 350);
+    } else {
+      if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     }
     const introStage = document.getElementById('portal-intro-stage');
     if (introStage) {
@@ -3866,12 +3871,17 @@ function setupPortalIntroClick() {
     if (typeof synth !== 'undefined' && synth) {
       try { synth.playClick(); } catch(err){}
     }
-    if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
-      heroTrack.style.setProperty('display', 'none', 'important');
-      heroTrack.style.setProperty('opacity', '0', 'important');
-      heroTrack.style.setProperty('pointer-events', 'none', 'important');
+      heroTrack.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+      heroTrack.style.opacity = '0';
+      heroTrack.style.transform = 'scale(1.05)';
+      heroTrack.style.pointerEvents = 'none';
+      setTimeout(() => {
+        if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
+      }, 350);
+    } else {
+      if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     }
     const introStage = document.getElementById('portal-intro-stage');
     if (introStage) {
