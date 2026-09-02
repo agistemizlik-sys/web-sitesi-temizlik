@@ -1,15 +1,11 @@
-import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { executeCyberLoopSentinel } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders } from './_utils.js';
+
+const sanitizeStr = sanitizeString;
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function for Authentication & Staff Portal API
  * POST /api/auth
- *
- * Integrated with the Cleaning Panel:
- *  - Real Customer registration & login with Edge KV database persistence
- *  - Cleaning staff registration, application & onboarding
- *  - Panel synchronization with secure HTTPS relays
- *  - Session token verification & persistence
- *  - Anti-brute force rate limiting & SQL/NoSQL Anti-Injection Defense
  */
 
 const PANEL_AUTH_ENDPOINTS = [
@@ -46,34 +42,12 @@ function checkAuthRateLimit(ip) {
   return entry.count > MAX_AUTH_PER_MIN;
 }
 
-function sanitizeStr(str, maxLen = 200) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/<[^>]*>?/gm, '').trim().substring(0, maxLen);
-}
-
-function sanitizeEmail(email) {
-  if (typeof email !== 'string') return '';
-  return email.toLowerCase().trim().substring(0, 150);
-}
-
 export async function onRequestPost(context) {
   const { request, env } = context;
   const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
   const clientIp = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || 'unknown';
   const origin = request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')))
-    ? origin
-    : '*';
-
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-RELAXAX-Signature",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Content-Type": "application/json; charset=utf-8"
-  };
+  const corsHeaders = getCorsHeaders(origin, 'POST, OPTIONS');
 
   // 1. Anti Brute-Force Rate Limiting
   if (checkAuthRateLimit(clientIp)) {
@@ -346,26 +320,11 @@ export async function onRequestPost(context) {
 }
 
 export async function onRequestOptions(context) {
-  const origin = (context && context.request) ? context.request.headers.get('Origin') : '';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-RELAXAX-Signature",
-      "Access-Control-Max-Age": "86400",
-      "X-Content-Type-Options": "nosniff"
-    }
-  });
+  return handleOptionsCors(context.request, "POST, OPTIONS");
 }
 
 export async function onRequest(context) {
-  if (context.request.method === "OPTIONS") {
-    return onRequestOptions(context);
-  }
-  return onRequestPost(context);
+  if (context.request.method === "OPTIONS") return onRequestOptions(context);
+  if (context.request.method === "POST") return onRequestPost(context);
+  return createApiError("Method not allowed. Use POST.", 405, null, null, context.request.headers.get('Origin') || '*');
 }

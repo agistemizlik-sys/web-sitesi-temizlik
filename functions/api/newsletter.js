@@ -1,60 +1,35 @@
-import { hasSqlInjection, sanitizeKey } from './_security.js';
+import { hasSqlInjection } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeEmail, sanitizeString } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Newsletter & VIP Hygiene Club API
  * POST /api/newsletter & OPTIONS /api/newsletter
- *
- * Collects emails for exclusive promo coupons, seasonal offers, and cleaning tips with SQL injection protection.
  */
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').toLowerCase().trim());
-}
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const traceId = `nl-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
-
   const origin = request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN",
-    "X-RELAXAX-Trace-ID": traceId
-  };
+  const traceId = generateTraceId('nl');
 
   try {
-    const body = await request.json().catch(() => ({}));
-    const email = String(body.email || '').toLowerCase().trim();
-    const lang = String(body.lang || 'tr').toLowerCase();
+    const { data: body, error, status } = await parseAndValidateJson(request, 4096);
+    if (error) return createApiError(error, status, traceId, null, origin);
+
+    const email = sanitizeEmail(body.email);
+    const lang = sanitizeString(body.lang || 'tr', 10).toLowerCase();
 
     if (hasSqlInjection(email) || hasSqlInjection(lang)) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Security Alert: Invalid characters detected",
-        traceId
-      }), {
-        status: 400,
-        headers
-      });
+      return createApiError("Security Alert: Invalid characters detected", 400, traceId, null, origin);
     }
 
-    if (!isValidEmail(email) || email.length > 120) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: lang === 'pl' ? "Proszę podać poprawny adres e-mail." : "Geçerli bir e-posta adresi giriniz.",
-        traceId
-      }), {
-        status: 400,
-        headers
-      });
+    if (!email) {
+      return createApiError(
+        lang === 'pl' ? "Proszę podać poprawny adres e-mail." : "Geçerli bir e-posta adresi giriniz.",
+        400,
+        traceId,
+        null,
+        origin
+      );
     }
 
     // Persist subscriber to KV if available
@@ -69,55 +44,28 @@ export async function onRequestPost(context) {
       } catch(e) {}
     }
 
-    return new Response(JSON.stringify({
+    return createApiResponse({
       success: true,
       data: {
         message: lang === 'pl' 
           ? "Dziękujemy! Twój kod rabatowy 10%: RELAX10" 
           : "Teşekkürler! %10 Tanışma İndirim Kodunuz: RELAX10",
         couponCode: "RELAX10",
-        discountPercent: 10,
-        traceId
+        discountPercent: 10
       }
-    }, null, 2), {
-      status: 200,
-      headers
-    });
+    }, 200, origin, traceId);
 
   } catch(err) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: "Internal server error",
-      traceId
-    }), {
-      status: 500,
-      headers
-    });
+    return createApiError("Internal server error", 500, traceId, err.message, origin);
   }
 }
 
 export async function onRequestOptions(context) {
-  const origin = (context && context.request) ? context.request.headers.get('Origin') : '';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-      "Access-Control-Max-Age": "86400"
-    }
-  });
+  return handleOptionsCors(context.request, "POST, OPTIONS");
 }
 
 export async function onRequest(context) {
   if (context.request.method === "POST") return onRequestPost(context);
   if (context.request.method === "OPTIONS") return onRequestOptions(context);
-  return new Response(JSON.stringify({ success: false, error: "Method not allowed. Use POST." }), {
-    status: 405,
-    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-  });
+  return createApiError("Method not allowed. Use POST.", 405, null, null, context.request.headers.get('Origin') || '*');
 }

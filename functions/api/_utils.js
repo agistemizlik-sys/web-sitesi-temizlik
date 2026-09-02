@@ -9,7 +9,7 @@
   return {
     'Access-Control-Allow-Origin': allowed,
     'Access-Control-Allow-Methods': methods,
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, X-RELAXAX-Signature, X-RELAXAX-Trace-ID',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, X-RELAXAX-Signature, X-RELAXAX-CSRF-Token, X-RELAXAX-Trace-ID',
     'Access-Control-Max-Age': '86400',
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'SAMEORIGIN',
@@ -190,4 +190,32 @@ export async function generateHmacSignature(secret, message) {
   } catch (e) {
     return '';
   }
+}
+
+export function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+export function validateSafeNumber(val, min = 0, max = 1000000, defaultVal = 0) {
+  if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+    return Math.max(min, Math.min(max, Math.round(val)));
+  }
+  const parsed = Number(val);
+  if (!isNaN(parsed) && isFinite(parsed)) {
+    return Math.max(min, Math.min(max, Math.round(parsed)));
+  }
+  return defaultVal;
+}
+
+export function validateCsrfHeader(request) {
+  if (!request || !request.headers) return false;
+  const token = request.headers.get('X-RELAXAX-CSRF-Token') || request.headers.get('x-csrf-token');
+  if (!token || typeof token !== 'string') return false;
+  return token.startsWith('rlx_csrf_') && token.length >= 24;
 }
