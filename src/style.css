@@ -20167,14 +20167,14 @@ html, body {
   filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 45px rgba(251, 191, 36, 0.6));
 }
 
-/* 🌟 Real Interactive Clickable Button Pill Directly Covering Flag Buttons */
+/* 🌟 Real Interactive Clickable Button Pill Overlay */
 .royal-action-btn {
   position: absolute;
-  top: 66.3%;
-  left: 50%;
+  top: 71.5%;
+  left: 51.5%;
   transform: translate(-50%, -50%);
-  width: 44%;
-  height: 8.5%;
+  width: 46%;
+  height: 9.8%;
   border-radius: 9999px;
   cursor: pointer;
   display: flex;
@@ -20182,48 +20182,39 @@ html, body {
   justify-content: center;
   gap: 6px;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: clamp(0.72rem, 1.0vw, 0.95rem);
+  font-size: clamp(0.75rem, 1.05vw, 0.96rem);
   font-weight: 800;
   letter-spacing: 0.04em;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: auto;
   z-index: 15;
   outline: none;
   border: 1.5px solid transparent;
+  background: transparent;
+  color: transparent;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Turkey Button Pill Style (Off-white/cream linen style) */
-.royal-action-btn.btn-tr {
-  background: linear-gradient(180deg, #fbf9f4 0%, #e8e1d2 100%);
-  color: #7f1d1d;
-  border-color: rgba(217, 119, 6, 0.5);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
-}
-
+/* Turkey Button Pill Hover Glow */
 .royal-banner-container:hover .royal-action-btn.btn-tr,
 .royal-action-btn.btn-tr:hover {
+  opacity: 1;
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: #ffffff;
   border-color: #fef08a;
-  transform: translate(-50%, -52%) scale(1.08);
-  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.85), 0 0 20px rgba(254, 240, 138, 0.9);
+  transform: translate(-50%, -53%) scale(1.06);
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.85), 0 0 25px rgba(254, 240, 138, 0.9);
 }
 
-/* Poland Button Pill Style (Stitched Crimson style) */
-.royal-action-btn.btn-pl {
-  background: linear-gradient(180deg, #7f1d1d 0%, #570d18 100%);
-  color: #ffffff;
-  border-color: rgba(254, 240, 138, 0.4);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-}
-
+/* Poland Button Pill Hover Glow */
 .royal-banner-container:hover .royal-action-btn.btn-pl,
 .royal-action-btn.btn-pl:hover {
+  opacity: 1;
   background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
   color: #ffffff;
   border-color: #ffffff;
-  transform: translate(-50%, -52%) scale(1.08);
-  box-shadow: 0 8px 24px rgba(225, 29, 72, 0.85), 0 0 20px rgba(255, 255, 255, 0.8);
+  transform: translate(-50%, -53%) scale(1.06);
+  box-shadow: 0 8px 24px rgba(225, 29, 72, 0.85), 0 0 25px rgba(255, 255, 255, 0.9);
 }
 
 .royal-action-btn .btn-arrow {
@@ -20233,11 +20224,11 @@ html, body {
 
 .royal-banner-container:hover .royal-action-btn .btn-arrow,
 .royal-action-btn:hover .btn-arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
 .royal-action-btn:active {
-  transform: translate(-50%, -48%) scale(0.96) !important;
+  transform: translate(-50%, -49%) scale(0.96) !important;
 }
 
 .hotspot-hover-aura,
