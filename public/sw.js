@@ -3,7 +3,7 @@
  * Stale-While-Revalidate & Cache First Asset Caching Engine
  */
 
-const CACHE_NAME = 'relaxax-pwa-v3.0.0-royal-banners';
+const CACHE_NAME = 'relaxax-pwa-v3.1.0-journey-hd';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

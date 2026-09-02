@@ -3447,7 +3447,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/book_journey/f_${numStr}.webp?v=royal_1080p_ultrahd_v1`;
+    img.src = `/videos/journey_hd/f_${numStr}.webp?v=v2026_hd_final`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
@@ -3673,9 +3673,9 @@ function setupPortalIntroClick() {
 
     if (bannerOpacity > 0.01) {
       const { ox, oy, rw, rh, isPortrait } = lastFrameRect;
-      const bannerW = isPortrait ? Math.min(170, rw * 0.44) : Math.min(320, Math.max(210, rw * 0.23));
+      const bannerW = isPortrait ? Math.min(185, rw * 0.44) : Math.min(360, Math.max(250, rw * 0.25));
       const bannerH = bannerW / 0.596;
-      const topY = oy + (isPortrait ? rh * 0.12 : rh * 0.14);
+      const topY = oy + (isPortrait ? rh * 0.10 : rh * 0.08);
 
       const leftCenterX = isPortrait ? (ox + rw * 0.26) : (ox + rw * 0.23);
       const rightCenterX = isPortrait ? (ox + rw * 0.74) : (ox + rw * 0.77);
@@ -3683,7 +3683,7 @@ function setupPortalIntroClick() {
       const leftX = leftCenterX - (bannerW / 2);
       const rightX = rightCenterX - (bannerW / 2);
 
-      const dropOffsetY = (1.0 - bannerDrop) * -80;
+      const dropOffsetY = (1.0 - bannerDrop) * -90;
 
       if (poleLeft) {
         poleLeft.style.left = `${Math.round(leftX)}px`;
