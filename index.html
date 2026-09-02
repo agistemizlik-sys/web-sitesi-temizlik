@@ -6174,17 +6174,31 @@
       <span class="rx-vw-bar"></span>
     </div>
 
-    <!-- Dynamic Voice Response Box -->
+    <!-- Live Microphone Speech-to-Text Button -->
+    <div class="rx-vah-mic-row">
+      <button type="button" class="btn-voice-mic-listen" id="btnVoiceMicListen" title="Mikrofon ile Konuş" aria-label="Mikrofon ile Konuş">
+        <span class="mic-pulse-ring"></span>
+        <span class="mic-icon">🎙️</span>
+        <span class="mic-text">Mikrofonla Konuş</span>
+      </button>
+    </div>
+
+    <!-- Real-time User Transcribed Speech Box -->
+    <div class="rx-vah-user-speech" id="voiceUserSpeechBox" style="display:none;"></div>
+
+    <!-- Dynamic Voice Response & Action Buttons Box -->
     <div class="rx-vah-reply-box" id="voiceHudReplyBox">
       Merhaba! RELAXAX Premium Temizlik Merkezine hoş geldiniz. Size nasıl yardımcı olabilirim?
     </div>
 
-    <!-- Quick Question Buttons -->
+    <!-- Quick Question Buttons Grid -->
     <div class="rx-vah-quick-grid">
-      <button type="button" class="btn-voice-quick-ask" data-topic="pricing">💰 Fiyatlar Kaç TL?</button>
-      <button type="button" class="btn-voice-quick-ask" data-topic="hygiene">🧪 48 Nokta Hijyen Nedir?</button>
-      <button type="button" class="btn-voice-quick-ask" data-topic="vip">👑 VIP Concierge Nedir?</button>
-      <button type="button" class="btn-voice-quick-ask" data-topic="promo">🎁 İndirim Kuponu Var mı?</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="pricing">💰 Fiyat Hesapla</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="promo">🎁 %15 Kupon Al</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="booking">📅 Randevu Al</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="hygiene">🧪 48 Nokta Hijyen</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="vip">👑 VIP Concierge</button>
+      <button type="button" class="btn-voice-quick-ask" data-topic="contact">💬 WhatsApp Danışmanı</button>
     </div>
   </div>
 
