@@ -20325,21 +20325,17 @@ html, body {
 /* 🌟 Real Interactive Clickable Button Pill Overlay */
 .royal-action-btn {
   position: absolute;
-  top: 71.5%;
-  left: 51.5%;
+  top: 71.0%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 46%;
-  height: 9.8%;
+  width: 38%;
+  height: 7.5%;
   border-radius: 9999px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: clamp(0.75rem, 1.05vw, 0.96rem);
-  font-weight: 800;
-  letter-spacing: 0.04em;
   pointer-events: auto;
   z-index: 15;
   outline: none;
@@ -20347,39 +20343,30 @@ html, body {
   background: transparent;
   color: transparent;
   opacity: 0;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Turkey Button Pill Hover Glow */
-.royal-banner-container:hover .royal-action-btn.btn-tr,
-.royal-action-btn.btn-tr:hover {
+.royal-action-btn.btn-tr {
+  left: 51.1%;
+}
+
+.royal-action-btn.btn-pl {
+  left: 49.4%;
+}
+
+/* Luxury Royal Gold Shimmer Aura on Hover */
+.royal-banner-container:hover .royal-action-btn,
+.royal-action-btn:hover {
   opacity: 1;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #ffffff;
-  border-color: #fef08a;
-  transform: translate(-50%, -53%) scale(1.06);
-  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.85), 0 0 25px rgba(254, 240, 138, 0.9);
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(254, 240, 138, 0.9);
+  transform: translate(-50%, -50%) scale(1.04);
+  box-shadow: 0 4px 18px rgba(217, 119, 6, 0.6), 0 0 25px rgba(254, 240, 138, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
-/* Poland Button Pill Hover Glow */
-.royal-banner-container:hover .royal-action-btn.btn-pl,
-.royal-action-btn.btn-pl:hover {
-  opacity: 1;
-  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
-  color: #ffffff;
-  border-color: #ffffff;
-  transform: translate(-50%, -53%) scale(1.06);
-  box-shadow: 0 8px 24px rgba(225, 29, 72, 0.85), 0 0 25px rgba(255, 255, 255, 0.9);
-}
-
+.royal-action-btn .btn-text,
 .royal-action-btn .btn-arrow {
-  display: inline-block;
-  transition: transform 0.25s ease;
-}
-
-.royal-banner-container:hover .royal-action-btn .btn-arrow,
-.royal-action-btn:hover .btn-arrow {
-  transform: translateX(4px);
+  opacity: 0;
 }
 
 .royal-action-btn:active {
