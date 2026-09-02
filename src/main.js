@@ -3391,6 +3391,7 @@ function setupPortalIntroClick() {
         oy = (ch - rh) / 2;
       }
       ctx.drawImage(img, ox, oy, rw, rh);
+      lastFrameRect = { ox, oy, rw, rh, isPortrait: false };
     } else {
       // Portrait / Mobile: Ambient backdrop + perfectly framed crisp subject
       // 1. Ambient blurred background
@@ -3421,8 +3422,11 @@ function setupPortalIntroClick() {
       const fgOy = (ch - fgRh) * 0.42;
 
       ctx.drawImage(img, fgOx, fgOy, fgRw, fgRh);
+      lastFrameRect = { ox: fgOx, oy: fgOy, rw: fgRw, rh: fgRh, isPortrait: true };
     }
   };
+
+  let lastFrameRect = { ox: 0, oy: 0, rw: 1280, rh: 720, isPortrait: false };
 
   // Magical floating golden dust particles inside the book
   const magicalParticles = Array.from({ length: 36 }, () => ({
@@ -3660,26 +3664,55 @@ function setupPortalIntroClick() {
 
     updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.05, 0.12, 0.18, 0.28);
 
-    // 6. Interactive Click Hotspots for the Video Banners (Visible when banners settle: progress > 0.80)
+    // 6. Interactive Click Hotspots for the Video Banners (Settled banners: progress > 0.76)
     let bannerOpacity = 0;
-    if (progress > 0.80) {
-      const rawDrop = Math.min(1.0, (progress - 0.80) / 0.15);
+    if (progress > 0.76) {
+      const rawDrop = Math.min(1.0, (progress - 0.76) / 0.16);
       bannerOpacity = 1.0 - Math.pow(1.0 - rawDrop, 2);
     }
 
-    const roundedBannerOp = Math.round(bannerOpacity * 100) / 100;
-    if (roundedBannerOp !== lastBannerOp) {
+    if (bannerOpacity > 0.01) {
+      const { ox, oy, rw, rh, isPortrait } = lastFrameRect;
+      const bannerW = isPortrait ? Math.max(140, rw * 0.32) : Math.max(160, Math.min(300, rw * 0.22));
+      const bannerH = isPortrait ? rh * 0.70 : rh * 0.60;
+      const topY = oy + rh * 0.17;
+
+      const leftCenterX = ox + rw * 0.164;
+      const rightCenterX = ox + rw * 0.836;
+
+      const leftX = leftCenterX - (bannerW / 2);
+      const rightX = rightCenterX - (bannerW / 2);
+
       if (poleLeft) {
+        poleLeft.style.left = `${Math.round(leftX)}px`;
+        poleLeft.style.top = `${Math.round(topY)}px`;
+        poleLeft.style.width = `${Math.round(bannerW)}px`;
+        poleLeft.style.height = `${Math.round(bannerH)}px`;
         poleLeft.style.opacity = bannerOpacity.toFixed(2);
-        poleLeft.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
-        poleLeft.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
+        poleLeft.style.visibility = 'visible';
+        poleLeft.style.pointerEvents = bannerOpacity > 0.35 ? 'auto' : 'none';
+      }
+
+      if (poleRight) {
+        poleRight.style.left = `${Math.round(rightX)}px`;
+        poleRight.style.top = `${Math.round(topY)}px`;
+        poleRight.style.width = `${Math.round(bannerW)}px`;
+        poleRight.style.height = `${Math.round(bannerH)}px`;
+        poleRight.style.opacity = bannerOpacity.toFixed(2);
+        poleRight.style.visibility = 'visible';
+        poleRight.style.pointerEvents = bannerOpacity > 0.35 ? 'auto' : 'none';
+      }
+    } else {
+      if (poleLeft) {
+        poleLeft.style.opacity = '0';
+        poleLeft.style.visibility = 'hidden';
+        poleLeft.style.pointerEvents = 'none';
       }
       if (poleRight) {
-        poleRight.style.opacity = bannerOpacity.toFixed(2);
-        poleRight.style.visibility = bannerOpacity > 0.02 ? 'visible' : 'hidden';
-        poleRight.style.pointerEvents = bannerOpacity > 0.4 ? 'auto' : 'none';
+        poleRight.style.opacity = '0';
+        poleRight.style.visibility = 'hidden';
+        poleRight.style.pointerEvents = 'none';
       }
-      lastBannerOp = roundedBannerOp;
     }
   };
 
