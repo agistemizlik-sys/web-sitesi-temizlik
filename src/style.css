@@ -20157,24 +20157,24 @@ html, body {
   height: 100%;
   object-fit: contain;
   pointer-events: none;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.65)) drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 20px 38px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 35px rgba(245, 158, 11, 0.28));
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
   will-change: transform;
 }
 
 .royal-banner-container:hover .royal-banner-img {
   transform: translateY(-4px) scale(1.02);
-  filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 24px rgba(251, 191, 36, 0.35));
+  filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 45px rgba(251, 191, 36, 0.6));
 }
 
 /* 🌟 Real Interactive Clickable Button Pill Directly Covering Flag Buttons */
 .royal-action-btn {
   position: absolute;
-  top: 67.5%;
+  top: 71.8%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 46%;
-  height: 9.4%;
+  height: 8.2%;
   border-radius: 9999px;
   cursor: pointer;
   display: flex;
