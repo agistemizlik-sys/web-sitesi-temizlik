@@ -3874,6 +3874,7 @@ function setupPortalIntroClick() {
     } else if (typeof window.selectCountry === 'function') {
       window.selectCountry('tr');
     }
+    setTimeout(() => { isTransitioning = false; }, 600);
   };
 
   const handleSelectPL = (e) => {
@@ -3922,6 +3923,7 @@ function setupPortalIntroClick() {
     } else if (typeof window.selectCountry === 'function') {
       window.selectCountry('pl');
     }
+    setTimeout(() => { isTransitioning = false; }, 600);
   };
 
   const btnTR = document.getElementById('btnBannerTR');
