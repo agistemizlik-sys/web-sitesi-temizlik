@@ -1,4 +1,5 @@
 import { hasSqlInjection } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Verified Reviews & Ratings API
@@ -87,9 +88,6 @@ const REVIEWS_DATABASE = [
     avatar: "👩"
   }
 ];
-
-import { hasSqlInjection } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString } from './_utils.js';
 
 export async function onRequest(context) {
   const { request } = context;
