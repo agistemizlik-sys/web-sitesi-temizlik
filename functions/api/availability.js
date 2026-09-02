@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RELAXAX Enterprise Real-Time Slot & Date Availability Engine
  * GET /api/availability & POST /api/availability
  *
@@ -84,4 +84,29 @@ export async function onRequest(context) {
     status: 200,
     headers
   });
+}
+
+export async function onRequestOptions(context) {
+  const origin = context.request.headers.get('Origin') || '*';
+  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
+    ? origin
+    : '*';
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
+      "X-Content-Type-Options": "nosniff"
+    }
+  });
+}
+
+export async function onRequestGet(context) {
+  return onRequest(context);
+}
+
+export async function onRequestPost(context) {
+  return onRequest(context);
 }

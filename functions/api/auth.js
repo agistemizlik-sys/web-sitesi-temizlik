@@ -362,3 +362,10 @@ export async function onRequestOptions(context) {
     }
   });
 }
+
+export async function onRequest(context) {
+  if (context.request.method === "OPTIONS") {
+    return onRequestOptions(context);
+  }
+  return onRequestPost(context);
+}

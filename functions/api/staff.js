@@ -194,3 +194,12 @@ export async function onRequestPatch(context) {
     });
   }
 }
+
+export async function onRequest(context) {
+  const method = context.request.method;
+  if (method === "OPTIONS") return onRequestOptions(context);
+  if (method === "GET") return onRequestGet(context);
+  if (method === "POST") return onRequestPost(context);
+  if (method === "PATCH") return onRequestPatch(context);
+  return onRequestGet(context);
+}

@@ -145,3 +145,24 @@ export async function onRequest(context) {
   });
 }
 
+export async function onRequestOptions(context) {
+  const origin = context.request.headers.get('Origin') || '*';
+  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
+    ? origin
+    : '*';
+
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
+      "X-Content-Type-Options": "nosniff"
+    }
+  });
+}
+
+export async function onRequestGet(context) {
+  return onRequest(context);
+}
+
