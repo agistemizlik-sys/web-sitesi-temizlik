@@ -310,37 +310,9 @@ html.bypassing-gateway #portal-stage {
   margin-top: 2px;
 }
 
+.portal-logo-container,
 .portal-center-hint {
-  position: relative;
-  z-index: 5;
-  pointer-events: none;
-  margin-bottom: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.portal-center-hint .hint-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.portal-center-hint .hint-main-title {
-  font-family: var(--font-serif);
-  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--clr-ink);
-  line-height: 1.1;
-}
-
-.portal-center-hint .hint-sub-title {
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: var(--clr-muted);
+  display: none !important;
 }
 
 /* 6-Card Grid Portal */
