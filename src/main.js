@@ -3558,7 +3558,7 @@ function setupPortalIntroClick() {
       // Phase B: Page Dive Cloud Mist / Sunburst Veil (0.52 - 0.74)
       if (progress >= 0.52 && progress <= 0.74) {
         const mistPhase = progress < 0.63 ? (progress - 0.52) / 0.11 : (0.74 - progress) / 0.11;
-        const mistAlpha = Math.max(0, Math.min(0.20, mistPhase * 0.20));
+        const mistAlpha = Math.max(0, Math.min(0.22, mistPhase * 0.22));
 
         if (mistAlpha > 0.02) {
           const sunburst = ctx.createRadialGradient(
@@ -3573,6 +3573,65 @@ function setupPortalIntroClick() {
           ctx.fillStyle = sunburst;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
+      }
+
+      // Phase C: Volumetric Sunset God Rays & Ambient Golden Atmosphere (0.70 - 1.00)
+      if (progress >= 0.70) {
+        const skyPhase = (progress - 0.70) / 0.30;
+        const rayAlpha = Math.min(0.28, skyPhase * 0.28);
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        const sunCenterX = canvas.width * 0.50;
+        const sunCenterY = canvas.height * 0.72;
+
+        // Soft golden sun aura
+        const sunGlow = ctx.createRadialGradient(
+          sunCenterX, sunCenterY, 20,
+          sunCenterX, sunCenterY, canvas.width * 0.70
+        );
+        sunGlow.addColorStop(0, `rgba(254, 240, 138, ${(rayAlpha * 1.5).toFixed(3)})`);
+        sunGlow.addColorStop(0.35, `rgba(245, 158, 11, ${(rayAlpha * 0.8).toFixed(3)})`);
+        sunGlow.addColorStop(0.70, `rgba(217, 119, 6, ${(rayAlpha * 0.35).toFixed(3)})`);
+        sunGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = sunGlow;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 7 Volumetric light ray fans radiating upwards across the sky
+        const numRays = 7;
+        for (let r = 0; r < numRays; r++) {
+          const baseAngle = -Math.PI * 0.5 + (r - (numRays - 1) / 2) * 0.22;
+          const rayW = 0.11 + Math.sin(progress * 6 + r) * 0.025;
+          ctx.beginPath();
+          ctx.moveTo(sunCenterX, sunCenterY);
+          ctx.lineTo(sunCenterX + Math.cos(baseAngle - rayW) * canvas.width * 1.2, sunCenterY + Math.sin(baseAngle - rayW) * canvas.height * 1.2);
+          ctx.lineTo(sunCenterX + Math.cos(baseAngle + rayW) * canvas.width * 1.2, sunCenterY + Math.sin(baseAngle + rayW) * canvas.height * 1.2);
+          ctx.closePath();
+
+          const rayGrad = ctx.createRadialGradient(
+            sunCenterX, sunCenterY, 30,
+            sunCenterX, sunCenterY, canvas.width * 0.85
+          );
+          rayGrad.addColorStop(0, `rgba(255, 248, 220, ${(rayAlpha * 0.95).toFixed(3)})`);
+          rayGrad.addColorStop(0.55, `rgba(251, 191, 36, ${(rayAlpha * 0.45).toFixed(3)})`);
+          rayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = rayGrad;
+          ctx.fill();
+        }
+
+        // Floating golden dust particles in the sunset
+        magicalParticles.forEach((p) => {
+          const particleY = (p.y - (progress * p.speedY * 1.5)) % 1.0;
+          const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
+          const actualX = (p.x + Math.sin(progress * 12 + p.phase) * 0.06) * canvas.width;
+          const pAlpha = p.baseAlpha * skyPhase * 0.9;
+          if (pAlpha > 0.05) {
+            ctx.globalAlpha = pAlpha;
+            ctx.drawImage(particleSpriteCanvas, actualX - p.size, actualY - p.size, p.size * 2.2, p.size * 2.2);
+          }
+        });
+
+        ctx.restore();
       }
     }
 
