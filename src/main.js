@@ -3824,7 +3824,10 @@ function setupPortalIntroClick() {
     }
   };
 
+  let isTransitioning = false;
   const handleSelectTR = (e) => {
+    if (isTransitioning) return;
+    isTransitioning = true;
     if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
     if (typeof synth !== 'undefined' && synth) {
       try { synth.playClick(); } catch(err){}
@@ -3871,6 +3874,8 @@ function setupPortalIntroClick() {
   };
 
   const handleSelectPL = (e) => {
+    if (isTransitioning) return;
+    isTransitioning = true;
     if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
     if (typeof synth !== 'undefined' && synth) {
       try { synth.playClick(); } catch(err){}
@@ -3917,15 +3922,13 @@ function setupPortalIntroClick() {
   };
 
   if (poleLeft) {
-    poleLeft.onclick = handleSelectTR;
-    poleLeft.addEventListener('click', handleSelectTR, true);
-    poleLeft.addEventListener('touchend', handleSelectTR, true);
+    poleLeft.addEventListener('click', handleSelectTR);
+    poleLeft.addEventListener('touchend', handleSelectTR, { passive: false });
   }
 
   if (poleRight) {
-    poleRight.onclick = handleSelectPL;
-    poleRight.addEventListener('click', handleSelectPL, true);
-    poleRight.addEventListener('touchend', handleSelectPL, true);
+    poleRight.addEventListener('click', handleSelectPL);
+    poleRight.addEventListener('touchend', handleSelectPL, { passive: false });
   }
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
