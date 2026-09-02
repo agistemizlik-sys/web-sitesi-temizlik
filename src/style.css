@@ -20254,20 +20254,10 @@ html, body {
   .slogan-book-theme .slogan-word-right {
     font-size: clamp(1.2rem, 5.2vw, 1.55rem) !important;
   }
-  .royal-banner-container {
-    top: calc((100vh - 74vw / 0.596) * 0.38 + 2vh) !important;
-    width: 44vw !important;
-  }
-  .banner-container-left {
-    left: 4vw !important;
-  }
-  .banner-container-right {
-    right: 4vw !important;
-  }
   .royal-action-btn {
-    width: 50% !important;
-    height: 10% !important;
-    font-size: 0.72rem !important;
+    width: 50%;
+    height: 10%;
+    font-size: 0.72rem;
   }
   .scroll-journey-hud {
     bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
