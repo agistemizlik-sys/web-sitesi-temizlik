@@ -3596,14 +3596,9 @@ function setupPortalIntroClick() {
       }
     }
 
-    // 4. First-Person Camera Motion Bob
-    const walkPhase = progress * 40;
-    const walkBobY = Math.sin(walkPhase) * 3.2;
-    const walkSwayX = Math.cos(walkPhase * 0.5) * 1.5;
-    const depthScale = 1.0 + Math.pow(progress, 1.3) * 0.08;
-
-    if (canvas) {
-      canvas.style.transform = `scale(${depthScale.toFixed(4)}) translate3d(${walkSwayX.toFixed(2)}px, ${walkBobY.toFixed(2)}px, 0)`;
+    // 4. Stable 1:1 Camera Parity (No synthetic scale distortion)
+    if (canvas && canvas.style.transform) {
+      canvas.style.transform = 'none';
     }
 
     // 5. Splittable Manuscript Slogan (Single refined book inscription)
