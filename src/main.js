@@ -3789,14 +3789,14 @@ function setupPortalIntroClick() {
       }
 
       const diff = targetProgress - currentProgress;
-      if (Math.abs(diff) < 0.0008) {
+      if (Math.abs(diff) < 0.0005) {
         currentProgress = targetProgress;
         renderFrame(currentProgress);
         isDamping = false;
         return;
       }
 
-      currentProgress += diff * 0.18;
+      currentProgress += diff * 0.15;
       renderFrame(currentProgress);
       dampingRafId = requestAnimationFrame(dampStep);
     };
@@ -3818,11 +3818,13 @@ function setupPortalIntroClick() {
   };
   window._getProgress = () => currentProgress;
 
-  // ── SINGLE OPTIMIZED SCROLL WHEEL HANDLER ──
+  // ── SINGLE OPTIMIZED SCROLL WHEEL HANDLER (CALIBRATED SENSITIVITY) ──
   const onWheel = (e) => {
     if (triggered) return;
-    const delta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
-    const step = (delta / 100) * 0.028;
+    const rawDelta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
+    // Smooth bounded delta normalization for consistent feel across mice & trackpads
+    const clampedDelta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 100);
+    const step = (clampedDelta / 100) * 0.024;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     startDampingLoop();
   };
@@ -3844,7 +3846,7 @@ function setupPortalIntroClick() {
     if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
-    const step = deltaY / ((window.innerHeight || 800) * 0.80);
+    const step = deltaY / ((window.innerHeight || 800) * 0.85);
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
     startDampingLoop();
@@ -3862,10 +3864,10 @@ function setupPortalIntroClick() {
   const onKeyDown = (e) => {
     if (triggered) return;
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
-      targetProgress = Math.min(1.0, targetProgress + 0.06);
+      targetProgress = Math.min(1.0, targetProgress + 0.05);
       startDampingLoop();
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
-      targetProgress = Math.max(0.0, targetProgress - 0.06);
+      targetProgress = Math.max(0.0, targetProgress - 0.05);
       startDampingLoop();
     }
   };
@@ -8127,8 +8129,8 @@ function setupCinemaEngine() {
     if (isOverlayOpen && e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer')) return;
     
     e.preventDefault();
-    if (Math.abs(e.deltaY) < 10) return;
-    if (gestureDebounced(800)) return;
+    if (Math.abs(e.deltaY) < 14) return;
+    if (gestureDebounced(600)) return;
     if (e.deltaY > 0) stepNext();
     else stepPrev();
   }, { passive: false });
