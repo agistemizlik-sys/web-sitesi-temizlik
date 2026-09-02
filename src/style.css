@@ -20237,10 +20237,17 @@ html, body {
   .slogan-book-theme .slogan-word-right {
     font-size: clamp(1.2rem, 5.2vw, 1.55rem) !important;
   }
+  .video-banner-hotspot {
+    padding-bottom: 11% !important;
+  }
   .banner-click-btn-pill {
-    width: 84% !important;
-    height: 36px !important;
-    font-size: 0.78rem !important;
+    width: 90% !important;
+    height: 34px !important;
+    font-size: 0.74rem !important;
+    letter-spacing: 0.05em !important;
+    gap: 4px !important;
+    padding: 0 4px !important;
+    opacity: 0.96 !important;
   }
   .scroll-journey-hud {
     bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;

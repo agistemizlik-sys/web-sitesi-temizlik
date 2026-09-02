@@ -3405,21 +3405,25 @@ function setupPortalIntroClick() {
         ctx.filter = 'none';
       }
 
-      // 2. Foreground crisp subject
-      let scaleFactor = 1.42;
-      if (currentProgress <= 0.30) {
-        scaleFactor = 1.62;
-      } else if (currentProgress >= 0.48) {
-        scaleFactor = 1.42;
+      // 2. Foreground crisp subject:
+      // Book close-up at start (1.60x), gliding smoothly out to valley (1.18x), settling to full-frame 16:9 for flags (1.02x)
+      let scaleFactor = 1.02;
+      if (currentProgress <= 0.28) {
+        scaleFactor = 1.60;
+      } else if (currentProgress <= 0.55) {
+        const t = (currentProgress - 0.28) / (0.55 - 0.28);
+        scaleFactor = 1.60 - t * (1.60 - 1.18);
+      } else if (currentProgress <= 0.75) {
+        const t = (currentProgress - 0.55) / (0.75 - 0.55);
+        scaleFactor = 1.18 - t * (1.18 - 1.02);
       } else {
-        const t = (currentProgress - 0.30) / (0.48 - 0.30);
-        scaleFactor = 1.62 - t * (1.62 - 1.42);
+        scaleFactor = 1.02;
       }
 
       const fgRw = cw * scaleFactor;
       const fgRh = fgRw / imageRatio;
       const fgOx = (cw - fgRw) / 2;
-      const fgOy = (ch - fgRh) * 0.42;
+      const fgOy = (ch - fgRh) * 0.44;
 
       ctx.drawImage(img, fgOx, fgOy, fgRw, fgRh);
       lastFrameRect = { ox: fgOx, oy: fgOy, rw: fgRw, rh: fgRh, isPortrait: true };
@@ -3668,9 +3672,9 @@ function setupPortalIntroClick() {
 
     if (bannerOpacity > 0.01) {
       const { ox, oy, rw, rh, isPortrait } = lastFrameRect;
-      const bannerW = isPortrait ? Math.max(140, rw * 0.26) : Math.max(140, rw * 0.17);
-      const bannerH = isPortrait ? rh * 0.56 : rh * 0.54;
-      const topY = oy + rh * 0.264;
+      const bannerW = isPortrait ? Math.min(130, Math.max(105, rw * 0.28)) : Math.max(140, rw * 0.17);
+      const bannerH = isPortrait ? rh * 0.58 : rh * 0.54;
+      const topY = oy + (isPortrait ? rh * 0.25 : rh * 0.264);
 
       const leftCenterX = ox + rw * 0.2244;
       const rightCenterX = ox + rw * 0.7756;
