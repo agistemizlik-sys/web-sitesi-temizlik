@@ -368,28 +368,12 @@ export async function onRequestPost(context) {
 }
 
 export async function onRequestOptions(context) {
-  const origin = (context && context.request) ? context.request.headers.get('Origin') : '';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-      "Access-Control-Max-Age": "86400"
-    }
-  });
+  return handleOptionsCors(context.request, "GET, POST, OPTIONS");
 }
 
 export async function onRequest(context) {
   if (context.request.method === "POST") return onRequestPost(context);
   if (context.request.method === "OPTIONS") return onRequestOptions(context);
-  return new Response(JSON.stringify({ success: false, error: "Method not allowed" }), {
-    status: 405,
-    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-  });
+  return createApiError("Method not allowed. Use POST.", 405, null, null, context.request.headers.get('Origin') || '*');
 }
 
