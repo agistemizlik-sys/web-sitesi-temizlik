@@ -35,6 +35,20 @@ const VOICE_RESPONSES = {
     hygiene: "Zapewniamy 48-punktowy profesjonalny standard czystości i dezynfekcję parową 150°C.",
     vip: "Usługa VIP Concierge oferuje dedykowanego asystenta oraz ekspresowy dojazd w 2 godziny w Warszawie.",
     promo: "Twój kod rabatowy 15% na pierwsze sprzątanie to: WITAJ15."
+  },
+  de: {
+    greeting: "Guten Tag! Willkommen bei RELAXAX Premium Reinigungsservice. Wie kann ich Ihnen helfen?",
+    pricing: "Unsere Standardreinigung beginnt ab 1.850 TL (oder 189 PLN) mit bis zu 25% Dauerrabatt.",
+    hygiene: "Wir bieten 150°C Dampfdesinfektion und ein 48-Punkte-Qualitätszertifikat für maximale Reinheit.",
+    vip: "Unser VIP Concierge bietet persönliche Betreuung und 2-Stunden-Express-Service.",
+    promo: "Ihr exklusiver 15% Willkommensrabatt lautet: WILLKOMMEN15."
+  },
+  uk: {
+    greeting: "Вітаємо! Вас вітає преміальний клінінг-сервіс RELAXAX. Чим ми можемо вам допомогти?",
+    pricing: "Стандартне прибирання 2-кімнатної квартири від 189 злотих (1.850 TL) зі знижкою до 25% на регулярні візити.",
+    hygiene: "Ми використовуємо парову дезінфекцію Kärcher 150°C та надаємо 48-точковий сертифікат контролю якості.",
+    vip: "VIP Concierge надає персонального хаус-кіпера та експрес-виїзд протягом 2 годин.",
+    promo: "Ваш промокод на знижку 15%: HOSGELDIN15."
   }
 };
 

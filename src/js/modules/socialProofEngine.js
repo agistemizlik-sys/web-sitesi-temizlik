@@ -23,6 +23,28 @@ const NOTIFICATIONS_PL = [
   { icon: '🚗', title: 'Warszawa / Ursynów', text: 'Specjalista dotarł na miejsce i rozpoczął pracę', time: 'Przed chwilą' }
 ];
 
+const NOTIFICATIONS_EN = [
+  { icon: '📍', title: 'Warsaw / Mokotów', text: 'New apartment cleaning appointment scheduled', time: '2 minutes ago' },
+  { icon: '✨', title: 'Warsaw / City Center', text: 'Deep steam disinfection confirmed', time: '5 minutes ago' },
+  { icon: '🏢', title: 'Warsaw / Wola', text: 'Corporate office cleaning completed', time: '14 minutes ago' },
+  { icon: '🌟', title: 'Warsaw / Wilanów', text: 'Client review: "Outstanding service quality!" (★ 5.0)', time: '9 minutes ago' },
+  { icon: '🚗', title: 'Warsaw / Ursynów', text: 'Cleaning team arrived on site and started work', time: 'Just now' }
+];
+
+const NOTIFICATIONS_DE = [
+  { icon: '📍', title: 'Warschau / Mokotów', text: 'Wohnungsreinigung erfolgreich gebucht', time: 'Vor 2 Minuten' },
+  { icon: '✨', title: 'Warschau / Zentrum', text: 'Dampfdesinfektion & Grundreinigung bestätigt', time: 'Vor 5 Minuten' },
+  { icon: '🏢', title: 'Warschau / Wola', text: 'Periodische Büroreinigung abgeschlossen', time: 'Vor 14 Minuten' },
+  { icon: '🌟', title: 'Warschau / Wilanów', text: 'Kundenbewertung: "Hervorragende Qualität!" (★ 5.0)', time: 'Vor 9 Minuten' }
+];
+
+const NOTIFICATIONS_UK = [
+  { icon: '📍', title: 'Варшава / Мокотув', text: 'Створено нове бронювання прибирання квартири', time: '2 хвилини тому' },
+  { icon: '✨', title: 'Варшава / Центр', text: 'Генеральне парове прибирання підтверджено', time: '5 хвилин тому' },
+  { icon: '🏢', title: 'Варшава / Воля', text: 'Регулярне прибирання офісу завершено', time: '14 хвилин тому' },
+  { icon: '🌟', title: 'Варшава / Вілянув', text: 'Відгук клієнта: "Бездоганна чистота!" (★ 5.0)', time: '9 хвилин тому' }
+];
+
 let toastEl = null;
 let currentTimeout = null;
 let intervalId = null;
@@ -60,8 +82,13 @@ function showNextNotification() {
     return;
   }
 
-  const isPl = STATE && STATE.language === 'pl';
-  const list = isPl ? NOTIFICATIONS_PL : NOTIFICATIONS_TR;
+  const lang = STATE && STATE.language ? STATE.language : 'tr';
+  let list = NOTIFICATIONS_TR;
+  if (lang === 'pl') list = NOTIFICATIONS_PL;
+  else if (lang === 'en') list = NOTIFICATIONS_EN;
+  else if (lang === 'de') list = NOTIFICATIONS_DE;
+  else if (lang === 'uk') list = NOTIFICATIONS_UK;
+
   const item = list[Math.floor(Math.random() * list.length)];
 
   toastEl.innerHTML = `
