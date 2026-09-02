@@ -8328,6 +8328,13 @@ body.flag-selection-mode .portal-center-hint {
   margin-bottom: 16px;
 }
 
+@media (max-width: 520px) {
+  .bank-selector-tabs {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+}
+
 .bank-pill-btn {
   background: rgba(19, 31, 60, 0.75) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
@@ -19295,12 +19302,20 @@ html[dir="rtl"] .counter-btn.plus {
     padding: 6px 10px !important;
   }
 
-  /* Floating voice / action button position adjustment */
+  /* Floating voice / action button position adjustment above bottom dock */
   .rx-floating-voice-btn {
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-    right: 16px !important;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+    right: 14px !important;
     padding: 8px 14px !important;
     font-size: 12px !important;
+  }
+
+  .rx-voice-assistant-hud {
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
   }
 
   /* Admin Dashboard Mobile Optimization */
@@ -19469,12 +19484,15 @@ html[dir="rtl"] .counter-btn.plus {
     display: none !important;
   }
 
-  #cNavPriceCalcBtn {
-    padding: 6px 8px !important;
+  .services-text-overlay {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 90px !important;
   }
 
   .services-select-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
   }
 
   .cso-countries-grid {

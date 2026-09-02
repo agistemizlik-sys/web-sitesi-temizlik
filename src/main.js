@@ -4922,9 +4922,12 @@ async function initLeafletMap(country) {
       try { turkeyMapInstance.invalidateSize(); } catch(e){}
       return;
     }
+    const isMobileDevice = window.innerWidth <= 768;
     turkeyMapInstance = L.map('portalNeonMap', {
       zoomControl: true,
       scrollWheelZoom: false,
+      dragging: !isMobileDevice,
+      touchZoom: true,
       attributionControl: true,
       minZoom: 4.5,
       maxZoom: 9.5,
@@ -5010,9 +5013,12 @@ async function initLeafletMap(country) {
       updateCachedHotspotCoords();
       return;
     }
+    const isMobileDevice = window.innerWidth <= 768;
     polandMapInstance = L.map('portalNeonMapPoland', {
       zoomControl: true,
       scrollWheelZoom: false,
+      dragging: !isMobileDevice,
+      touchZoom: true,
       attributionControl: true,
       minZoom: 8,
       maxZoom: 14,
@@ -8187,7 +8193,7 @@ function setupCinemaEngine() {
       return; // Allow native touch scroll inside services section without jumping back to city video
     }
 
-    if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer, #main-nav, input, select, textarea, button, a')) return;
+    if (e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer, #main-nav, input, select, textarea, button, a, [role="dialog"], [class*="modal"], [class*="drawer"], .rx-voice-assistant-hud, .rx-vah-reply-box, .mobile-bottom-dock, .portal-map-selector-stage')) return;
     
     const absDy = Math.abs(dy);
     const absDx = Math.abs(dx);
@@ -10125,7 +10131,9 @@ function setupBookingReveal() {
     if (!targetEl) return;
     const bookingReveal = document.getElementById('bookingReveal');
     if (bookingReveal) {
-      const topOffset = targetEl.offsetTop - 80;
+      const targetRect = targetEl.getBoundingClientRect();
+      const parentRect = bookingReveal.getBoundingClientRect();
+      const topOffset = targetRect.top - parentRect.top + bookingReveal.scrollTop - 70;
       bookingReveal.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
     } else {
       targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
