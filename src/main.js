@@ -3333,12 +3333,12 @@ function setupPortalIntroClick() {
     pctx.fill();
   }
 
-  // ── Optimized High-DPI Resolution Clamping (Max 1920x1080 for 60+ FPS zero GPU overhead) ──
+  // ── High-DPI Ultra-HD Retina Canvas Scaling (True 1080p/2K/4K fidelity with 60 FPS) ──
   const resizeCanvas = () => {
     if (!canvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const targetW = Math.min(1920, Math.round(window.innerWidth * dpr));
-    const targetH = Math.min(1080, Math.round(window.innerHeight * dpr));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
+    const targetW = Math.round(window.innerWidth * dpr);
+    const targetH = Math.round(window.innerHeight * dpr);
 
     if (canvas.width !== targetW || canvas.height !== targetH) {
       canvas.width = targetW;
@@ -3346,7 +3346,7 @@ function setupPortalIntroClick() {
     }
     if (ctx) {
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'medium';
+      ctx.imageSmoothingQuality = 'high';
     }
   };
   window.addEventListener('resize', () => {
@@ -3447,7 +3447,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/book_journey/f_${numStr}.webp?v=royal_banners_v300`;
+    img.src = `/videos/book_journey/f_${numStr}.webp?v=royal_1080p_ultrahd_v1`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
