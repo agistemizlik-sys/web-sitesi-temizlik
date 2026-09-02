@@ -3361,7 +3361,9 @@ function setupPortalIntroClick() {
   }, { passive: true });
   resizeCanvas();
 
-  // Draw image with perfect aspect-ratio cover math (100% natural, crisp, unadulterated)
+  // Draw image with responsive aspect-ratio framing:
+  // - On desktop/landscape: 100% full-screen cover
+  // - On portrait mobile: intelligent subject framing with ambient blurred vertical fill
   const drawImageCover = (img, alpha = 1.0) => {
     if (!img || !img.complete || img.naturalWidth <= 0 || !ctx || !canvas) return;
     const cw = canvas.width;
@@ -3372,21 +3374,54 @@ function setupPortalIntroClick() {
     const canvasRatio = cw / ch;
     const imageRatio = iw / ih;
 
-    let rw, rh, ox, oy;
-    if (canvasRatio > imageRatio) {
-      rw = cw;
-      rh = cw / imageRatio;
-      ox = 0;
-      oy = (ch - rh) / 2;
-    } else {
-      rh = ch;
-      rw = ch * imageRatio;
-      ox = (cw - rw) / 2;
-      oy = (ch - rh) / 2;
-    }
-
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, ox, oy, rw, rh);
+
+    if (canvasRatio >= 1.0) {
+      // Landscape / Desktop: Classic high-fidelity cover math
+      let rw, rh, ox, oy;
+      if (canvasRatio > imageRatio) {
+        rw = cw;
+        rh = cw / imageRatio;
+        ox = 0;
+        oy = (ch - rh) / 2;
+      } else {
+        rh = ch;
+        rw = ch * imageRatio;
+        ox = (cw - rw) / 2;
+        oy = (ch - rh) / 2;
+      }
+      ctx.drawImage(img, ox, oy, rw, rh);
+    } else {
+      // Portrait / Mobile: Ambient backdrop + perfectly framed crisp subject
+      // 1. Ambient blurred background
+      const bgW = ch * imageRatio;
+      const bgOx = (cw - bgW) / 2;
+      if (ctx.filter !== undefined) {
+        ctx.filter = 'blur(24px) brightness(0.92)';
+      }
+      ctx.drawImage(img, bgOx, 0, bgW, ch);
+      if (ctx.filter !== undefined) {
+        ctx.filter = 'none';
+      }
+
+      // 2. Foreground crisp subject
+      let scaleFactor = 1.42;
+      if (currentProgress <= 0.30) {
+        scaleFactor = 1.62;
+      } else if (currentProgress >= 0.48) {
+        scaleFactor = 1.42;
+      } else {
+        const t = (currentProgress - 0.30) / (0.48 - 0.30);
+        scaleFactor = 1.62 - t * (1.62 - 1.42);
+      }
+
+      const fgRw = cw * scaleFactor;
+      const fgRh = fgRw / imageRatio;
+      const fgOx = (cw - fgRw) / 2;
+      const fgOy = (ch - fgRh) * 0.42;
+
+      ctx.drawImage(img, fgOx, fgOy, fgRw, fgRh);
+    }
   };
 
   // Magical floating golden dust particles inside the book

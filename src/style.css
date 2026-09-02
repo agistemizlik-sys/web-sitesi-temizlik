@@ -20236,23 +20236,27 @@ html, body {
 
 @media (max-width: 768px) {
   .video-banner-hotspot {
-    top: 10vh !important;
-    width: clamp(140px, 42vw, 190px) !important;
-    height: clamp(260px, 62vh, 480px) !important;
-    padding-bottom: 8.5% !important;
+    top: calc((100vh - (142vw / 1.777)) * 0.42 + 2vh) !important;
+    width: 44vw !important;
+    height: calc((142vw / 1.777) * 0.74) !important;
+    padding-bottom: 4px !important;
     border-radius: 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
   }
   .hotspot-card-left {
-    left: 4vw !important;
+    left: 2vw !important;
   }
   .hotspot-card-right {
-    right: 4vw !important;
+    right: 2vw !important;
   }
   .banner-click-btn-pill {
     opacity: 0.95 !important;
-    width: 80% !important;
-    height: 34px !important;
-    font-size: 0.76rem !important;
+    width: 84% !important;
+    height: 36px !important;
+    font-size: 0.78rem !important;
   }
   .scroll-journey-hud {
     bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
