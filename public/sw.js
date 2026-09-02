@@ -3,20 +3,23 @@
  * Stale-While-Revalidate & Cache First Asset Caching Engine
  */
 
-const CACHE_NAME = 'relaxax-pwa-v2.6.0';
+const CACHE_NAME = 'relaxax-pwa-v3.0.0-royal-banners';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
   '/favicon.svg',
-  '/site.webmanifest'
+  '/site.webmanifest',
+  '/images/banner_turkey_royal.png',
+  '/images/banner_poland_royal.png'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -39,24 +42,44 @@ self.addEventListener('fetch', (event) => {
   // Skip caching for API endpoints
   if (url.pathname.startsWith('/api/')) return;
 
-  // Stale-While-Revalidate for static assets + Offline Navigation Fallback
-  event.respondWith(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const cachedResponse = await cache.match(event.request);
-      const fetchPromise = fetch(event.request)
+  // Network-First for HTML/Navigation to guarantee latest version
+  if (event.request.mode === 'navigate' || url.pathname === '/' || url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request)
         .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-            cache.put(event.request, networkResponse.clone());
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(event.request, copy));
           }
           return networkResponse;
         })
         .catch(async () => {
-          if (event.request.mode === 'navigate') {
-            const fallback = await cache.match('/offline.html');
-            if (fallback) return fallback;
-          }
-          return cachedResponse;
-        });
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          return caches.match('/offline.html');
+        })
+    );
+    return;
+  }
+
+  // Network-first or fresh for assets with query params
+  if (url.search) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for other static assets
+  event.respondWith(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cachedResponse = await cache.match(event.request);
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          cache.put(event.request, networkResponse.clone());
+        }
+        return networkResponse;
+      }).catch(() => cachedResponse);
 
       return cachedResponse || fetchPromise;
     })

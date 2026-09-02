@@ -3447,7 +3447,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/book_journey/f_${numStr}.webp?v=pure_original_master_v10`;
+    img.src = `/videos/book_journey/f_${numStr}.webp?v=royal_banners_v300`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
