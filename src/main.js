@@ -5505,22 +5505,24 @@ function setupPortalGateway() {
   window.selectCityGlobal = selectCityGlobal;
 
   function returnToCountrySelector() {
-    const csoOverlay = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
     const mapSelectorStage = document.querySelector('.portal-map-selector-stage');
-    const earthVideo = document.getElementById('csoEarthVideo');
+    const portalStage = document.getElementById('portal-stage');
+    const heroTrack = document.getElementById('book-scroll-hero-track');
     
     if (mapSelectorStage) {
-      mapSelectorStage.style.display = 'none';
-      mapSelectorStage.style.opacity = '0';
+      mapSelectorStage.style.setProperty('display', 'none', 'important');
+      mapSelectorStage.style.setProperty('opacity', '0', 'important');
     }
-    if (csoOverlay) {
-      csoOverlay.classList.remove('cso-hidden');
-      csoOverlay.style.display = 'flex';
-      csoOverlay.style.visibility = 'visible';
-      csoOverlay.style.pointerEvents = 'all';
-      csoOverlay.style.opacity = '1';
-      if (earthVideo) {
-        earthVideo.play().catch(() => {});
+    if (portalStage) {
+      portalStage.style.setProperty('display', 'none', 'important');
+    }
+    if (heroTrack) {
+      heroTrack.style.setProperty('display', 'block', 'important');
+      heroTrack.style.setProperty('opacity', '1', 'important');
+      heroTrack.style.setProperty('pointer-events', 'auto', 'important');
+      heroTrack.style.transform = 'none';
+      if (typeof window._setProgress === 'function') {
+        window._setProgress(1.0, true);
       }
     }
     document.body.classList.remove('flag-selection-mode');
