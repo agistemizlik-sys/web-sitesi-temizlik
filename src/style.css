@@ -220,8 +220,8 @@ html.bypassing-gateway #portal-stage {
 #dust-canvas {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 9999999;
 }
@@ -1612,11 +1612,9 @@ body.portal-intro-mode #main-nav,
 /* 🎬 Cinematic Character Video Stage Behind Booking Cards 🎬 */
 .booking-bg-video-stage {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
