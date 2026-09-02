@@ -3,15 +3,15 @@
  * Stale-While-Revalidate & Cache First Asset Caching Engine
  */
 
-const CACHE_NAME = 'relaxax-pwa-v3.1.0-journey-hd';
+const CACHE_NAME = 'relaxax-pwa-v3.2.0-royal-banners';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
   '/favicon.svg',
   '/site.webmanifest',
-  '/images/banner_turkey_royal.png',
-  '/images/banner_poland_royal.png'
+  '/images/banner_turkey_royal.png?v=royal_v2',
+  '/images/banner_poland_royal.png?v=royal_v2'
 ];
 
 self.addEventListener('install', (event) => {

@@ -20268,7 +20268,7 @@ html, body {
   position: absolute;
   top: 14vh;
   width: clamp(210px, 23vw, 340px);
-  aspect-ratio: 310 / 520;
+  aspect-ratio: 310 / 600;
   display: flex;
   flex-direction: column;
   align-items: center;
