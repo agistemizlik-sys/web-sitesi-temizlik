@@ -4967,11 +4967,23 @@ async function initLeafletMap(country) {
       zoomDelta: 0.5
     }).setView([39.0, 35.0], 6);
     window.turkeyMapInstance = turkeyMapInstance;
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+
+    // Multi-CDN Ultra-Reliable Dark Tile Provider with Fallback
+    const darkTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       subdomains: 'abcd',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }).addTo(turkeyMapInstance);
+    });
+
+    darkTileLayer.on('tileerror', () => {
+      // Automatic fallback to standard OpenStreetMap
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(turkeyMapInstance);
+    });
+
+    darkTileLayer.addTo(turkeyMapInstance);
 
     const turkeyCities = [
       { key: 'Istanbul', coords: [41.0082, 28.9784], market: 'marmara', status: 'active' },
@@ -4983,15 +4995,15 @@ async function initLeafletMap(country) {
       { key: 'Sakarya', coords: [40.7560, 30.3784], market: 'marmara', status: 'active' },
       { key: 'Balikesir', coords: [39.6484, 27.8904], market: 'ege', status: 'active' },
       { key: 'Samsun', coords: [41.2867, 36.3300], market: 'karadeniz', status: 'active' },
+      { key: 'Bodrum', coords: [37.0344, 27.4305], market: 'ege', status: 'active' },
+      { key: 'Eskisehir', coords: [39.7667, 30.5256], market: 'icanadolu', status: 'coming_soon' },
       { key: 'Adana', coords: [37.0000, 35.3213], market: 'akdeniz', status: 'coming_soon' },
+      { key: 'Mersin', coords: [36.8121, 34.6415], market: 'akdeniz', status: 'coming_soon' },
       { key: 'Gaziantep', coords: [37.0662, 37.3833], market: 'guneydogu', status: 'coming_soon' },
       { key: 'Konya', coords: [37.8746, 32.4932], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Eskisehir', coords: [39.7667, 30.5256], market: 'icanadolu', status: 'coming_soon' },
       { key: 'Trabzon', coords: [41.0027, 39.7168], market: 'karadeniz', status: 'coming_soon' },
-      { key: 'Mersin', coords: [36.8121, 34.6415], market: 'akdeniz', status: 'coming_soon' },
       { key: 'Kayseri', coords: [38.7312, 35.4787], market: 'icanadolu', status: 'coming_soon' },
-      { key: 'Diyarbakir', coords: [37.9144, 40.2306], market: 'guneydogu', status: 'coming_soon' },
-      { key: 'Bodrum', coords: [37.0344, 27.4305], market: 'ege', status: 'coming_soon' }
+      { key: 'Diyarbakir', coords: [37.9144, 40.2306], market: 'guneydogu', status: 'coming_soon' }
     ];
 
     addLeafletMarkers(turkeyMapInstance, turkeyCities);
@@ -5016,18 +5028,14 @@ async function initLeafletMap(country) {
       updateCachedHotspotCoords();
     });
 
-    setTimeout(() => {
-      if (turkeyMapInstance) {
-        turkeyMapInstance.invalidateSize();
-        updateCachedHotspotCoords();
-      }
-    }, 100);
-    setTimeout(() => {
-      if (turkeyMapInstance) {
-        turkeyMapInstance.invalidateSize();
-        updateCachedHotspotCoords();
-      }
-    }, 300);
+    [50, 150, 300, 600, 1200].forEach(delay => {
+      setTimeout(() => {
+        if (turkeyMapInstance) {
+          turkeyMapInstance.invalidateSize();
+          updateCachedHotspotCoords();
+        }
+      }, delay);
+    });
 
     setTimeout(() => {
       const targets = document.querySelectorAll('#portalNeonMap .hotspot-core');

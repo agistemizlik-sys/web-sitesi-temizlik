@@ -10854,8 +10854,8 @@ body.wizard-modal-open .custom-tawk-launcher-dock {
 
 /* Minimalist dot without bulky circle wrapper */
 .hotspot-dot {
-  width: 7px;
-  height: 7px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: block;
   flex-shrink: 0;
@@ -10863,59 +10863,68 @@ body.wizard-modal-open .custom-tawk-launcher-dock {
   transition: all 0.2s ease;
 }
 
-/* Active service cities: Emerald green glowing dot */
+/* Active service cities: Emerald green glowing dot with radar pulse */
 .hotspot-dot.is-green {
   background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8), 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.9), 0 0 0 3px rgba(16, 185, 129, 0.35);
+  animation: mapPulseGreen 2.2s infinite ease-out;
 }
 
-/* Selected active city (e.g. Istanbul): Glowing emerald pin */
+@keyframes mapPulseGreen {
+  0% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.9), 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 14px rgba(16, 185, 129, 1), 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.9), 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Selected active city: Glowing cyan pin */
 .hotspot-dot.is-selected {
-  width: 9px;
-  height: 9px;
-  background: #10b981;
+  width: 12px;
+  height: 12px;
+  background: #38bdf8;
   border: 2px solid #ffffff;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 1), 0 2px 5px rgba(0, 0, 0, 0.25);
-  animation: selectedDotGlow 2s infinite ease-in-out;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 1), 0 0 0 4px rgba(56, 189, 248, 0.4);
+  animation: mapPulseSelected 1.8s infinite ease-out;
 }
 
-@keyframes selectedDotGlow {
-  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.9), 0 0 0 0 rgba(16, 185, 129, 0.4); }
-  50% { box-shadow: 0 0 14px rgba(16, 185, 129, 1), 0 0 0 5px rgba(16, 185, 129, 0); }
+@keyframes mapPulseSelected {
+  0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.9), 0 0 0 0 rgba(56, 189, 248, 0.7); }
+  70% { box-shadow: 0 0 18px rgba(56, 189, 248, 1), 0 0 0 10px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.9), 0 0 0 0 rgba(56, 189, 248, 0); }
 }
 
-/* Coming soon cities: Tiny subtle amber dot */
+/* Coming soon cities: Golden amber dot */
 .hotspot-dot.is-yellow {
-  width: 5px;
-  height: 5px;
-  background: #f59e0b;
-  box-shadow: 0 0 4px rgba(245, 158, 11, 0.6);
-  opacity: 0.8;
+  width: 8px;
+  height: 8px;
+  background: #fbbf24;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
 }
 
-/* Sleek minimalist floating text labels */
+/* High-contrast floating glassmorphic text labels */
 .hotspot-label {
-  font-size: 0.72rem !important;
-  font-weight: 700 !important;
-  color: #1e293b !important;
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  color: #f8fafc !important;
+  background: rgba(15, 23, 42, 0.88) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 6px !important;
-  padding: 1.5px 6px !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  padding: 2px 7px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
   line-height: 1.2 !important;
   pointer-events: none !important;
   transition: all 0.2s ease !important;
 }
 
-/* Selected city label gets emerald highlight */
+/* Selected city label gets cyan/emerald highlight */
 .hotspot-label.is-selected {
-  background: #10b981 !important;
+  background: rgba(2, 132, 199, 0.95) !important;
   color: #ffffff !important;
-  border-color: #10b981 !important;
-  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.35) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6) !important;
 }
 
 /* For coming-soon cities: keep label hidden by default to remove clutter; reveal smoothly on hover */
