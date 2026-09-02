@@ -27,7 +27,14 @@ export const CONSTANTS = Object.freeze({
     LEADS: '/api/leads',
     HEALTH: '/api/health',
     CONTACT: '/api/contact',
-    AUTH: '/api/auth'
+    AUTH: '/api/auth',
+    AVAILABILITY: '/api/availability',
+    QUOTE: '/api/quote',
+    PROMO: '/api/promo',
+    REVIEWS: '/api/reviews',
+    SERVICES: '/api/services',
+    CATALOG: '/api/catalog',
+    STAFF: '/api/staff'
   }),
 
   ORDER_STATUS: Object.freeze({

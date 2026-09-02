@@ -150,3 +150,79 @@ export async function pollOrderApproval(resCode) {
 
   return null;
 }
+
+/**
+ * Checks real-time slot and capacity availability for a city and date.
+ * @param {string} city
+ * @param {string} date
+ * @param {string} [lang]
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchAvailability(city = 'Istanbul', date = '', lang = 'tr') {
+  try {
+    const url = `${CONSTANTS.API_ENDPOINTS.AVAILABILITY}?city=${encodeURIComponent(city)}&date=${encodeURIComponent(date)}&lang=${encodeURIComponent(lang)}`;
+    const res = await timedFetch(url, {}, 3500);
+    if (res && res.ok) {
+      return await res.json();
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Requests authoritative server-side quote with cryptographic signature.
+ * @param {Object} quoteParams
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchServerQuote(quoteParams) {
+  try {
+    const res = await timedFetch(CONSTANTS.API_ENDPOINTS.QUOTE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quoteParams)
+    }, 4000);
+    if (res && res.ok) {
+      return await res.json();
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Validates a promo coupon code against the Edge engine.
+ * @param {string} code
+ * @param {number} [subtotal]
+ * @param {string} [currency]
+ * @param {string} [lang]
+ * @returns {Promise<Object|null>}
+ */
+export async function validatePromoCoupon(code, subtotal = 0, currency = 'TL', lang = 'tr') {
+  try {
+    const res = await timedFetch(CONSTANTS.API_ENDPOINTS.PROMO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, subtotal, currency, lang })
+    }, 3000);
+    if (res) {
+      return await res.json();
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Fetches verified live customer reviews from Edge.
+ * @param {string} [country]
+ * @param {number} [limit]
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchLiveReviews(country = 'TR', limit = 10) {
+  try {
+    const url = `${CONSTANTS.API_ENDPOINTS.REVIEWS}?country=${encodeURIComponent(country)}&limit=${limit}`;
+    const res = await timedFetch(url, {}, 3500);
+    if (res && res.ok) {
+      return await res.json();
+    }
+  } catch (e) {}
+  return null;
+}
