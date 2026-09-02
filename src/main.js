@@ -3663,28 +3663,31 @@ function setupPortalIntroClick() {
 
     updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.05, 0.12, 0.18, 0.28);
 
-    // 6. Interactive Click Hotspots for the Video Banners (Settled banners: progress > 0.76)
+    // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.60)
     let bannerOpacity = 0;
-    if (progress > 0.76) {
-      const rawDrop = Math.min(1.0, (progress - 0.76) / 0.16);
-      bannerOpacity = 1.0 - Math.pow(1.0 - rawDrop, 2);
+    let bannerDrop = 0;
+    if (progress > 0.60) {
+      bannerDrop = Math.min(1.0, (progress - 0.60) / 0.22);
+      bannerOpacity = 1.0 - Math.pow(1.0 - bannerDrop, 2);
     }
 
     if (bannerOpacity > 0.01) {
       const { ox, oy, rw, rh, isPortrait } = lastFrameRect;
-      const bannerW = isPortrait ? Math.min(130, Math.max(105, rw * 0.28)) : Math.max(140, rw * 0.17);
-      const bannerH = isPortrait ? rh * 0.58 : rh * 0.54;
-      const topY = oy + (isPortrait ? rh * 0.25 : rh * 0.264);
+      const bannerW = isPortrait ? Math.min(170, rw * 0.44) : Math.min(320, Math.max(210, rw * 0.23));
+      const bannerH = bannerW / 0.596;
+      const topY = oy + (isPortrait ? rh * 0.12 : rh * 0.14);
 
-      const leftCenterX = ox + rw * 0.2244;
-      const rightCenterX = ox + rw * 0.7756;
+      const leftCenterX = isPortrait ? (ox + rw * 0.26) : (ox + rw * 0.23);
+      const rightCenterX = isPortrait ? (ox + rw * 0.74) : (ox + rw * 0.77);
 
       const leftX = leftCenterX - (bannerW / 2);
       const rightX = rightCenterX - (bannerW / 2);
 
+      const dropOffsetY = (1.0 - bannerDrop) * -80;
+
       if (poleLeft) {
         poleLeft.style.left = `${Math.round(leftX)}px`;
-        poleLeft.style.top = `${Math.round(topY)}px`;
+        poleLeft.style.top = `${Math.round(topY + dropOffsetY)}px`;
         poleLeft.style.width = `${Math.round(bannerW)}px`;
         poleLeft.style.height = `${Math.round(bannerH)}px`;
         poleLeft.style.opacity = bannerOpacity.toFixed(2);
@@ -3694,7 +3697,7 @@ function setupPortalIntroClick() {
 
       if (poleRight) {
         poleRight.style.left = `${Math.round(rightX)}px`;
-        poleRight.style.top = `${Math.round(topY)}px`;
+        poleRight.style.top = `${Math.round(topY + dropOffsetY)}px`;
         poleRight.style.width = `${Math.round(bannerW)}px`;
         poleRight.style.height = `${Math.round(bannerH)}px`;
         poleRight.style.opacity = bannerOpacity.toFixed(2);
@@ -3921,14 +3924,25 @@ function setupPortalIntroClick() {
     }
   };
 
+  const btnTR = document.getElementById('btnBannerTR');
+  const btnPL = document.getElementById('btnBannerPL');
+
   if (poleLeft) {
     poleLeft.addEventListener('click', handleSelectTR);
     poleLeft.addEventListener('touchend', handleSelectTR, { passive: false });
+  }
+  if (btnTR) {
+    btnTR.addEventListener('click', handleSelectTR);
+    btnTR.addEventListener('touchend', handleSelectTR, { passive: false });
   }
 
   if (poleRight) {
     poleRight.addEventListener('click', handleSelectPL);
     poleRight.addEventListener('touchend', handleSelectPL, { passive: false });
+  }
+  if (btnPL) {
+    btnPL.addEventListener('click', handleSelectPL);
+    btnPL.addEventListener('touchend', handleSelectPL, { passive: false });
   }
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
