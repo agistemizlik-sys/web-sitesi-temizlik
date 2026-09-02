@@ -88,39 +88,27 @@ const REVIEWS_DATABASE = [
   }
 ];
 
+import { hasSqlInjection } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString } from './_utils.js';
+
 export async function onRequest(context) {
   const { request } = context;
-  const traceId = `rev-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
+  if (request.method === "OPTIONS") return handleOptionsCors(request, "GET, POST, HEAD, OPTIONS");
 
   const origin = request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, POST, HEAD, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-    "Cache-Control": "public, max-age=600, stale-while-revalidate=86400",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN",
-    "X-RELAXAX-Trace-ID": traceId
-  };
-
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
-  }
+  const traceId = generateTraceId('rev');
 
   // POST /api/reviews -> Submit new verified rating/review
   if (request.method === "POST") {
     try {
-      const body = await request.json();
+      const { data: body, error, status } = await parseAndValidateJson(request, 4096);
+      if (error) return createApiError(error, status, traceId, null, origin);
+
       const rating = Math.min(5, Math.max(1, parseInt(body.rating || '5', 10) || 5));
-      const author = String(body.author || 'Değerli Müşteri').trim().substring(0, 80);
-      const text = String(body.text || body.comment || '').trim().substring(0, 500);
-      const city = String(body.city || 'İstanbul').trim().substring(0, 50);
-      const orderCode = String(body.orderCode || '').trim().substring(0, 40);
+      const author = sanitizeString(body.author || 'Değerli Müşteri', 80);
+      const text = sanitizeString(body.text || body.comment || '', 500);
+      const city = sanitizeString(body.city || 'İstanbul', 50);
+      const orderCode = sanitizeString(body.orderCode || '', 40);
 
       const reviewItem = {
         id: `rev-${Date.now()}`,
@@ -157,24 +145,14 @@ export async function onRequest(context) {
         if (waitUntil) waitUntil(panelReviewP);
       } catch(e) {}
 
-      return new Response(JSON.stringify({
+      return createApiResponse({
         success: true,
         message: "Değerlendirmeniz başarıyla kaydedildi.",
-        review: reviewItem,
-        traceId
-      }), {
-        status: 201,
-        headers
-      });
+        review: reviewItem
+      }, 201, origin, traceId);
+
     } catch (postErr) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: "Geçersiz değerlendirme verisi.",
-        traceId
-      }), {
-        status: 400,
-        headers
-      });
+      return createApiError("Geçersiz değerlendirme verisi.", 400, traceId, null, origin);
     }
   }
 
@@ -185,14 +163,7 @@ export async function onRequest(context) {
 
   // SQL Injection Filter Guard
   if (hasSqlInjection(cityFilter) || hasSqlInjection(countryFilter)) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: "Security Alert: Invalid query parameter",
-      traceId
-    }), {
-      status: 400,
-      headers
-    });
+    return createApiError("Security Alert: Invalid query parameter", 400, traceId, null, origin);
   }
 
   let filtered = REVIEWS_DATABASE;
@@ -202,7 +173,7 @@ export async function onRequest(context) {
     filtered = filtered.filter(r => r.country === countryFilter);
   }
 
-  return new Response(JSON.stringify({
+  return createApiResponse({
     success: true,
     summary: {
       averageRating: 4.96,
@@ -210,29 +181,14 @@ export async function onRequest(context) {
       fiveStarPercent: 97,
       verifiedCustomerRate: "100%"
     },
-    reviews: filtered.slice(0, limit),
-    traceId
-  }, null, 2), {
-    status: 200,
-    headers
+    reviews: filtered.slice(0, limit)
+  }, 200, origin, traceId, {
+    "Cache-Control": "public, max-age=600, stale-while-revalidate=86400"
   });
 }
 
 export async function onRequestOptions(context) {
-  const origin = context.request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-      "X-Content-Type-Options": "nosniff"
-    }
-  });
+  return handleOptionsCors(context.request, "GET, POST, HEAD, OPTIONS");
 }
 
 export async function onRequestGet(context) {

@@ -99,53 +99,47 @@ const DEFAULT_CATALOG_ITEMS = [
   }
 ];
 
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId } from './_utils.js';
+
 export async function onRequestGet(context) {
-  return new Response(JSON.stringify({
+  const origin = context.request.headers.get('Origin') || '*';
+  return createApiResponse({
     success: true,
     items: DEFAULT_CATALOG_ITEMS,
     timestamp: new Date().toISOString()
-  }), {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Content-Type": "application/json; charset=utf-8"
-    }
-  });
+  }, 200, origin);
 }
 
 export async function onRequestPost(context) {
   const { request } = context;
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Content-Type": "application/json; charset=utf-8"
-  };
+  const origin = request.headers.get('Origin') || '*';
+  const traceId = generateTraceId('cat');
 
   try {
-    const body = await request.json();
+    const { data: body, error, status } = await parseAndValidateJson(request, 4096);
+    if (error) return createApiError(error, status, traceId, null, origin);
+
     const action = body.action || 'toggle-status';
     const key = body.key;
 
-    return new Response(JSON.stringify({
+    return createApiResponse({
       success: true,
       action: action,
       key: key,
       message: 'Katalog işlemi başarıyla işlendi.',
       updatedAt: new Date().toISOString()
-    }), {
-      status: 200,
-      headers: corsHeaders
-    });
+    }, 200, origin, traceId);
   } catch (e) {
-    return new Response(JSON.stringify({ success: false, message: 'İşlem başarısız.' }), {
-      status: 400,
-      headers: corsHeaders
-    });
+    return createApiError('İşlem başarısız.', 400, traceId, null, origin);
   }
+}
+
+export async function onRequestOptions(context) {
+  return handleOptionsCors(context.request, "GET, POST, OPTIONS");
 }
 
 export async function onRequest(context) {
   if (context.request.method === "POST") return onRequestPost(context);
+  if (context.request.method === "OPTIONS") return onRequestOptions(context);
   return onRequestGet(context);
 }

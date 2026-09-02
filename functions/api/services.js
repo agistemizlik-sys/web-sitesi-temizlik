@@ -114,52 +114,22 @@ const CATALOG_DATA = {
   }
 };
 
+import { createApiResponse, handleOptionsCors } from './_utils.js';
+
 export async function onRequest(context) {
   const { request } = context;
+  if (request.method === "OPTIONS") return handleOptionsCors(request, "GET, HEAD, OPTIONS");
+  if (request.method === "HEAD") return new Response(null, { status: 200, headers: { "ETag": `"rlx-catalog-${CATALOG_DATA.version}"` } });
+
   const origin = request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
+  return createApiResponse(CATALOG_DATA, 200, origin, null, {
     "Cache-Control": "public, max-age=1800, stale-while-revalidate=86400",
-    "ETag": `"rlx-catalog-${CATALOG_DATA.version}"`,
-    "X-Content-Type-Options": "nosniff"
-  };
-
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
-  }
-
-  if (request.method === "HEAD") {
-    return new Response(null, { status: 200, headers });
-  }
-
-  return new Response(JSON.stringify(CATALOG_DATA, null, 2), {
-    status: 200,
-    headers
+    "ETag": `"rlx-catalog-${CATALOG_DATA.version}"`
   });
 }
 
 export async function onRequestOptions(context) {
-  const origin = context.request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
-      "X-Content-Type-Options": "nosniff"
-    }
-  });
+  return handleOptionsCors(context.request, "GET, HEAD, OPTIONS");
 }
 
 export async function onRequestGet(context) {

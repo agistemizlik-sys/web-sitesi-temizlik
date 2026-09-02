@@ -1,19 +1,11 @@
 import { executeCyberLoopSentinel, scanAllPayloadThreats, sanitizeSafeString, sanitizeKey, getTrustedClientIp, validateSafeNumber, validateSafeEmail, maskErrorMessage, dispatchSecurityTrapAlert, createSecurityTrapResponse } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, sanitizePhone, generateHmacSignature, getCorsHeaders } from './_utils.js';
+
+const sanitizeStr = sanitizeString;
 
 /**
  * RELAXAX Enterprise Cloudflare Pages Function Relay for Lead API
  * POST /api/leads
- *
- * Capabilities:
- *  1. Multi-Tier High Availability Dispatch:
- *     - Primary Admin Panel (https://panel.relaxax.com/api/leads)
- *     - Direct Internal API Relay (https://backend-api.relaxaxserwis.workers.dev/api/leads)
- *  2. Direct Admin Panel Real-Time Telemetry & KV Persistence
- *  3. Dynamic Webhook & CRM Dispatch (env.CRM_WEBHOOK_URL / env.WHATSAPP_WEBHOOK_URL)
- *  4. Cryptographic HMAC Signature Generation (X-RELAXAX-Signature) for tamper-proofing
- *  5. Edge KV Persistence with 90-day retention (env.LEADS_KV)
- *  6. Full Geo & Telemetry Enrichment via Cloudflare Edge Headers
- *  7. Zero-Failure Guarantee: Resilient response with unique traceId & audit trail
  */
 
 const PANEL_ENDPOINTS = [
@@ -21,62 +13,6 @@ const PANEL_ENDPOINTS = [
   "https://panel.relaxax.com/api/leads",
   "https://backend-api.relaxaxserwis.workers.dev/api/leads"
 ];
-
-// Helper: Sanitize strings against XSS / injection
-function sanitizeStr(str, maxLen = 500) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/<[^>]*>?/gm, '').trim().substring(0, maxLen);
-}
-
-// Helper: Escape HTML characters for secure rendering
-function escapeHtml(text) {
-  if (!text) return '';
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-// Helper: Normalize phone to standard E.164 or clean international format
-function sanitizePhone(rawPhone, city = '') {
-  if (!rawPhone) return '';
-  let digits = String(rawPhone).replace(/[^\d+]/g, '');
-  if (digits.startsWith('+')) return digits;
-  digits = digits.replace(/^0+/, '');
-  const isPolish = city && city.toLowerCase().includes('warsz');
-  if (isPolish && !digits.startsWith('48') && digits.length === 9) {
-    return '+48' + digits;
-  }
-  if (!digits.startsWith('90') && digits.length === 10) {
-    return '+90' + digits;
-  }
-  return digits.startsWith('90') ? '+' + digits : (digits ? '+' + digits : '');
-}
-
-// Helper: Generate HMAC-SHA256 signature for webhook validation
-async function generateHmacSignature(secret, message) {
-  if (!secret) return '';
-  try {
-    const encoder = new TextEncoder();
-    const keyData = encoder.encode(secret);
-    const msgData = encoder.encode(message);
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-    const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
-    return Array.from(new Uint8Array(signature))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  } catch (e) {
-    return '';
-  }
-}
 
 // Helper: Dispatch to External Webhook (CRM / WhatsApp Service)
 async function sendWebhookAlert(env, payload, waitUntil) {

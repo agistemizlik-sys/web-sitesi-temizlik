@@ -10802,7 +10802,12 @@ function setupBookingReveal() {
     try {
       const city = document.getElementById('cCity')?.value || STATE.city || 'Istanbul';
       const lang = STATE.language || 'tr';
-      const resp = await fetch(`/api/availability?city=${encodeURIComponent(city)}&date=${encodeURIComponent(selectedDate)}&lang=${encodeURIComponent(lang)}`);
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 4500);
+      const resp = await fetch(`/api/availability?city=${encodeURIComponent(city)}&date=${encodeURIComponent(selectedDate)}&lang=${encodeURIComponent(lang)}`, {
+        signal: ctrl.signal
+      });
+      clearTimeout(tid);
       if (resp.ok) {
         const data = await resp.json();
         if (data.success && Array.isArray(data.slots)) {
@@ -10850,7 +10855,12 @@ function setupBookingReveal() {
     badgeTextEl.textContent = isPl ? '🛡️ 1.480+ Zweryfikowanych Klientów' : '🛡️ 1.480+ Doğrulanmış Müşteri';
 
     try {
-      const resp = await fetch(`/api/reviews?country=${country}&limit=6`);
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 4500);
+      const resp = await fetch(`/api/reviews?country=${country}&limit=6`, {
+        signal: ctrl.signal
+      });
+      clearTimeout(tid);
       if (resp.ok) {
         const data = await resp.json();
         if (data.success && Array.isArray(data.reviews) && data.reviews.length > 0) {

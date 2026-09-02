@@ -1,8 +1,9 @@
 import { scanPayloadForInjection } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Promo & Referral Validation Engine
- * POST /api/promo
+ * POST /api/promo & GET /api/promo
  */
 
 const PROMO_CODES = {
@@ -87,7 +88,7 @@ const MESSAGES = {
 // In-Memory sliding-window rate limiting map per Edge isolate (Anti Brute-Force)
 const PROMO_RATE_MAP = new Map();
 const PROMO_RATE_WINDOW_MS = 60 * 1000;
-const MAX_PROMO_PER_MIN = 25;
+const MAX_PROMO_PER_MIN = 35;
 
 function checkPromoRateLimit(ip) {
   if (!ip) return false;
@@ -104,7 +105,7 @@ function checkPromoRateLimit(ip) {
   entry.count++;
   PROMO_RATE_MAP.set(ip, entry);
 
-  if (PROMO_RATE_MAP.size > 2000) {
+  if (PROMO_RATE_MAP.size > 1000) {
     for (const [k, v] of PROMO_RATE_MAP.entries()) {
       if (now > v.resetAt) PROMO_RATE_MAP.delete(k);
     }
@@ -113,161 +114,96 @@ function checkPromoRateLimit(ip) {
   return entry.count > MAX_PROMO_PER_MIN;
 }
 
+function validatePromoCode(body, origin, traceId) {
+  if (scanPayloadForInjection(body)) {
+    return createApiError("Security Alert: Malicious characters detected", 400, traceId, null, origin);
+  }
+
+  const rawCode = sanitizeString(body.code || body.promoCode || '', 40).trim();
+  const code = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+  const lang = (body.lang && MESSAGES[body.lang]) ? body.lang : 'tr';
+  const currency = (body.currency === 'PLN' || body.currency === 'pln') ? 'PLN' : 'TL';
+  const subtotal = Number(body.subtotal || body.amount || body.price) || 0;
+  const msg = MESSAGES[lang] || MESSAGES.tr;
+
+  if (!code) {
+    return createApiError(msg.missing, 400, traceId, null, origin);
+  }
+
+  if (PROMO_CODES[code]) {
+    const promo = PROMO_CODES[code];
+    const title = (promo.title && promo.title[lang]) ? promo.title[lang] : (promo.title.en || promo.title.tr);
+
+    let calculatedDiscount = 0;
+    if (promo.type === 'percent') {
+      calculatedDiscount = subtotal > 0 ? (subtotal * promo.discount / 100) : promo.discount;
+      if (promo.maxDiscount && calculatedDiscount > promo.maxDiscount) {
+        calculatedDiscount = promo.maxDiscount;
+      }
+    } else if (promo.type === 'fixed') {
+      calculatedDiscount = typeof promo.discount === 'object'
+        ? (promo.discount[currency] || promo.discount.TL || 0)
+        : promo.discount;
+    }
+
+    return createApiResponse({
+      valid: true,
+      code,
+      discount: promo.discount,
+      type: promo.type,
+      currency,
+      calculatedDiscount: Math.round(calculatedDiscount * 100) / 100,
+      title,
+      message: msg.success(title)
+    }, 200, origin, traceId);
+  }
+
+  return createApiResponse({
+    valid: false,
+    code,
+    error: msg.invalid
+  }, 404, origin, traceId);
+}
+
+export async function onRequestGet(context) {
+  const { request } = context;
+  const clientIp = request.headers.get('CF-Connecting-IP') || '';
+  const origin = request.headers.get('Origin') || '*';
+  const traceId = generateTraceId('prm');
+
+  if (checkPromoRateLimit(clientIp)) {
+    return createApiError("Too many coupon validation attempts. Please wait a minute.", 429, traceId, null, origin);
+  }
+
+  const url = new URL(request.url);
+  const queryParams = Object.fromEntries(url.searchParams.entries());
+  return validatePromoCode(queryParams, origin, traceId);
+}
+
 export async function onRequestPost(context) {
   const { request } = context;
-  const clientIp = request.headers.get('CF-Connecting-IP') || request.headers.get('x-real-ip') || '';
+  const clientIp = request.headers.get('CF-Connecting-IP') || '';
   const origin = request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
+  const traceId = generateTraceId('prm');
 
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN"
-  };
-
-  const traceId = `prm-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-
-  // 1. Anti Brute-Force Rate Limiting
   if (checkPromoRateLimit(clientIp)) {
-    return new Response(JSON.stringify({
-      valid: false,
-      error: "Too many coupon validation attempts. Please wait a minute.",
-      traceId
-    }), {
-      status: 429,
-      headers: { ...headers, "Retry-After": "60" }
-    });
+    return createApiError("Too many coupon validation attempts. Please wait a minute.", 429, traceId, null, origin);
   }
 
-  try {
-    const raw = await request.text();
-    if (raw.length > 2048) {
-      return new Response(JSON.stringify({ valid: false, error: "Payload too large", traceId }), {
-        status: 413,
-        headers
-      });
-    }
+  const { data, error, status } = await parseAndValidateJson(request, 2048);
+  if (error) return createApiError(error, status, traceId, null, origin);
 
-    let body = {};
-    try {
-      body = JSON.parse(raw);
-      if (body && (body.__proto__ || body.constructor?.prototype)) {
-        delete body.__proto__;
-      }
-    } catch(e){}
-
-    // SQL / NoSQL Injection Threat Blocker
-    if (scanPayloadForInjection(body)) {
-      return new Response(JSON.stringify({
-        valid: false,
-        error: "Security Alert: Malicious characters detected",
-        traceId
-      }), {
-        status: 400,
-        headers
-      });
-    }
-
-    const rawCode = (body.code || body.promoCode || '').trim();
-    const code = rawCode.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-    const lang = (body.lang && MESSAGES[body.lang]) ? body.lang : 'tr';
-    const currency = (body.currency === 'PLN' || body.currency === 'pln') ? 'PLN' : 'TL';
-    const subtotal = Number(body.subtotal || body.amount || body.price) || 0;
-    const msg = MESSAGES[lang] || MESSAGES.tr;
-
-    if (!code) {
-      return new Response(JSON.stringify({
-        valid: false,
-        error: msg.missing,
-        traceId
-      }), {
-        status: 400,
-        headers
-      });
-    }
-
-    if (PROMO_CODES[code]) {
-      const promo = PROMO_CODES[code];
-      const title = (promo.title && promo.title[lang]) ? promo.title[lang] : (promo.title.en || promo.title.tr);
-
-      let calculatedDiscount = 0;
-      if (promo.type === 'percent') {
-        calculatedDiscount = subtotal > 0 ? (subtotal * promo.discount / 100) : promo.discount;
-        if (promo.maxDiscount && calculatedDiscount > promo.maxDiscount) {
-          calculatedDiscount = promo.maxDiscount;
-        }
-      } else if (promo.type === 'fixed') {
-        calculatedDiscount = typeof promo.discount === 'object'
-          ? (promo.discount[currency] || promo.discount.TL || 0)
-          : promo.discount;
-      }
-
-      return new Response(JSON.stringify({
-        valid: true,
-        code,
-        discount: promo.discount,
-        type: promo.type,
-        currency,
-        calculatedDiscount: Math.round(calculatedDiscount * 100) / 100,
-        title,
-        message: msg.success(title),
-        traceId
-      }), {
-        status: 200,
-        headers
-      });
-    }
-
-    return new Response(JSON.stringify({
-      valid: false,
-      code,
-      error: msg.invalid,
-      traceId
-    }), {
-      status: 404,
-      headers
-    });
-
-  } catch(e) {
-    return new Response(JSON.stringify({
-      valid: false,
-      error: "Internal validation error",
-      traceId
-    }), {
-      status: 500,
-      headers
-    });
-  }
+  return validatePromoCode(data, origin, traceId);
 }
 
 export async function onRequestOptions(context) {
-  const origin = (context && context.request) ? context.request.headers.get('Origin') : '';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
-      "Access-Control-Max-Age": "86400"
-    }
-  });
+  return handleOptionsCors(context.request, "GET, POST, OPTIONS");
 }
 
 export async function onRequest(context) {
   if (context.request.method === "POST") return onRequestPost(context);
+  if (context.request.method === "GET") return onRequestGet(context);
   if (context.request.method === "OPTIONS") return onRequestOptions(context);
-  return new Response(JSON.stringify({ error: "Method not allowed" }), {
-    status: 405,
-    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-  });
+  return createApiError("Method not allowed. Use GET or POST.", 405, null, null, context.request.headers.get('Origin') || '*');
 }
 

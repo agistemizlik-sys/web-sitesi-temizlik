@@ -1,34 +1,8 @@
-import { executeCyberLoopSentinel, getTrustedClientIp, sanitizeSafeString } from './_security.js';
-
-function sanitizeStr(str, maxLen = 500) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/<[^>]*>?/gm, '').trim().substring(0, maxLen);
-}
-
-function sanitizeEmail(email) {
-  if (typeof email !== 'string') return '';
-  return email.toLowerCase().trim().substring(0, 150);
-}
-
-function getCorsHeaders(origin) {
-  const allowed = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost') || origin.includes('127.0.0.1')))
-    ? origin
-    : '*';
-  return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-RELAXAX-Signature',
-    'X-Content-Type-Options': 'nosniff',
-    'Content-Type': 'application/json; charset=utf-8'
-  };
-}
+import { executeCyberLoopSentinel } from './_security.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders } from './_utils.js';
 
 export async function onRequestOptions(context) {
-  const origin = context.request.headers.get('Origin') || '*';
-  return new Response(null, {
-    status: 204,
-    headers: getCorsHeaders(origin)
-  });
+  return handleOptionsCors(context.request, 'GET, POST, PATCH, PUT, OPTIONS');
 }
 
 // GET /api/orders?code=... OR ?email=...
@@ -343,5 +317,5 @@ export async function onRequest(context) {
   if (method === "GET") return onRequestGet(context);
   if (method === "POST") return onRequestPost(context);
   if (method === "PATCH") return onRequestPatch(context);
-  return onRequestGet(context);
+  return createApiError("Method not allowed. Use GET, POST, or PATCH.", 405, null, null, context.request.headers.get('Origin') || '*');
 }

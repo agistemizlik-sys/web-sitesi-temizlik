@@ -1,8 +1,10 @@
+import { createApiResponse, handleOptionsCors, parseSafeDate, generateTraceId, sanitizeString } from './_utils.js';
+
 /**
  * RELAXAX Enterprise Real-Time Slot & Date Availability Engine
  * GET /api/availability & POST /api/availability
  *
- * Provides real-time capacity and appointment slot checks for Turkey and Poland.
+ * Provides capacity and appointment slot checks for Turkey and Poland.
  */
 
 const TIME_SLOTS = [
@@ -14,49 +16,31 @@ const TIME_SLOTS = [
 ];
 
 export async function onRequest(context) {
-  const { request, env } = context;
-  const traceId = `avail-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
-  
+  const { request } = context;
+  if (request.method === "OPTIONS") return handleOptionsCors(request);
+
   const origin = request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  const headers = {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-    "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "SAMEORIGIN",
-    "X-RELAXAX-Trace-ID": traceId
-  };
-
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
-  }
-
+  const traceId = generateTraceId('avail');
   const url = new URL(request.url);
-  const city = url.searchParams.get('city') || 'Istanbul';
-  const dateStr = url.searchParams.get('date') || new Date().toISOString().split('T')[0];
-  const lang = url.searchParams.get('lang') || (city.toLowerCase().includes('warsz') ? 'pl' : 'tr');
 
-  const requestedDate = new Date(dateStr);
-  const isPast = requestedDate.setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
-  const isToday = new Date(dateStr).toDateString() === new Date().toDateString();
+  const city = sanitizeString(url.searchParams.get('city') || 'Istanbul', 50);
+  const rawDate = url.searchParams.get('date');
+  const lang = sanitizeString(url.searchParams.get('lang') || (city.toLowerCase().includes('warsz') ? 'pl' : 'tr'), 10);
+
+  // Safe date parsing eliminates silent NaN comparisons
+  const dateInfo = parseSafeDate(rawDate);
   const currentHour = new Date().getHours();
 
-  // Compute dynamic slot availability
+  // Compute slot availability
   const slots = TIME_SLOTS.map(slot => {
     const slotHour = parseInt(slot.time.split(':')[0], 10);
     let available = true;
     let statusReason = "available";
 
-    if (isPast) {
+    if (dateInfo.isPast) {
       available = false;
       statusReason = "past_date";
-    } else if (isToday && slotHour <= (currentHour + 2)) {
+    } else if (dateInfo.isToday && slotHour <= (currentHour + 2)) {
       available = false;
       statusReason = "too_soon";
     }
@@ -71,36 +55,22 @@ export async function onRequest(context) {
     };
   });
 
-  return new Response(JSON.stringify({
+  return createApiResponse({
     success: true,
     city,
-    date: dateStr,
-    available: !isPast,
+    date: dateInfo.dateString,
+    dateValid: dateInfo.isValid,
+    available: !dateInfo.isPast,
     slots,
     operatingHours: "09:00 - 19:00",
-    timeZone: city.toLowerCase().includes('warsz') ? "Europe/Warsaw" : "Europe/Istanbul",
-    traceId
-  }, null, 2), {
-    status: 200,
-    headers
+    timeZone: city.toLowerCase().includes('warsz') ? "Europe/Warsaw" : "Europe/Istanbul"
+  }, 200, origin, traceId, {
+    "Cache-Control": "public, max-age=60, stale-while-revalidate=300"
   });
 }
 
 export async function onRequestOptions(context) {
-  const origin = context.request.headers.get('Origin') || '*';
-  const allowedOrigin = (origin && (origin.endsWith('relaxax.com') || origin.endsWith('pages.dev') || origin.includes('localhost')))
-    ? origin
-    : '*';
-
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-RELAXAX-Trace-ID",
-      "X-Content-Type-Options": "nosniff"
-    }
-  });
+  return handleOptionsCors(context.request);
 }
 
 export async function onRequestGet(context) {
