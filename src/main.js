@@ -3673,12 +3673,12 @@ function setupPortalIntroClick() {
 
     if (bannerOpacity > 0.01) {
       const { ox, oy, rw, rh, isPortrait } = lastFrameRect;
-      const bannerW = isPortrait ? Math.max(140, rw * 0.32) : Math.max(160, Math.min(300, rw * 0.22));
-      const bannerH = isPortrait ? rh * 0.70 : rh * 0.60;
-      const topY = oy + rh * 0.17;
+      const bannerW = isPortrait ? Math.max(140, rw * 0.24) : Math.max(140, rw * 0.165);
+      const bannerH = isPortrait ? rh * 0.54 : rh * 0.52;
+      const topY = oy + rh * 0.295;
 
-      const leftCenterX = ox + rw * 0.164;
-      const rightCenterX = ox + rw * 0.836;
+      const leftCenterX = ox + rw * 0.1703;
+      const rightCenterX = ox + rw * 0.8297;
 
       const leftX = leftCenterX - (bannerW / 2);
       const rightX = rightCenterX - (bannerW / 2);

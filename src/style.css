@@ -20170,7 +20170,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 6px;
+  padding-bottom: 12%;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   contain: layout style;
