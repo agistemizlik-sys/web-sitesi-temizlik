@@ -5573,13 +5573,16 @@ function setupPortalGateway() {
     if (mapSelectorStage) {
       mapSelectorStage.style.setProperty('display', 'none', 'important');
       mapSelectorStage.style.setProperty('opacity', '0', 'important');
+      mapSelectorStage.style.setProperty('visibility', 'hidden', 'important');
     }
     if (portalStage) {
       portalStage.style.setProperty('display', 'none', 'important');
+      portalStage.style.setProperty('visibility', 'hidden', 'important');
     }
     if (heroTrack) {
       heroTrack.style.setProperty('display', 'block', 'important');
       heroTrack.style.setProperty('opacity', '1', 'important');
+      heroTrack.style.setProperty('visibility', 'visible', 'important');
       heroTrack.style.setProperty('pointer-events', 'auto', 'important');
       heroTrack.style.transform = 'none';
       if (typeof window._setProgress === 'function') {
