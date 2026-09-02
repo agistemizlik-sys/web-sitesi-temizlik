@@ -3447,7 +3447,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/journey_hd/f_${numStr}.webp?v=v2026_hd_final`;
+    img.src = `/videos/journey_hd/f_${numStr}.webp?v=tiltup_golden_sky_v1`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
