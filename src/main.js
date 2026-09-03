@@ -4905,11 +4905,10 @@ async function initLeafletMap(country) {
     }).setView([39.0, 35.0], isMobileDevice ? 5.2 : 6);
     window.turkeyMapInstance = turkeyMapInstance;
 
-    // Multi-CDN Ultra-Reliable Dark Tile Provider with Fallback
-    const darkTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    // Pristine High-Performance ESRI World Dark Canvas Provider (100% Free, No Watermark, No API Key Required)
+    const darkTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: '&copy; <a href="https://www.esri.com">Esri</a> &copy; OpenStreetMap'
     });
 
     darkTileLayer.on('tileerror', () => {
@@ -5016,11 +5015,10 @@ async function initLeafletMap(country) {
     }).setView([52.2297, 21.0122], isMobileDevice ? 10 : 11);
     window.polandMapInstance = polandMapInstance;
 
-    // Multi-CDN Ultra-Reliable Dark Tile Provider with Fallback
-    const darkTileLayerPL = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    // Pristine High-Performance ESRI World Dark Canvas Provider (100% Free, No Watermark, No API Key Required)
+    const darkTileLayerPL = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: '&copy; <a href="https://www.esri.com">Esri</a> &copy; OpenStreetMap'
     });
 
     darkTileLayerPL.on('tileerror', () => {
