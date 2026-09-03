@@ -20691,6 +20691,49 @@ html, body {
   }
 }
 
+/* =========================================================
+   🚀 GLOBAL ULTRA-HIGH PERFORMANCE & FPS ACCELERATION SUITE
+   ========================================================= */
 
+/* 1. Hardware-accelerate key animating surfaces */
+#book-scroll-canvas,
+.portal-leaflet-map,
+.portal-map-wrapper,
+.sjh-badge,
+.royal-banner-container,
+.lux-cursor-ring,
+#boutiqueCanvas {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
 
+/* 2. Optimize rendering and layout passes */
+#book-scroll-hero-track {
+  contain: layout paint;
+}
 
+#portal-stage {
+  contain: layout style;
+}
+
+/* 3. Offscreen Content Visibility (Skips DOM calculation for unviewed sections) */
+#boutiqueShowcaseSection,
+.tms-popular-section,
+#seo-articles {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}
+
+/* 4. Mobile GPU Throttling Prevention: Cap excessive backdrop blur on mobile */
+@media (max-width: 768px) {
+  .scroll-journey-hud,
+  .sjh-badge,
+  .royal-action-btn,
+  .c-floating-navbar,
+  .tms-panel-card,
+  .tms-glass-pill {
+    -webkit-backdrop-filter: blur(8px) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+}

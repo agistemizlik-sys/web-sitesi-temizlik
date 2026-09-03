@@ -3365,10 +3365,12 @@ function setupPortalIntroClick() {
     pctx.fill();
   }
 
-  // ── High-DPI Ultra-HD Retina Canvas Scaling (True 1080p/2K/4K fidelity with 60 FPS) ──
+  // ── High-DPI Canvas Scaling (Ultra-fluid 60–120 FPS performance) ──
   const resizeCanvas = () => {
     if (!canvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
+    const isMobile = window.innerWidth <= 768;
+    const maxDpr = isMobile ? 1.4 : 1.75;
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     const targetW = Math.round(window.innerWidth * dpr);
     const targetH = Math.round(window.innerHeight * dpr);
 
@@ -3378,7 +3380,7 @@ function setupPortalIntroClick() {
     }
     if (ctx) {
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingQuality = 'medium';
     }
   };
   window.addEventListener('resize', () => {
@@ -3426,16 +3428,14 @@ function setupPortalIntroClick() {
       lastFrameRect = { ox, oy, rw, rh, isPortrait: false };
     } else {
       // Portrait / Mobile: Ambient backdrop + perfectly framed crisp subject
-      // 1. Ambient blurred background
+      // 1. Ambient backdrop (High-FPS direct fill without expensive 24px software blur)
       const bgW = ch * imageRatio;
       const bgOx = (cw - bgW) / 2;
-      if (ctx.filter !== undefined) {
-        ctx.filter = 'blur(24px) brightness(0.92)';
-      }
+      ctx.fillStyle = '#060a14';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.globalAlpha = alpha * 0.35;
       ctx.drawImage(img, bgOx, 0, bgW, ch);
-      if (ctx.filter !== undefined) {
-        ctx.filter = 'none';
-      }
+      ctx.globalAlpha = alpha;
 
       // 2. Foreground crisp subject:
       // Book close-up at start (1.60x), gliding smoothly out to valley (1.18x), settling to full-frame 16:9 for flags (1.02x)
@@ -3629,25 +3629,25 @@ function setupPortalIntroClick() {
         ctx.fillStyle = sunGlow;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 7 Volumetric light ray fans radiating upwards across the sky
-        const numRays = 7;
+        // Volumetric light ray fans (reusing single pre-calculated gradient)
+        const rayGrad = ctx.createRadialGradient(
+          sunCenterX, sunCenterY, 30,
+          sunCenterX, sunCenterY, canvas.width * 0.85
+        );
+        rayGrad.addColorStop(0, `rgba(255, 248, 220, ${(rayAlpha * 0.95).toFixed(3)})`);
+        rayGrad.addColorStop(0.55, `rgba(251, 191, 36, ${(rayAlpha * 0.45).toFixed(3)})`);
+        rayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = rayGrad;
+
+        const numRays = 5;
         for (let r = 0; r < numRays; r++) {
-          const baseAngle = -Math.PI * 0.5 + (r - (numRays - 1) / 2) * 0.22;
+          const baseAngle = -Math.PI * 0.5 + (r - (numRays - 1) / 2) * 0.25;
           const rayW = 0.11 + Math.sin(progress * 6 + r) * 0.025;
           ctx.beginPath();
           ctx.moveTo(sunCenterX, sunCenterY);
           ctx.lineTo(sunCenterX + Math.cos(baseAngle - rayW) * canvas.width * 1.2, sunCenterY + Math.sin(baseAngle - rayW) * canvas.height * 1.2);
           ctx.lineTo(sunCenterX + Math.cos(baseAngle + rayW) * canvas.width * 1.2, sunCenterY + Math.sin(baseAngle + rayW) * canvas.height * 1.2);
           ctx.closePath();
-
-          const rayGrad = ctx.createRadialGradient(
-            sunCenterX, sunCenterY, 30,
-            sunCenterX, sunCenterY, canvas.width * 0.85
-          );
-          rayGrad.addColorStop(0, `rgba(255, 248, 220, ${(rayAlpha * 0.95).toFixed(3)})`);
-          rayGrad.addColorStop(0.55, `rgba(251, 191, 36, ${(rayAlpha * 0.45).toFixed(3)})`);
-          rayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = rayGrad;
           ctx.fill();
         }
 
@@ -3848,7 +3848,7 @@ function setupPortalIntroClick() {
         return;
       }
 
-      currentProgress += diff * 0.15;
+      currentProgress += diff * 0.22;
       renderFrame(currentProgress);
       dampingRafId = requestAnimationFrame(dampStep);
     };
@@ -7197,8 +7197,8 @@ function setupCinemaEngine() {
 
   // ── WORLD-CLASS FILM RENDERING LOOP (smooth lerp requestAnimationFrame) ──
   function renderCinemaLoop() {
-    // Suspend loop completely if selection gateway or booking wizard is active
-    if (document.body.classList.contains('flag-selection-mode') || document.body.classList.contains('wizard-modal-open')) {
+    // Suspend loop completely if book hero, selection gateway, or booking wizard is active
+    if (document.body.classList.contains('portal-intro-mode') || document.body.classList.contains('flag-selection-mode') || document.body.classList.contains('wizard-modal-open')) {
       cinemaRafId = null;
       return;
     }
