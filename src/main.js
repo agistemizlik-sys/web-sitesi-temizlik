@@ -3781,8 +3781,8 @@ function setupPortalIntroClick() {
       }
     };
 
-    // User directive: Start slogan strictly after book dive, while gliding in the valley (0.56 - 0.88)
-    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.56, 0.65, 0.76, 0.88);
+    // User directive: Slogan appears strictly while gliding in the valley (0.37 - 0.58), completely hidden in book phase and sky phase
+    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.37, 0.42, 0.51, 0.58);
 
     // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.75)
     let bannerOpacity = 0;
