@@ -20402,11 +20402,6 @@ html, body {
   .slogan-book-theme .slogan-word-right {
     font-size: clamp(1.2rem, 5.2vw, 1.55rem) !important;
   }
-  .royal-action-btn {
-    width: 50%;
-    height: 10%;
-    font-size: 0.72rem;
-  }
   .scroll-journey-hud {
     bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
     width: 90vw !important;
