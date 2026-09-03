@@ -20338,10 +20338,10 @@ html, body {
 .royal-action-btn {
   position: absolute;
   top: 71.0%;
-  left: 50%;
+  left: 51.3%;
   transform: translate(-50%, -50%);
-  width: 38%;
-  height: 7.5%;
+  width: 34%;
+  height: 7.2%;
   border-radius: 9999px;
   cursor: pointer;
   display: flex;
@@ -20359,27 +20359,27 @@ html, body {
 }
 
 .royal-action-btn.btn-tr {
-  left: 51.1%;
+  left: 51.3%;
   top: 71.0%;
-  width: 38%;
-  height: 8.5%;
+  width: 34%;
+  height: 7.2%;
 }
 
 .royal-action-btn.btn-pl {
-  left: 49.4%;
-  top: 70.5%;
-  width: 47%;
-  height: 13.0%;
+  left: 51.3%;
+  top: 71.4%;
+  width: 35%;
+  height: 7.2%;
 }
 
 /* Luxury Royal Gold Shimmer Aura on Hover */
 .royal-banner-container:hover .royal-action-btn,
 .royal-action-btn:hover {
   opacity: 1;
-  background: rgba(251, 191, 36, 0.18);
+  background: rgba(251, 191, 36, 0.16);
   border-color: rgba(254, 240, 138, 0.9);
-  transform: translate(-50%, -50%) scale(1.04);
-  box-shadow: 0 4px 18px rgba(217, 119, 6, 0.6), 0 0 25px rgba(254, 240, 138, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%) scale(1.02);
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.5), 0 0 18px rgba(254, 240, 138, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .royal-action-btn .btn-text,
