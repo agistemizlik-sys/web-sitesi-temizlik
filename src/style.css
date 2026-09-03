@@ -4634,9 +4634,10 @@ img, video, .card-bg-image {
    it wins by source order. */
 @media (max-width: 768px) {
   .portal-audio-toggle {
-    top: 14px;
-    bottom: auto;
-    left: 14px;
+    top: 14px !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: 14px !important;
   }
 }
 
@@ -14592,6 +14593,7 @@ body,
 
 .auth-tabs-nav {
   display: flex;
+  flex-shrink: 0 !important;
   gap: 8px;
   padding: 12px 24px 0;
   background: rgba(255, 255, 255, 0.02);
@@ -19203,6 +19205,7 @@ html[dir="rtl"] .counter-btn.plus {
   }
 
   .auth-tabs-nav {
+    flex-shrink: 0 !important;
     padding: 8px 12px 0 !important;
     gap: 4px !important;
     overflow-x: auto !important;

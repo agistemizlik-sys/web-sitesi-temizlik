@@ -3503,13 +3503,17 @@ function setupPortalIntroClick() {
     img.onload = () => {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
       if (i - 1 === currentTargetFrame && ctx && canvas) {
-        drawImageCover(img, 1.0);
+        renderFrame(currentProgress);
         lastDrawnImage = img;
       } else if (!lastDrawnImage && i === 1 && ctx && canvas) {
-        drawImageCover(img, 1.0);
+        renderFrame(0);
         lastDrawnImage = img;
       }
     };
+    if (img.complete && img.naturalWidth > 0 && i === 1 && !lastDrawnImage && ctx && canvas) {
+      requestAnimationFrame(() => renderFrame(0));
+      lastDrawnImage = img;
+    }
     frameImages.push(img);
   }
 
