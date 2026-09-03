@@ -3690,13 +3690,13 @@ window.requestStaffSuppliesGlobal = function() {
 // Global public attachments
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
+window.switchAuthTab = switchAuthTab;
 window.getCurrentUser = getCurrentUser;
 window.isLoggedIn = isLoggedIn;
-window.isStaffLoggedIn = isStaffLoggedIn;
+window.registerUserGlobal = registerUser;
+window.loginUserGlobal = loginUser;
 window.logoutUserGlobal = logoutUser;
 window.addBookingToUserGlobal = addBookingToUser;
-window.updateStaffJobStatusGlobal = updateStaffJobStatus;
-window.matchAndAssignCleaner = matchAndAssignCleaner;
 
 
 
