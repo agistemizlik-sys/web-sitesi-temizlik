@@ -12544,6 +12544,9 @@ function openPortalGateway() {
       if (typeof window.updatePortalCachedRects === 'function') {
         window.updatePortalCachedRects();
       }
+      if (typeof showCityPreviewFn === 'function') {
+        showCityPreviewFn(STATE.city || (STATE.language === 'pl' ? 'Warszawa' : 'Istanbul'));
+      }
       window.portalWarping = false; // Release hover calculations lock
     }
   });
