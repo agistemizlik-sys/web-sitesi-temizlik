@@ -1201,6 +1201,23 @@ function applyBookingTranslations(dict, lang) {
   const bTitle = document.querySelector('.booking-section-header .b-sec-main-title');
   const bSub = document.querySelector('.booking-section-header .b-sec-main-sub');
 
+  const backNavBtn = document.querySelector('.wizard-back-nav-btn span, .wizard-back-text');
+  if (backNavBtn) {
+    backNavBtn.textContent = lang === 'pl' ? '← Powrót' : (lang === 'en' ? '← Back' : '← Geri Dön');
+  }
+
+  const soundBtnText = document.querySelector('#wizardSoundToggleBtn .sound-text');
+  if (soundBtnText) {
+    const isMuted = STATE.isMuted || (window.audioMuted);
+    if (lang === 'pl') {
+      soundBtnText.textContent = isMuted ? 'Dźwięk: Wyłączony' : 'Dźwięk: Włączony';
+    } else if (lang === 'en') {
+      soundBtnText.textContent = isMuted ? 'Sound: Off' : 'Sound: On';
+    } else {
+      soundBtnText.textContent = isMuted ? 'Ses: Kapalı' : 'Ses: Açık';
+    }
+  }
+
   if (bBadge) bBadge.textContent = lang === 'pl' ? 'SZYBKIE ZAMÓWIENIE' : 'HIZLI SİPARİŞİ OLUŞTURUN';
   if (bTitle) bTitle.textContent = lang === 'pl' ? 'KALKULATOR SPRZĄTANIA DLA DOMU I FIRMY' : 'EVİNİZ / DAİRENİZ İÇİN TEMİZLİK HESAPLAYICI';
   if (bSub) bSub.textContent = lang === 'pl' ? 'Nienaganna higiena, profesjonalny sprzęt. Oblicz cenę na żywo i zarezerwuj w kilka minut.' : 'Kusursuz hijyen, profesyonel ekipman. RELAXAX ile dakikalar içinde canlı fiyat hesaplayın ve rezervasyon yapın.';
@@ -11108,6 +11125,47 @@ function setupBookingReveal() {
     bookingRevealScreen.addEventListener('scroll', debounce(handleScrollSpy, 30), { passive: true });
   }
 
+  const highlightInvalidField = (el, msg) => {
+    if (!el) return;
+    if (typeof window.playAlertChime === 'function') window.playAlertChime();
+    const targetBox = (el.type === 'checkbox') ? (el.closest('.wizard-legal-consent-box') || el.parentElement) : el;
+    if (targetBox) {
+      targetBox.style.border = '2px solid #ef4444';
+      targetBox.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.35)';
+      const clearBorder = () => {
+        targetBox.style.border = '';
+        targetBox.style.boxShadow = '';
+      };
+      el.addEventListener('input', clearBorder, { once: true });
+      el.addEventListener('change', clearBorder, { once: true });
+    }
+    const bookingReveal = document.getElementById('bookingReveal');
+    if (bookingReveal) {
+      const targetRect = (targetBox || el).getBoundingClientRect();
+      const parentRect = bookingReveal.getBoundingClientRect();
+      const topOffset = targetRect.top - parentRect.top + bookingReveal.scrollTop - 140;
+      bookingReveal.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
+    } else {
+      (targetBox || el).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    if (msg) {
+      let toast = document.getElementById('relaxaxGlobalToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'relaxaxGlobalToast';
+        toast.className = 'relaxax-toast';
+        document.body.appendChild(toast);
+      }
+      toast.className = 'relaxax-toast error';
+      toast.innerHTML = `<span style="font-size:1.2rem;">⚠️</span> <span>${msg}</span>`;
+      toast.classList.add('show');
+      if (window.formToastTimeout) clearTimeout(window.formToastTimeout);
+      window.formToastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+  };
+
   function handleMobileStickyCheckout() {
     const bookingScreen = document.getElementById('bookingReveal');
     if (!bookingScreen) return;
@@ -11812,27 +11870,7 @@ function setupBookingReveal() {
       }, 4000);
     };
 
-    const highlightInvalidField = (el, msg) => {
-      if (!el) return;
-      if (typeof window.playAlertChime === 'function') window.playAlertChime();
-      const targetBox = (el.type === 'checkbox') ? (el.closest('.wizard-legal-consent-box') || el.parentElement) : el;
-      if (targetBox) {
-        targetBox.style.border = '2px solid #ef4444';
-        targetBox.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.35)';
-      }
-      const bookingReveal = document.getElementById('bookingReveal');
-      if (bookingReveal) {
-        const topOffset = (targetBox || el).offsetTop - 140;
-        bookingReveal.scrollTo({ top: Math.max(0, topOffset), behavior: 'smooth' });
-      } else {
-        (targetBox || el).scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      setTimeout(() => { try { el.focus(); } catch(e){} }, 200);
-      if (typeof gsap !== 'undefined') {
-        gsap.fromTo(targetBox || el, { x: -8 }, { x: 8, duration: 0.06, repeat: 5, yoyo: true, onComplete: () => { (targetBox || el).style.transform = ''; } });
-      }
-      showFormToast(msg);
-    };
+
 
     if (!name || name.length < 2) {
       highlightInvalidField(nameEl, isPl ? 'Proszę wpisać imię i nazwisko.' : 'Lütfen geçerli bir Ad Soyad giriniz.');

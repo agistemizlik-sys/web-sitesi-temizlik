@@ -5321,7 +5321,7 @@ img, video, .card-bg-image {
 .services-text-overlay {
   position: fixed !important;
   inset: 0 !important;
-  width: 100vw !important;
+  width: 100% !important;
   height: 100vh !important;
   height: 100dvh !important;
   display: none;
@@ -6729,7 +6729,7 @@ video::-webkit-media-controls-overlay-play-button {
 .country-selector-overlay {
   position: fixed !important;
   inset: 0 !important;
-  width: 100vw !important;
+  width: 100% !important;
   height: 100vh !important;
   height: 100dvh !important;
   display: flex;
@@ -12854,7 +12854,7 @@ iframe[title*="Message preview"] {
   .portal-intro-stage {
     position: fixed !important;
     inset: 0 !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     background: #000000 !important;
@@ -12895,11 +12895,11 @@ iframe[title*="Message preview"] {
     inset: 0 !important;
     top: 0 !important;
     left: 0 !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     height: -webkit-fill-available !important;
-    min-width: 100vw !important;
+    min-width: 100% !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
     min-height: -webkit-fill-available !important;
@@ -12914,11 +12914,11 @@ iframe[title*="Message preview"] {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     height: -webkit-fill-available !important;
-    min-width: 100vw !important;
+    min-width: 100% !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
     min-height: -webkit-fill-available !important;
@@ -12934,11 +12934,11 @@ iframe[title*="Message preview"] {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     height: -webkit-fill-available !important;
-    min-width: 100vw !important;
+    min-width: 100% !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
     min-height: -webkit-fill-available !important;
@@ -12953,7 +12953,7 @@ iframe[title*="Message preview"] {
   #portal-intro-stage,
   .portal-intro-stage {
     cursor: default !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     height: -webkit-fill-available !important;
@@ -13495,7 +13495,7 @@ iframe[title*="Message preview"] {
     display: flex !important;
     position: fixed !important;
     inset: 0 !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     overflow: hidden !important; /* NO VERTICAL SCROLL */
@@ -13765,7 +13765,7 @@ iframe[title*="Message preview"] {
   .booking-section-wrapper {
     position: fixed !important;
     inset: 0 !important;
-    width: 100vw !important;
+    width: 100% !important;
     height: 100vh !important;
     height: 100dvh !important;
     overflow-y: auto !important;
@@ -19994,7 +19994,7 @@ html, body {
   position: sticky !important;
   top: 0 !important;
   left: 0 !important;
-  width: 100vw !important;
+  width: 100% !important;
   height: 100vh !important;
   height: 100dvh !important;
   overflow: hidden !important;
@@ -20736,4 +20736,25 @@ html, body {
     -webkit-backdrop-filter: blur(8px) !important;
     backdrop-filter: blur(8px) !important;
   }
+
+  /* 5. iOS Mobile Form Auto-Zoom & Touch Target Accessibility */
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea,
+  .form-control,
+  .w-input,
+  .booking-field-input {
+    font-size: 16px !important;
+  }
+
+  /* Accessible touch target size for mobile buttons */
+  .tms-filter-btn,
+  .tms-date-change-btn,
+  .w-step-item,
+  .wizard-back-nav-btn,
+  .counter-btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
 }
+
