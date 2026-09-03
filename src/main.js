@@ -4503,12 +4503,12 @@ function initApp() {
   let detectedLang = 'tr';
   if (savedLang && TRANSLATIONS[savedLang]) {
     detectedLang = savedLang;
+  } else if (hasTurkishLang || isTurkeyLocation) {
+    detectedLang = 'tr';
   } else if (hasPolishLang || isPolandLocation) {
     detectedLang = 'pl';
   } else if (hasUkrainianLang || isUkraineLocation) {
     detectedLang = 'uk';
-  } else if (hasTurkishLang || isTurkeyLocation) {
-    detectedLang = 'tr';
   } else {
     detectedLang = 'tr';
   }
@@ -5554,6 +5554,12 @@ function setupPortalGateway() {
 
   function selectCityGlobal(city) {
     if (!city) return;
+    const cityLower = String(city).toLowerCase();
+    const isTurkishCity = ['istanbul', 'izmir', 'ankara', 'antalya', 'bursa', 'kocaeli', 'sakarya', 'samsun', 'balikesir'].includes(cityLower);
+    const targetLang = isTurkishCity ? 'tr' : (cityLower === 'warszawa' ? 'pl' : (STATE.language || 'tr'));
+    if (typeof applyLanguage === 'function') {
+      applyLanguage(targetLang);
+    }
     if (typeof window._dismissIntroHero === 'function') window._dismissIntroHero();
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (heroTrack) {
@@ -8464,6 +8470,7 @@ function openBookingScreen() {
     bookingEl.removeAttribute('hidden');
     bookingEl.style.display = 'block';
     bookingEl.classList.add('active');
+    document.body.classList.add('booking-reveal-active');
     bookingEl.scrollTop = 0;
     
     // Prevent event bubbling to background canvas / Lenis engine
@@ -8552,7 +8559,7 @@ window.openBookingScreen = openBookingScreen;
 function closeBookingScreen() {
   const bookingEl = document.getElementById('bookingReveal') || bookingRevealEl;
   if (bookingEl && (!bookingEl.hasAttribute('hidden') || bookingEl.classList.contains('active'))) {
-    document.body.classList.remove('wizard-modal-open', 'booking-open');
+    document.body.classList.remove('wizard-modal-open', 'booking-open', 'booking-reveal-active');
     if (typeof window.stopGardenLoop === 'function') window.stopGardenLoop();
     if (typeof window.triggerCinemaLoop === 'function') window.triggerCinemaLoop();
     logDebug('Hiding booking screen.');
@@ -13325,17 +13332,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Hide mobile bottom dock when inside active booking wizard or modal
   const updateMbdVisibility = () => {
     if (!mbd) return;
-    const revealOpen = document.body.classList.contains('booking-reveal-active');
+    const revealOpen = document.body.classList.contains('booking-reveal-active') ||
+                       document.body.classList.contains('wizard-modal-open') ||
+                       document.body.classList.contains('booking-open');
+    const servicesOpen = !!document.querySelector('.services-text-overlay.active, #servicesTextOverlay.active');
     const modalOpen = !!document.querySelector('.rx-corporate-modal:not(.hidden), .auth-modal-backdrop:not(.hidden), .portal-stage:not([style*="display: none"])');
     const successOpen = document.getElementById('bookingSuccessState')?.style.display === 'flex';
+    const isPortalMode = document.body.classList.contains('flag-selection-mode') || document.body.classList.contains('portal-intro-mode');
 
-    if (revealOpen || modalOpen || successOpen) {
+    const shouldHide = revealOpen || servicesOpen || modalOpen || successOpen || isPortalMode;
+    if (shouldHide) {
       mbd.classList.add('hide-mbd');
+      const voiceBtn = document.querySelector('.rx-floating-voice-btn');
+      if (voiceBtn) voiceBtn.style.setProperty('display', 'none', 'important');
     } else {
       mbd.classList.remove('hide-mbd');
+      const voiceBtn = document.querySelector('.rx-floating-voice-btn');
+      if (voiceBtn) voiceBtn.style.removeProperty('display');
     }
   };
 

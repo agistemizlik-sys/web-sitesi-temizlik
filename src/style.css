@@ -80,9 +80,10 @@ body.flag-selection-mode {
 }
 
 body.flag-selection-mode {
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 [hidden] {
@@ -20786,6 +20787,149 @@ html, body {
   .counter-btn {
     min-height: 44px;
     touch-action: manipulation;
+  }
+}
+
+/* ==========================================================================
+   📱 DOCK COLLISION KILLER & MOBILE WIZARD RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+@media (max-width: 820px) {
+  /* 1. Prevent Bottom Dock & Voice Assistant Collisions */
+  body.flag-selection-mode .mobile-bottom-dock,
+  body.portal-intro-mode .mobile-bottom-dock,
+  body.booking-reveal-active .mobile-bottom-dock,
+  .services-text-overlay.active ~ #mobileBottomStickyBar,
+  .booking-section-wrapper:not([hidden]) ~ #mobileBottomStickyBar,
+  #bookingReveal:not([hidden]) ~ #mobileBottomStickyBar,
+  body.flag-selection-mode .rx-floating-voice-btn,
+  body.portal-intro-mode .rx-floating-voice-btn,
+  body.booking-reveal-active .rx-floating-voice-btn,
+  .services-text-overlay.active ~ * .rx-floating-voice-btn,
+  .booking-section-wrapper:not([hidden]) ~ * .rx-floating-voice-btn,
+  #bookingReveal:not([hidden]) ~ * .rx-floating-voice-btn,
+  body.booking-reveal-active #customChatLauncher,
+  .services-text-overlay.active ~ * #customChatLauncher,
+  .booking-section-wrapper:not([hidden]) ~ * #customChatLauncher,
+  #bookingReveal:not([hidden]) ~ * #customChatLauncher {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 2. Flag & Map Selection Stage: Allow Natural Mobile Scrolling */
+  body.flag-selection-mode {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  #portal-stage {
+    min-height: 100vh !important;
+    overflow-y: visible !important;
+  }
+
+  /* 3. Services Step 1 (Cinema Overlay) Mobile Ergonomics */
+  .services-text-overlay {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-top: calc(max(10px, env(safe-area-inset-top, 10px)) + 58px) !important;
+    padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .services-select-card {
+    height: auto !important;
+    min-height: min-content !important;
+    max-height: none !important;
+    padding: 12px 10px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .services-select-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .service-select-item {
+    padding: 10px 8px !important;
+    min-height: 110px !important;
+  }
+
+  .service-meta-row .meta-pill.price {
+    font-size: 0.72rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .services-footer-action {
+    margin-top: 14px !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+
+  .services-continue-btn {
+    min-height: 48px !important;
+    font-size: 1rem !important;
+    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.5) !important;
+  }
+
+  /* 4. Booking Reveal Calculator Mobile Layout Cleanup */
+  .wizard-area-quick-chips {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    padding: 12px 10px !important;
+  }
+
+  .area-chips-label {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 4px !important;
+    text-align: left !important;
+  }
+
+  .area-chip {
+    padding: 8px 4px !important;
+    font-size: 0.74rem !important;
+    white-space: nowrap !important;
+  }
+
+  .wizard-kitchen-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  .wizard-kitchen-row .or-divider {
+    display: none !important;
+  }
+
+  .wizard-kitchen-row .wizard-check-item {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+
+  /* 5. Sticky Bottom Checkout Bar in Booking Reveal */
+  .mobile-wizard-sticky-bar {
+    z-index: 9999 !important;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    background: rgba(3, 7, 18, 0.96) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border-top: 1px solid rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7) !important;
+  }
+
+  #bookingReveal,
+  .booking-section-wrapper {
+    padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
