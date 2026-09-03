@@ -4916,24 +4916,30 @@ function ensureLeafletLoaded() {
   if (typeof L !== 'undefined') return Promise.resolve();
   if (leafletLoadedPromise) return leafletLoadedPromise;
   leafletLoadedPromise = new Promise((resolve, reject) => {
+    if (typeof L !== 'undefined') {
+      return resolve();
+    }
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-    link.crossOrigin = '';
+    link.href = '/vendor/leaflet/leaflet.css';
     document.head.appendChild(link);
 
     const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
-    script.crossOrigin = '';
+    script.src = '/vendor/leaflet/leaflet.js';
     script.onload = () => {
-      logDebug('Leaflet script and CSS loaded dynamically.');
+      logDebug('Local Leaflet script and CSS loaded successfully.');
       resolve();
     };
-    script.onerror = (err) => {
-      logErrorDebug('Leaflet script dynamic loading failed.', err);
-      reject(err);
+    script.onerror = () => {
+      // Fallback to unpkg CDN if local asset is blocked
+      const cdnScript = document.createElement('script');
+      cdnScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      cdnScript.onload = () => resolve();
+      cdnScript.onerror = (err) => {
+        logErrorDebug('Leaflet dynamic loading failed.', err);
+        reject(err);
+      };
+      document.head.appendChild(cdnScript);
     };
     document.head.appendChild(script);
   });
@@ -4950,10 +4956,15 @@ async function initLeafletMap(country) {
   }
   if (currentToken !== leafletInitToken) return;
   if (country === 'turkey') {
-    if (turkeyMapInstance) {
-      try { turkeyMapInstance.invalidateSize(); } catch(e){}
-      return;
+    const mapEl = document.getElementById('portalNeonMap');
+    if (mapEl && mapEl._leaflet_id) {
+      if (turkeyMapInstance) {
+        try { turkeyMapInstance.invalidateSize(true); } catch(e){}
+        return;
+      }
+      mapEl._leaflet_id = null;
     }
+
     const isMobileDevice = window.innerWidth <= 768;
     turkeyMapInstance = L.map('portalNeonMap', {
       zoomControl: true,
@@ -5031,7 +5042,7 @@ async function initLeafletMap(country) {
     [50, 150, 300, 600, 1200].forEach(delay => {
       setTimeout(() => {
         if (turkeyMapInstance) {
-          turkeyMapInstance.invalidateSize();
+          turkeyMapInstance.invalidateSize(true);
           updateCachedHotspotCoords();
         }
       }, delay);
@@ -5048,11 +5059,15 @@ async function initLeafletMap(country) {
     }, 150);
 
   } else if (country === 'poland') {
-    if (polandMapInstance) {
-      polandMapInstance.invalidateSize();
-      updateCachedHotspotCoords();
-      return;
+    const mapElPL = document.getElementById('portalNeonMapPoland');
+    if (mapElPL && mapElPL._leaflet_id) {
+      if (polandMapInstance) {
+        try { polandMapInstance.invalidateSize(true); } catch(e){}
+        return;
+      }
+      mapElPL._leaflet_id = null;
     }
+
     const isMobileDevice = window.innerWidth <= 768;
     polandMapInstance = L.map('portalNeonMapPoland', {
       zoomControl: true,
@@ -5129,7 +5144,7 @@ async function initLeafletMap(country) {
     [50, 150, 300, 600, 1200].forEach(delay => {
       setTimeout(() => {
         if (polandMapInstance) {
-          polandMapInstance.invalidateSize();
+          polandMapInstance.invalidateSize(true);
           updateCachedHotspotCoords();
         }
       }, delay);
