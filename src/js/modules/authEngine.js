@@ -368,7 +368,14 @@ export function saveLiveStaffJobs(jobs) {
 export function getCurrentUser() {
   try {
     const raw = localStorage.getItem(STORAGE_SESSION_KEY) || sessionStorage.getItem(STORAGE_SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && (parsed.role === 'admin' || parsed.role === 'staff')) {
+      localStorage.removeItem(STORAGE_SESSION_KEY);
+      sessionStorage.removeItem(STORAGE_SESSION_KEY);
+      return null;
+    }
+    return parsed;
   } catch (e) {
     return null;
   }
@@ -539,8 +546,8 @@ export async function registerStaff(name, email, phone, password, city = 'Istanb
   return { success: true, user: newStaff };
 }
 
-// Universal Login (Customer, Staff, or Admin)
-export async function loginUser(email, password, rememberMe = true, expectedRole = 'any') {
+// Customer Login
+export async function loginUser(email, password, rememberMe = true) {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
 
@@ -548,76 +555,64 @@ export async function loginUser(email, password, rememberMe = true, expectedRole
     return { success: false, message: 'Lütfen e-posta ve şifrenizi giriniz.' };
   }
 
-  // 0. Check Admin
-  if (expectedRole === 'admin' || cleanEmail.startsWith('admin@') || cleanEmail === 'yonetici@relaxax.com') {
-    if (cleanPass === '123456' || cleanPass.length >= 6) {
-      const adminUser = {
-        id: 'admin_master_01',
-        role: 'admin',
-        name: 'Sistem Yöneticisi (Admin)',
-        email: cleanEmail,
-        phone: '0546 647 90 04',
-        city: 'Tüm Bölgeler',
-        token: 'rlx_adm_' + Date.now().toString(36),
-        authenticated: true
-      };
-      if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(adminUser));
-      else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(adminUser));
-      updateAuthUI();
-      return { success: true, user: adminUser, role: 'admin' };
-    }
+  // 1. Check Registered Customers
+  const users = getRegisteredUsers();
+  let foundUser = users.find(u => u.email === cleanEmail && u.password === cleanPass);
+
+  // If testing with demo customer account
+  if (!foundUser && (cleanEmail === 'musteri@relaxax.com' || cleanEmail === 'demo@relaxax.com') && cleanPass === '123456') {
+    foundUser = {
+      id: 'usr_demo_customer',
+      role: 'customer',
+      name: 'Örnek Müşteri',
+      email: cleanEmail,
+      phone: '0546 647 90 04',
+      city: 'İstanbul',
+      district: 'Kadıköy',
+      street: 'Moda Cad. No:12',
+      vipScore: 100,
+      activePromo: 'HOSGELDIN15',
+      createdAt: new Date().toISOString()
+    };
+    users.push(foundUser);
+    saveRegisteredUsers(users);
   }
 
-  // 1. Check Staff
-  if (expectedRole === 'staff' || expectedRole === 'any') {
-    const staffList = getRegisteredStaff();
-    const foundStaff = staffList.find(s => s.email === cleanEmail && s.password === cleanPass);
-    if (foundStaff) {
-      if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(foundStaff));
-      else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(foundStaff));
-      updateAuthUI();
-      return { success: true, user: foundStaff, role: 'staff' };
-    }
+  if (foundUser) {
+    foundUser.role = 'customer';
+    if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(foundUser));
+    else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(foundUser));
+    updateAuthUI();
+    prefillBookingWizardWithUser();
+    return { success: true, user: foundUser, role: 'customer' };
   }
 
-  // 2. Check Customers
-  if (expectedRole === 'customer' || expectedRole === 'any') {
-    const users = getRegisteredUsers();
-    const foundUser = users.find(u => u.email === cleanEmail && u.password === cleanPass);
-    if (foundUser) {
-      if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(foundUser));
-      else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(foundUser));
-      updateAuthUI();
-      prefillBookingWizardWithUser();
-      return { success: true, user: foundUser, role: 'customer' };
-    }
-  }
-
-  // 3. Attempt Server API Verification
+  // 2. Attempt Server API Verification
   try {
     const res = await fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'login',
-        role: expectedRole,
+        role: 'customer',
         email: cleanEmail,
         password: cleanPass
       })
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data && data.success && data.user) {
+      data.user.role = 'customer';
       if (rememberMe) localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
       else sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(data.user));
       updateAuthUI();
-      if (data.user.role === 'customer') prefillBookingWizardWithUser();
-      return { success: true, user: data.user, role: data.user.role };
+      prefillBookingWizardWithUser();
+      return { success: true, user: data.user, role: 'customer' };
     } else if (data && data.message) {
       return { success: false, message: data.message };
     }
   } catch (e) {}
 
-  return { success: false, message: 'Bu e-posta adresi ile kayıtlı bir hesap bulunamadı veya şifre hatalı.' };
+  return { success: false, message: 'Bu e-posta adresi ile kayıtlı bir müşteri hesabı bulunamadı veya şifre hatalı.' };
 }
 
 export function logoutUser() {
@@ -979,7 +974,7 @@ export function updateAuthUI() {
   }
 }
 
-export function openAuthModal(targetTab = 'login', targetRole = 'customer') {
+export function openAuthModal(targetTab = 'login') {
   const modal = document.getElementById('authModal');
   if (!modal) return;
 
@@ -987,32 +982,43 @@ export function openAuthModal(targetTab = 'login', targetRole = 'customer') {
   modal.removeAttribute('hidden');
   modal.classList.add('active');
 
-  if (typeof window.pushAppState === 'function') {
-    window.pushAppState('authModal', { targetTab, targetRole });
-  }
-
   const user = getCurrentUser();
+  const profileTab = document.getElementById('tabAuthProfileBtn');
+  const loginTab = document.getElementById('tabAuthLoginBtn');
+  const regTab = document.getElementById('tabAuthRegisterBtn');
+  const badgeModal = document.getElementById('authModalBadge');
+  const titleModal = document.getElementById('authModalTitle');
+  const subModal = document.getElementById('authModalSubtitle');
+
+  const lang = (window.__currentLang || localStorage.getItem('relaxax_lang') || 'tr').toLowerCase();
+
   if (user) {
-    if (user.role === 'admin') {
-      setAuthRoleMode('admin');
-      switchAuthTab('admin_dashboard');
-    } else if (user.role === 'staff') {
-      setAuthRoleMode('staff');
-      switchAuthTab('staff_dashboard');
-    } else {
-      setAuthRoleMode('customer');
-      switchAuthTab('profile');
-    }
+    if (profileTab) profileTab.style.display = 'inline-flex';
+    if (loginTab) loginTab.style.display = 'none';
+    if (regTab) regTab.style.display = 'none';
+
+    if (badgeModal) badgeModal.textContent = lang === 'pl' ? '👤 MOJE KONTO' : '👤 HESAP YÖNETİMİ';
+    if (titleModal) titleModal.textContent = lang === 'pl' ? `Witaj, ${user.name}` : `Hoş Geldiniz, ${user.name}`;
+    if (subModal) subModal.textContent = lang === 'pl' ? 'Zarządzaj rezerwacjami i danymi konta.' : 'Rezervasyonlarınızı, adreslerinizi ve VIP puanlarınızı yönetin.';
+
+    switchAuthTab('profile');
   } else {
-    setAuthRoleMode(targetRole);
-    switchAuthTab(targetTab);
+    if (profileTab) profileTab.style.display = 'none';
+    if (loginTab) loginTab.style.display = 'inline-flex';
+    if (regTab) regTab.style.display = 'inline-flex';
+
+    if (badgeModal) badgeModal.textContent = lang === 'pl' ? '🔐 BEZPIECZNE LOGOWANIE' : '🔐 GÜVENLİ MÜŞTERİ HESABI';
+    if (titleModal) titleModal.textContent = lang === 'pl' ? 'Logowanie lub Rejestracja' : 'Giriş Yap veya Kayıt Ol';
+    if (subModal) subModal.textContent = lang === 'pl' ? 'Zaloguj się, aby zarządzać rezerwacjami.' : 'Rezervasyonlarınızı yönetmek ve siparişlerinizi takip etmek için giriş yapın.';
+
+    switchAuthTab(targetTab === 'register' ? 'register' : 'login');
   }
 
   const card = modal.querySelector('.rx-auth-modal-card');
   if (card && typeof window.gsap !== 'undefined') {
     window.gsap.fromTo(card,
-      { scale: 0.92, opacity: 0, y: 20 },
-      { scale: 1, opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+      { scale: 0.94, opacity: 0, y: 15 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
     );
   }
 }
@@ -1042,82 +1048,13 @@ export function closeAuthModal() {
   }
 }
 
-export function setAuthRoleMode(role) {
-  const btnRoleCust = document.getElementById('btnRoleSelectCustomer');
-  const btnRoleStaff = document.getElementById('btnRoleSelectStaff');
-  const btnRoleAdmin = document.getElementById('btnRoleSelectAdmin');
-  const badgeModal = document.getElementById('authModalBadge');
-  const titleModal = document.getElementById('authModalTitle');
-
-  if (role === 'admin') {
-    if (btnRoleCust) btnRoleCust.classList.remove('active');
-    if (btnRoleStaff) btnRoleStaff.classList.remove('active');
-    if (btnRoleAdmin) btnRoleAdmin.classList.add('active');
-    if (badgeModal) badgeModal.textContent = '👑 RELAXAX YÖNETİM MASASI';
-    if (titleModal) titleModal.textContent = 'Yönetici & Operasyon Masası';
-
-    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'flex');
-
-    const user = getCurrentUser();
-    if (user && user.role === 'admin') {
-      switchAuthTab('admin_dashboard');
-    } else {
-      switchAuthTab('admin_login');
-    }
-  } else if (role === 'staff') {
-    if (btnRoleCust) btnRoleCust.classList.remove('active');
-    if (btnRoleStaff) btnRoleStaff.classList.add('active');
-    if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
-    if (badgeModal) badgeModal.textContent = '🧹 TEMİZLİK UZMANI MASASI';
-    if (titleModal) titleModal.textContent = 'Temizlik Uzmanı Görev Paneli';
-
-    document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'flex');
-    document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
-    
-    const user = getCurrentUser();
-    if (user && user.role === 'staff') {
-      switchAuthTab('staff_dashboard');
-    } else {
-      switchAuthTab('staff_login');
-    }
-  } else {
-    if (btnRoleCust) btnRoleCust.classList.add('active');
-    if (btnRoleStaff) btnRoleStaff.classList.remove('active');
-    if (btnRoleAdmin) btnRoleAdmin.classList.remove('active');
-    
-    const user = getCurrentUser();
-    if (user && user.role === 'customer') {
-      if (badgeModal) badgeModal.textContent = '👤 HESAP YÖNETİMİ';
-      if (titleModal) titleModal.textContent = 'Hesabım & Siparişlerim';
-      document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'flex');
-      document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
-      switchAuthTab('profile');
-    } else {
-      if (badgeModal) badgeModal.textContent = '🔐 GÜVENLİ HESAP GİRİŞİ';
-      if (titleModal) titleModal.textContent = 'Giriş Yap veya Kayıt Ol';
-      document.querySelectorAll('.customer-only-tab').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.staff-only-tab').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.admin-only-tab').forEach(el => el.style.display = 'none');
-      switchAuthTab('login');
-    }
-  }
+export function setAuthRoleMode() {
+  // Always customer mode - no admin or staff panels inside customer modal
 }
 
 export function switchAuthTab(tabName) {
-  const tabs = [
-    'tabAuthLoginBtn', 'tabAuthRegisterBtn', 'tabAuthProfileBtn',
-    'tabAuthStaffLoginBtn', 'tabAuthStaffApplyBtn', 'tabAuthStaffDashBtn',
-    'tabAuthAdminLoginBtn', 'tabAuthAdminDashBtn'
-  ];
-  const panes = [
-    'paneAuthLogin', 'paneAuthRegister', 'paneAuthProfile',
-    'paneAuthStaffLogin', 'paneAuthStaffApply', 'paneAuthStaffDashboard',
-    'paneAuthAdminLogin', 'paneAuthAdminDashboard'
-  ];
+  const tabs = ['tabAuthLoginBtn', 'tabAuthRegisterBtn', 'tabAuthProfileBtn'];
+  const panes = ['paneAuthLogin', 'paneAuthRegister', 'paneAuthProfile'];
 
   tabs.forEach(id => document.getElementById(id)?.classList.remove('active'));
   panes.forEach(id => {
@@ -1127,33 +1064,11 @@ export function switchAuthTab(tabName) {
 
   const user = getCurrentUser();
 
-  if (tabName === 'admin_dashboard' && user && user.role === 'admin') {
-    document.getElementById('tabAuthAdminDashBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthAdminDashboard');
-    if (pane) pane.style.display = 'block';
-    renderAdminDashboard();
-  } else if (tabName === 'admin_login') {
-    document.getElementById('tabAuthAdminLoginBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthAdminLogin');
-    if (pane) pane.style.display = 'block';
-  } else if (tabName === 'staff_dashboard' && user && user.role === 'staff') {
-    document.getElementById('tabAuthStaffDashBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthStaffDashboard');
-    if (pane) pane.style.display = 'block';
-    renderStaffDashboard();
-  } else if (tabName === 'profile' && user && user.role === 'customer') {
+  if (tabName === 'profile' && user) {
     document.getElementById('tabAuthProfileBtn')?.classList.add('active');
     const pane = document.getElementById('paneAuthProfile');
     if (pane) pane.style.display = 'block';
     renderUserProfileDetails(user);
-  } else if (tabName === 'staff_apply') {
-    document.getElementById('tabAuthStaffApplyBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthStaffApply');
-    if (pane) pane.style.display = 'block';
-  } else if (tabName === 'staff_login') {
-    document.getElementById('tabAuthStaffLoginBtn')?.classList.add('active');
-    const pane = document.getElementById('paneAuthStaffLogin');
-    if (pane) pane.style.display = 'block';
   } else if (tabName === 'register') {
     document.getElementById('tabAuthRegisterBtn')?.classList.add('active');
     const pane = document.getElementById('paneAuthRegister');
@@ -3254,11 +3169,6 @@ export function initAuthEngine() {
   updateAuthUI();
   syncCatalogToDom();
 
-  // Role selector buttons in modal header
-  document.getElementById('btnRoleSelectCustomer')?.addEventListener('click', () => setAuthRoleMode('customer'));
-  document.getElementById('btnRoleSelectStaff')?.addEventListener('click', () => setAuthRoleMode('staff'));
-  document.getElementById('btnRoleSelectAdmin')?.addEventListener('click', () => setAuthRoleMode('admin'));
-
   // Attach navbar button trigger
   const authNavBtn = document.getElementById('cNavAuthBtn');
   if (authNavBtn) {
@@ -3289,11 +3199,6 @@ export function initAuthEngine() {
   document.getElementById('tabAuthLoginBtn')?.addEventListener('click', () => switchAuthTab('login'));
   document.getElementById('tabAuthRegisterBtn')?.addEventListener('click', () => switchAuthTab('register'));
   document.getElementById('tabAuthProfileBtn')?.addEventListener('click', () => switchAuthTab('profile'));
-  document.getElementById('tabAuthStaffLoginBtn')?.addEventListener('click', () => switchAuthTab('staff_login'));
-  document.getElementById('tabAuthStaffApplyBtn')?.addEventListener('click', () => switchAuthTab('staff_apply'));
-  document.getElementById('tabAuthStaffDashBtn')?.addEventListener('click', () => switchAuthTab('staff_dashboard'));
-  document.getElementById('tabAuthAdminLoginBtn')?.addEventListener('click', () => switchAuthTab('admin_login'));
-  document.getElementById('tabAuthAdminDashBtn')?.addEventListener('click', () => switchAuthTab('admin_dashboard'));
 
   // Sub-Navigation Tabs Switching (Customer, Staff, and Admin)
   document.querySelectorAll('.portal-subnav-btn').forEach(btn => {
@@ -3453,10 +3358,8 @@ export function initAuthEngine() {
   // Switch shortcuts
   document.getElementById('linkGoToRegister')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('register'); });
   document.getElementById('linkGoToLogin')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('login'); });
-  document.getElementById('linkGoToStaffApply')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('staff_apply'); });
-  document.getElementById('linkGoToStaffLogin')?.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('staff_login'); });
 
-  // Unified Login Form Submission
+  // Customer Login Form Submission
   const loginForm = document.getElementById('authLoginForm');
   const loginFeedback = document.getElementById('authLoginFeedback');
   const btnSubmitLogin = document.getElementById('btnSubmitLogin');
@@ -3469,10 +3372,10 @@ export function initAuthEngine() {
 
       if (btnSubmitLogin) {
         btnSubmitLogin.disabled = true;
-        btnSubmitLogin.innerHTML = '<span>Yetkili Girişi Doğrulanıyor... ⏳</span>';
+        btnSubmitLogin.innerHTML = '<span>Giriş Yapılıyor... ⏳</span>';
       }
 
-      const res = await loginUser(email, pass, remember, 'any');
+      const res = await loginUser(email, pass, remember);
 
       if (btnSubmitLogin) {
         btnSubmitLogin.disabled = false;
@@ -3483,19 +3386,13 @@ export function initAuthEngine() {
         if (loginFeedback) {
           loginFeedback.style.display = 'block';
           loginFeedback.className = 'auth-feedback success';
-          loginFeedback.textContent = `✓ Hoş geldiniz, ${res.user.name}! Giriş yapıldı (${res.role === 'admin' ? 'Yönetici' : res.role === 'staff' ? 'Temizlik Uzmanı' : 'Müşteri'}).`;
+          loginFeedback.textContent = `✓ Hoş geldiniz, ${res.user.name}! Giriş başarılı.`;
         }
         if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
         setTimeout(() => {
-          if (res.role === 'admin') {
-            switchAuthTab('admin_dashboard');
-          } else if (res.role === 'staff') {
-            switchAuthTab('staff_dashboard');
-          } else {
-            switchAuthTab('profile');
-          }
+          openAuthModal('profile');
           if (loginFeedback) loginFeedback.style.display = 'none';
-        }, 500);
+        }, 400);
       } else {
         if (loginFeedback) {
           loginFeedback.style.display = 'block';
@@ -3696,10 +3593,9 @@ export function initAuthEngine() {
           regFeedback.textContent = `🎉 Tebrikler ${res.user.name}, üyeliğiniz tamamlandı! +100 Hoşgeldin Puanı ve %15 İndirim kuponunuz cüzdanınıza tanımlandı.`;
         }
         setTimeout(() => {
-          closeAuthModal();
+          openAuthModal('profile');
           if (regFeedback) regFeedback.style.display = 'none';
-          if (typeof openBookingScreen === 'function') openBookingScreen();
-        }, 1200);
+        }, 800);
       } else {
         if (regFeedback) {
           regFeedback.style.display = 'block';
@@ -3710,91 +3606,10 @@ export function initAuthEngine() {
     });
   }
 
-  // Staff Application / Register Form
-  const staffApplyForm = document.getElementById('authStaffApplyForm');
-  const staffApplyFeedback = document.getElementById('authStaffApplyFeedback');
-  const btnSubmitStaffApply = document.getElementById('btnSubmitStaffApply');
-  if (staffApplyForm) {
-    staffApplyForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('staffRegName')?.value;
-      const email = document.getElementById('staffRegEmail')?.value;
-      const phone = document.getElementById('staffRegPhone')?.value;
-      const pass = document.getElementById('staffRegPassword')?.value;
-      const city = document.getElementById('staffRegCity')?.value || 'Istanbul';
-      const district = document.getElementById('staffRegDistrict')?.value || 'Kadıköy';
-      const exp = document.getElementById('staffRegExp')?.value || '3 Yıl';
-      const workMode = document.getElementById('staffRegWorkMode')?.value || 'flexible';
-      const vehicle = document.getElementById('staffRegVehicle')?.value || 'public';
-      
-      const skills = Array.from(document.querySelectorAll('input[name="staffSkill"]:checked')).map(cb => cb.value);
-
-      if (btnSubmitStaffApply) {
-        btnSubmitStaffApply.disabled = true;
-        btnSubmitStaffApply.innerHTML = '<span>Uzman Başvurunuz İnceleniyor... ⏳</span>';
-      }
-
-      const res = await registerStaff(name, email, phone, pass, city, district, exp, skills);
-
-      if (btnSubmitStaffApply) {
-        btnSubmitStaffApply.disabled = false;
-        btnSubmitStaffApply.innerHTML = '<span>Uzman Başvurumu Tamamla & Hemen Başla ➔</span>';
-      }
-
-      if (res.success) {
-        if (staffApplyFeedback) {
-          staffApplyFeedback.style.display = 'block';
-          staffApplyFeedback.className = 'auth-feedback success';
-          staffApplyFeedback.textContent = `🎉 Tebrikler ${res.user.name}, temizlik uzmanı kaydınız onaylandı! Canlı görev masanıza yönlendiriliyorsunuz...`;
-        }
-        setTimeout(() => {
-          if (staffApplyFeedback) staffApplyFeedback.style.display = 'none';
-          switchAuthTab('staff_dashboard');
-        }, 1200);
-      } else {
-        if (staffApplyFeedback) {
-          staffApplyFeedback.style.display = 'block';
-          staffApplyFeedback.className = 'auth-feedback error';
-          staffApplyFeedback.textContent = `⚠️ ${res.message}`;
-        }
-      }
-    });
-  }
-
-  // Logout Buttons
+  // Logout Button
   document.getElementById('btnLogoutUser')?.addEventListener('click', () => {
     logoutUser();
-    switchAuthTab('login');
-  });
-
-  document.getElementById('btnLogoutStaff')?.addEventListener('click', () => {
-    logoutUser();
-    switchAuthTab('staff_login');
-  });
-
-  document.getElementById('btnLogoutAdmin')?.addEventListener('click', () => {
-    logoutUser();
-    switchAuthTab('admin_login');
-  });
-
-  // Role Selector Pills in Modal Top
-  document.querySelectorAll('.auth-role-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('.auth-role-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      const role = pill.dataset.role;
-      const user = getCurrentUser();
-      if (role === 'customer') {
-        if (user && user.role === 'customer') switchAuthTab('profile');
-        else switchAuthTab('login');
-      } else if (role === 'staff') {
-        if (user && user.role === 'staff') switchAuthTab('staff_dashboard');
-        else switchAuthTab('staff_login');
-      } else if (role === 'admin') {
-        if (user && user.role === 'admin') switchAuthTab('admin_dashboard');
-        else switchAuthTab('admin_login');
-      }
-    });
+    openAuthModal('login');
   });
 
   // Password visibility toggles

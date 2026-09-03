@@ -4524,10 +4524,8 @@ function initApp() {
   if (panelParam) {
     setTimeout(() => {
       if (typeof window.openAuthModalGlobal === 'function') {
-        if (panelParam === 'admin') window.openAuthModalGlobal('admin_dashboard');
-        else if (panelParam === 'staff') window.openAuthModalGlobal('staff_dashboard');
-        else if (panelParam === 'apply') window.openAuthModalGlobal('staff_apply');
-        else window.openAuthModalGlobal(panelParam);
+        if (panelParam === 'register') window.openAuthModalGlobal('register');
+        else window.openAuthModalGlobal('login');
       }
     }, 400);
   }
