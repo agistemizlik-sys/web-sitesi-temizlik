@@ -4073,123 +4073,6 @@ function setupPortalIntroClick() {
     btnPL.addEventListener('click', handleSelectPL);
     btnPL.addEventListener('touchend', handleSelectPL, { passive: false });
   }
-
-  window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, { passive: false });
-  window.addEventListener('touchend', onTouchEnd, { passive: true });
-  document.addEventListener('keydown', onKeyDown, { passive: true });
-
-  // 2. Main entrance trigger handler
-  function onTriggerIntro(e) {
-    if (triggered) return;
-    triggered = true;
-
-    if (introStage) {
-      introStage.style.pointerEvents = 'none';
-    }
-
-    cleanupIntroListeners();
-
-    if (window.playTickSound) {
-      try { window.playTickSound(); } catch(err) {}
-    }
-
-    document.body.classList.remove('portal-intro-mode');
-    document.body.classList.add('flag-selection-mode');
-
-    // Reveal country selector underneath the liquify wipe canvas
-    const csoOverlay = document.getElementById('country-selector-overlay');
-    if (csoOverlay) {
-      csoOverlay.classList.remove('cso-hidden');
-      csoOverlay.style.display = 'flex';
-      csoOverlay.style.visibility = 'visible';
-      csoOverlay.style.opacity = '1';
-      csoOverlay.style.pointerEvents = 'all';
-      const earthVideo = document.getElementById('csoEarthVideo');
-      if (earthVideo) {
-        const isMob = window.innerWidth <= 768;
-        const targetEarthSrc = isMob ? '/videos/earth_rotating_mobil.mp4' : '/videos/earth_rotating.mp4';
-        if (!earthVideo.getAttribute('src') || earthVideo.getAttribute('src') !== targetEarthSrc) {
-          earthVideo.setAttribute('src', targetEarthSrc);
-          earthVideo.load();
-        }
-        earthVideo.muted = true;
-        earthVideo.playsInline = true;
-        try { earthVideo.play().catch(() => {}); } catch(err) {}
-      }
-    }
-
-    let clickCoords = { x: window.innerWidth / 2, y: window.innerHeight * 0.35 };
-    if (e) {
-      if (e.touches && e.touches[0]) {
-        clickCoords = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      } else if (e.changedTouches && e.changedTouches[0]) {
-        clickCoords = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-      } else if (typeof e.clientX === 'number') {
-        clickCoords = { x: e.clientX, y: e.clientY };
-      }
-    }
-
-    if (typeof window.triggerDust === 'function') {
-      try { window.triggerDust(clickCoords.x, clickCoords.y); } catch(e) {}
-    }
-    if (typeof window.playWarpSound === 'function') {
-      try { window.playWarpSound(); } catch(e) {}
-    }
-
-    // Execute Three.js WebGL Liquify Screen Wipe Shader Transition
-    if (typeof runLiquifyScreenWipe === 'function') {
-      runLiquifyScreenWipe(introStage, introVideo, clickCoords, () => {
-        if (introVideo && !introVideo.paused) {
-          try { introVideo.pause(); } catch(err) {}
-        }
-        if (introStage && introStage.parentNode) {
-          introStage.style.display = 'none';
-          introStage.remove();
-        }
-        if (STATE.lenisInstance) {
-          STATE.lenisInstance.stop();
-        }
-      });
-    } else {
-      gsap.to(introStage, {
-        opacity: 0,
-        scale: 1.04,
-        duration: 0.35,
-        ease: 'power2.out',
-        onComplete: () => {
-          if (introVideo && !introVideo.paused) {
-            try { introVideo.pause(); } catch(err) {}
-          }
-          if (introStage && introStage.parentNode) {
-            introStage.style.display = 'none';
-            introStage.remove();
-          }
-          if (STATE.lenisInstance) {
-            STATE.lenisInstance.stop();
-          }
-        }
-      });
-    }
-  }
-
-  // 3. Attach listeners
-  introStage.addEventListener('mousemove', onMouseMove, { passive: true });
-  introStage.addEventListener('click', onTriggerIntro);
-  introStage.addEventListener('pointerdown', onTriggerIntro);
-  introStage.addEventListener('touchstart', onTouchStart, { passive: true });
-  introStage.addEventListener('touchmove', onTouchMove, { passive: true });
-  introStage.addEventListener('touchend', onTriggerIntro);
-  window.addEventListener('wheel', onWheel, { passive: true });
-  document.addEventListener('keydown', onKeyDown, { once: true });
-
-  // Auto-start fallback in 1200ms
-  const autoDelay = isMobile ? 1200 : 1600;
-  autoTimer = setTimeout(() => {
-    onTriggerIntro({ clientX: window.innerWidth / 2, clientY: window.innerHeight * 0.4 });
-  }, autoDelay);
-
-  window.dismissIntroScreen = onTriggerIntro;
 }
 
 /**
@@ -4844,7 +4727,7 @@ function addLeafletMarkers(mapObj, locations) {
   const dict = TRANSLATIONS[STATE.language] || TRANSLATIONS.tr;
   locations.forEach(loc => {
     const cityKey = loc.key;
-    const transCity = dict.cities[cityKey];
+    const transCity = (dict && dict.cities && dict.cities[cityKey]) || (TRANSLATIONS.tr && TRANSLATIONS.tr.cities && TRANSLATIONS.tr.cities[cityKey]) || { name: cityKey };
     if (!transCity) return;
 
     const displayName = loc.districtName ? loc.districtName : transCity.name;
@@ -4991,11 +4874,20 @@ async function initLeafletMap(country) {
   if (currentToken !== leafletInitToken) return;
   if (country === 'turkey') {
     const mapEl = document.getElementById('portalNeonMap');
-    if (mapEl && mapEl._leaflet_id) {
-      if (turkeyMapInstance) {
-        try { turkeyMapInstance.invalidateSize(true); } catch(e){}
-        return;
-      }
+    if (!mapEl) return;
+
+    mapEl.style.display = 'block';
+    mapEl.style.visibility = 'visible';
+
+    if (turkeyMapInstance) {
+      try {
+        turkeyMapInstance.stop();
+        turkeyMapInstance.remove();
+      } catch (e) {}
+      turkeyMapInstance = null;
+      window.turkeyMapInstance = null;
+    }
+    if (mapEl._leaflet_id) {
       mapEl._leaflet_id = null;
     }
 
@@ -5094,11 +4986,20 @@ async function initLeafletMap(country) {
 
   } else if (country === 'poland') {
     const mapElPL = document.getElementById('portalNeonMapPoland');
-    if (mapElPL && mapElPL._leaflet_id) {
-      if (polandMapInstance) {
-        try { polandMapInstance.invalidateSize(true); } catch(e){}
-        return;
-      }
+    if (!mapElPL) return;
+
+    mapElPL.style.display = 'block';
+    mapElPL.style.visibility = 'visible';
+
+    if (polandMapInstance) {
+      try {
+        polandMapInstance.stop();
+        polandMapInstance.remove();
+      } catch (e) {}
+      polandMapInstance = null;
+      window.polandMapInstance = null;
+    }
+    if (mapElPL._leaflet_id) {
       mapElPL._leaflet_id = null;
     }
 
