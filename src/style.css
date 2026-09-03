@@ -4201,7 +4201,7 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   .portal-map-selector-stage {
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 20px;
   }
 
   .portal-map-wrapper {
@@ -4210,7 +4210,10 @@ body:not(.flag-selection-mode) .cinema-ambient-light {
   }
   
   .portal-preview-panel {
-    display: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
@@ -13098,21 +13101,21 @@ iframe[title*="Message preview"] {
   }
 
   .portal-map-selector-stage {
-  display: none;
-  position: relative !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 auto !important;
-  padding: 16px 12px 24px !important;
-  background: rgba(13, 22, 44, 0.96) !important;
-  backdrop-filter: blur(28px) !important;
-  -webkit-backdrop-filter: blur(28px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-radius: 18px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-  box-sizing: border-box !important;
-  color: #f8fafc !important;
-}
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 14px 10px 24px !important;
+    background: rgba(13, 22, 44, 0.96) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+    box-sizing: border-box !important;
+    color: #f8fafc !important;
+  }
 
   .tms-back-country-btn {
     align-self: flex-start !important;
@@ -13261,7 +13264,7 @@ iframe[title*="Message preview"] {
   }
 
   .portal-map-wrapper {
-    height: 260px !important;
+    height: clamp(340px, 48vh, 420px) !important;
     border-radius: 16px !important;
     border: 1px solid rgba(255, 255, 255, 0.14) !important;
     position: relative !important;
@@ -20417,6 +20420,19 @@ html, body {
   }
   .sjh-progress-bar-wrap {
     width: 120px !important;
+  }
+  .royal-banner-container {
+    width: clamp(130px, 42vw, 155px) !important;
+    aspect-ratio: 310 / 600 !important;
+    top: 15vh !important;
+  }
+  .banner-container-left {
+    left: 4vw !important;
+    right: auto !important;
+  }
+  .banner-container-right {
+    right: 4vw !important;
+    left: auto !important;
   }
 }
 

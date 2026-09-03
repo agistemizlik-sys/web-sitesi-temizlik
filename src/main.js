@@ -3677,14 +3677,16 @@ function setupPortalIntroClick() {
     }
 
     if (hud) {
-      const showHud = progress >= 0.75;
-      hud.style.opacity = showHud ? '1' : '0';
-      hud.style.visibility = showHud ? 'visible' : 'hidden';
-      hud.style.transition = 'opacity 0.4s ease, visibility 0.4s ease';
+      hud.style.opacity = '1';
+      hud.style.visibility = 'visible';
+      hud.style.pointerEvents = 'auto';
+      hud.style.cursor = 'pointer';
     }
 
     if (hudText) {
-      const targetText = '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)';
+      const targetText = progress >= 0.60 
+        ? '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)' 
+        : '🧭 AŞAĞI KAYDIRIN VEYA DOKUNUN ↓';
       if (targetText !== lastHudText) {
         hudText.textContent = targetText;
         lastHudText = targetText;
@@ -3754,27 +3756,45 @@ function setupPortalIntroClick() {
 
     updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.05, 0.12, 0.18, 0.28);
 
-    // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.60)
+    // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.58)
     let bannerOpacity = 0;
     let bannerDrop = 0;
-    if (progress > 0.60) {
-      bannerDrop = Math.min(1.0, (progress - 0.60) / 0.22);
+    if (progress > 0.58) {
+      bannerDrop = Math.min(1.0, (progress - 0.58) / 0.22);
       bannerOpacity = 1.0 - Math.pow(1.0 - bannerDrop, 2);
     }
 
     if (bannerOpacity > 0.01) {
-      const { ox, oy, rw, rh, isPortrait } = lastFrameRect;
-      const bannerW = isPortrait ? Math.min(185, rw * 0.44) : Math.min(360, Math.max(250, rw * 0.25));
-      const bannerH = bannerW / 0.517;
-      const topY = oy + (isPortrait ? rh * 0.05 : rh * 0.03);
+      const isMob = window.innerWidth <= 768;
+      let bannerW, bannerH, leftX, rightX, topY;
 
-      const leftCenterX = isPortrait ? (ox + rw * 0.26) : (ox + rw * 0.23);
-      const rightCenterX = isPortrait ? (ox + rw * 0.74) : (ox + rw * 0.77);
+      if (isMob) {
+        // Mobile Viewport: 100% stable CSS pixel layout (immune to Canvas DPR scaling)
+        const vW = window.innerWidth;
+        const vH = window.innerHeight;
+        bannerW = Math.min(150, Math.floor(vW * 0.42));
+        bannerH = bannerW / 0.517;
+        topY = Math.round(vH * 0.16);
+        leftX = Math.round(vW * 0.05);
+        rightX = Math.round(vW - vW * 0.05 - bannerW);
+      } else {
+        // Desktop Viewport: Normalized by DPR to align with 3D canvas poles
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
+        const { ox, oy, rw, rh } = lastFrameRect;
+        const cssOx = ox / dpr;
+        const cssOy = oy / dpr;
+        const cssRw = rw / dpr;
+        const cssRh = rh / dpr;
+        bannerW = Math.min(320, Math.max(220, cssRw * 0.22));
+        bannerH = bannerW / 0.517;
+        topY = cssOy + cssRh * 0.03;
+        const leftCenterX = cssOx + cssRw * 0.23;
+        const rightCenterX = cssOx + cssRw * 0.77;
+        leftX = leftCenterX - (bannerW / 2);
+        rightX = rightCenterX - (bannerW / 2);
+      }
 
-      const leftX = leftCenterX - (bannerW / 2);
-      const rightX = rightCenterX - (bannerW / 2);
-
-      const dropOffsetY = (1.0 - bannerDrop) * -90;
+      const dropOffsetY = (1.0 - bannerDrop) * -80;
 
       if (poleLeft) {
         poleLeft.style.left = `${Math.round(leftX)}px`;
@@ -3866,11 +3886,13 @@ function setupPortalIntroClick() {
   // ── TOUCH DRAG HANDLERS (MOBILE) ──
   let touchStartY = 0;
   let isTouching = false;
+  let touchMoved = false;
 
   const onTouchStart = (e) => {
     if (e.touches && e.touches[0]) {
       touchStartY = e.touches[0].clientY;
       isTouching = true;
+      touchMoved = false;
     }
   };
 
@@ -3878,19 +3900,31 @@ function setupPortalIntroClick() {
     if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
-    const step = deltaY / ((window.innerHeight || 800) * 0.85);
+    if (Math.abs(deltaY) > 5) touchMoved = true;
+    const step = deltaY / Math.min(320, (window.innerHeight || 800) * 0.45);
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
     startDampingLoop();
   };
 
   const onTouchEnd = () => {
+    if (!touchMoved && !triggered && targetProgress < 0.60) {
+      targetProgress = 1.0;
+      startDampingLoop();
+    }
     isTouching = false;
   };
 
   window.addEventListener('touchstart', onTouchStart, { passive: true });
   window.addEventListener('touchmove', onTouchMove, { passive: true });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
+
+  if (hud) {
+    hud.addEventListener('click', () => {
+      targetProgress = 1.0;
+      startDampingLoop();
+    });
+  }
 
   // ── KEYBOARD HANDLER ──
   const onKeyDown = (e) => {
@@ -4969,14 +5003,14 @@ async function initLeafletMap(country) {
     turkeyMapInstance = L.map('portalNeonMap', {
       zoomControl: true,
       scrollWheelZoom: false,
-      dragging: !isMobileDevice,
+      dragging: true,
       touchZoom: true,
       attributionControl: true,
-      minZoom: 4.5,
+      minZoom: 3.5,
       maxZoom: 9.5,
       zoomSnap: 0.1,
       zoomDelta: 0.5
-    }).setView([39.0, 35.0], 6);
+    }).setView([39.0, 35.0], isMobileDevice ? 5.2 : 6);
     window.turkeyMapInstance = turkeyMapInstance;
 
     // Multi-CDN Ultra-Reliable Dark Tile Provider with Fallback
@@ -5028,7 +5062,7 @@ async function initLeafletMap(country) {
     const isMobile = window.innerWidth <= 768;
     const isTinyMobile = window.innerWidth <= 480;
 
-    const turkeyPadding = isTinyMobile ? [12, 12] : (isMobile ? [24, 24] : [40, 50]);
+    const turkeyPadding = isTinyMobile ? [6, 6] : (isMobile ? [8, 8] : [40, 50]);
 
     turkeyMapInstance.fitBounds(turkeyGeoBounds, {
       padding: turkeyPadding,
@@ -5072,13 +5106,13 @@ async function initLeafletMap(country) {
     polandMapInstance = L.map('portalNeonMapPoland', {
       zoomControl: true,
       scrollWheelZoom: false,
-      dragging: !isMobileDevice,
+      dragging: true,
       touchZoom: true,
       attributionControl: true,
-      minZoom: 8,
+      minZoom: 7.5,
       maxZoom: 14,
       zoomSnap: 0.25
-    }).setView([52.2297, 21.0122], 11);
+    }).setView([52.2297, 21.0122], isMobileDevice ? 10 : 11);
     window.polandMapInstance = polandMapInstance;
 
     // Multi-CDN Ultra-Reliable Dark Tile Provider with Fallback
