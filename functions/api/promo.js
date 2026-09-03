@@ -7,6 +7,13 @@ import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJ
  */
 
 const PROMO_CODES = {
+  "RELAX10": {
+    discount: 10,
+    type: "percent",
+    title: { tr: "%10 Tanışma İndirimi", en: "10% Welcome Discount", pl: "10% Rabatu Powitalnego", uk: "Знижка 10%" },
+    minAmount: 0,
+    maxDiscount: 500
+  },
   "RELAX20": {
     discount: 20,
     type: "percent",
