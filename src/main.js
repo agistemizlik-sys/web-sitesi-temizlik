@@ -6482,7 +6482,7 @@ function setupPortalGateway() {
     });
   }
 
-  // Bind GPS Location Button
+  // Bind GPS Location Button with Smart Nearest City Matching
   const gpsBtn = document.getElementById('tmsUseGpsBtn');
   if (gpsBtn) {
     gpsBtn.addEventListener('click', () => {
@@ -6492,11 +6492,45 @@ function setupPortalGateway() {
           pos => {
             const { latitude, longitude } = pos.coords;
             gpsBtn.innerHTML = '<span>🎯</span> Konum bulundu!';
-            if (window.turkeyMapInstance) {
-              window.turkeyMapInstance.flyTo([latitude, longitude], 11, { duration: 1.2 });
+            
+            const isPL = STATE.language === 'pl';
+            const cityCandidates = isPL ? [
+              { key: 'Warszawa', coords: [52.2297, 21.0122] },
+              { key: 'Mokotow', coords: [52.1950, 21.0350] },
+              { key: 'Srodmiescie', coords: [52.2300, 21.0100] },
+              { key: 'Wola', coords: [52.2380, 20.9650] },
+              { key: 'Ursynow', coords: [52.1400, 21.0450] }
+            ] : [
+              { key: 'Istanbul', coords: [41.0082, 28.9784] },
+              { key: 'Izmir', coords: [38.4237, 27.1428] },
+              { key: 'Ankara', coords: [39.9334, 32.8597] },
+              { key: 'Antalya', coords: [36.8969, 30.7133] },
+              { key: 'Bursa', coords: [40.1885, 29.0610] },
+              { key: 'Kocaeli', coords: [40.7654, 29.9408] },
+              { key: 'Sakarya', coords: [40.7560, 30.3784] },
+              { key: 'Balikesir', coords: [39.6484, 27.8904] },
+              { key: 'Samsun', coords: [41.2867, 36.3300] },
+              { key: 'Bodrum', coords: [37.0344, 27.4305] }
+            ];
+
+            let nearest = cityCandidates[0];
+            let minDist = Infinity;
+            cityCandidates.forEach(c => {
+              const d = Math.hypot(c.coords[0] - latitude, c.coords[1] - longitude);
+              if (d < minDist) {
+                minDist = d;
+                nearest = c;
+              }
+            });
+
+            if (isPL && window.polandMapInstance) {
+              window.polandMapInstance.flyTo([latitude, longitude], 12, { duration: 1.2 });
+            } else if (window.turkeyMapInstance) {
+              window.turkeyMapInstance.flyTo([latitude, longitude], 9, { duration: 1.2 });
             }
+
             if (typeof showCityPreviewFn === 'function') {
-              showCityPreviewFn('Istanbul');
+              showCityPreviewFn(nearest.key);
             }
             setTimeout(() => {
               gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
@@ -6505,9 +6539,10 @@ function setupPortalGateway() {
           err => {
             gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
             if (typeof showCityPreviewFn === 'function') {
-              showCityPreviewFn('Istanbul');
+              showCityPreviewFn(STATE.language === 'pl' ? 'Warszawa' : 'Istanbul');
             }
-          }
+          },
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
         );
       } else {
         gpsBtn.innerHTML = '<span>🎯</span> Konumumu kullan';
@@ -6521,7 +6556,7 @@ function setupPortalGateway() {
       e.stopPropagation();
       if (btn.classList.contains('tms-close-card-btn')) {
         if (typeof showCityPreviewFn === 'function') {
-          showCityPreviewFn('Istanbul');
+          showCityPreviewFn(STATE.language === 'pl' ? 'Warszawa' : 'Istanbul');
         }
       } else {
         if (btn.textContent.includes('🤍')) {
@@ -6565,7 +6600,10 @@ function setupPortalGateway() {
   const resetMapBtn = document.getElementById('tmsResetMapBtn');
   if (resetMapBtn) {
     resetMapBtn.addEventListener('click', () => {
-      if (window.turkeyMapInstance) {
+      if (STATE.language === 'pl' && window.polandMapInstance) {
+        const polandGeoBounds = L.latLngBounds([52.05, 20.80], [52.35, 21.30]);
+        window.polandMapInstance.fitBounds(polandGeoBounds, { padding: [30, 30], animate: true });
+      } else if (window.turkeyMapInstance) {
         const bounds = L.latLngBounds([35.7, 25.5], [42.4, 44.8]);
         window.turkeyMapInstance.fitBounds(bounds, { padding: [30, 30], animate: true });
       }
@@ -6578,11 +6616,13 @@ function setupPortalGateway() {
     searchInput.addEventListener('input', (e) => {
       const q = (e.target.value || '').toLowerCase().trim();
       const hotspots = document.querySelectorAll('.map-hotspot');
+      let firstMatch = null;
       hotspots.forEach(h => {
         const name = (h.textContent || '').toLowerCase();
         const city = (h.dataset.city || '').toLowerCase();
         if (!q || name.includes(q) || city.includes(q)) {
           h.style.display = 'inline-flex';
+          if (!firstMatch && q) firstMatch = h.dataset.city;
         } else {
           h.style.display = 'none';
         }
@@ -6592,10 +6632,25 @@ function setupPortalGateway() {
         const city = (m.dataset.city || '').toLowerCase();
         if (!q || name.includes(q) || city.includes(q)) {
           m.style.display = 'flex';
+          if (!firstMatch && q) firstMatch = m.dataset.city;
         } else {
           m.style.display = 'none';
         }
       });
+      if (firstMatch && q.length >= 2 && typeof showCityPreviewFn === 'function') {
+        showCityPreviewFn(firstMatch);
+      }
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const activeCard = document.querySelector('.cc-gateway-card[style*="display: flex"]');
+        if (activeCard) {
+          const btn = activeCard.querySelector('.city-select-btn');
+          if (btn) btn.click();
+        }
+      }
     });
   }
 
