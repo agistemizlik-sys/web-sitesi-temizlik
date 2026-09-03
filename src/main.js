@@ -3701,7 +3701,7 @@ function setupPortalIntroClick() {
     }
 
     if (hudText) {
-      const targetText = progress >= 0.60 
+      const targetText = progress >= 0.75 
         ? '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)' 
         : '🧭 AŞAĞI KAYDIRIN VEYA DOKUNUN ↓';
       if (targetText !== lastHudText) {
@@ -3715,7 +3715,7 @@ function setupPortalIntroClick() {
       canvas.style.transform = 'none';
     }
 
-    // 5. Splittable Manuscript Slogan (Single refined book inscription)
+    // 5. Splittable Valley Slogan (Appears strictly when soaring in the fantasy valley)
     const updateSplittableSlogan = (boxId, leftId, rightId, subId, p, start, enterPeak, exitStart, end) => {
       const box = document.getElementById(boxId);
       if (!box) return;
@@ -3737,14 +3737,14 @@ function setupPortalIntroClick() {
       let wordOp = 1.0;
 
       if (p < enterPeak) {
-        // Softly entering and merging into center
+        // Softly entering and merging into center while flying into the valley
         const t = (p - start) / (enterPeak - start);
         const easeT = 1.0 - Math.pow(1.0 - t, 2);
         wordOp = easeT;
-        leftTx = (1.0 - easeT) * -25;
-        rightTx = (1.0 - easeT) * 25;
+        leftTx = (1.0 - easeT) * -30;
+        rightTx = (1.0 - easeT) * 30;
       } else if (p > exitStart) {
-        // Splitting into two halves and flying outward to screen edges!
+        // Splitting into two halves and flying outward to screen edges as royal banners descend!
         const t = (p - exitStart) / (end - exitStart);
         const easeT = Math.pow(t, 1.8);
         wordOp = Math.max(0, 1.0 - easeT * 1.25);
@@ -3758,6 +3758,8 @@ function setupPortalIntroClick() {
 
       const leftEl = document.getElementById(leftId);
       const rightEl = document.getElementById(rightId);
+      const subEl = subId ? document.getElementById(subId) : null;
+      const dividerEl = document.getElementById('slogan1Divider');
 
       if (leftEl) {
         const unit = p > exitStart ? 'vw' : 'px';
@@ -3769,15 +3771,24 @@ function setupPortalIntroClick() {
         rightEl.style.transform = `translate3d(${rightTx.toFixed(2)}${unit}, 0, 0) rotateZ(${rightRot.toFixed(2)}deg)`;
         rightEl.style.opacity = wordOp.toFixed(2);
       }
+      if (subEl) {
+        subEl.style.opacity = (wordOp * 0.95).toFixed(2);
+        const subTy = p > exitStart ? -((p - exitStart) / (end - exitStart)) * 25 : (1.0 - wordOp) * 15;
+        subEl.style.transform = `translate3d(0, ${subTy.toFixed(2)}px, 0)`;
+      }
+      if (dividerEl) {
+        dividerEl.style.opacity = (wordOp * 0.9).toFixed(2);
+      }
     };
 
-    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.05, 0.12, 0.18, 0.28);
+    // User directive: Start slogan strictly after book dive, while gliding in the valley (0.56 - 0.88)
+    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.56, 0.65, 0.76, 0.88);
 
-    // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.58)
+    // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.75)
     let bannerOpacity = 0;
     let bannerDrop = 0;
-    if (progress > 0.58) {
-      bannerDrop = Math.min(1.0, (progress - 0.58) / 0.22);
+    if (progress > 0.75) {
+      bannerDrop = Math.min(1.0, (progress - 0.75) / 0.18);
       bannerOpacity = 1.0 - Math.pow(1.0 - bannerDrop, 2);
     }
 
