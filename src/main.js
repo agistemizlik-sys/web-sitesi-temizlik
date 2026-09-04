@@ -1264,7 +1264,9 @@ function applyBookingTranslations(dict, lang) {
   const orDivider = document.querySelector('.wizard-kitchen-row .or-divider');
   if (kitchenSpans.length >= 2) {
     kitchenSpans[0].textContent = lang === 'pl' ? 'Kuchnia' : 'Mutfak';
-    kitchenSpans[1].textContent = lang === 'pl' ? 'Mały aneks (-10 PLN / -100 TL)' : 'Küçük mutfak (-100 TL)';
+    kitchenSpans[1].textContent = lang === 'pl' ? 'Mały aneks (-20 PLN)' : 'Küçük mutfak (-150 TL)';
+    const kBadge = document.querySelector('.wizard-kitchen-row .wizard-discount-badge');
+    if (kBadge) kBadge.textContent = lang === 'pl' ? '-20 PLN' : '-150 TL';
   }
   if (orDivider) orDivider.textContent = lang === 'pl' ? 'Lub' : 'Veya';
   const villaSpan = document.querySelector('.villa-check-item .check-txt');
@@ -2436,7 +2438,7 @@ function applyServiceSelectTranslations(lang) {
 
   const continueLabel = document.querySelector('#servicesContinueBtn span');
   if (continueLabel) {
-    continueLabel.textContent = lang === 'en' ? 'Continue ➔' : (lang === 'pl' ? 'Kontynuuj ➔' : (lang === 'uk' ? 'Продовжити ➔' : 'Devam Et ➔'));
+    continueLabel.textContent = lang === 'en' ? 'Continue' : (lang === 'pl' ? 'Kontynuuj' : (lang === 'uk' ? 'Продовжити' : 'Devam Et'));
   }
 }
 
@@ -3446,38 +3448,14 @@ function setupPortalIntroClick() {
       ctx.drawImage(img, ox, oy, rw, rh);
       lastFrameRect = { ox, oy, rw, rh, isPortrait: false };
     } else {
-      // Portrait / Mobile: Ambient backdrop + perfectly framed crisp subject
-      // 1. Ambient backdrop (High-FPS direct fill without expensive 24px software blur)
-      const bgW = ch * imageRatio;
-      const bgOx = (cw - bgW) / 2;
-      ctx.fillStyle = '#060a14';
-      ctx.fillRect(0, 0, cw, ch);
-      ctx.globalAlpha = alpha * 0.35;
-      ctx.drawImage(img, bgOx, 0, bgW, ch);
-      ctx.globalAlpha = alpha;
-
-      // 2. Foreground crisp subject:
-      // Book close-up at start (1.60x), gliding smoothly out to valley (1.18x), settling to full-frame 16:9 for flags (1.02x)
-      let scaleFactor = 1.02;
-      if (currentProgress <= 0.28) {
-        scaleFactor = 1.60;
-      } else if (currentProgress <= 0.55) {
-        const t = (currentProgress - 0.28) / (0.55 - 0.28);
-        scaleFactor = 1.60 - t * (1.60 - 1.18);
-      } else if (currentProgress <= 0.75) {
-        const t = (currentProgress - 0.55) / (0.75 - 0.55);
-        scaleFactor = 1.18 - t * (1.18 - 1.02);
-      } else {
-        scaleFactor = 1.02;
-      }
-
-      const fgRw = cw * scaleFactor;
-      const fgRh = fgRw / imageRatio;
-      const fgOx = (cw - fgRw) / 2;
-      const fgOy = (ch - fgRh) * 0.44;
-
-      ctx.drawImage(img, fgOx, fgOy, fgRw, fgRh);
-      lastFrameRect = { ox: fgOx, oy: fgOy, rw: fgRw, rh: fgRh, isPortrait: true };
+      // Portrait / Mobile: True full-bleed cinematic cover math (edge-to-edge on all mobile screens)
+      const r = Math.max(cw / iw, ch / ih);
+      const rw = iw * r;
+      const rh = ih * r;
+      const ox = (cw - rw) / 2;
+      const oy = (ch - rh) / 2;
+      ctx.drawImage(img, ox, oy, rw, rh);
+      lastFrameRect = { ox, oy, rw, rh, isPortrait: true };
     }
   };
 
@@ -3708,12 +3686,22 @@ function setupPortalIntroClick() {
 
     if (hudText) {
       const targetText = progress >= 0.75 
-        ? '🚩 LÜTFEN BÖLGENİZİ SEÇİN (TÜRKİYE 🇹🇷 / POLONYA 🇵🇱)' 
-        : '🧭 AŞAĞI KAYDIRIN VEYA DOKUNUN ↓';
+        ? 'LÜTFEN ÜLKENİZİ SEÇİN (TÜRKİYE / POLONYA)' 
+        : 'AŞAĞI KAYDIRIN VEYA DOKUNUN';
       if (targetText !== lastHudText) {
         hudText.textContent = targetText;
         lastHudText = targetText;
       }
+    }
+
+    const sjhIconEl = hud ? hud.querySelector('.sjh-icon') : null;
+    if (sjhIconEl) {
+      const desiredIcon = progress >= 0.75 ? '🚩' : '🧭';
+      if (sjhIconEl.textContent !== desiredIcon) sjhIconEl.textContent = desiredIcon;
+    }
+    const sjhArrowEl = hud ? hud.querySelector('.sjh-arrow') : null;
+    if (sjhArrowEl) {
+      sjhArrowEl.style.display = progress >= 0.75 ? 'none' : 'inline-block';
     }
 
     // 4. Stable 1:1 Camera Parity (No synthetic scale distortion)
@@ -3921,12 +3909,14 @@ function setupPortalIntroClick() {
   let touchStartY = 0;
   let isTouching = false;
   let touchMoved = false;
+  let touchTotalDist = 0;
 
   const onTouchStart = (e) => {
     if (e.touches && e.touches[0]) {
       touchStartY = e.touches[0].clientY;
       isTouching = true;
       touchMoved = false;
+      touchTotalDist = 0;
     }
   };
 
@@ -3934,15 +3924,17 @@ function setupPortalIntroClick() {
     if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
-    if (Math.abs(deltaY) > 5) touchMoved = true;
-    const step = deltaY / Math.min(320, (window.innerHeight || 800) * 0.45);
+    touchTotalDist += Math.abs(deltaY);
+    if (touchTotalDist > 8) touchMoved = true;
+    const denominator = Math.min(260, (window.innerHeight || 800) * 0.35);
+    const step = (deltaY / denominator) * 1.8;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
     startDampingLoop();
   };
 
   const onTouchEnd = () => {
-    if (!touchMoved && !triggered && targetProgress < 0.60) {
+    if (!touchMoved && !triggered && targetProgress < 0.75) {
       targetProgress = 1.0;
       startDampingLoop();
     }
@@ -3954,10 +3946,15 @@ function setupPortalIntroClick() {
   window.addEventListener('touchend', onTouchEnd, { passive: true });
 
   if (hud) {
-    hud.addEventListener('click', () => {
+    const handleHudAdvance = (e) => {
+      if (e) {
+        try { e.stopPropagation(); } catch(err){}
+      }
       targetProgress = 1.0;
       startDampingLoop();
-    });
+    };
+    hud.addEventListener('click', handleHudAdvance);
+    hud.addEventListener('touchend', handleHudAdvance, { passive: true });
   }
 
   // ── KEYBOARD HANDLER ──
@@ -11199,13 +11196,16 @@ function setupBookingReveal() {
     const phoneInput = document.getElementById('cPhone');
     const submitBtn = document.getElementById('btnSubmitBooking');
     
-    const scrollPos = bookingScreen.scrollTop + 220;
-    const s2Top = step2 ? step2.offsetTop : 9999;
-    const s3Top = step3 ? step3.offsetTop : 9999;
+    const screenRect = bookingScreen.getBoundingClientRect();
+    const s2Rect = step2 ? step2.getBoundingClientRect() : null;
+    const s3Rect = step3 ? step3.getBoundingClientRect() : null;
+    const s2Top = s2Rect ? (s2Rect.top - screenRect.top + bookingScreen.scrollTop) : 99999;
+    const s3Top = s3Rect ? (s3Rect.top - screenRect.top + bookingScreen.scrollTop) : 99999;
+    const scrollPos = bookingScreen.scrollTop + 140;
 
-    if (scrollPos < s2Top) {
+    if (scrollPos < s2Top - 80) {
       if (step2) smoothScrollToStep(step2, 'wizardStep2Section');
-    } else if (scrollPos < s3Top) {
+    } else if (scrollPos < s3Top - 80) {
       if (step3) {
         smoothScrollToStep(step3, 'wizardStep3Section');
         if (nameInput) setTimeout(() => { try { nameInput.focus(); } catch(e){} }, 400);

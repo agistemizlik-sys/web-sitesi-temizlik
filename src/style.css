@@ -3398,7 +3398,6 @@ html, body {
   will-change: transform, opacity;
   backface-visibility: hidden;
   transition: opacity 0.8s var(--ease-smooth);
-  transform: translate3d(50vw, 50vh, 0);
 }
 
 /* Make visible when main content is unlocked */
@@ -19798,11 +19797,17 @@ html[dir="rtl"] .counter-btn.plus {
 
 @media (max-width: 768px) {
   .rx-social-proof-toast {
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-    left: 12px;
-    right: 12px;
-    max-width: calc(100% - 24px);
-    padding: 10px 14px;
+    top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+    bottom: auto !important;
+    left: 12px !important;
+    right: 12px !important;
+    max-width: calc(100% - 24px) !important;
+    padding: 10px 14px !important;
+    z-index: 99990 !important;
+    transform: translate3d(0, -20px, 0) !important;
+  }
+  .rx-social-proof-toast.spt-visible {
+    transform: translate3d(0, 0, 0) !important;
   }
 }
 
@@ -20876,10 +20881,53 @@ html, body {
   }
 
   /* 4. Booking Reveal Calculator Mobile Layout Cleanup */
+  .booking-close-btn {
+    top: max(12px, env(safe-area-inset-top, 12px)) !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 1.4rem !important;
+    z-index: 99999 !important;
+  }
+
+  .b-header-meta-row {
+    justify-content: flex-start !important;
+    padding-right: 48px !important;
+    gap: 8px !important;
+  }
+
+  .b-header-meta-row .b-badge {
+    font-size: 0.72rem !important;
+    padding: 5px 10px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .wizard-back-nav-btn {
+    padding: 5px 10px !important;
+    font-size: 0.76rem !important;
+  }
+
+  .booking-section-header .b-sec-main-title {
+    font-size: 1.25rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .booking-section-header .b-sec-main-sub {
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .wizard-step-progress-bar {
+    position: relative !important;
+    top: auto !important;
+    margin-bottom: 16px !important;
+    z-index: 10 !important;
+  }
+
   .wizard-area-quick-chips {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
     padding: 12px 10px !important;
   }
 
@@ -20892,9 +20940,10 @@ html, body {
   }
 
   .area-chip {
-    padding: 8px 4px !important;
-    font-size: 0.74rem !important;
+    padding: 9px 8px !important;
+    font-size: 0.78rem !important;
     white-space: nowrap !important;
+    text-align: center !important;
   }
 
   .wizard-kitchen-row {
@@ -20929,7 +20978,121 @@ html, body {
 
   #bookingReveal,
   .booking-section-wrapper {
-    padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(140px + env(safe-area-inset-bottom, 20px)) !important;
+  }
+
+  /* 6. Topbar & Skip Intro button on compact screens */
+  .book-portal-topbar {
+    top: max(12px, env(safe-area-inset-top, 12px)) !important;
+    padding: 0 14px !important;
+  }
+
+  .book-quick-skip-btn {
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* 7. Address & Contact Fields Mobile Grid Parity (Prevents 7px crushed columns & overlapping labels) */
+  .wizard-fields-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px 10px !important;
+    width: 100% !important;
+  }
+
+  .wizard-fields-grid .w-field {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .wizard-fields-grid .w-field-span-2,
+  .wizard-fields-grid .w-field-span-3,
+  .wizard-fields-grid .w-field-span-4,
+  .wizard-fields-grid .w-field-full,
+  .wizard-fields-grid [class*="w-field-span-2"],
+  .wizard-fields-grid [class*="w-field-span-3"],
+  .wizard-fields-grid [class*="w-field-span-4"] {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  .wizard-fields-grid .w-field-span-1 {
+    grid-column: span 1 !important;
+    width: 100% !important;
+  }
+
+  .wizard-fields-grid input,
+  .wizard-fields-grid select,
+  .wizard-fields-grid textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    font-size: 16px !important; /* Prevents Safari auto-zoom */
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .wizard-fields-grid label {
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: #cbd5e1 !important;
+    margin-bottom: 2px !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  .w-field-label-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  /* 8. Date & Time Shortcuts Responsive 2x2 Grid */
+  .wizard-date-shortcuts,
+  .wizard-time-shortcuts {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+    width: 100% !important;
+  }
+
+  .date-shortcut-chip,
+  .time-shortcut-chip {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 9px 6px !important;
+    font-size: 0.76rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    white-space: nowrap !important;
+  }
+
+  /* 9. City Date Change Button Responsive Pill */
+  .tms-date-change-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(56, 189, 248, 0.3) !important;
+    color: #38bdf8 !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    padding: 6px 14px !important;
+    border-radius: 9999px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+  }
+
+  /* 10. Card Video Overflow Containment */
+  .wizard-section-card,
+  .wizard-summary-card {
+    overflow: hidden !important;
+    position: relative !important;
   }
 }
 
