@@ -3010,7 +3010,9 @@ function setCityState(city, shouldReset = true) {
   updateIntroVideoState(city);
 
   // Save to localStorage
-  localStorage.setItem('relaxax_city', city);
+  try {
+    localStorage.setItem('relaxax_city', city);
+  } catch(e) {}
 }
 
 // ── AD CAMPAIGN & GEOTARGETING ROUTING ENGINE ────────────────────────────

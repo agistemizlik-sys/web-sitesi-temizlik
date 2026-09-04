@@ -343,15 +343,24 @@
 
   <!-- ── ANALYTICS & ADS TRACKING CODES ────────────────────────────────────── -->
   <!-- Google tag (gtag.js) - Google Analytics & Ads -->
-  <!-- ⚠️ NOT: Kampanyanız başladığında 'AW-1647895123' ve 'G-XXXXXXXXXX' yazan yerleri kendi ID'lerinizle değiştirin -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <!-- ⚠️ NOT: Kampanyanız başladığında 'AW-XXXXXXXXXX' ve 'G-XXXXXXXXXX' yazan yerleri kendi ID'lerinizle değiştirin -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-XXXXXXXXXX'); // Google Analytics (GA4) ID
-    gtag('config', 'AW-XXXXXXXXXX'); // Google Ads Conversion ID
+    const GA_ID = 'G-XXXXXXXXXX';
+    const AW_ID = 'AW-XXXXXXXXXX';
+    if (GA_ID && !GA_ID.includes('XXXXX')) {
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+      document.head.appendChild(s);
+      gtag('config', GA_ID);
+      if (AW_ID && !AW_ID.includes('XXXXX')) {
+        gtag('config', AW_ID);
+      }
+    }
   </script>
 
   <!-- Meta Pixel Code (Facebook Pixel) -->

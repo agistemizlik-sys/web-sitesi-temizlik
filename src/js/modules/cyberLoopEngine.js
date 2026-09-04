@@ -21,7 +21,12 @@ const WHITELISTED_DOMAINS = [
   'cloudflare.com',
   'unpkg.com',
   'googleapis.com',
-  'gstatic.com'
+  'gstatic.com',
+  'googletagmanager.com',
+  'google-analytics.com',
+  'facebook.net',
+  'tawk.to',
+  'clarity.ms'
 ];
 
 const threatListeners = new Set();
