@@ -1863,15 +1863,15 @@ function applyBookingTranslations(dict, lang) {
     const transferAlertBox = document.querySelector('.transfer-alert-box .t-alert-txt');
     if (transferAlertBox) {
       transferAlertBox.innerHTML = lang === 'pl'
-        ? '<strong>Wybrano przelew bankowy / BLIK: 5% rabatu naliczone!</strong><span>Możesz dokonać płatności 24/7 za pomocą numeru BLIK lub przelewu na konto. Potwierdzenie rezerwacji otrzymasz natychmiast.</span>'
-        : '<strong>Havale / EFT / FAST Seçildi: %5 Anında İndirim Uygulandı!</strong><span>Ödemenizi dilediğiniz bankanın kurumsal hesabına 7/24 FAST ile yapabilirsiniz. Rezervasyon onayınız anında üretilecektir.</span>';
+        ? '<strong>Wybrano przelew bankowy / BLIK: 5% rabatu naliczone!</strong> <span>Możesz dokonać płatności 24/7 za pomocą numeru BLIK lub przelewu na konto. Potwierdzenie rezerwacji otrzymasz natychmiast.</span>'
+        : '<strong>Havale / EFT / FAST Seçildi: %5 Anında İndirim Uygulandı!</strong> <span>Ödemenizi dilediğiniz bankanın kurumsal hesabına 7/24 FAST ile yapabilirsiniz. Rezervasyon onayınız anında üretilecektir.</span>';
     }
 
     const transferNoticeBox = document.querySelector('.transfer-notice-box .t-notice-text');
     if (transferNoticeBox) {
       transferNoticeBox.innerHTML = lang === 'pl'
-        ? '<strong>Tytuł przelewu / Opis:</strong><span>Wykonując przelew, w tytule wpisz <strong>Kod Rezerwacji</strong> (np. <code id="previewNoticeCode">#RLX-WARSZAWA</code>) lub <strong>Imię i Nazwisko</strong>.</span>'
-        : '<strong>Havale / EFT Açıklaması:</strong><span>Transfer yaparken açıklama kısmına <strong>Rezervasyon Kodunuzu</strong> (Örn: <code id="previewNoticeCode">#RLX-TEMİZLİK</code>) veya <strong>Ad Soyadınızı</strong> yazmanız yeterlidir.</span>';
+        ? '<strong>Tytuł przelewu / Opis:</strong> <span>Wykonując przelew, w tytule wpisz <strong>Kod Rezerwacji</strong> (np. <code id="previewNoticeCode">#RLX-WARSZAWA</code>) lub <strong>Imię i Nazwisko</strong>.</span>'
+        : '<strong>Havale / EFT Açıklaması:</strong> <span>Transfer yaparken açıklama kısmına <strong>Rezervasyon Kodunuzu</strong> (Örn: <code id="previewNoticeCode">#RLX-TEMİZLİK</code>) veya <strong>Ad Soyadınızı</strong> yazmanız yeterlidir.</span>';
     }
 
     const cashBannerBox = document.querySelector('.cash-banner-box .c-banner-txt');
@@ -2497,9 +2497,9 @@ function applyMapSelectorTranslations(dict, lang) {
   const filterBtns = document.querySelectorAll('.tms-filters-row .tms-filter-btn');
   if (filterBtns.length >= 4) {
     filterBtns[0].textContent = lang === 'en' ? '🎛️ All' : (lang === 'pl' ? '🎛️ Wszystkie' : (lang === 'uk' ? '🎛️ Всі' : '🎛️ Tüm'));
-    filterBtns[1].textContent = lang === 'en' ? '🟢 Active Service' : (lang === 'pl' ? '🟢 Dostępne' : (lang === 'uk' ? '🟢 Доступно' : '🟢 Hizmet Veriliyor'));
+    filterBtns[1].textContent = lang === 'en' ? '🟢 Active' : (lang === 'pl' ? '🟢 Dostępne' : (lang === 'uk' ? '🟢 Доступно' : '🟢 Aktif'));
     filterBtns[2].textContent = lang === 'en' ? '🟡 Coming Soon' : (lang === 'pl' ? '🟡 Wkrótce' : (lang === 'uk' ? '🟡 Незабаром' : '🟡 Yakında'));
-    filterBtns[3].textContent = lang === 'en' ? '⚪ Not Available' : (lang === 'pl' ? '⚪ Niedostępne' : (lang === 'uk' ? '⚪ Недоступно' : '⚪ Hizmet Verilmiyor'));
+    filterBtns[3].textContent = lang === 'en' ? '⚪ Other' : (lang === 'pl' ? '⚪ Inne' : (lang === 'uk' ? '⚪ Інші' : '⚪ Diğer'));
   }
 }
 
