@@ -9049,6 +9049,7 @@ function navigateToStage(stage, shouldPush = true) {
 const KNOWN_DISCOUNT_CODES = {
   'RELAXAX10': 0.10,
   'RELAXAX20': 0.20,
+  'RELAXAXVIP': 0.20,
   'RELAX10': 0.10,
   'RELAX20': 0.20,
   'HOSGELDIN15': 0.15,

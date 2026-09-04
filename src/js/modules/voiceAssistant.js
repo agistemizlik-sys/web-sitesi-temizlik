@@ -180,7 +180,7 @@ export function executeVoiceAction(actionType, meta = {}) {
   playSuccessChime();
 
   if (actionType === 'APPLY_PROMO') {
-    const promoInput = document.getElementById('bPromoInput') || document.getElementById('promoCodeInput');
+    const promoInput = document.getElementById('cPromoCode') || document.getElementById('bPromoInput') || document.getElementById('promoCodeInput');
     const applyBtn = document.getElementById('btnApplyPromo') || document.getElementById('btnApplyPromoCode');
     if (promoInput) {
       promoInput.value = meta.coupon || 'HOSGELDIN15';

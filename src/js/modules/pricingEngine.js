@@ -31,6 +31,7 @@ export const PROMO_CODES = {
   RELAXAX10: { rate: 0.10, desc: '%10 Hoş Geldin İndirimi' },
   RELAX20: { rate: 0.20, desc: '%20 Özel Kampanya İndirimi' },
   RELAXAX20: { rate: 0.20, desc: '%20 VIP İndirim' },
+  RELAXAXVIP: { rate: 0.20, desc: '%20 VIP İndirim' },
   HOSGELDIN15: { rate: 0.15, desc: '%15 Hoş Geldin İndirimi' },
   INDIRIM10: { rate: 0.10, desc: '%10 İndirim' },
   EMLAK10: { rate: 0.10, desc: '%10 Referans İndirimi' },
