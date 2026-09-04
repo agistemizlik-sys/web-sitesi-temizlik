@@ -460,7 +460,7 @@ export function applyEnterpriseSecurityHeaders(response) {
   res.headers.set('X-XSS-Protection', '1; mode=block');
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.headers.set('Permissions-Policy', 'camera=(), microphone=(self), geolocation=(self), payment=()');
   res.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
   return res;
 }

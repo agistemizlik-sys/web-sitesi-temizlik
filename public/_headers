@@ -12,9 +12,9 @@
   Cross-Origin-Resource-Policy: same-origin
   X-Permitted-Cross-Domain-Policies: none
   X-Download-Options: noopen
-  Permissions-Policy: camera=(), microphone=(), payment=(), geolocation=(self), usb=(), screen-wake-lock=(), accelerometer=(), gyroscope=(), magnetometer=()
+  Permissions-Policy: camera=(), microphone=(self), payment=(), geolocation=(self), usb=(), screen-wake-lock=(), accelerometer=(), gyroscope=(), magnetometer=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-ancestors 'self'; form-action 'self' https:; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.googletagmanager.com https://connect.facebook.net https://*.tawk.to; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://*.tawk.to; frame-ancestors 'self'; form-action 'self' https:; base-uri 'self'; object-src 'none'; upgrade-insecure-requests;
 
 # Dönüşüm ucu arama sonuçlarına asla girmesin (robots.txt Disallow'a ek güvence)
 /api/*
