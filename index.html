@@ -413,7 +413,7 @@
     })();
   </script>
 </head>
-<body class="portal-intro-mode">
+<body>
   <!-- Meta Pixel Noscript Tracking Fallback -->
   <noscript>
     <img height="1" width="1" style="display:none" alt="Facebook Pixel" src="https://www.facebook.com/tr?id=PIXEL_ID_BURAYA&ev=PageView&noscript=1" />
@@ -422,8 +422,8 @@
   <!-- Top-level Global Ambient Dust & Atmospheric Particles Canvas -->
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
-  <!-- 📖 IMMERSIVE FIRST-PERSON FULL-SCREEN INTRO PORTAL -->
-  <div id="book-scroll-hero-track" class="book-scroll-hero-track" style="position: fixed; inset: 0; width: 100%; height: 100dvh; z-index: 9999; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none;">
+  <!-- 📖 IMMERSIVE FIRST-PERSON FULL-SCREEN INTRO PORTAL (Accessible on demand via 3D Portala Gir button) -->
+  <div id="book-scroll-hero-track" class="book-scroll-hero-track" style="display: none; position: fixed; inset: 0; width: 100%; height: 100dvh; z-index: 9999; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none;">
     <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport" style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; will-change: transform;">
       <!-- Canvas Frame-by-Frame Scrub Renderer for Instant 120fps Scroll Response -->
       <canvas id="portalIntroCanvas" class="portal-intro-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform;"></canvas>
@@ -434,10 +434,15 @@
           <img src="/images/logo_leaf.svg" alt="RELAXAX" style="width: 32px; height: 32px; filter: drop-shadow(0 0 12px rgba(251,191,36,0.8));" />
           <span style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 800; letter-spacing: 0.15em; color: #ffffff; text-shadow: 0 0 16px rgba(251,191,36,0.6);">RELAXAX</span>
         </div>
-        <button type="button" class="book-quick-skip-btn" id="bookQuickSkipBtn" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('tr');" aria-label="Doğrudan Türkiye Haritasına Geç" style="background: rgba(15,23,42,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.7); color: #fbbf24; padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 15px rgba(251,191,36,0.25);">
-          <span>🇹🇷 Şehir Haritası</span>
-          <span>➔</span>
-        </button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" class="book-quick-skip-btn" id="bookQuickSkipBtn" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('tr');" aria-label="Doğrudan Türkiye Haritasına Geç" style="background: rgba(15,23,42,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.7); color: #fbbf24; padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 15px rgba(251,191,36,0.25);">
+            <span>🇹🇷 Şehir Haritası</span>
+            <span>➔</span>
+          </button>
+          <button type="button" class="book-return-site-btn" id="bookReturnSiteBtn" onclick="if(typeof window.closeBookPortalExperience==='function'){window.closeBookPortalExperience();}else{const h=document.getElementById('book-scroll-hero-track');if(h)h.style.display='none';document.body.classList.remove('portal-intro-mode');}" aria-label="Web Sitesine Dön" style="background: rgba(239,68,68,0.25); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(248,113,113,0.8); color: #ffffff; padding: 8px 16px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.5);">
+            <span>✕ Web Sitesine Dön</span>
+          </button>
+        </div>
       </header>
 
       <!-- ✨ LUXURY CINEMATIC SLOGAN (ELEGANT VALLEY CELESTIAL TYPOGRAPHY) -->
@@ -1314,7 +1319,7 @@
   <!-- ==========================================
        ANA SİTE İÇERİĞİ (Portal sonrası)
        ========================================== -->
-  <main id="main-content" style="opacity: 0; pointer-events: none;">
+  <main id="main-content" style="opacity: 1; pointer-events: auto; display: block; position: relative; z-index: 20; min-height: 100vh; background: #030712;">
     
     <!-- ── FLOATING TOP PILL NAV BAR (1:1 AS USER SCREENSHOTS) ─────────────────────────────────── -->
     <nav id="main-nav" class="rx-floating-nav-bar" aria-label="Ana Menü">
@@ -1400,6 +1405,12 @@
           <span class="c-nav-btn-text" id="cNavVipText" style="color: #fbbf24; font-weight: 800;">VIP Concierge</span>
         </button>
 
+        <!-- 5C. 3D Experience Interactive Portal Capsule -->
+        <button type="button" class="c-nav-pill-btn c-nav-3d-btn" id="cNav3dBtn" title="3D Deneyim Portalı" onclick="if(typeof openBookPortalExperience==='function'){openBookPortalExperience();}else{const h=document.getElementById('book-scroll-hero-track');if(h){h.style.display='block';h.style.opacity='1';h.style.pointerEvents='all';}document.body.classList.add('portal-intro-mode');}">
+          <span class="c-nav-btn-icon">📖</span>
+          <span class="c-nav-btn-text" style="color: #67e8f9; font-weight: 700;">3D Deneyim</span>
+        </button>
+
         <!-- 6. User Account (Giriş / Kayıt / Profilim) Capsule -->
         <button type="button" class="c-nav-pill-btn c-nav-auth-btn" id="cNavAuthBtn" title="Giriş Yap / Hesap Aç">
           <span class="c-nav-btn-icon" id="cNavAuthIcon">👤</span>
@@ -1419,10 +1430,697 @@
       </div>
     </nav>
 
-    
+    <!-- =========================================================================
+         RELAXAX LUXURY HOMEPAGE CORE SECTIONS (100% SCROLLABLE, MODERN, HIGH-CONVERTING)
+         ========================================================================= -->
 
-    <!-- INTERACTIVE SCROLL-SCRUB CINEMA SECTION -->
-    <section id="cinema-section">
+    <!-- 1. HERO SECTION -->
+    <section id="rx-hero" class="rx-hero-section">
+      <div class="rx-hero-bg-overlay"></div>
+      <div class="rx-hero-ambient-glow"></div>
+      
+      <div class="rx-hero-container">
+        <!-- Royal Tag -->
+        <div class="rx-hero-eyebrow-badge">
+          <span class="rx-badge-sparkle">✨</span>
+          <span>TÜRKİYE &amp; POLONYA'NIN 1 NUMARALI VIP HİJYEN VE TEMİZLİK HİZMETİ</span>
+        </div>
+
+        <!-- Main H1 Headline -->
+        <h1 class="rx-hero-title">
+          Evinizde ve İş Yerinizde<br>
+          <span class="rx-title-gradient">Saray Zarafetinde Temizlik</span>
+        </h1>
+
+        <!-- Subheadline -->
+        <p class="rx-hero-subtitle">
+          RELAXAX ile 5 yıldızlı otel konforu, 140°C endüstriyel buharlı arındırma ve adli sicil kayıtlı sertifikalı uzman kadro. %100 memnuniyet garantisiyle saniyeler içinde fiyatınızı hesaplayın.
+        </p>
+
+        <!-- Trust Badges Strip -->
+        <div class="rx-hero-trust-row">
+          <div class="rx-trust-pill">
+            <span class="rx-tp-icon">🛡️</span>
+            <span>₺1.000.000 Sigorta Güvencesi</span>
+          </div>
+          <div class="rx-trust-pill">
+            <span class="rx-tp-icon">⭐</span>
+            <span>4.9/5 (2.800+ Mutlu Müşteri)</span>
+          </div>
+          <div class="rx-trust-pill">
+            <span class="rx-tp-icon">⚡</span>
+            <span>30 Saniyede Canlı Rezervasyon</span>
+          </div>
+          <div class="rx-trust-pill">
+            <span class="rx-tp-icon">🌿</span>
+            <span>%100 Organik &amp; Hipoalerjenik</span>
+          </div>
+        </div>
+
+        <!-- Hero CTAs -->
+        <div class="rx-hero-cta-group">
+          <button type="button" class="rx-btn-primary rx-btn-glow" onclick="if(typeof openBookingScreen==='function')openBookingScreen();">
+            <span>🧮 Canlı Fiyat Hesapla &amp; Randevu Al</span>
+            <span class="rx-btn-arrow">➔</span>
+          </button>
+          <a href="#rx-services" class="rx-btn-secondary">
+            <span>📋 Hizmetlerimizi Keşfet</span>
+          </a>
+          <a href="https://wa.me/905466479004?text=Merhaba,%20RELAXAX%20hakk%C4%B1nda%20bilgi%20ve%20randevu%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="rx-btn-wa">
+            <span class="rx-wa-icon">💬</span>
+            <span>WhatsApp Canlı Hat</span>
+          </a>
+        </div>
+
+        <!-- Quick Stats Counter Strip -->
+        <div class="rx-hero-stats-strip">
+          <div class="rx-stat-item">
+            <strong class="rx-stat-num">50.000+</strong>
+            <span class="rx-stat-lbl">Tamamlanan Temizlik</span>
+          </div>
+          <div class="rx-stat-divider"></div>
+          <div class="rx-stat-item">
+            <strong class="rx-stat-num">8+ Metropol</strong>
+            <span class="rx-stat-lbl">Türkiye &amp; Polonya</span>
+          </div>
+          <div class="rx-stat-divider"></div>
+          <div class="rx-stat-item">
+            <strong class="rx-stat-num">48 Nokta</strong>
+            <span class="rx-stat-lbl">Kalite Kontrol Standardı</span>
+          </div>
+          <div class="rx-stat-divider"></div>
+          <div class="rx-stat-item">
+            <strong class="rx-stat-num">%100</strong>
+            <span class="rx-stat-lbl">Koşulsuz Telafi Güvencesi</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SERVICES SHOWCASE SECTION -->
+    <section id="rx-services" class="rx-services-section">
+      <div class="rx-section-container">
+        <div class="rx-section-header">
+          <span class="rx-sec-badge">AYRICALIKLI HİZMETLERİMİZ</span>
+          <h2 class="rx-sec-title">İhtiyacınıza En Uygun Temizlik Paketini Seçin</h2>
+          <p class="rx-sec-desc">Şeffaf ve sabit fiyat garantisi. Sürpriz ek maliyet yok, her şey dahil profesyonel hijyen.</p>
+        </div>
+
+        <div class="rx-services-grid">
+          <!-- Card 1: Standart Temizlik -->
+          <div class="rx-service-card rx-card-featured" data-service-type="standart">
+            <div class="rx-sc-header-img" style="background-image: url('/images/card_standart_bg.jpg');">
+              <span class="rx-sc-badge popular">⭐ En Popüler</span>
+            </div>
+            <div class="rx-sc-body">
+              <div class="rx-sc-title-row">
+                <div class="rx-sc-icon">🏠</div>
+                <div>
+                  <h3 class="rx-sc-title">Standart Ev Temizliği</h3>
+                  <span class="rx-sc-sub">Periyodik Genel Hijyen</span>
+                </div>
+              </div>
+              <p class="rx-sc-text">Yaşam alanınızın düzenini koruyan, toz alma ve yüzey hijyenini kapsayan temel bakım çözümü.</p>
+              <ul class="rx-sc-features">
+                <li><span class="rx-chk">✓</span> Tüm Odaların Toz Alımı &amp; Süpürme</li>
+                <li><span class="rx-chk">✓</span> Mutfak Tezgâhı &amp; Banyo Hijyeni</li>
+                <li><span class="rx-chk">✓</span> Yüzey Dezenfeksiyonu &amp; Paspas</li>
+                <li><span class="rx-chk">✓</span> Tek Kullanımlık Mikrofiber Bez Seti</li>
+              </ul>
+              <div class="rx-sc-footer">
+                <div class="rx-sc-price-box">
+                  <span class="rx-sc-duration">⏱️ 2 - 3 Saat</span>
+                  <div class="rx-sc-price">₺1.850<small>'den başlayan</small></div>
+                </div>
+                <button type="button" class="rx-sc-btn" onclick="if(typeof openBookingWithService==='function'){openBookingWithService('standart');}else{openBookingScreen();}">
+                  <span>Randevu Al ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Detaylı Temizlik -->
+          <div class="rx-service-card" data-service-type="detayli">
+            <div class="rx-sc-header-img" style="background-image: url('/images/card_detayli_bg.jpg');">
+              <span class="rx-sc-badge recommended">🌟 Tavsiye Edilen</span>
+            </div>
+            <div class="rx-sc-body">
+              <div class="rx-sc-title-row">
+                <div class="rx-sc-icon">✨</div>
+                <div>
+                  <h3 class="rx-sc-title">Detaylı / Bahar Temizliği</h3>
+                  <span class="rx-sc-sub">140°C Buharlı Dip Köşe Hijyen</span>
+                </div>
+              </div>
+              <p class="rx-sc-text">Evinizin her kuytu köşesini yüksek sıcaklıktaki endüstriyel buharla mikroplardan ve kirden arındırın.</p>
+              <ul class="rx-sc-features">
+                <li><span class="rx-chk">✓</span> 140°C Kuru Buharlı Derin Sanitasyon</li>
+                <li><span class="rx-chk">✓</span> Koltuk &amp; Yatak Yüzey Buharlama</li>
+                <li><span class="rx-chk">✓</span> Kapı, Pervaz ve Dolap Üstü Silimi</li>
+                <li><span class="rx-chk">✓</span> Derz ve Kireç Özel Çözücü Bakımı</li>
+              </ul>
+              <div class="rx-sc-footer">
+                <div class="rx-sc-price-box">
+                  <span class="rx-sc-duration">⏱️ 3 - 5 Saat</span>
+                  <div class="rx-sc-price">₺2.450<small>'den başlayan</small></div>
+                </div>
+                <button type="button" class="rx-sc-btn" onclick="if(typeof openBookingWithService==='function'){openBookingWithService('detayli');}else{openBookingScreen();}">
+                  <span>Randevu Al ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Kurumsal / Ofis Temizliği -->
+          <div class="rx-service-card" data-service-type="kurumsal">
+            <div class="rx-sc-header-img" style="background-image: url('/images/card_kurumsal_bg.jpg');">
+              <span class="rx-sc-badge general">🏢 Plaza &amp; İş Yeri</span>
+            </div>
+            <div class="rx-sc-body">
+              <div class="rx-sc-title-row">
+                <div class="rx-sc-icon">💼</div>
+                <div>
+                  <h3 class="rx-sc-title">Kurumsal &amp; Ofis Temizliği</h3>
+                  <span class="rx-sc-sub">Prestijli Çalışma Alanları</span>
+                </div>
+              </div>
+              <p class="rx-sc-text">Çalışanlarınızın sağlığını koruyan, iş akışınızı aksatmayan esnek mesai saatli kurumsal temizlik.</p>
+              <ul class="rx-sc-features">
+                <li><span class="rx-chk">✓</span> Çalışma Masaları &amp; Donanım Hijyeni</li>
+                <li><span class="rx-chk">✓</span> Toplantı Odaları &amp; Ortak Mutfak</li>
+                <li><span class="rx-chk">✓</span> Mesai Öncesi / Sonrası Esnek Saat</li>
+                <li><span class="rx-chk">✓</span> Resmi Kurumsal Faturalandırma</li>
+              </ul>
+              <div class="rx-sc-footer">
+                <div class="rx-sc-price-box">
+                  <span class="rx-sc-duration">⏱️ 4 - 6 Saat</span>
+                  <div class="rx-sc-price">₺3.200<small>'den başlayan</small></div>
+                </div>
+                <button type="button" class="rx-sc-btn" onclick="if(typeof openBookingWithService==='function'){openBookingWithService('kurumsal');}else{openBookingScreen();}">
+                  <span>Randevu Al ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Medikal Dezenfeksiyon -->
+          <div class="rx-service-card" data-service-type="ilaclama">
+            <div class="rx-sc-header-img" style="background-image: url('/images/card_dezenfeksiyon_bg.jpg');">
+              <span class="rx-sc-badge general">🛡️ Medikal Güvence</span>
+            </div>
+            <div class="rx-sc-body">
+              <div class="rx-sc-title-row">
+                <div class="rx-sc-icon">🧪</div>
+                <div>
+                  <h3 class="rx-sc-title">Medikal Dezenfeksiyon &amp; İlaçlama</h3>
+                  <span class="rx-sc-sub">Bakteri, Virüs ve Haşere Kontrolü</span>
+                </div>
+              </div>
+              <p class="rx-sc-text">Sağlık Bakanlığı onaylı, ULV soğuk sisleme yöntemiyle havada asılı mikroorganizmaları %99.99 yok eder.</p>
+              <ul class="rx-sc-features">
+                <li><span class="rx-chk">✓</span> ULV Soğuk Sisleme Teknolojisi</li>
+                <li><span class="rx-chk">✓</span> İnsan ve Evcil Hayvanlara Zararsız</li>
+                <li><span class="rx-chk">✓</span> Kokusuz, Kalıntı Bırakmayan Formül</li>
+                <li><span class="rx-chk">✓</span> Hijyen ve Sanitasyon Sertifikası</li>
+              </ul>
+              <div class="rx-sc-footer">
+                <div class="rx-sc-price-box">
+                  <span class="rx-sc-duration">⏱️ 2 - 4 Saat</span>
+                  <div class="rx-sc-price">₺1.850<small>'den başlayan</small></div>
+                </div>
+                <button type="button" class="rx-sc-btn" onclick="if(typeof openBookingWithService==='function'){openBookingWithService('ilaclama');}else{openBookingScreen();}">
+                  <span>Randevu Al ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: İnşaat Sonrası Temizlik -->
+          <div class="rx-service-card" data-service-type="insaat_sonrasi">
+            <div class="rx-sc-header-img" style="background-image: url('/images/card_insaat_bg.jpg');">
+              <span class="rx-sc-badge general">🏗️ Derin Arındırma</span>
+            </div>
+            <div class="rx-sc-body">
+              <div class="rx-sc-title-row">
+                <div class="rx-sc-icon">🧱</div>
+                <div>
+                  <h3 class="rx-sc-title">İnşaat &amp; Tadilat Sonrası</h3>
+                  <span class="rx-sc-sub">Boya, Alçı ve İnce Toz Tahliyesi</span>
+                </div>
+              </div>
+              <p class="rx-sc-text">Tadilat sonrası kalan inatçı boya damlaları, harç artıkları ve şantiye tozlarını tek seansta temizleriz.</p>
+              <ul class="rx-sc-features">
+                <li><span class="rx-chk">✓</span> Yüzeyi Çizmeyen Özel Spatulalar</li>
+                <li><span class="rx-chk">✓</span> Cam, Etiket ve Derz Kalıntı Kazıma</li>
+                <li><span class="rx-chk">✓</span> Petek ve Menfez İçi Şantiye Tozu</li>
+                <li><span class="rx-chk">✓</span> Kaba Ambalaj &amp; Atık Tahliyesi</li>
+              </ul>
+              <div class="rx-sc-footer">
+                <div class="rx-sc-price-box">
+                  <span class="rx-sc-duration">⏱️ 4 - 6 Saat</span>
+                  <div class="rx-sc-price">₺2.650<small>'den başlayan</small></div>
+                </div>
+                <button type="button" class="rx-sc-btn" onclick="if(typeof openBookingWithService==='function'){openBookingWithService('insaat_sonrasi');}else{openBookingScreen();}">
+                  <span>Randevu Al ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Taşınma Temizliği -->
+          <div class="rx-service-card" data-service-type="tasinma_sonrasi">
+            <div class="rx-sc-header-img" style="background-image: url('/images/card_tasinma_bg.jpg');">
+              <span class="rx-sc-badge general">📦 Anahtar Teslim</span>
+            </div>
+            <div class="rx-sc-body">
+              <div class="rx-sc-title-row">
+                <div class="rx-sc-icon">🚚</div>
+                <div>
+                  <h3 class="rx-sc-title">Taşınma / Boş Ev Temizliği</h3>
+                  <span class="rx-sc-sub">Yeni Yuvanıza Tertemiz Başlangıç</span>
+                </div>
+              </div>
+              <p class="rx-sc-text">Eşyalarınız gelmeden önce tüm dolap içleri, beyaz eşya yuvaları ve camlar %100 dezenfekte edilir.</p>
+              <ul class="rx-sc-features">
+                <li><span class="rx-chk">✓</span> Mutfak ve Gardırop Dolap İçi Silimi</li>
+                <li><span class="rx-chk">✓</span> Camlar, Panjurlar ve Pervazlar</li>
+                <li><span class="rx-chk">✓</span> Banyo Fayans ve Batarya Parlatma</li>
+                <li><span class="rx-chk">✓</span> Taşınmaya Hazır Hijyen Onayı</li>
+              </ul>
+              <div class="rx-sc-footer">
+                <div class="rx-sc-price-box">
+                  <span class="rx-sc-duration">⏱️ 3 - 4 Saat</span>
+                  <div class="rx-sc-price">₺2.450<small>'den başlayan</small></div>
+                </div>
+                <button type="button" class="rx-sc-btn" onclick="if(typeof openBookingWithService==='function'){openBookingWithService('tasinma_sonrasi');}else{openBookingScreen();}">
+                  <span>Randevu Al ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. LIVE PRICE CALCULATOR CALLOUT BANNER -->
+    <section id="rx-calculator-cta" class="rx-calc-banner-section">
+      <div class="rx-calc-banner-card">
+        <div class="rx-calc-banner-glow"></div>
+        <div class="rx-calc-banner-content">
+          <div class="rx-cbb-tag">⚡ DAKİKALAR İÇİNDE ŞEFFAF FİYAT</div>
+          <h2 class="rx-cbb-title">Evinizin Büyüklüğüne Göre Net Tutarınızı Anında Öğrenin</h2>
+          <p class="rx-cbb-sub">
+            Oda sayısı, alan ve ekstra isteklerinizi seçin; anında şeffaf fiyatınızı görün. 
+            <strong style="color: #fbbf24;">RELAXAXVIP</strong> koduyla ilk rezervasyonunuza özel anında <span style="color: #38bdf8; font-weight: 800;">%20 indirim</span> kazanın!
+          </p>
+          <div class="rx-cbb-action-row">
+            <button type="button" class="rx-btn-primary rx-btn-glow" onclick="if(typeof openBookingScreen==='function')openBookingScreen();">
+              <span>🧮 Canlı Fiyat Hesaplayıcıyı Başlat</span>
+              <span>➔</span>
+            </button>
+            <a href="tel:+905466479004" class="rx-btn-phone">
+              <span>📞 +90 546 647 90 04</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. WHY CHOOSE RELAXAX -->
+    <section id="rx-why-us" class="rx-why-us-section">
+      <div class="rx-section-container">
+        <div class="rx-section-header">
+          <span class="rx-sec-badge">RELAXAX GÜVENCESİ</span>
+          <h2 class="rx-sec-title">Neden Beş Yıldızlı RELAXAX Standartları?</h2>
+          <p class="rx-sec-desc">Sadece temizlik yapmıyoruz; evinizde sağlıklı, huzurlu ve güvenli bir yaşam alanı inşa ediyoruz.</p>
+        </div>
+
+        <div class="rx-why-grid">
+          <div class="rx-why-card">
+            <div class="rx-why-icon-box">🛡️</div>
+            <h3 class="rx-why-card-title">Sertifikalı &amp; Adli Sicil Kayıtlı Kadro</h3>
+            <p class="rx-why-card-desc">Adresinize gelen her temizlik uzmanımız adli sicil taramasından geçmiş, kimlik doğrulama testlerini tamamlamış ve 40 saatlik akademi eğitimini başarıyla bitirmiştir.</p>
+          </div>
+
+          <div class="rx-why-card">
+            <div class="rx-why-icon-box">♨️</div>
+            <h3 class="rx-why-card-title">140°C Endüstriyel Buharlı Arındırma</h3>
+            <p class="rx-why-card-desc">Sıradan temizlik bezlerinin ulaşamadığı gözenekleri yüksek basınçlı kuru buharla arındırıyoruz. Kimyasal kalıntı bırakmadan bakteri ve alerjenleri %99.9 oranında yok eder.</p>
+          </div>
+
+          <div class="rx-why-card">
+            <div class="rx-why-icon-box">📋</div>
+            <h3 class="rx-why-card-title">48 Nokta Kalite Denetim Raporu</h3>
+            <p class="rx-why-card-desc">İşimiz bittiğinde gelişi güzel teslim etmiyoruz. Süpürgeliklerden priz arkalarına, banyo bataryalarından dolap üstlerine kadar 48 kritik nokta kontrol listesiyle denetlenir.</p>
+          </div>
+
+          <div class="rx-why-card">
+            <div class="rx-why-icon-box">🔁</div>
+            <h3 class="rx-why-card-title">%100 Koşulsuz Telafi Garantisi</h3>
+            <p class="rx-why-card-desc">Hizmetimizden memnun kalmadığınız bir detay olursa, 24 saat içinde bize bildirin; uzman ekibimiz hiçbir ek ücret talep etmeden adresinize gelerek telafi temizliğini tamamlasın.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. BOUTIQUE ROSE ELEGANCE SECTION -->
+    <section id="rx-boutique" class="rx-boutique-section">
+      <div class="rx-section-container">
+        <div class="rx-boutique-card">
+          <div class="rx-boutique-grid">
+            <div class="rx-boutique-media">
+              <img src="/images/product_rose_gift_box.webp" alt="RELAXAX Rose Elegance Hediye Sepeti" class="rx-boutique-img" />
+              <div class="rx-boutique-badge">🌹 VIP Özel Hediye</div>
+            </div>
+            <div class="rx-boutique-info">
+              <span class="rx-sec-badge">SARAY ZARAFETİ &amp; KOKU DENEYİMİ</span>
+              <h2 class="rx-boutique-title">RELAXAX Rose Elegance Boutique</h2>
+              <p class="rx-boutique-desc">
+                Temizliğin ardından evinizde büyüleyici bir tazelik bırakıyoruz. Isparta'nın asil güllerinden el emeğiyle üretilen doğal sabunlar, organik lavanta keseleri ve saray esintili imza oda kokumuz VIP hizmetlerimizde armağanımızdır.
+              </p>
+              <div class="rx-boutique-tags">
+                <span class="rx-bt-tag">🌿 %100 Doğal El Yapımı</span>
+                <span class="rx-bt-tag">🌸 İpek Doku &amp; Kalıcı Esans</span>
+                <span class="rx-bt-tag">🎁 Özel Mühürlü Kutu</span>
+              </div>
+              <div class="rx-boutique-btn-row">
+                <button type="button" class="rx-btn-primary" onclick="if(typeof openBoutiqueProductsCatalog==='function')openBoutiqueProductsCatalog();">
+                  <span>🛍️ Butik Koleksiyonu İncele</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CITIES & MAP COVERAGE SECTION -->
+    <section id="rx-cities" class="rx-cities-section">
+      <div class="rx-section-container">
+        <div class="rx-section-header">
+          <span class="rx-sec-badge">HİZMET BÖLGELERİMİZ</span>
+          <h2 class="rx-sec-title">Türkiye ve Polonya'da 7/24 Yanınızdayız</h2>
+          <p class="rx-sec-desc">Geniş araç filomuz ve deneyimli temizlik kadromuz ile dilediğiniz gün ve saatte kapınızdayız.</p>
+        </div>
+
+        <div class="rx-cities-pill-grid">
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('istanbul');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">İstanbul</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('izmir');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">İzmir</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('ankara');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Ankara</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('bursa');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Bursa</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('kocaeli');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Kocaeli</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('antalya');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Antalya</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('balikesir');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Balıkesir</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('sakarya');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Sakarya</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('samsun');">
+            <span class="rx-cp-flag">🇹🇷</span>
+            <span class="rx-cp-name">Samsun</span>
+            <span class="rx-cp-badge">Aktif</span>
+          </button>
+          <button type="button" class="rx-city-pill rx-cp-poland" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('warszawa');">
+            <span class="rx-cp-flag">🇵🇱</span>
+            <span class="rx-cp-name">Warszawa</span>
+            <span class="rx-cp-badge">Polska</span>
+          </button>
+        </div>
+
+        <div class="rx-cities-map-cta">
+          <button type="button" class="rx-btn-secondary" onclick="if(typeof openPortalGateway==='function')openPortalGateway();">
+            <span>🗺️ İnteraktif Haritayı Aç &amp; Konumunu Gör</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. CUSTOMER REVIEWS & GOOGLE 4.9⭐ -->
+    <section id="rx-reviews" class="rx-reviews-section">
+      <div class="rx-section-container">
+        <div class="rx-section-header">
+          <span class="rx-sec-badge">MÜŞTERİ DENEYİMLERİ</span>
+          <h2 class="rx-sec-title">Müşterilerimiz Bizim İçin Ne Diyor?</h2>
+          <div class="rx-reviews-rating-bar">
+            <span class="rx-stars">★★★★★</span>
+            <strong class="rx-score">4.9 / 5.0</strong>
+            <span class="rx-score-count">(2.800+ Doğrulanmış Müşteri İncelemesi)</span>
+          </div>
+        </div>
+
+        <div class="rx-reviews-grid">
+          <div class="rx-review-card">
+            <div class="rx-rc-stars">★★★★★</div>
+            <p class="rx-rc-text">
+              “Evimizi tadilat sonrası teslim aldık, her yer alçı ve kaba tozdu. RELAXAX ekibi 4 saatte dip köşe buharlı temizleyip adeta sıfır rezidans dairesi gibi teslim etti. Gösterilen titizlik mükemmel.”
+            </p>
+            <div class="rx-rc-author">
+              <div class="rx-rc-avatar">ZK</div>
+              <div>
+                <strong>Zeynep Kaya</strong>
+                <span>Kadıköy / İstanbul • Detaylı Temizlik</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rx-review-card">
+            <div class="rx-rc-stars">★★★★★</div>
+            <p class="rx-rc-text">
+              “Ofisimiz için haftalık düzenli kurumsal temizlik hizmeti alıyoruz. Personelin nezaketi, vaktinde gelmeleri ve 140°C buharlı cihazları sayesinde toplantı odalarımız her zaman mis gibi kokuyor.”
+            </p>
+            <div class="rx-rc-author">
+              <div class="rx-rc-avatar">MD</div>
+              <div>
+                <strong>Murat Demirtaş</strong>
+                <span>Levent / İstanbul • Kurumsal Temizlik</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rx-review-card">
+            <div class="rx-rc-stars">★★★★★</div>
+            <p class="rx-rc-text">
+              “Mieszkanie w Warszawie po remoncie wygląda zjawiskowo! Bardzo profesjonalna obsługa, sprzęt parowy i dbałość o każdy detal. Zdecydowanie polecam każdemu.”
+            </p>
+            <div class="rx-rc-author">
+              <div class="rx-rc-avatar">PW</div>
+              <div>
+                <strong>Piotr Wiśniewski</strong>
+                <span>Mokotów / Warszawa • Sprzątanie po remoncie</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rx-review-card">
+            <div class="rx-rc-stars">★★★★★</div>
+            <p class="rx-rc-text">
+              “Küçük bebeğimiz olduğu için kimyasal ürünlerden çok çekiniyorduk. Organik ve kokusuz dezenfeksiyon malzemeleriyle çalıştılar. Evimiz hem tertemiz oldu hem de içimiz çok rahat etti.”
+            </p>
+            <div class="rx-rc-author">
+              <div class="rx-rc-avatar">ES</div>
+              <div>
+                <strong>Elif &amp; Sinan Akın</strong>
+                <span>Karşıyaka / İzmir • Standart Temizlik</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. FAQ ACCORDION -->
+    <section id="rx-faq" class="rx-faq-section">
+      <div class="rx-section-container">
+        <div class="rx-section-header">
+          <span class="rx-sec-badge">MERAK EDİLENLER</span>
+          <h2 class="rx-sec-title">Sıkça Sorulan Sorular</h2>
+          <p class="rx-sec-desc">Hizmetlerimiz, güvenlik protokollerimiz ve rezervasyon süreciyle ilgili tüm detaylar.</p>
+        </div>
+
+        <div class="rx-faq-accordion" id="rxFaqAccordion">
+          <!-- FAQ 1 -->
+          <div class="rx-faq-item">
+            <button type="button" class="rx-faq-question" aria-expanded="false">
+              <span>Temizlik malzemeleri ve ekipmanları kim temin ediyor?</span>
+              <span class="rx-faq-toggle-icon">+</span>
+            </button>
+            <div class="rx-faq-answer">
+              <p>Tüm profesyonel temizlik kimyasalları, tek kullanımlık renk kodlu mikrofiber bez setleri, HEPA filtreli vakum süpürgeleri ve 140°C endüstriyel buhar makineleri ekiplerimiz tarafından eksiksiz olarak getirilir. Sizin hiçbir malzeme temin etmenize gerek yoktur.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="rx-faq-item">
+            <button type="button" class="rx-faq-question" aria-expanded="false">
+              <span>Temizlik sırasında evde bulunmam şart mı?</span>
+              <span class="rx-faq-toggle-icon">+</span>
+            </button>
+            <div class="rx-faq-answer">
+              <p>Hayır, bulunmanız gerekmez. Dilerseniz başlangıçta uzmanlarımızı karşılayıp anahtarı teslim edebilir, bitiş saatinde kontrole gelebilirsiniz. Tüm personelimiz adli sicil kayıtlı, kimlik doğrulamasından geçmiş ve sigortalı profesyonellerdir.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="rx-faq-item">
+            <button type="button" class="rx-faq-question" aria-expanded="false">
+              <span>Hizmetten memnun kalmazsam ne yapmalıyım?</span>
+              <span class="rx-faq-toggle-icon">+</span>
+            </button>
+            <div class="rx-faq-answer">
+              <p>RELAXAX olarak %100 Koşulsuz Memnuniyet Garantisi sunuyoruz. Temizlik bitiminde veya takip eden 24 saat içinde beğenmediğiniz herhangi bir noktayı müşteri temsilcimize bildirdiğinizde, ekibimiz hiçbir ek ücret talep etmeden ücretsiz telafi temizliğini gerçekleştirir.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="rx-faq-item">
+            <button type="button" class="rx-faq-question" aria-expanded="false">
+              <span>Ödemeyi ne zaman ve nasıl yapıyorum?</span>
+              <span class="rx-faq-toggle-icon">+</span>
+            </button>
+            <div class="rx-faq-answer">
+              <p>Ödemenizi sitemiz üzerinden 256-Bit SSL güvenceli kredi kartı ile, havale/EFT ile veya dilerseniz temizlik bittikten sonra kapıda nakit veya pos cihazıyla güvenle tamamlayabilirsiniz.</p>
+            </div>
+          </div>
+
+          <!-- FAQ 5 -->
+          <div class="rx-faq-item">
+            <button type="button" class="rx-faq-question" aria-expanded="false">
+              <span>Evcil hayvanım var, kullandığınız ürünler zararlı mı?</span>
+              <span class="rx-faq-toggle-icon">+</span>
+            </button>
+            <div class="rx-faq-answer">
+              <p>Kesinlikle hayır. Kullandığımız tüm solüsyonlar hipoalerjenik, bitkisel bazlı ve ekolojik sertifikalıdır. Ağır koku ya da zararlı kimyasal kalıntı bırakmaz, evcil hayvanlarınız ve çocuklarınız için %100 güvenlidir.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. FULL CORPORATE FOOTER -->
+    <footer id="rx-footer" class="rx-footer-section">
+      <div class="rx-footer-top">
+        <div class="rx-section-container rx-footer-grid">
+          <!-- Col 1: Brand -->
+          <div class="rx-footer-col rx-fc-brand">
+            <div class="rx-footer-logo-row">
+              <img src="/images/logo_leaf.svg" alt="RELAXAX Logo" style="width: 32px; height: 32px;" />
+              <span class="rx-footer-brand-title">RELAXAX</span>
+            </div>
+            <p class="rx-footer-brand-desc">
+              Türkiye ve Polonya genelinde 5 yıldızlı otel konforunda saray zarafetinde VIP temizlik, dezenfeksiyon ve tesis yönetim teknolojileri.
+            </p>
+            <div class="rx-footer-trust-badges">
+              <span>🛡️ ₺1.000.000 Sigorta Güvencesi</span>
+              <span>🔒 256-Bit SSL Şifreleme</span>
+            </div>
+          </div>
+
+          <!-- Col 2: Services -->
+          <div class="rx-footer-col">
+            <h4 class="rx-footer-heading">Hizmetlerimiz</h4>
+            <ul class="rx-footer-links">
+              <li><a href="#rx-services" onclick="if(typeof openBookingWithService==='function')openBookingWithService('standart');">Standart Ev Temizliği</a></li>
+              <li><a href="#rx-services" onclick="if(typeof openBookingWithService==='function')openBookingWithService('detayli');">Detaylı / Bahar Temizliği</a></li>
+              <li><a href="#rx-services" onclick="if(typeof openBookingWithService==='function')openBookingWithService('kurumsal');">Kurumsal &amp; Ofis Temizliği</a></li>
+              <li><a href="#rx-services" onclick="if(typeof openBookingWithService==='function')openBookingWithService('ilaclama');">Medikal Dezenfeksiyon</a></li>
+              <li><a href="#rx-services" onclick="if(typeof openBookingWithService==='function')openBookingWithService('insaat_sonrasi');">İnşaat Sonrası Temizlik</a></li>
+              <li><a href="#rx-services" onclick="if(typeof openBookingWithService==='function')openBookingWithService('tasinma_sonrasi');">Taşınma / Boş Ev Temizliği</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Corporate & Legal -->
+          <div class="rx-footer-col">
+            <h4 class="rx-footer-heading">Kurumsal &amp; Yasal</h4>
+            <ul class="rx-footer-links">
+              <li><a href="javascript:void(0)" onclick="if(typeof openCorporateModal==='function')openCorporateModal(document.getElementById('aboutModal'));">Hakkımızda</a></li>
+              <li><a href="javascript:void(0)" onclick="if(typeof openCorporateModal==='function')openCorporateModal(document.getElementById('franchiseModal'));">Bayilik / Franchise</a></li>
+              <li><a href="javascript:void(0)" onclick="if(typeof openCorporateModal==='function')openCorporateModal(document.getElementById('mobileAppModal'));">Mobil Uygulama</a></li>
+              <li><a href="javascript:void(0)" onclick="if(typeof openLegalModal==='function')openLegalModal('kvkk');">KVKK &amp; Gizlilik Politikası</a></li>
+              <li><a href="javascript:void(0)" onclick="if(typeof openLegalModal==='function')openLegalModal('terms');">Kullanıcı Sözleşmesi</a></li>
+              <li><a href="javascript:void(0)" onclick="if(typeof openBookPortalExperience==='function')openBookPortalExperience();">📖 3D Portal Deneyimi</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 4: Contact -->
+          <div class="rx-footer-col rx-fc-contact">
+            <h4 class="rx-footer-heading">7/24 İletişim</h4>
+            <div class="rx-contact-item">
+              <span class="rx-ci-icon">📞</span>
+              <div>
+                <strong>Müşteri Hizmetleri:</strong>
+                <a href="tel:+905466479004">+90 546 647 90 04</a>
+              </div>
+            </div>
+            <div class="rx-contact-item">
+              <span class="rx-ci-icon">💬</span>
+              <div>
+                <strong>WhatsApp Canlı Sipariş:</strong>
+                <a href="https://wa.me/905466479004" target="_blank" rel="noopener noreferrer">+90 546 647 90 04</a>
+              </div>
+            </div>
+            <div class="rx-contact-item">
+              <span class="rx-ci-icon">✉️</span>
+              <div>
+                <strong>E-posta:</strong>
+                <a href="mailto:info@relaxax.com">info@relaxax.com</a>
+              </div>
+            </div>
+            <div class="rx-contact-item">
+              <span class="rx-ci-icon">📍</span>
+              <div>
+                <strong>Genel Merkez:</strong>
+                <span>Büyükdere Cad. No: 195, Levent / Beşiktaş, İstanbul</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rx-footer-bottom">
+        <div class="rx-section-container rx-fb-inner">
+          <p>© 2026 RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. Tüm Hakları Saklıdır.</p>
+          <div class="rx-payment-icons">
+            <span class="rx-pi-tag">💳 Güvenli Ödeme</span>
+            <span class="rx-pi-item">Mastercard</span>
+            <span class="rx-pi-item">Visa</span>
+            <span class="rx-pi-item">Troy</span>
+            <span class="rx-pi-item">256-Bit SSL</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- INTERACTIVE SCROLL-SCRUB CINEMA SECTION (Preserved in DOM for scene assets & backward compatibility) -->
+    <section id="cinema-section" style="display: none;">
       
       <!-- Video Stage -->
       <div class="cinema-stage">

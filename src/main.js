@@ -3870,7 +3870,7 @@ function setupPortalIntroClick() {
         return;
       }
 
-      currentProgress += diff * 0.22;
+      currentProgress += diff * 0.12; // Silky-smooth buttery lerp interpolation
       renderFrame(currentProgress);
       dampingRafId = requestAnimationFrame(dampStep);
     };
@@ -3892,26 +3892,32 @@ function setupPortalIntroClick() {
   };
   window._getProgress = () => currentProgress;
 
+  const isHeroTrackActive = () => {
+    const track = document.getElementById('book-scroll-hero-track');
+    return track && track.style.display !== 'none' && document.body.classList.contains('portal-intro-mode');
+  };
+
   // ── SINGLE OPTIMIZED SCROLL WHEEL HANDLER (CALIBRATED SENSITIVITY) ──
   const onWheel = (e) => {
-    if (triggered) return;
+    if (triggered || !isHeroTrackActive()) return;
     const rawDelta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
     // Smooth bounded delta normalization for consistent feel across mice & trackpads
     const clampedDelta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 100);
-    const step = (clampedDelta / 100) * 0.024;
+    const step = (clampedDelta / 100) * 0.014;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     startDampingLoop();
   };
 
   window.addEventListener('wheel', onWheel, { passive: true });
 
-  // ── TOUCH DRAG HANDLERS (MOBILE) ──
+  // ── TOUCH DRAG HANDLERS (MOBILE - CALIBRATED GENTLE SCROLL SENSITIVITY) ──
   let touchStartY = 0;
   let isTouching = false;
   let touchMoved = false;
   let touchTotalDist = 0;
 
   const onTouchStart = (e) => {
+    if (!isHeroTrackActive()) return;
     if (e.touches && e.touches[0]) {
       touchStartY = e.touches[0].clientY;
       isTouching = true;
@@ -3921,23 +3927,21 @@ function setupPortalIntroClick() {
   };
 
   const onTouchMove = (e) => {
-    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
+    if (!isTouching || !e.touches || !e.touches[0] || triggered || !isHeroTrackActive()) return;
     const currentY = e.touches[0].clientY;
     const deltaY = touchStartY - currentY;
     touchTotalDist += Math.abs(deltaY);
-    if (touchTotalDist > 8) touchMoved = true;
-    const denominator = Math.min(260, (window.innerHeight || 800) * 0.35);
-    const step = (deltaY / denominator) * 1.8;
+    if (touchTotalDist > 6) touchMoved = true;
+    
+    // Calibrated natural sensitivity: full book scrub takes a comfortable, natural gesture
+    const denominator = Math.max(900, (window.innerHeight || 800) * 1.5);
+    const step = (deltaY / denominator) * 0.45;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
     startDampingLoop();
   };
 
   const onTouchEnd = () => {
-    if (!touchMoved && !triggered && targetProgress < 0.75) {
-      targetProgress = 1.0;
-      startDampingLoop();
-    }
     isTouching = false;
   };
 
@@ -4455,6 +4459,45 @@ function initApp() {
   window.selectServiceGlobal = selectServiceGlobal;
   window.openBookingScreen = openBookingScreen;
   window.closeBookingScreen = closeBookingScreen;
+
+  window.openBookPortalExperience = function() {
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      heroTrack.style.setProperty('display', 'block', 'important');
+      heroTrack.style.setProperty('opacity', '1', 'important');
+      heroTrack.style.setProperty('pointer-events', 'all', 'important');
+    }
+    document.body.classList.add('portal-intro-mode');
+  };
+
+  window.closeBookPortalExperience = function() {
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      heroTrack.style.setProperty('display', 'none', 'important');
+      heroTrack.style.setProperty('opacity', '0', 'important');
+      heroTrack.style.setProperty('pointer-events', 'none', 'important');
+    }
+    document.body.classList.remove('portal-intro-mode');
+  };
+
+  window.openBookingWithService = function(serviceKey) {
+    if (typeof selectServiceGlobal === 'function') {
+      selectServiceGlobal(serviceKey);
+    }
+    if (typeof openBookingScreen === 'function') {
+      openBookingScreen();
+    }
+  };
+
+  // Ensure main site content is active and scrollable by default
+  document.body.classList.remove('portal-intro-mode', 'flag-selection-mode');
+  const mainContentEl = document.getElementById('main-content');
+  if (mainContentEl) {
+    mainContentEl.style.opacity = '1';
+    mainContentEl.style.pointerEvents = 'auto';
+    mainContentEl.style.display = 'block';
+  }
+
   bookingRevealEl = document.getElementById('bookingReveal');
   setupLenis();
   setupPortalIntroClick();
@@ -4476,6 +4519,7 @@ function initApp() {
   setupHelpCenterButtons();
   initAuthEngine();
   initI18nDropdowns();
+  setupFaqAccordion();
 
   // Initialize interactive visual effects (Custom cursor on desktop, ambient glow globally)
   setupCustomCursor();
@@ -4641,6 +4685,26 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
 } else {
   initApp();
+}
+
+function setupFaqAccordion() {
+  const faqItems = document.querySelectorAll('.rx-faq-item');
+  faqItems.forEach(item => {
+    const btn = item.querySelector('.rx-faq-question');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
+      faqItems.forEach(other => {
+        if (other !== item) {
+          other.classList.remove('is-open');
+          const ob = other.querySelector('.rx-faq-question');
+          if (ob) ob.setAttribute('aria-expanded', 'false');
+        }
+      });
+      item.classList.toggle('is-open', !isOpen);
+      btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+    });
+  });
 }
 
 // ==========================================
@@ -7782,8 +7846,9 @@ function setupCinemaEngine() {
         heroOverlay.style.visibility = 'visible';
       }
 
+      const isCinemaMode = document.body.classList.contains('cinema-fullscreen-mode');
       const introCardElement = document.getElementById('introCard');
-      if (introCardElement) {
+      if (introCardElement && isCinemaMode) {
         introCardElement.classList.add('active');
         introCardElement.style.opacity = '1';
         introCardElement.style.pointerEvents = 'all';
@@ -7812,7 +7877,7 @@ function setupCinemaEngine() {
       cState.activeTextBlockIdx = -1;
       textBlocks.forEach(block => block.classList.remove('active'));
       const cinemaSection = document.getElementById('cinema-section');
-      if (cinemaSection) {
+      if (cinemaSection && isCinemaMode) {
         cinemaSection.style.display = 'block';
         cinemaSection.style.opacity = '1';
         cinemaSection.style.pointerEvents = 'all';
@@ -7894,7 +7959,7 @@ function setupCinemaEngine() {
       }
 
       const cinemaSection = document.getElementById('cinema-section');
-      if (cinemaSection) {
+      if (cinemaSection && document.body.classList.contains('cinema-fullscreen-mode')) {
         cinemaSection.style.display = 'block';
         cinemaSection.style.opacity = '1';
         cinemaSection.style.pointerEvents = 'all';
@@ -8180,6 +8245,7 @@ function setupCinemaEngine() {
   };
 
   const handleCinemaTap = (e) => {
+    if (!document.body.classList.contains('cinema-fullscreen-mode')) return;
     if (portalActive()) return;
 
     // Fast tag check for native interactive controls (prevents DOM tree traversal overhead)
@@ -8218,6 +8284,7 @@ function setupCinemaEngine() {
 
   // Wheel: step navigation in the cinema, native scrolling inside overlays/portal
   window.addEventListener('wheel', (e) => {
+    if (!document.body.classList.contains('cinema-fullscreen-mode')) return;
     if (portalActive()) return; // portal & country selector keep native scroll
     
     // Check if Services section overlay is active
@@ -8242,6 +8309,7 @@ function setupCinemaEngine() {
 
   // Keyboard: arrows / page keys / space mirror the wheel behaviour
   window.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('cinema-fullscreen-mode')) return;
     if (portalActive()) return;
     const t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
@@ -8282,6 +8350,7 @@ function setupCinemaEngine() {
     const dx = endX - touchStartX;
     touchStartY = null;
     touchStartX = null;
+    if (!document.body.classList.contains('cinema-fullscreen-mode')) return;
     if (portalActive()) return;
     
     const servicesOverlay = document.getElementById('servicesTextOverlay');
