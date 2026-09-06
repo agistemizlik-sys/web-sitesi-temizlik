@@ -3870,7 +3870,7 @@ function setupPortalIntroClick() {
         return;
       }
 
-      currentProgress += diff * 0.15;
+      currentProgress += diff * 0.22;
       renderFrame(currentProgress);
       dampingRafId = requestAnimationFrame(dampStep);
     };
@@ -3926,15 +3926,18 @@ function setupPortalIntroClick() {
     const deltaY = touchStartY - currentY;
     touchTotalDist += Math.abs(deltaY);
     if (touchTotalDist > 6) touchMoved = true;
-    const screenH = window.innerHeight || 800;
-    const denominator = Math.max(850, screenH * 1.4);
-    const step = (deltaY / denominator) * 0.55;
+    const denominator = Math.max(850, (window.innerHeight || 800) * 1.4);
+    const step = (deltaY / denominator) * 0.9;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
     startDampingLoop();
   };
 
   const onTouchEnd = () => {
+    if (!touchMoved && !triggered && targetProgress < 0.75) {
+      targetProgress = Math.min(1.0, targetProgress + 0.18);
+      startDampingLoop();
+    }
     isTouching = false;
   };
 
