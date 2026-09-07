@@ -62,6 +62,13 @@ const PROMO_CODES = {
     title: { tr: "350 TL VIP Sadakat İndirimi", en: "VIP Loyalty Discount", pl: "50 PLN Rabat Lojalnościowy VIP", uk: "VIP Знижка" },
     minAmount: 800,
     maxDiscount: 350
+  },
+  "RELAXAXVIP": {
+    discount: 20,
+    type: "percent",
+    title: { tr: "%20 VIP Özel İndirimi", en: "20% VIP Special Discount", pl: "20% Rabatu VIP", uk: "20% VIP Знижка" },
+    minAmount: 0,
+    maxDiscount: 1000
   }
 };
 

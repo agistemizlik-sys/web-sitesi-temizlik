@@ -1,6 +1,8 @@
 import { executeCyberLoopSentinel } from './_security.js';
 import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders } from './_utils.js';
 
+const sanitizeStr = sanitizeString;
+
 export async function onRequestOptions(context) {
   return handleOptionsCors(context.request, 'GET, POST, PATCH, PUT, OPTIONS');
 }
