@@ -1,5 +1,5 @@
 import { hasSqlInjection } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeEmail, sanitizeString } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeEmail, sanitizeString, logBackendEvent } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Newsletter & VIP Hygiene Club API
@@ -41,7 +41,9 @@ export async function onRequestPost(context) {
           subscribedAt: new Date().toISOString(),
           ip: request.headers.get('CF-Connecting-IP') || ''
         }));
-      } catch(e) {}
+      } catch(e) {
+        logBackendEvent('warn', 'NEWSLETTER', 'Subscriber KV persistence warning', { error: e?.message || e, email });
+      }
     }
 
     return createApiResponse({
@@ -56,6 +58,7 @@ export async function onRequestPost(context) {
     }, 200, origin, traceId);
 
   } catch(err) {
+    logBackendEvent('error', 'NEWSLETTER', 'Newsletter handler error', { error: err?.message || err });
     return createApiError("Internal server error", 500, traceId, err.message, origin);
   }
 }

@@ -1,4 +1,4 @@
-﻿export function getCorsHeaders(origin, methods = 'GET, POST, PATCH, PUT, DELETE, OPTIONS, HEAD') {
+export function getCorsHeaders(origin, methods = 'GET, POST, PATCH, PUT, DELETE, OPTIONS, HEAD') {
   const allowed = (origin && (
     origin.endsWith('relaxax.com') ||
     origin.endsWith('pages.dev') ||
@@ -70,6 +70,59 @@ export function createApiError(errorMsg, status = 400, traceId = null, details =
   });
 }
 
+export function deepSanitizeObject(val, depth = 0) {
+  if (depth > 10 || val === null || typeof val !== 'object') {
+    return val;
+  }
+  if (Array.isArray(val)) {
+    return val.map(item => deepSanitizeObject(item, depth + 1));
+  }
+  const clean = Object.create(null);
+  for (const [key, value] of Object.entries(val)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue;
+    }
+    clean[key] = deepSanitizeObject(value, depth + 1);
+  }
+  return { ...clean };
+}
+
+export function logBackendEvent(level = 'info', moduleName = 'CORE', message = '', metadata = {}) {
+  const timestamp = new Date().toISOString();
+  const logEntry = {
+    timestamp,
+    level: level.toUpperCase(),
+    module: moduleName,
+    message,
+    ...metadata
+  };
+  const line = `[${logEntry.level}] [${moduleName}] ${message} ${Object.keys(metadata).length ? JSON.stringify(metadata) : ''}`.trim();
+  if (level === 'error') {
+    console.error(line);
+  } else if (level === 'warn') {
+    console.warn(line);
+  } else {
+    console.log(line);
+  }
+  return logEntry;
+}
+
+export async function fetchWithTimeout(url, options = {}, timeoutMs = 4000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: options.signal || controller.signal
+    });
+    clearTimeout(timeoutId);
+    return res;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
 export async function parseAndValidateJson(request, maxBytes = 15000) {
   try {
     const raw = await request.text();
@@ -81,12 +134,8 @@ export async function parseAndValidateJson(request, maxBytes = 15000) {
     }
 
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') {
-      if (parsed.__proto__ || parsed.constructor?.prototype) {
-        delete parsed.__proto__;
-      }
-    }
-    return { data: parsed || {} };
+    const sanitized = deepSanitizeObject(parsed);
+    return { data: sanitized || {} };
   } catch (err) {
     return { error: 'Invalid JSON body format', status: 400 };
   }
@@ -130,9 +179,11 @@ export function sanitizePhone(rawPhone, city = '') {
 }
 
 export function parseSafeDate(dateStr) {
-  if (!dateStr || typeof dateStr !== 'string') {
+  const hasProvided = Boolean(dateStr && typeof dateStr === 'string' && dateStr.trim());
+  if (!hasProvided) {
     const now = new Date();
     return {
+      provided: false,
       dateObj: now,
       dateString: now.toISOString().split('T')[0],
       isPast: false,
@@ -142,11 +193,13 @@ export function parseSafeDate(dateStr) {
   }
 
   const cleanStr = dateStr.trim().substring(0, 10);
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   const parsed = new Date(cleanStr);
 
-  if (isNaN(parsed.getTime())) {
+  if (!dateRegex.test(cleanStr) || isNaN(parsed.getTime())) {
     const now = new Date();
     return {
+      provided: true,
       dateObj: now,
       dateString: now.toISOString().split('T')[0],
       isPast: false,
@@ -162,6 +215,7 @@ export function parseSafeDate(dateStr) {
   targetDate.setHours(0, 0, 0, 0);
 
   return {
+    provided: true,
     dateObj: parsed,
     dateString: cleanStr,
     isPast: targetDate.getTime() < today.getTime(),

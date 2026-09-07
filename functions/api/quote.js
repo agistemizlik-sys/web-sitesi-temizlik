@@ -1,5 +1,6 @@
 import { scanPayloadForInjection } from './_security.js';
 import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, generateHmacSignature } from './_utils.js';
+import { PROMO_CODES } from './promo.js';
 
 /**
  * RELAXAX Enterprise Server-Side Quote & Dynamic Pricing Engine
@@ -132,15 +133,14 @@ async function calculateQuote(body, env, origin, traceId) {
   // 5. Promo Code Discount
   let promoDiscountAmount = 0;
   const promoCode = sanitizeString(body.promoCode || body.code || '', 30).toUpperCase().trim();
-  if (promoCode) {
-    if (promoCode === 'RELAX20' || promoCode === 'WARSZAWA20') {
-      promoDiscountAmount = Math.round(subtotalAfterFreq * 0.20);
-    } else if (promoCode === 'BAHAR15') {
-      promoDiscountAmount = Math.round(subtotalAfterFreq * 0.15);
-    } else if (promoCode === 'PROMO10' || promoCode === 'PL10') {
-      promoDiscountAmount = Math.round(subtotalAfterFreq * 0.10);
-    } else if (promoCode === 'HOSGELDIN') {
-      promoDiscountAmount = currency === 'PLN' ? 35 : 250;
+  if (promoCode && PROMO_CODES[promoCode]) {
+    const promoDef = PROMO_CODES[promoCode];
+    if (promoDef.type === 'percent') {
+      const calculated = Math.round(subtotalAfterFreq * (promoDef.discount / 100));
+      promoDiscountAmount = Math.min(promoDef.maxDiscount || 1000, calculated);
+    } else if (promoDef.type === 'fixed') {
+      const fixedVal = typeof promoDef.discount === 'object' ? (promoDef.discount[currency] || 0) : promoDef.discount;
+      promoDiscountAmount = Math.min(subtotalAfterFreq, fixedVal);
     }
   }
 

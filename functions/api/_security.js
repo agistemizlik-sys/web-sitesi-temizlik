@@ -264,7 +264,9 @@ export async function executeCyberLoopSentinel(env, request, payload, waitUntil)
           })
         };
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[SECURITY_KV_WARN] Blacklist check failed:', e?.message || e);
+    }
   }
 
   // Scan for malicious vector signatures
@@ -290,7 +292,9 @@ export async function executeCyberLoopSentinel(env, request, payload, waitUntil)
           quarantinedAt: new Date().toISOString()
         }), { expirationTtl: 30 * 86400 });
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[SECURITY_KV_WARN] Strike recording failed:', e?.message || e);
+    }
   }
 
   // Dispatch live telemetry directly into Admin Security Radar
@@ -446,6 +450,7 @@ export async function executeRateLimitGuard(env, request, maxRequests = 40, wind
     await env.LEADS_KV.put(key, String(current + 1), { expirationTtl: windowSecs });
     return { allowed: true, remaining: maxRequests - current - 1 };
   } catch (e) {
+    console.warn('[SECURITY_RATELIMIT_WARN] Rate limit KV access failed:', e?.message || e);
     return { allowed: true };
   }
 }

@@ -1,5 +1,5 @@
 import { executeCyberLoopSentinel } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders, fetchWithTimeout, logBackendEvent } from './_utils.js';
 
 const sanitizeStr = sanitizeString;
 
@@ -23,15 +23,16 @@ export async function onRequestGet(context) {
       if (env && env.LEADS_KV) {
         try {
           order = await env.LEADS_KV.get('order:' + cleanCode, 'json');
-        } catch (e) {}
+        } catch (e) {
+          logBackendEvent('warn', 'ORDERS', 'Order KV read error', { error: e?.message || e, code: cleanCode });
+        }
       }
 
       // Check direct CleanPro panel order status at 64.177.116.243
       try {
-        const ctrl = new AbortController();
-        const tid = setTimeout(() => ctrl.abort(), 2000);
-        const statusRes = await fetch(`http://64.177.116.243/api/order/status?code=${encodeURIComponent(cleanCode)}`, { signal: ctrl.signal });
-        clearTimeout(tid);
+        const statusRes = await fetchWithTimeout(`http://64.177.116.243/api/order/status?code=${encodeURIComponent(cleanCode)}`, {
+          headers: { 'User-Agent': 'Cloudflare-Worker-OrderProbe' }
+        }, 2500);
         if (statusRes.ok) {
           const sData = await statusRes.json();
           if (sData && sData.success && (sData.status === 'approved' || sData.status === 'confirmed' || sData.status === 'in_progress' || sData.status === 'completed' || sData.assignedStaff)) {
@@ -56,14 +57,15 @@ export async function onRequestGet(context) {
             });
           }
         }
-      } catch(err) {}
+      } catch(err) {
+        logBackendEvent('warn', 'ORDERS', 'VDS panel order status probe error', { error: err?.message || err, code: cleanCode });
+      }
 
       // Fallback: Check remote panel sync-all on 64.177.116.243
       try {
-        const ctrl2 = new AbortController();
-        const tid2 = setTimeout(() => ctrl2.abort(), 2000);
-        const panelRes = await fetch('http://64.177.116.243/api/sync-all', { signal: ctrl2.signal });
-        clearTimeout(tid2);
+        const panelRes = await fetchWithTimeout('http://64.177.116.243/api/sync-all', {
+          headers: { 'User-Agent': 'Cloudflare-Worker-OrderProbe' }
+        }, 2500);
         if (panelRes.ok) {
           const pData = await panelRes.json();
           if (pData && Array.isArray(pData.leads)) {
@@ -95,7 +97,9 @@ export async function onRequestGet(context) {
             }
           }
         }
-      } catch (err) {}
+      } catch (err) {
+        logBackendEvent('warn', 'ORDERS', 'VDS panel sync-all fallback error', { error: err?.message || err, code: cleanCode });
+      }
 
       if (order) {
         return new Response(JSON.stringify({ success: true, order }), {
@@ -116,7 +120,9 @@ export async function onRequestGet(context) {
         try {
           const userOrders = await env.LEADS_KV.get('user_orders:' + cleanEmail, 'json');
           if (Array.isArray(userOrders)) orders = userOrders;
-        } catch (e) {}
+        } catch (e) {
+          logBackendEvent('warn', 'ORDERS', 'User orders KV read error', { error: e?.message || e, email: cleanEmail });
+        }
       }
       return new Response(JSON.stringify({ success: true, orders }), {
         status: 200,
@@ -129,7 +135,9 @@ export async function onRequestGet(context) {
       try {
         const globalList = await env.LEADS_KV.get('global_recent_orders', 'json');
         if (Array.isArray(globalList)) recentOrders = globalList;
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'ORDERS', 'Global orders KV read error', { error: e?.message || e });
+      }
     }
 
     return new Response(JSON.stringify({
@@ -141,6 +149,7 @@ export async function onRequestGet(context) {
       headers: corsHeaders
     });
   } catch (e) {
+    logBackendEvent('error', 'ORDERS', 'Orders GET handler fatal exception', { error: e?.message || e });
     return new Response(JSON.stringify({ success: false, message: 'Siparisler getirilemedi.' }), {
       status: 500,
       headers: corsHeaders
@@ -154,9 +163,14 @@ export async function onRequestPost(context) {
   const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
   const origin = request.headers.get('Origin') || '*';
   const corsHeaders = getCorsHeaders(origin);
+  const traceId = generateTraceId('ord');
 
   try {
-    const body = await request.json();
+    const { data: body, error, status } = await parseAndValidateJson(request, 25000);
+    if (error) {
+      return createApiError(error, status, traceId, null, origin);
+    }
+
     const cyberCheck = await executeCyberLoopSentinel(env, request, body, waitUntil);
     if (cyberCheck.blocked) return cyberCheck.response;
 
@@ -206,11 +220,13 @@ export async function onRequestPost(context) {
       source: 'relaxax.com / Canlı Sipariş Formu'
     };
 
-    const forwardPromise = fetch('http://64.177.116.243/api/webhook/lead', {
+    const forwardPromise = fetchWithTimeout('http://64.177.116.243/api/webhook/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'User-Agent': 'RELAXAX-Relay' },
       body: JSON.stringify(panelPayload)
-    }).catch(e => console.warn('[PANEL_RELAY_WARN]', e));
+    }, 3800).catch(e => {
+      logBackendEvent('warn', 'ORDERS', 'Panel lead relay webhook warning', { error: e?.message || e, orderCode: resCode });
+    });
 
     if (waitUntil) waitUntil(forwardPromise);
     else await forwardPromise;
@@ -230,7 +246,9 @@ export async function onRequestPost(context) {
         globalList.unshift(orderData);
         if (globalList.length > 100) globalList = globalList.slice(0, 100);
         await env.LEADS_KV.put('global_recent_orders', JSON.stringify(globalList));
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'ORDERS', 'Order persistence to KV warning', { error: e?.message || e, orderCode: resCode });
+      }
     }
 
     return new Response(JSON.stringify({
@@ -243,6 +261,7 @@ export async function onRequestPost(context) {
       headers: corsHeaders
     });
   } catch (e) {
+    logBackendEvent('error', 'ORDERS', 'Order creation failure', { error: e?.message || e });
     return new Response(JSON.stringify({ success: false, message: 'Siparis olusturulamadi.', error: e ? e.message : 'Unknown error' }), {
       status: 400,
       headers: corsHeaders
@@ -255,9 +274,14 @@ export async function onRequestPatch(context) {
   const { request, env } = context;
   const origin = request.headers.get('Origin') || '*';
   const corsHeaders = getCorsHeaders(origin);
+  const traceId = generateTraceId('ord');
 
   try {
-    const body = await request.json();
+    const { data: body, error, status: vStatus } = await parseAndValidateJson(request, 15000);
+    if (error) {
+      return createApiError(error, vStatus, traceId, null, origin);
+    }
+
     const orderId = sanitizeStr(body.orderId || body.orderCode || body.id, 40);
     const newStatus = sanitizeStr(body.status || 'Onaylandi', 30);
     const assignedStaff = body.assignedStaff || null;
@@ -291,7 +315,9 @@ export async function onRequestPatch(context) {
           globalList = globalList.map(o => (o.orderCode === orderId || o.id === orderId) ? { ...o, status: newStatus, assignedStaff: assignedStaff || o.assignedStaff } : o);
           await env.LEADS_KV.put('global_recent_orders', JSON.stringify(globalList));
         }
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'ORDERS', 'Order update in KV warning', { error: e?.message || e, orderId });
+      }
     }
 
     return new Response(JSON.stringify({
@@ -306,6 +332,7 @@ export async function onRequestPatch(context) {
       headers: corsHeaders
     });
   } catch (e) {
+    logBackendEvent('error', 'ORDERS', 'Order patch update exception', { error: e?.message || e });
     return new Response(JSON.stringify({ success: false, message: 'Guncelleme basarisiz.' }), {
       status: 400,
       headers: corsHeaders

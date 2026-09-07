@@ -6,7 +6,7 @@ import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJ
  * POST /api/promo & GET /api/promo
  */
 
-const PROMO_CODES = {
+export const PROMO_CODES = {
   "RELAX10": {
     discount: 10,
     type: "percent",

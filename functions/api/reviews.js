@@ -1,5 +1,5 @@
 import { hasSqlInjection } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, fetchWithTimeout, logBackendEvent } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Verified Reviews & Ratings API
@@ -124,12 +124,16 @@ export async function onRequest(context) {
       const env = context.env;
       const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
       if (env && env.LEADS_KV) {
-        await env.LEADS_KV.put(`review:${reviewItem.id}`, JSON.stringify(reviewItem), { expirationTtl: 86400 * 365 });
+        try {
+          await env.LEADS_KV.put(`review:${reviewItem.id}`, JSON.stringify(reviewItem), { expirationTtl: 86400 * 365 });
+        } catch (kvErr) {
+          logBackendEvent('warn', 'REVIEWS', 'Review KV persistence warning', { error: kvErr?.message || kvErr, reviewId: reviewItem.id });
+        }
       }
 
       // Forward to CleanPro Company Panel at 64.177.116.243
       try {
-        const panelReviewP = fetch('http://64.177.116.243/api/reviews/submit', {
+        const panelReviewP = fetchWithTimeout('http://64.177.116.243/api/reviews/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'User-Agent': 'Cloudflare-ReviewRelay' },
           body: JSON.stringify({
@@ -139,9 +143,13 @@ export async function onRequest(context) {
             comment: reviewItem.text,
             date: reviewItem.createdAt.substring(0, 10)
           })
-        }).catch(() => {});
+        }, 3500).catch(err => {
+          logBackendEvent('warn', 'REVIEWS', 'Panel review submission warning', { error: err?.message || err, reviewId: reviewItem.id });
+        });
         if (waitUntil) waitUntil(panelReviewP);
-      } catch(e) {}
+      } catch(e) {
+        logBackendEvent('warn', 'REVIEWS', 'Panel review dispatch exception', { error: e?.message || e });
+      }
 
       return createApiResponse({
         success: true,
@@ -150,6 +158,7 @@ export async function onRequest(context) {
       }, 201, origin, traceId);
 
     } catch (postErr) {
+      logBackendEvent('error', 'REVIEWS', 'Review submission error', { error: postErr?.message || postErr });
       return createApiError("Geçersiz değerlendirme verisi.", 400, traceId, null, origin);
     }
   }

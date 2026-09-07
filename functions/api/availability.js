@@ -1,4 +1,4 @@
-import { createApiResponse, handleOptionsCors, parseSafeDate, generateTraceId, sanitizeString } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseSafeDate, generateTraceId, sanitizeString } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Real-Time Slot & Date Availability Engine
@@ -29,6 +29,19 @@ export async function onRequest(context) {
 
   // Safe date parsing eliminates silent NaN comparisons
   const dateInfo = parseSafeDate(rawDate);
+
+  if (dateInfo.provided && !dateInfo.isValid) {
+    return createApiError(
+      lang === 'pl'
+        ? "Nieprawidłowy format daty. Użyj formatu RRRR-MM-DD (np. 2026-09-15)."
+        : "Geçersiz tarih formatı. Lütfen YYYY-AA-GG formatında (örn. 2026-09-15) belirtiniz.",
+      400,
+      traceId,
+      { providedDate: rawDate },
+      origin
+    );
+  }
+
   const currentHour = new Date().getHours();
 
   // Compute slot availability

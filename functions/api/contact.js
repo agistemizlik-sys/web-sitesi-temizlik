@@ -1,5 +1,5 @@
 import { executeCyberLoopSentinel } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, sanitizePhone } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, sanitizePhone, fetchWithTimeout, logBackendEvent } from './_utils.js';
 
 /**
  * RELAXAX Enterprise Contact & Corporate Inquiry API
@@ -63,12 +63,14 @@ export async function onRequestPost(context) {
         });
         if (waitUntil) waitUntil(kvP);
         else await kvP;
-      } catch(e) {}
+      } catch(e) {
+        logBackendEvent('warn', 'CONTACT', 'Ticket KV persistence warning', { error: e?.message || e, ticketId: payload.ticketId });
+      }
     }
 
     // Forward to Company Panel at 64.177.116.243
     try {
-      const panelP = fetch('http://64.177.116.243/api/webhook/lead', {
+      const panelP = fetchWithTimeout('http://64.177.116.243/api/webhook/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'User-Agent': 'Cloudflare-ContactRelay' },
         body: JSON.stringify({
@@ -82,9 +84,13 @@ export async function onRequestPost(context) {
           status: 'pending_approval',
           currentStep: 'WAITING_APPROVAL'
         })
-      }).catch(() => {});
+      }, 3500).catch(err => {
+        logBackendEvent('warn', 'CONTACT', 'Company panel lead relay warning', { error: err?.message || err, ticketId: payload.ticketId });
+      });
       if (waitUntil) waitUntil(panelP);
-    } catch(err) {}
+    } catch(err) {
+      logBackendEvent('warn', 'CONTACT', 'Company panel dispatch error', { error: err?.message || err });
+    }
 
     return createApiResponse({
       success: true,

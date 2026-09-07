@@ -15,6 +15,8 @@
  * Değişkenler tanımlı değilse uç sessizce 202 döner (site davranışı değişmez).
  */
 
+import { deepSanitizeObject } from './_utils.js';
+
 const ALLOWED_EVENTS = new Set([
   'generate_lead',
   'contact_whatsapp',
@@ -159,7 +161,7 @@ export async function onRequestPost(context) {
   try {
     const raw = await request.text();
     if (raw.length > 10_000) return new Response(null, { status: 413 });
-    payload = JSON.parse(raw);
+    payload = deepSanitizeObject(JSON.parse(raw));
   } catch {
     return new Response(null, { status: 400 });
   }

@@ -1,7 +1,46 @@
 import { executeCyberLoopSentinel } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, sanitizePhone, getCorsHeaders } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, sanitizePhone, getCorsHeaders, logBackendEvent } from './_utils.js';
 
 const sanitizeStr = sanitizeString;
+
+const DEFAULT_STAFF_FLEET = [
+  {
+    id: 'staff_ayse_k',
+    role: 'staff',
+    name: 'Ayşe Kaya (Başuzman)',
+    city: 'İstanbul',
+    district: 'Kadıköy',
+    rating: '4.98',
+    experience: '6 Yıl',
+    avatar: '👩‍💼',
+    completedJobs: 412,
+    badge: 'Kärcher Buhar & Kimyasal Sertifikalı'
+  },
+  {
+    id: 'staff_mehmet_d',
+    role: 'staff',
+    name: 'Mehmet Demir (Saha Şefi)',
+    city: 'İstanbul',
+    district: 'Beşiktaş',
+    rating: '4.95',
+    experience: '8 Yıl',
+    avatar: '👨‍💼',
+    completedJobs: 630,
+    badge: 'İnşaat & Endüstriyel Uzmanı'
+  },
+  {
+    id: 'staff_zofia_k',
+    role: 'staff',
+    name: 'Zofia Kowalska (Koordynator)',
+    city: 'Warszawa',
+    district: 'Mokotów',
+    rating: '4.99',
+    experience: '5 Lat',
+    avatar: '👩‍💼',
+    completedJobs: 285,
+    badge: 'Certyfikat Eko-Higieny'
+  }
+];
 
 export async function onRequestOptions(context) {
   return handleOptionsCors(context.request, 'GET, POST, PATCH, OPTIONS');
@@ -21,9 +60,19 @@ export async function onRequestGet(context) {
 
     if (env && env.LEADS_KV) {
       try {
-        staffFleet = await env.LEADS_KV.get('kv_registered_staff', 'json') || [];
+        const storedFleet = await env.LEADS_KV.get('kv_registered_staff', 'json');
+        if (Array.isArray(storedFleet) && storedFleet.length > 0) {
+          staffFleet = storedFleet;
+        } else {
+          staffFleet = DEFAULT_STAFF_FLEET;
+        }
         applicants = await env.LEADS_KV.get('kv_staff_applicants', 'json') || [];
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'STAFF', 'Staff KV retrieval failed, using fallback fleet', { error: e?.message || e });
+        staffFleet = DEFAULT_STAFF_FLEET;
+      }
+    } else {
+      staffFleet = DEFAULT_STAFF_FLEET;
     }
 
     return new Response(JSON.stringify({
@@ -36,6 +85,7 @@ export async function onRequestGet(context) {
       headers: corsHeaders
     });
   } catch (e) {
+    logBackendEvent('error', 'STAFF', 'Staff GET handler error', { error: e?.message || e });
     return new Response(JSON.stringify({ success: false, message: 'Personel listesi alinamadi.' }), {
       status: 500,
       headers: corsHeaders
@@ -49,9 +99,14 @@ export async function onRequestPost(context) {
   const waitUntil = context.waitUntil ? context.waitUntil.bind(context) : null;
   const origin = request.headers.get('Origin') || '*';
   const corsHeaders = getCorsHeaders(origin);
+  const traceId = generateTraceId('stf');
 
   try {
-    const body = await request.json();
+    const { data: body, error, status: vStatus } = await parseAndValidateJson(request, 15000);
+    if (error) {
+      return createApiError(error, vStatus, traceId, null, origin);
+    }
+
     const cyberCheck = await executeCyberLoopSentinel(env, request, body, waitUntil);
     if (cyberCheck.blocked) return cyberCheck.response;
 
@@ -87,7 +142,9 @@ export async function onRequestPost(context) {
         applicants.unshift(applicant);
         if (applicants.length > 200) applicants = applicants.slice(0, 200);
         await env.LEADS_KV.put('kv_staff_applicants', JSON.stringify(applicants));
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'STAFF', 'Applicant KV persistence warning', { error: e?.message || e, applicantId: applicant.id });
+      }
     }
 
     return new Response(JSON.stringify({
@@ -99,6 +156,7 @@ export async function onRequestPost(context) {
       headers: corsHeaders
     });
   } catch (e) {
+    logBackendEvent('error', 'STAFF', 'Staff application handler error', { error: e?.message || e });
     return new Response(JSON.stringify({ success: false, message: 'Basvuru olusturulamadi.' }), {
       status: 400,
       headers: corsHeaders
@@ -111,9 +169,14 @@ export async function onRequestPatch(context) {
   const { request, env } = context;
   const origin = request.headers.get('Origin') || '*';
   const corsHeaders = getCorsHeaders(origin);
+  const traceId = generateTraceId('stf');
 
   try {
-    const body = await request.json();
+    const { data: body, error, status: vStatus } = await parseAndValidateJson(request, 10000);
+    if (error) {
+      return createApiError(error, vStatus, traceId, null, origin);
+    }
+
     const applicantId = sanitizeStr(body.applicantId || body.id, 40);
     const action = sanitizeStr(body.action || 'approve', 20); // 'approve' | 'reject' | 'delete'
 
@@ -127,7 +190,7 @@ export async function onRequestPatch(context) {
     if (env && env.LEADS_KV) {
       try {
         let applicants = await env.LEADS_KV.get('kv_staff_applicants', 'json') || [];
-        let staffFleet = await env.LEADS_KV.get('kv_registered_staff', 'json') || [];
+        let staffFleet = await env.LEADS_KV.get('kv_registered_staff', 'json') || [...DEFAULT_STAFF_FLEET];
         const targetApp = applicants.find(a => a.id === applicantId);
 
         if (targetApp) {
@@ -151,7 +214,9 @@ export async function onRequestPatch(context) {
           }
           await env.LEADS_KV.put('kv_staff_applicants', JSON.stringify(applicants));
         }
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'STAFF', 'Staff action update in KV warning', { error: e?.message || e, applicantId, action });
+      }
     }
 
     return new Response(JSON.stringify({
@@ -164,6 +229,7 @@ export async function onRequestPatch(context) {
       headers: corsHeaders
     });
   } catch (e) {
+    logBackendEvent('error', 'STAFF', 'Staff PATCH exception', { error: e?.message || e });
     return new Response(JSON.stringify({ success: false, message: 'Islem basarisiz.' }), {
       status: 400,
       headers: corsHeaders

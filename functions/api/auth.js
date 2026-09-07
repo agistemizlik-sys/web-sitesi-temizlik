@@ -1,5 +1,5 @@
 import { executeCyberLoopSentinel } from './_security.js';
-import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders } from './_utils.js';
+import { createApiResponse, createApiError, handleOptionsCors, parseAndValidateJson, generateTraceId, sanitizeString, sanitizeEmail, getCorsHeaders, logBackendEvent } from './_utils.js';
 
 const sanitizeStr = sanitizeString;
 
@@ -124,7 +124,9 @@ export async function onRequestPost(context) {
       try {
         const stored = await env.LEADS_KV.get(role === 'staff' ? staffKvKey : kvKey, 'json');
         if (stored) existingUser = stored;
-      } catch (e) {}
+      } catch (e) {
+        logBackendEvent('warn', 'AUTH', 'User lookup in KV failed', { error: e?.message || e, email });
+      }
     }
 
     // ── REGISTRATION / SIGNUP FLOW ──
@@ -170,7 +172,9 @@ export async function onRequestPost(context) {
             if (usersIndex.length > 500) usersIndex = usersIndex.slice(-500);
             await env.LEADS_KV.put('kv_users_index', JSON.stringify(usersIndex));
           }
-        } catch (e) {}
+        } catch (e) {
+          logBackendEvent('warn', 'AUTH', 'User registration persistence to KV failed', { error: e?.message || e, email });
+        }
       }
 
       const safeUser = { ...newUser };
