@@ -3685,8 +3685,8 @@ function setupPortalIntroClick() {
     }
 
     if (hudText) {
-      const targetText = progress >= 0.75 
-        ? 'LÜTFEN ÜLKENİZİ SEÇİN (TÜRKİYE / POLONYA)' 
+      const targetText = progress >= 0.70 
+        ? 'AŞAĞI DOĞRU KAYDIRARAK KEŞFEDİN' 
         : 'AŞAĞI KAYDIRIN VEYA DOKUNUN';
       if (targetText !== lastHudText) {
         hudText.textContent = targetText;
@@ -3696,12 +3696,12 @@ function setupPortalIntroClick() {
 
     const sjhIconEl = hud ? hud.querySelector('.sjh-icon') : null;
     if (sjhIconEl) {
-      const desiredIcon = progress >= 0.75 ? '🚩' : '🧭';
+      const desiredIcon = '🧭';
       if (sjhIconEl.textContent !== desiredIcon) sjhIconEl.textContent = desiredIcon;
     }
     const sjhArrowEl = hud ? hud.querySelector('.sjh-arrow') : null;
     if (sjhArrowEl) {
-      sjhArrowEl.style.display = progress >= 0.75 ? 'none' : 'inline-block';
+      sjhArrowEl.style.display = 'inline-block';
     }
 
     // 4. Stable 1:1 Camera Parity (No synthetic scale distortion)
@@ -3778,76 +3778,42 @@ function setupPortalIntroClick() {
     // User directive: Slogan appears strictly while gliding in the valley (0.37 - 0.58), completely hidden in book phase and sky phase
     updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.37, 0.42, 0.51, 0.58);
 
-    // 6. Interactive Royal Country Banners (Smooth descent: progress > 0.75)
-    let bannerOpacity = 0;
-    let bannerDrop = 0;
-    if (progress > 0.75) {
-      bannerDrop = Math.min(1.0, (progress - 0.75) / 0.18);
-      bannerOpacity = 1.0 - Math.pow(1.0 - bannerDrop, 2);
+    // 6. Majestic Sky Typography (Replaces Banners / Flags - "aşşagı dogru kaysın")
+    const heroSkyLayer = document.getElementById('heroSkyTextLayer');
+    const heroSkyCard = document.getElementById('heroSkyCard');
+    
+    let skyTextOpacity = 0;
+    let skyTextProgress = 0;
+    if (progress > 0.60) {
+      skyTextProgress = Math.min(1.0, (progress - 0.60) / 0.20);
+      skyTextOpacity = 1.0 - Math.pow(1.0 - skyTextProgress, 2);
     }
 
-    if (bannerOpacity > 0.01) {
-      const isMob = window.innerWidth <= 768;
-      let bannerW, bannerH, leftX, rightX, topY;
+    if (skyTextOpacity > 0.01 && heroSkyLayer) {
+      heroSkyLayer.style.opacity = skyTextOpacity.toFixed(2);
+      heroSkyLayer.style.visibility = 'visible';
+      heroSkyLayer.style.pointerEvents = skyTextOpacity > 0.35 ? 'auto' : 'none';
 
-      if (isMob) {
-        // Mobile Viewport: 100% stable CSS pixel layout (immune to Canvas DPR scaling)
-        const vW = window.innerWidth;
-        const vH = window.innerHeight;
-        bannerW = Math.min(150, Math.floor(vW * 0.42));
-        bannerH = bannerW / 0.517;
-        topY = Math.round(vH * 0.16);
-        leftX = Math.round(vW * 0.05);
-        rightX = Math.round(vW - vW * 0.05 - bannerW);
-      } else {
-        // Desktop Viewport: Normalized by DPR to align with 3D canvas poles
-        const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
-        const { ox, oy, rw, rh } = lastFrameRect;
-        const cssOx = ox / dpr;
-        const cssOy = oy / dpr;
-        const cssRw = rw / dpr;
-        const cssRh = rh / dpr;
-        bannerW = Math.min(320, Math.max(220, cssRw * 0.22));
-        bannerH = bannerW / 0.517;
-        topY = cssOy + cssRh * 0.03;
-        const leftCenterX = cssOx + cssRw * 0.23;
-        const rightCenterX = cssOx + cssRw * 0.77;
-        leftX = leftCenterX - (bannerW / 2);
-        rightX = rightCenterX - (bannerW / 2);
+      if (heroSkyCard) {
+        // "aşşagı dogru kaysın": smooth continuous downward gliding parallax as scroll progresses
+        const glideDownOffset = (1.0 - skyTextProgress) * -50 + (progress - 0.60) * 65;
+        heroSkyCard.style.transform = `translate3d(0, ${glideDownOffset.toFixed(1)}px, 0)`;
       }
+    } else if (heroSkyLayer) {
+      heroSkyLayer.style.opacity = '0';
+      heroSkyLayer.style.visibility = 'hidden';
+      heroSkyLayer.style.pointerEvents = 'none';
+    }
 
-      const dropOffsetY = (1.0 - bannerDrop) * -80;
-
-      if (poleLeft) {
-        poleLeft.style.left = `${Math.round(leftX)}px`;
-        poleLeft.style.top = `${Math.round(topY + dropOffsetY)}px`;
-        poleLeft.style.width = `${Math.round(bannerW)}px`;
-        poleLeft.style.height = `${Math.round(bannerH)}px`;
-        poleLeft.style.opacity = bannerOpacity.toFixed(2);
-        poleLeft.style.visibility = 'visible';
-        poleLeft.style.pointerEvents = bannerOpacity > 0.35 ? 'auto' : 'none';
-      }
-
-      if (poleRight) {
-        poleRight.style.left = `${Math.round(rightX)}px`;
-        poleRight.style.top = `${Math.round(topY + dropOffsetY)}px`;
-        poleRight.style.width = `${Math.round(bannerW)}px`;
-        poleRight.style.height = `${Math.round(bannerH)}px`;
-        poleRight.style.opacity = bannerOpacity.toFixed(2);
-        poleRight.style.visibility = 'visible';
-        poleRight.style.pointerEvents = bannerOpacity > 0.35 ? 'auto' : 'none';
-      }
-    } else {
-      if (poleLeft) {
-        poleLeft.style.opacity = '0';
-        poleLeft.style.visibility = 'hidden';
-        poleLeft.style.pointerEvents = 'none';
-      }
-      if (poleRight) {
-        poleRight.style.opacity = '0';
-        poleRight.style.visibility = 'hidden';
-        poleRight.style.pointerEvents = 'none';
-      }
+    if (poleLeft) {
+      poleLeft.style.opacity = '0';
+      poleLeft.style.visibility = 'hidden';
+      poleLeft.style.pointerEvents = 'none';
+    }
+    if (poleRight) {
+      poleRight.style.opacity = '0';
+      poleRight.style.visibility = 'hidden';
+      poleRight.style.pointerEvents = 'none';
     }
   };
 
@@ -4100,6 +4066,19 @@ function setupPortalIntroClick() {
     }
     setTimeout(() => { isTransitioning = false; }, 600);
   };
+
+  const heroSkyCardEl = document.getElementById('heroSkyCard');
+  if (heroSkyCardEl) {
+    const scrollToNext = (e) => {
+      if (e) { try { e.preventDefault(); e.stopPropagation(); } catch(err){} }
+      const targetSec = document.getElementById('cities-section') || document.getElementById('portal-stage');
+      if (targetSec) {
+        targetSec.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+    heroSkyCardEl.addEventListener('click', scrollToNext);
+    heroSkyCardEl.addEventListener('touchend', scrollToNext, { passive: false });
+  }
 
   const btnTR = document.getElementById('btnBannerTR');
   const btnPL = document.getElementById('btnBannerPL');
@@ -5448,22 +5427,15 @@ function setupPortalGateway() {
   function selectCountryGlobal(countryCode) {
     const code = (countryCode === 'pl' || countryCode === 'poland') ? 'pl' : 'tr';
 
-    // 1. Immediately dismiss book scroll hero track
-    if (typeof window._dismissIntroHero === 'function') {
-      window._dismissIntroHero();
-    }
-    const heroTrack = document.getElementById('book-scroll-hero-track');
-    if (heroTrack) {
-      heroTrack.style.setProperty('display', 'none', 'important');
-      heroTrack.style.setProperty('opacity', '0', 'important');
-      heroTrack.style.setProperty('pointer-events', 'none', 'important');
-    }
-
-    const introStage = document.getElementById('portal-intro-stage');
-    if (introStage) {
-      introStage.style.setProperty('display', 'none', 'important');
-      introStage.style.setProperty('opacity', '0', 'important');
-      introStage.style.setProperty('pointer-events', 'none', 'important');
+    // 1. Sync country tabs in City Selection section
+    const tabTR = document.getElementById('tabCountryTR');
+    const tabPL = document.getElementById('tabCountryPL');
+    if (code === 'pl') {
+      if (tabTR) tabTR.classList.remove('active');
+      if (tabPL) tabPL.classList.add('active');
+    } else {
+      if (tabTR) tabTR.classList.add('active');
+      if (tabPL) tabPL.classList.remove('active');
     }
 
     // 2. Immediately hide country selector overlay synchronously
@@ -8544,6 +8516,26 @@ function selectServiceGlobal(service, clickEvent) {
       item.classList.remove('selected', 'active');
       item.setAttribute('aria-checked', 'false');
       if (btnSpan) btnSpan.textContent = 'Hizmeti Seç';
+    }
+  });
+
+  // Update WordPress Services Showcase cards
+  const wpCards = document.querySelectorAll('.wp-service-card');
+  wpCards.forEach(card => {
+    if (card.dataset.service === service) {
+      card.classList.add('selected');
+    } else {
+      card.classList.remove('selected');
+    }
+  });
+
+  // Update Booking Wizard preset cards
+  const presetKey = (service === 'tasinma_sonrasi' ? 'tasinma' : (service === 'insaat_sonrasi' ? 'insaat' : service));
+  document.querySelectorAll('.wizard-service-preset-card').forEach(c => {
+    if (c.dataset.servicePreset === presetKey) {
+      c.classList.add('active');
+    } else {
+      c.classList.remove('active');
     }
   });
 
@@ -13361,11 +13353,118 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// Ensure Leaflet Turkey map is initialized when DOM is ready for WordPress continuous scroll
+// ==========================================================================
+// WORDPRESS CONTINUOUS SCROLL ARCHITECTURE & REVEAL SYSTEM
+// ==========================================================================
+function initWordPressScrollArchitecture() {
+  // 1. Service Cards & Action Buttons in WordPress Services Grid
+  const serviceCards = document.querySelectorAll('.wp-service-card');
+  serviceCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      // If clicking button inside, button handler will handle it
+      if (e.target.closest('.wp-sc-action-btn')) return;
+      e.preventDefault();
+      const service = card.dataset.service || 'standart';
+      if (typeof selectServiceGlobal === 'function') {
+        selectServiceGlobal(service, e);
+      }
+      
+      const bookingEl = document.getElementById('bookingReveal');
+      if (bookingEl) {
+        bookingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  const actionButtons = document.querySelectorAll('.wp-sc-action-btn');
+  actionButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const service = btn.dataset.service || 'standart';
+      if (typeof selectServiceGlobal === 'function') {
+        selectServiceGlobal(service, e);
+      }
+
+      const bookingEl = document.getElementById('bookingReveal');
+      if (bookingEl) {
+        bookingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // 2. Country Tabs (Turkey / Poland) in City Selection Section
+  const tabTR = document.getElementById('tabCountryTR');
+  const tabPL = document.getElementById('tabCountryPL');
+  if (tabTR) {
+    tabTR.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof selectCountryGlobal === 'function') {
+        selectCountryGlobal('tr');
+      }
+    });
+  }
+  if (tabPL) {
+    tabPL.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof selectCountryGlobal === 'function') {
+        selectCountryGlobal('pl');
+      }
+    });
+  }
+
+  // 3. Navigation Anchor Smooth Scrolls
+  const cNavCityMapBtn = document.getElementById('cNavCityMapBtn');
+  if (cNavCityMapBtn) {
+    cNavCityMapBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const portalStage = document.getElementById('portal-stage');
+      if (portalStage) {
+        portalStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+  const cNavPriceCalcBtn = document.getElementById('cNavPriceCalcBtn');
+  if (cNavPriceCalcBtn) {
+    cNavPriceCalcBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const bookingEl = document.getElementById('bookingReveal');
+      if (bookingEl) {
+        bookingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+  // 4. Scroll Reveal Animations via IntersectionObserver
+  const revealElements = document.querySelectorAll('.wp-reveal');
+  if ('IntersectionObserver' in window && revealElements.length > 0) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -30px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+  } else {
+    revealElements.forEach(el => el.classList.add('is-revealed'));
+  }
+}
+
+// Ensure Leaflet Turkey map and WordPress architecture are initialized
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
+    initWordPressScrollArchitecture();
     setTimeout(() => { if (typeof initLeafletMap === 'function') initLeafletMap('turkey'); }, 600);
   });
 } else {
+  initWordPressScrollArchitecture();
   setTimeout(() => { if (typeof initLeafletMap === 'function') initLeafletMap('turkey'); }, 600);
 }
+

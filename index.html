@@ -435,8 +435,8 @@
           <img src="/images/logo_leaf.svg" alt="RELAXAX" style="width: 32px; height: 32px; filter: drop-shadow(0 0 12px rgba(251,191,36,0.8));" />
           <span style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 800; letter-spacing: 0.15em; color: #ffffff; text-shadow: 0 0 16px rgba(251,191,36,0.6);">RELAXAX</span>
         </div>
-        <button type="button" class="book-quick-skip-btn" id="bookQuickSkipBtn" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('tr');" aria-label="Doğrudan Türkiye Haritasına Geç" style="background: rgba(15,23,42,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.7); color: #fbbf24; padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 15px rgba(251,191,36,0.25);">
-          <span>🇹🇷 Şehir Haritası</span>
+        <button type="button" class="book-quick-skip-btn" id="bookQuickSkipBtn" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});" aria-label="Şehir Haritasına Geç" style="background: rgba(15,23,42,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.7); color: #fbbf24; padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 15px rgba(251,191,36,0.25);">
+          <span>🗺️ Şehir Haritası</span>
           <span>➔</span>
         </button>
       </header>
@@ -456,26 +456,26 @@
         </div>
       </div>
 
-      <!-- 🪢 ROYAL INTERACTIVE COUNTRY BANNERS (EXACT USER REFERENCE DESIGN) -->
-      <div class="parallax-banners-layer" id="parallaxBannersLayer" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden;">
-        <!-- LEFT BANNER: 🇹🇷 TÜRKİYE ROYAL BANNER -->
-        <div class="royal-banner-container banner-container-left" id="bannerPoleLeft" role="button" tabindex="0" aria-label="Türkiye Hizmetlerine Giriş Yap" style="opacity: 0; visibility: hidden; pointer-events: none;">
-          <img src="/images/banner_turkey_royal.png?v=royal_v3" alt="Türkiye Relaxax Cleaning Royal Banner" class="royal-banner-img" draggable="false">
-          <!-- Real Interactive Clickable Button Pill -->
-          <button class="royal-action-btn btn-tr" id="btnBannerTR" type="button" aria-label="Giriş Yap">
-            <span class="btn-text">Giriş</span>
-            <span class="btn-arrow">➔</span>
-          </button>
-        </div>
-
-        <!-- RIGHT BANNER: 🇵🇱 POLSKA ROYAL BANNER -->
-        <div class="royal-banner-container banner-container-right" id="bannerPoleRight" role="button" tabindex="0" aria-label="Wybierz Polskę i Warszawę" style="opacity: 0; visibility: hidden; pointer-events: none;">
-          <img src="/images/banner_poland_royal.png?v=royal_v3" alt="Polska Relaxax Cleaning Royal Banner" class="royal-banner-img" draggable="false">
-          <!-- Real Interactive Clickable Button Pill -->
-          <button class="royal-action-btn btn-pl" id="btnBannerPL" type="button" aria-label="Wybierz">
-            <span class="btn-text">WYBIERZ</span>
-            <span class="btn-arrow">➔</span>
-          </button>
+      <!-- ✨ MAJESTIC HERO SKY TYPOGRAPHY (REPLACES BANNERS / FLAGS) -->
+      <div class="hero-sky-text-layer" id="heroSkyTextLayer" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden;">
+        <div class="hero-sky-card" id="heroSkyCard" role="button" tabindex="0" aria-label="Aşağı Kaydırarak Keşfedin">
+          <div class="hero-sky-badge">
+            <span class="hsb-dot">✦</span>
+            <span>PREMİUM HİJYEN &amp; TEMİZLİK DENEYİMİ</span>
+            <span class="hsb-dot">✦</span>
+          </div>
+          <h2 class="hero-sky-headline">Kusursuz Temizlik, Saray Zarafeti</h2>
+          <div class="hero-sky-divider">
+            <span>❦</span> <span class="hsd-line"></span> <span>✦</span> <span class="hsd-line"></span> <span>❦</span>
+          </div>
+          <p class="hero-sky-desc">Yaşam alanlarınız için 5 yıldızlı otel kalitesinde profesyonel temizlik. Aşağı doğru kaydırarak keşfedin.</p>
+          <div class="hero-sky-cta-wrap">
+            <div class="hero-sky-scroll-pill">
+              <span class="hsc-icon">↓</span>
+              <span class="hsc-text">AŞAĞI DOĞRU KAYDIRIN</span>
+              <span class="hsc-icon">↓</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -613,30 +613,32 @@
     <!-- İnteraktif Türkiye Haritası Şehir Seçim Geçidi -->
     <div class="portal-map-selector-stage">
 
-      <!-- 1. Header Bar -->
-      <header class="tms-header-bar">
-        <button type="button" class="tms-back-country-btn" id="tmsBackCountryBtn" onclick="if(typeof returnToCountrySelector==='function')returnToCountrySelector();" aria-label="Ülke Seçimine Geri Dön">
-          <span>←</span> <span>Ülke Değiştir</span>
-        </button>
-        <div class="tms-logo-group">
-          <div class="tms-logo-icon">🏠</div>
-          <span>PROFESYONEL TEMİZLİK HİZMETLERİ</span>
+      <!-- 1. Unified WordPress Section Header for Cities -->
+      <div class="wp-section-header wp-reveal">
+        <div class="wp-section-badge">
+          <span class="wp-badge-icon">📍</span>
+          <span>GLOBAL OPERASYON AĞIMIZ</span>
+          <span class="wp-badge-icon">📍</span>
         </div>
-        <div class="tms-top-center-pill">📍 BİZE EN YAKIN ŞEHRİ SEÇİN</div>
-        <div class="tms-top-actions">
-          <button type="button" class="tms-help-btn" id="tmsHelpCenterBtn" title="Canlı Destek / Yardım Merkezi" aria-label="Canlı Destek ve Yardım Merkezi">
-            <span>💬</span> <span class="tms-help-text">Yardım Merkezi</span>
+        <h2 class="wp-section-title">Hizmet Şehirlerimiz &amp; İnteraktif Harita</h2>
+        <div class="wp-section-divider">
+          <span>❦</span> <span class="wp-divider-line"></span> <span>✦</span> <span class="wp-divider-line"></span> <span>❦</span>
+        </div>
+        <p class="wp-section-desc">Türkiye ve Polonya genelinde 10+ metropolde 5 yıldızlı otel kalitesinde hizmet sunuyoruz. Size en yakın hizmet noktasını seçin.</p>
+        
+        <!-- Country Selector In-Page Tabs -->
+        <div class="wp-country-tabs-row" id="wpCountryTabsRow">
+          <button type="button" class="wp-country-tab active" id="tabCountryTR" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('tr');" aria-label="Türkiye Haritasını Görüntüle">
+            <span class="wp-tab-flag">🇹🇷</span>
+            <span class="wp-tab-name">TÜRKİYE</span>
+            <span class="wp-tab-cities">İstanbul, Ankara, İzmir, Antalya, Bursa, Samsun</span>
           </button>
-          <div class="tms-guarantee-pill">
-            <span>🛡️</span> Güvenli Hizmet
-          </div>
+          <button type="button" class="wp-country-tab" id="tabCountryPL" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('pl');" aria-label="Polonya Haritasını Görüntüle">
+            <span class="wp-tab-flag">🇵🇱</span>
+            <span class="wp-tab-name">POLONYA (POLSKA)</span>
+            <span class="wp-tab-cities">Warszawa, Kraków, Wrocław, Gdańsk, Poznań, Łódź</span>
+          </button>
         </div>
-      </header>
-
-      <!-- 2. Main Title Section -->
-      <div class="tms-title-block">
-        <h2 class="tms-main-heading">Şehrinizi seçin</h2>
-        <p class="tms-main-sub">Size en yakın hizmet noktalarımızı görmek ve randevu oluşturmak için şehrinizi seçin.</p>
       </div>
 
       <!-- 3. Search & Location Row -->
@@ -1424,448 +1426,259 @@
 
     
 
-    <!-- INTERACTIVE SCROLL-SCRUB CINEMA SECTION -->
-    <section id="cinema-section">
-      
-      <!-- Video Stage -->
-      <div class="cinema-stage">
-        <!-- Hizmet Seçim Paneli (1:1 Tasarım) -->
-        <div class="services-text-overlay" id="servicesTextOverlay" aria-hidden="true">
-          <!-- Ivy Natural Ambient Background Video -->
-          <div class="services-ivy-video-wrap" id="servicesIvyVideoWrap" aria-hidden="true">
-            <video id="servicesIvyVideo" class="services-ivy-bg-video" src="/videos/sarmasik.mp4" poster="/images/sarmasik_poster.webp" autoplay loop muted playsinline preload="auto"></video>
-            <div class="services-ivy-overlay"></div>
+    <!-- ==========================================
+         ✨ 2. WORDPRESS SERVICES SHOWCASE SECTION
+         ========================================== -->
+    <div id="services-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section services-showcase-section wp-reveal" id="servicesSection" aria-label="Temizlik Hizmetlerimiz">
+      <div class="wp-container">
+        
+        <!-- Standard WordPress Section Header -->
+        <div class="wp-section-header">
+          <div class="wp-section-badge">
+            <span class="wp-badge-icon">✦</span>
+            <span>PROFESYONEL TEMİZLİK HİZMETLERİMİZ</span>
+            <span class="wp-badge-icon">✦</span>
+          </div>
+          <h2 class="wp-section-title">5 Yıldızlı Otel Kalitesinde Kusursuz Hijyen</h2>
+          <div class="wp-section-divider">
+            <span>❦</span> <span class="wp-divider-line"></span> <span>✦</span> <span class="wp-divider-line"></span> <span>❦</span>
+          </div>
+          <p class="wp-section-desc">Eviniz, ofisiniz ve yaşam alanlarınız için sertifikalı uzman kadro, çevre dostu organik ürünler ve nano-teknolojik ekipmanlarla ayrıcalıklı hijyen çözümleri.</p>
+        </div>
+
+        <!-- 6 Modern Service Cards Grid -->
+        <div class="wp-services-grid" id="wpServicesGrid">
+          
+          <!-- Card 1: Standart Temizlik -->
+          <div class="wp-service-card wp-stagger-item selected" data-service="standart" data-base-price="1850">
+            <div class="wp-sc-bg" style="background-image: url('/images/card_standart_bg.jpg');"></div>
+            <div class="wp-sc-overlay"></div>
+            <div class="wp-sc-top">
+              <span class="wp-sc-badge popular">⭐ En Popüler</span>
+              <div class="wp-sc-check">✓</div>
+            </div>
+            <div class="wp-sc-header">
+              <div class="wp-sc-icon">🏠</div>
+              <div>
+                <h3 class="wp-sc-title">Standart Ev Temizliği</h3>
+                <span class="wp-sc-sub">Rutin periyodik hijyen &amp; yüzey bakımı</span>
+              </div>
+            </div>
+            <p class="wp-sc-desc">Günlük yaşam alanlarınızın tozsuzlaştırılması, zeminlerin hijyeni, mutfak ve banyo temizliği.</p>
+            <ul class="wp-sc-features">
+              <li><span>✓</span> Tüm Odalar &amp; Mobilya Toz Alma</li>
+              <li><span>✓</span> Mutfak &amp; Banyo Yüzey Dezenfeksiyonu</li>
+              <li><span>✓</span> Zemin Süpürme &amp; Nötr Bakım Paspası</li>
+            </ul>
+            <div class="wp-sc-meta">
+              <span class="wp-meta-time">⏱️ 2-3 Saat</span>
+              <span class="wp-meta-price">₺1.850 <small>'den başlayan</small></span>
+            </div>
+            <button type="button" class="wp-sc-action-btn" data-service="standart" data-base-price="1850">
+              <span>Hemen Seç &amp; Fiyat Hesapla ➔</span>
+            </button>
           </div>
 
-          <div class="services-select-card">
-            
-            <!-- 4-Step Process Stepper -->
-            <div class="services-stepper-bar">
-              <div class="stepper-step active" id="stepperStep1">
-                <div class="stepper-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                </div>
-                <span class="stepper-label">Hizmet Seçimi</span>
-              </div>
-              <div class="stepper-line" id="stepperLine1"></div>
-              <div class="stepper-step" id="stepperStep2">
-                <div class="stepper-num">2</div>
-                <span class="stepper-label">Detaylar</span>
-              </div>
-              <div class="stepper-line" id="stepperLine2"></div>
-              <div class="stepper-step" id="stepperStep3">
-                <div class="stepper-num">3</div>
-                <span class="stepper-label">Adres</span>
-              </div>
-              <div class="stepper-line" id="stepperLine3"></div>
-              <div class="stepper-step" id="stepperStep4">
-                <div class="stepper-num">4</div>
-                <span class="stepper-label">Ödeme</span>
+          <!-- Card 2: Detaylı Temizlik -->
+          <div class="wp-service-card wp-stagger-item" data-service="detayli" data-base-price="2450">
+            <div class="wp-sc-bg" style="background-image: url('/images/card_detayli_bg.jpg');"></div>
+            <div class="wp-sc-overlay"></div>
+            <div class="wp-sc-top">
+              <span class="wp-sc-badge recommended">🌟 Tavsiye Edilen</span>
+              <div class="wp-sc-check">✓</div>
+            </div>
+            <div class="wp-sc-header">
+              <div class="wp-sc-icon">✨</div>
+              <div>
+                <h3 class="wp-sc-title">Detaylı / Bahar Temizliği</h3>
+                <span class="wp-sc-sub">Dip köşe derinlemesine buharlı arındırma</span>
               </div>
             </div>
-
-            <!-- Title & Subtitle -->
-            <div class="services-header-wrap">
-              <div class="services-sparkle-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
-                  <path d="M12 3c0 4.5 1.5 6 6 6-4.5 0-6 1.5-6 6 0-4.5-1.5-6-6-6 4.5 0 6-1.5 6-6z"/>
-                </svg>
-              </div>
-              <h3 class="services-select-title">Hangi hizmete ihtiyacınız var?</h3>
-              <div class="services-city-badge-row">
-                <button type="button" class="services-change-city-btn" id="servicesChangeCityBtn" onclick="if(typeof returnToCityMap==='function')returnToCityMap();" aria-label="Şehri Değiştir">
-                  <span>📍</span> <span id="servicesCurrentCityBadge">Şehir Değiştir</span>
-                </button>
-              </div>
-              <p class="services-select-subtitle">
-                <span class="sub-line"></span>
-                <span>İhtiyacınıza uygun temizlik paketini seçin.</span>
-                <span class="sub-line"></span>
-              </p>
+            <p class="wp-sc-desc">Kapı üstleri, petek arkaları, bazaların altları ve 140°C kuru buharla derinlemesine sterilizasyon.</p>
+            <ul class="wp-sc-features">
+              <li><span>✓</span> 140°C Kuru Buharlı Dezenfeksiyon</li>
+              <li><span>✓</span> Dip Köşe &amp; Dolap İçi/Üstü Hijyeni</li>
+              <li><span>✓</span> Kireç, Yağ &amp; Derz Detay Arındırma</li>
+            </ul>
+            <div class="wp-sc-meta">
+              <span class="wp-meta-time">⏱️ 3-5 Saat</span>
+              <span class="wp-meta-price">₺2.450 <small>'den başlayan</small></span>
             </div>
+            <button type="button" class="wp-sc-action-btn" data-service="detayli" data-base-price="2450">
+              <span>Hemen Seç &amp; Fiyat Hesapla ➔</span>
+            </button>
+          </div>
 
-            <!-- 6 Services Grid (2x3 Layout) -->
-            <div class="services-select-grid">
-              
-              <!-- Card 1: Standart Temizlik (Selected) -->
-              <div class="service-select-item selected" data-service="standart" data-base-price="1850">
-                <div class="service-card-bg-img" style="background-image: url('/images/card_standart_bg.jpg');"></div>
-                <div class="service-card-top-row">
-                  <span class="service-badge popular">⭐ En Popüler</span>
-                  <div class="service-check-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                </div>
-                <div class="service-card-header">
-                  <div class="service-icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    </svg>
-                  </div>
-                  <div class="service-title-group">
-                    <h4>Standart Temizlik</h4>
-                    <span class="service-sub">Ev temizliği için ideal</span>
-                  </div>
-                </div>
-                <p class="service-desc">Genel düzen ve temel hijyen çözümleri.</p>
-                <ul class="service-feature-list">
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Toz Alma</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Süpürme</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Yüzey Hijyeni</li>
-                </ul>
-                <div class="service-meta-row">
-                  <span class="meta-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2-3 Saat</span>
-                  <span class="meta-pill price"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>₺1.850</strong>'den başlayan fiyatlarla</span>
-                </div>
-                <button type="button" class="service-action-btn">
-                  <span>Seçildi ✓</span>
-                </button>
-              </div>
-
-              <!-- Card 2: Detaylı Temizlik -->
-              <div class="service-select-item" data-service="detayli" data-base-price="2450">
-                <div class="service-card-bg-img" style="background-image: url('/images/card_detayli_bg.jpg');"></div>
-                <div class="service-card-top-row">
-                  <span class="service-badge recommended">🌟 Tavsiye Edilen</span>
-                  <div class="service-check-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                </div>
-                <div class="service-card-header">
-                  <div class="service-icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 3c0 4.5 1.5 6 6 6-4.5 0-6 1.5-6 6 0-4.5-1.5-6-6-6 4.5 0 6-1.5 6-6z"/>
-                    </svg>
-                  </div>
-                  <div class="service-title-group">
-                    <h4>Detaylı Temizlik</h4>
-                    <span class="service-sub">Derin temizlik hizmeti</span>
-                  </div>
-                </div>
-                <p class="service-desc">Dip köşe, buharlı hijyen ve leke çıkarma.</p>
-                <ul class="service-feature-list">
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Buharlı Hijyen</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Dip Köşe</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Leke Arındırma</li>
-                </ul>
-                <div class="service-meta-row">
-                  <span class="meta-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 3-5 Saat</span>
-                  <span class="meta-pill price"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>₺2.450</strong>'den başlayan fiyatlarla</span>
-                </div>
-                <button type="button" class="service-action-btn">
-                  <span>Hizmeti Seç</span>
-                </button>
-              </div>
-
-              <!-- Card 3: Kurumsal Temizlik -->
-              <div class="service-select-item" data-service="kurumsal" data-base-price="3200">
-                <div class="service-card-bg-img" style="background-image: url('/images/card_kurumsal_bg.jpg');"></div>
-                <div class="service-card-top-row">
-                  <span class="service-badge general">🏢 Plaza & Ofis</span>
-                  <div class="service-check-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                </div>
-                <div class="service-card-header">
-                  <div class="service-icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="4" y="2" width="16" height="20" rx="2"/>
-                      <path d="M9 22v-4h6v4M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2"/>
-                    </svg>
-                  </div>
-                  <div class="service-title-group">
-                    <h4>Kurumsal Temizlik</h4>
-                    <span class="service-sub">Ofis, iş yeri ve kurumsal alanlar için</span>
-                  </div>
-                </div>
-                <p class="service-desc">Profesyonel ve düzenli temizlik çözümleri.</p>
-                <ul class="service-feature-list">
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Ofis & Plaza</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Esnek Saatler</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Özel Raporlama</li>
-                </ul>
-                <div class="service-meta-row">
-                  <span class="meta-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 4-6 Saat</span>
-                  <span class="meta-pill price"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>₺3.200</strong>'den başlayan fiyatlarla</span>
-                </div>
-                <button type="button" class="service-action-btn">
-                  <span>Hizmeti Seç</span>
-                </button>
-              </div>
-
-              <!-- Card 4: Dezenfeksiyon -->
-              <div class="service-select-item" data-service="ilaclama" data-base-price="1850">
-                <div class="service-card-bg-img" style="background-image: url('/images/card_dezenfeksiyon_bg.jpg');"></div>
-                <div class="service-card-top-row">
-                  <span class="service-badge general">🛡️ Medikal Hijyen</span>
-                  <div class="service-check-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                </div>
-                <div class="service-card-header">
-                  <div class="service-icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                      <path d="M12 8v8M8 12h8"/>
-                    </svg>
-                  </div>
-                  <div class="service-title-group">
-                    <h4>Dezenfeksiyon</h4>
-                    <span class="service-sub">Hijyen ve bakterilere karşı koruma</span>
-                  </div>
-                </div>
-                <p class="service-desc">Bakteri ve haşere kontrol çözümleri.</p>
-                <ul class="service-feature-list">
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Haşere Kontrolü</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Dezenfeksiyon</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Ortam Hijyeni</li>
-                </ul>
-                <div class="service-meta-row">
-                  <span class="meta-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2-4 Saat</span>
-                  <span class="meta-pill price"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>₺1.850</strong>'den başlayan fiyatlarla</span>
-                </div>
-                <button type="button" class="service-action-btn">
-                  <span>Hizmeti Seç</span>
-                </button>
-              </div>
-
-              <!-- Card 5: İnşaat Sonrası Temizlik -->
-              <div class="service-select-item" data-service="insaat_sonrasi" data-base-price="2650">
-                <div class="service-card-bg-img" style="background-image: url('/images/card_insaat_bg.jpg');"></div>
-                <div class="service-card-top-row">
-                  <span class="service-badge general">✨ Derin Arındırma</span>
-                  <div class="service-check-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                </div>
-                <div class="service-card-header">
-                  <div class="service-icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M2 18h20M4 18v-4a8 8 0 0 1 16 0v4M12 2v4"/>
-                    </svg>
-                  </div>
-                  <div class="service-title-group">
-                    <h4>İnşaat Sonrası Temizlik</h4>
-                    <span class="service-sub">Tadilat sonrası temiz yaşam alanı</span>
-                  </div>
-                </div>
-                <p class="service-desc">Tadilat ve inşaat sonrası derin temizlik.</p>
-                <ul class="service-feature-list">
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Moloz & Toz</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Boya Kazıma</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Cam & Derz</li>
-                </ul>
-                <div class="service-meta-row">
-                  <span class="meta-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 4-6 Saat</span>
-                  <span class="meta-pill price"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>₺2.650</strong>'den başlayan fiyatlarla</span>
-                </div>
-                <button type="button" class="service-action-btn">
-                  <span>Hizmeti Seç</span>
-                </button>
-              </div>
-
-              <!-- Card 6: Taşınma Temizliği -->
-              <div class="service-select-item" data-service="tasinma_sonrasi" data-base-price="2450">
-                <div class="service-card-bg-img" style="background-image: url('/images/card_tasinma_bg.jpg');"></div>
-                <div class="service-card-top-row">
-                  <span class="service-badge general">📦 Anahtar Teslim</span>
-                  <div class="service-check-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                  </div>
-                </div>
-                <div class="service-card-header">
-                  <div class="service-icon-box">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18-3H3v3h18V5z"/>
-                      <path d="M12 12v6M9 15h6"/>
-                    </svg>
-                  </div>
-                  <div class="service-title-group">
-                    <h4>Taşınma Temizliği</h4>
-                    <span class="service-sub">Boş ev ve detaylı temizlik</span>
-                  </div>
-                </div>
-                <p class="service-desc">Taşınma öncesi veya sonrası detaylı temizlik.</p>
-                <ul class="service-feature-list">
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Boş Ev Hijyeni</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Dolap İçi</li>
-                  <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Taşınmaya Hazır</li>
-                </ul>
-                <div class="service-meta-row">
-                  <span class="meta-pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 3-4 Saat</span>
-                  <span class="meta-pill price"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>₺2.450</strong>'den başlayan fiyatlarla</span>
-                </div>
-                <button type="button" class="service-action-btn">
-                  <span>Hizmeti Seç</span>
-                </button>
-              </div>
-
+          <!-- Card 3: Kurumsal Temizlik -->
+          <div class="wp-service-card wp-stagger-item" data-service="kurumsal" data-base-price="3200">
+            <div class="wp-sc-bg" style="background-image: url('/images/card_kurumsal_bg.jpg');"></div>
+            <div class="wp-sc-overlay"></div>
+            <div class="wp-sc-top">
+              <span class="wp-sc-badge general">🏢 Kurumsal / Ofis</span>
+              <div class="wp-sc-check">✓</div>
             </div>
-
-            <!-- Bottom Main Action -->
-            <div class="services-footer-action">
-              <button type="button" class="services-continue-btn" id="servicesContinueBtn">
-                <span>Devam Et</span>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
-              <div class="selected-service-text" id="selectedServiceText">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
-                <span>Standart Temizlik seçildi</span>
+            <div class="wp-sc-header">
+              <div class="wp-sc-icon">💼</div>
+              <div>
+                <h3 class="wp-sc-title">Ofis &amp; İş Yeri Hijyeni</h3>
+                <span class="wp-sc-sub">Prestijli ofisler ve ticari alanlar</span>
               </div>
             </div>
+            <p class="wp-sc-desc">Masa, klavye, toplantı odaları, ortak mutfak ve karşılama alanlarında kurumsal hijyen yönetimi.</p>
+            <ul class="wp-sc-features">
+              <li><span>✓</span> Esnek Mesai Öncesi / Sonrası Hizmet</li>
+              <li><span>✓</span> Elektronik &amp; Ergonomik Ekipman Temizliği</li>
+              <li><span>✓</span> Kurumsal Fatura &amp; Periyodik Raporlama</li>
+            </ul>
+            <div class="wp-sc-meta">
+              <span class="wp-meta-time">⏱️ 4-6 Saat</span>
+              <span class="wp-meta-price">₺3.200 <small>'den başlayan</small></span>
+            </div>
+            <button type="button" class="wp-sc-action-btn" data-service="kurumsal" data-base-price="3200">
+              <span>Hemen Seç &amp; Fiyat Hesapla ➔</span>
+            </button>
+          </div>
 
-            <!-- Bottom Trust Badges Bar -->
-            <div class="services-trust-badges-bar">
-              <div class="trust-badge-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <div class="trust-badge-text">
-                  <strong>%100 Memnuniyet Garantisi</strong>
-                  <small>Memnun kalmazsanız ücretsiz tekrar.</small>
-                </div>
-              </div>
-              <div class="trust-badge-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
-                <div class="trust-badge-text">
-                  <strong>Sigortalı Ekip</strong>
-                  <small>Güvenli ve profesyonel hizmet.</small>
-                </div>
-              </div>
-              <div class="trust-badge-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                <div class="trust-badge-text">
-                  <strong>Sabit & Şeffaf Fiyat</strong>
-                  <small>Gizli ücret yok, sürpriz yok.</small>
-                </div>
+          <!-- Card 4: Buharlı Dezenfeksiyon -->
+          <div class="wp-service-card wp-stagger-item" data-service="ilaclama" data-base-price="1850">
+            <div class="wp-sc-bg" style="background-image: url('/images/card_dezenfeksiyon_bg.jpg');"></div>
+            <div class="wp-sc-overlay"></div>
+            <div class="wp-sc-top">
+              <span class="wp-sc-badge general">🛡️ Medikal Hijyen</span>
+              <div class="wp-sc-check">✓</div>
+            </div>
+            <div class="wp-sc-header">
+              <div class="wp-sc-icon">🧪</div>
+              <div>
+                <h3 class="wp-sc-title">Buharlı Dezenfeksiyon</h3>
+                <span class="wp-sc-sub">Virüs, mikrop ve alerjen bariyeri</span>
               </div>
             </div>
+            <p class="wp-sc-desc">HEPA 13 filtreli hava temizleme, ULV sisleme ve patojenlere karşı %99.9 onaylı koruyucu bariyer.</p>
+            <ul class="wp-sc-features">
+              <li><span>✓</span> ULV Soğuk Sisleme &amp; Buhar Teknolojisi</li>
+              <li><span>✓</span> Hipoalerjenik &amp; Evcil Hayvan Dostu</li>
+              <li><span>✓</span> Sağlık Bakanlığı Onaylı Solüsyonlar</li>
+            </ul>
+            <div class="wp-sc-meta">
+              <span class="wp-meta-time">⏱️ 2-4 Saat</span>
+              <span class="wp-meta-price">₺1.850 <small>'den başlayan</small></span>
+            </div>
+            <button type="button" class="wp-sc-action-btn" data-service="ilaclama" data-base-price="1850">
+              <span>Hemen Seç &amp; Fiyat Hesapla ➔</span>
+            </button>
+          </div>
 
+          <!-- Card 5: İnşaat Sonrası Temizlik -->
+          <div class="wp-service-card wp-stagger-item" data-service="insaat_sonrasi" data-base-price="2650">
+            <div class="wp-sc-bg" style="background-image: url('/images/card_insaat_bg.jpg');"></div>
+            <div class="wp-sc-overlay"></div>
+            <div class="wp-sc-top">
+              <span class="wp-sc-badge general">🔨 Ağır Kir &amp; Tadilat</span>
+              <div class="wp-sc-check">✓</div>
+            </div>
+            <div class="wp-sc-header">
+              <div class="wp-sc-icon">🏗️</div>
+              <div>
+                <h3 class="wp-sc-title">İnşaat Sonrası Temizlik</h3>
+                <span class="wp-sc-sub">Boya, harç, kireç ve şantiye tozu arındırma</span>
+              </div>
+            </div>
+            <p class="wp-sc-desc">Çizmeden yüzey kazıma, derz dolgu artıklarını kimyasal reaksiyonla çözme ve sıfır şantiye tozu.</p>
+            <ul class="wp-sc-features">
+              <li><span>✓</span> Parke &amp; Cam Yüzey Koruyucu Kazıma</li>
+              <li><span>✓</span> Petek İçi &amp; Menfez Basınçlı Buhar Silimi</li>
+              <li><span>✓</span> Kaba Şantiye Artığı &amp; Ambalaj Uzaklaştırma</li>
+            </ul>
+            <div class="wp-sc-meta">
+              <span class="wp-meta-time">⏱️ 4-6 Saat</span>
+              <span class="wp-meta-price">₺2.650 <small>'den başlayan</small></span>
+            </div>
+            <button type="button" class="wp-sc-action-btn" data-service="insaat_sonrasi" data-base-price="2650">
+              <span>Hemen Seç &amp; Fiyat Hesapla ➔</span>
+            </button>
+          </div>
+
+          <!-- Card 6: Taşınma Temizliği -->
+          <div class="wp-service-card wp-stagger-item" data-service="tasinma_sonrasi" data-base-price="2450">
+            <div class="wp-sc-bg" style="background-image: url('/images/card_tasinma_bg.jpg');"></div>
+            <div class="wp-sc-overlay"></div>
+            <div class="wp-sc-top">
+              <span class="wp-sc-badge general">📦 Taşınma &amp; Boş Ev</span>
+              <div class="wp-sc-check">✓</div>
+            </div>
+            <div class="wp-sc-header">
+              <div class="wp-sc-icon">🚚</div>
+              <div>
+                <h3 class="wp-sc-title">Taşınma / Boş Ev Temizliği</h3>
+                <span class="wp-sc-sub">Yeni evinize tertemiz, hijyenik başlangıç</span>
+              </div>
+            </div>
+            <p class="wp-sc-desc">Eşyalar gelmeden önce tüm dolap içleri, banyo armatürleri, kapılar ve pencerelerin eksiksiz temizliği.</p>
+            <ul class="wp-sc-features">
+              <li><span>✓</span> Tüm Dolap İçi, Çekmece &amp; Raf Hijyeni</li>
+              <li><span>✓</span> Mutfak Dolap Yağ Arındırma &amp; Parlatma</li>
+              <li><span>✓</span> Anahtar Teslim Taşınmaya Hazır Teslimat</li>
+            </ul>
+            <div class="wp-sc-meta">
+              <span class="wp-meta-time">⏱️ 3-4 Saat</span>
+              <span class="wp-meta-price">₺2.450 <small>'den başlayan</small></span>
+            </div>
+            <button type="button" class="wp-sc-action-btn" data-service="tasinma_sonrasi" data-base-price="2450">
+              <span>Hemen Seç &amp; Fiyat Hesapla ➔</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Trust Badges Strip -->
+        <div class="wp-trust-row wp-reveal">
+          <div class="wp-trust-item">
+            <div class="wp-ti-icon">🛡️</div>
+            <div class="wp-ti-content">
+              <strong>%100 Memnuniyet Garantisi</strong>
+              <small>Eksik görülen noktalar 24 saat içinde ücretsiz telafi edilir.</small>
+            </div>
+          </div>
+          <div class="wp-trust-item">
+            <div class="wp-ti-icon">👥</div>
+            <div class="wp-ti-content">
+              <strong>Sigortalı Kadro</strong>
+              <small>Adli sicil teyitli, düzenli eğitimli profesyonel personeller.</small>
+            </div>
+          </div>
+          <div class="wp-trust-item">
+            <div class="wp-ti-icon">💎</div>
+            <div class="wp-ti-content">
+              <strong>Sabit &amp; Şeffaf Fiyat</strong>
+              <small>Gizli ücret yok, canlı fiyat hesaplayıcı ile anında net tutar.</small>
+            </div>
           </div>
         </div>
 
-        <!-- Sahnelerin Yazı Overlay'leri -->
-        <div class="scene-text-overlay" id="sceneTextOverlay" aria-hidden="true">
-          <!-- Scene 1: Mona Lisa -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">LÜKS VE HİJYEN STANDARDI</span>
-            <h3 class="scene-text-title">RELAXAX Beş Yıldızlı Temizlik Deneyimi</h3>
-            <p class="scene-text-desc">Evinizde ve ofisinizde beş yıldızlı otel konforunda kusursuz hijyen. %100 memnuniyet garantisi, sertifikalı uzman kadro ve hipoalerjenik çözümler.</p>
-          </div>
-          <!-- Scene 2: Samuray -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">ZEMİN KAZIMA</span>
-            <h3 class="scene-text-title">Boya ve Alçı Lekesi Kazıma</h3>
-            <p class="scene-text-desc">Zemin yüzeylerine zarar vermeyen özel koruyucu spatulalar ile damlamış boya, harç ve alçı kalıntılarının tek tek el işçiliğiyle temizlenmesi.</p>
-          </div>
-          <!-- Scene 3: Büyükanne -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">DERİN ZEMİN PARLATMA</span>
-            <h3 class="scene-text-title">Derinlemesine Mermer ve Derz Temizliği</h3>
-            <p class="scene-text-desc">Mermer zeminlerin gözenek temizliği, fayans derz aralarında biriken kirlerin derinlemesine fırçalanarak ilk günkü parlaklığına kavuşturulması.</p>
-          </div>
-          <!-- Scene 4: Astronot -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">MOBİL UYGULAMA & RANDEVU</span>
-            <h3 class="scene-text-title">30 Saniyede Canlı Rezervasyon & Takip</h3>
-            <p class="scene-text-desc">RELAXAX mobil uygulamasıyla adresinizi seçin, m² hesaplayın, canlı personel takibi yapın ve ilk siparişinize özel %20 indirim kazanın.</p>
-          </div>
-          <!-- Scene 5: Kovboy -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">PETEK VE HAVALANDIRMA</span>
-            <h3 class="scene-text-title">Petek İçi İnşaat Tozu Arındırma</h3>
-            <p class="scene-text-desc">Kalorifer peteklerinin iç aralıklarında ve havalandırma menfezlerinde biriken yoğun şantiye tozlarının yüksek basınçlı buharla püskürtülerek temizlenmesi.</p>
-          </div>
-          <!-- Scene 6: Gandalf -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">KAPI VE PERVAZ HİJYENİ</span>
-            <h3 class="scene-text-title">Kapı ve Pervaz İnşaat Tozu Silimi</h3>
-            <p class="scene-text-desc">Yeni takılan kapıların, menteşe aralarının ve pervaz üstlerinin nemli antistatik bezlerle silinerek montaj tozlarından temizlenmesi.</p>
-          </div>
-          <!-- Scene 7: Şövalye -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">SIKÇA SORULAN SORULAR</span>
-            <h3 class="scene-text-title">Merak Edilen Sorular & Garanti Güvencesi</h3>
-            <p class="scene-text-desc">Deterjanları kim temin ediyor? Evde bulunmam gerekir mi? Memnun kalmazsam ne olur? Tüm sorularınızın yanıtı ve 24 saat telafi garantimiz.</p>
-          </div>
-          <!-- Scene 8: Keşiş -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">FRANCHISE & İŞ ORTAKLIĞI</span>
-            <h3 class="scene-text-title">RELAXAX Bölge Temsilciliği Başvurusu</h3>
-            <p class="scene-text-desc">Kendi şehrinizde hazır müşteri ağı, personel yönetim CRM'i ve kurumsal gücümüzle kârlı bir bölge temsilciliği ortaklığı başlatın.</p>
-          </div>
-          <!-- Scene 9: Romalı -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">ŞANTİYE KAMERA GÖZETİMİ</span>
-            <h3 class="scene-text-title">Kameralı Şantiye Sonrası İzleme</h3>
-            <p class="scene-text-desc">Temizlik aşamalarını yaka kameralarından canlı olarak takip edin. İş güvenliği ve denetim kayıtları 10 gün sonra sistemden kalıcı olarak silinir.</p>
-          </div>
-          <!-- Scene 10: Sumo -->
-          <div class="scene-text-block">
-            <span class="scene-text-tag">KABA ATIK YÖNETİMİ</span>
-            <h3 class="scene-text-title">İnşaat ve Tadilat Atığı Toplama</h3>
-            <p class="scene-text-desc">Temizlik esnasında ortaya çıkan koli, ambalaj, alçıpan parçası gibi kaba şantiye atıklarının paketlenerek alandan uzaklaştırılması.</p>
-          </div>
-        </div>
-
-        <!-- ==========================================
-             HERO LANDING PAGE OVERLAY (Siteye ilk girildiğinde burası görünür)
-             ========================================== -->
-        <div class="cinema-hero-overlay" id="heroOverlay">
-          <!-- Text overlays removed by user request for a cleaner cinematic landing view -->
-        </div>
-
-        <!-- ==========================================
-             CINEMA INTRO TITLE CARD (Siyah Ekran Giriş Tasarımı)
-             ========================================== -->
-        <div class="cinema-intro-card" id="introCard">
-          <!-- Background Video Container -->
-          <div class="intro-bg-container">
-            <div class="intro-bg-overlay"></div>
-            <video id="intro-video-istanbul" class="intro-video" src="/videos/city_istanbul.mp4" poster="/images/istanbul_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-izmir" class="intro-video" src="/videos/city_izmir.mp4" poster="/images/izmir_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-samsun" class="intro-video" src="/videos/city_samsun.mp4" poster="/images/samsun_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-kocaeli" class="intro-video" src="/videos/city_kocaeli.mp4" poster="/images/kocaeli_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-sakarya" class="intro-video" src="/videos/city_sakarya.mp4" poster="/images/sakarya_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-balikesir" class="intro-video" src="/videos/city_balikesir.mp4" poster="/images/balikesir_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-antalya" class="intro-video" src="/videos/city_antalya.mp4" poster="/images/antalya_landmark.webp" muted playsinline loop preload="auto"></video>
-            <video id="intro-video-warszawa" class="intro-video" src="/videos/city_warszawa.mp4" poster="/images/warszawa_landmark.webp" muted playsinline loop preload="auto"></video>
-          </div>
-
-          <div class="intro-eyebrow">PREMİUM HİJYEN DENEYİMİ</div>
-          <h2 class="intro-title" id="introCityTitle">İSTANBUL</h2>
-          <div class="intro-divider">
-            <span class="intro-divider-line"></span>
-            <span class="intro-divider-diamond"></span>
-            <span class="intro-divider-line"></span>
-          </div>
-          <p class="intro-subtitle">Kusursuzluğun Sinematik Dokunuşu</p>
-          <div class="intro-scroll-hint">
-            <span>BAŞLAMAK İÇİN DOKUNUN VEYA KAYDIRIN</span>
-            <div class="scroll-line" style="animation: scrollLineTouch 2s infinite;"></div>
-          </div>
-        </div>
-      </div> <!-- .cinema-stage -->
+      </div>
     </section>
 
     <!-- 🌹 DYNAMIC OPULENT ROYAL ROSE & BOTANICAL VINE SCROLL SYSTEM 🌹 -->
     <div id="booking-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-    <section class="booking-section-wrapper wp-section booking-showcase-section" id="bookingReveal">
-      <button type="button" class="booking-close-btn" onclick="if(typeof closeBookingScreen==='function')closeBookingScreen();" aria-label="Kapat">&times;</button>
-        <div class="booking-section-inner">
-          
-          <div class="booking-section-header">
-            <div class="b-header-meta-row">
-              <button type="button" class="wizard-back-nav-btn" onclick="if(typeof window.navigateAppBackGlobal==='function'){window.navigateAppBackGlobal();}else if(typeof closeBookingScreen==='function'){closeBookingScreen();}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;" aria-label="Geri Dön">
-                <span class="wizard-back-text">← Geri Dön</span>
-              </button>
-              <div class="b-badge">HIZLI SİPARİŞİ OLUŞTURUN</div>
-              <button type="button" class="wizard-sound-toggle-btn" id="wizardSoundToggleBtn" aria-label="Ses Efektlerini Değiştir">
-                <span class="sound-icon">🔊</span>
-                <span class="sound-text">Ses: Açık</span>
-              </button>
-            </div>
-            <h2 class="b-sec-main-title">EVSENEL / DAİRENİZ İÇİN TEMİZLİK HESAPLAYICI</h2>
-            <p class="b-sec-main-sub">Kusursuz hijyen, profesyonel ekipman. RELAXAX ile dakikalar içinde canlı fiyat hesaplayın ve rezervasyon yapın.</p>
+    <section class="booking-section-wrapper wp-section booking-showcase-section wp-reveal" id="bookingReveal" aria-label="Canlı Fiyat Hesaplayıcı ve Rezervasyon">
+      <div class="booking-section-inner">
+        
+        <div class="booking-section-header">
+          <div class="b-header-meta-row">
+            <div class="b-badge">🧮 CANLI FİYAT HESAPLAYICI &amp; REZERVASYON</div>
+            <button type="button" class="wizard-sound-toggle-btn" id="wizardSoundToggleBtn" aria-label="Ses Efektlerini Değiştir">
+              <span class="sound-icon">🔊</span>
+              <span class="sound-text">Ses: Açık</span>
+            </button>
           </div>
+          <h2 class="b-sec-main-title">Eviniz / Daireniz İçin Fiyat Hesaplayıcı</h2>
+          <div class="wp-section-divider">
+            <span>❦</span> <span class="wp-divider-line"></span> <span>✦</span> <span class="wp-divider-line"></span> <span>❦</span>
+          </div>
+          <p class="b-sec-main-sub">Kusursuz hijyen, profesyonel ekipman. RELAXAX ile dakikalar içinde canlı fiyat hesaplayın ve rezervasyon yapın.</p>
+        </div>
 
           <!-- Professional Step Progress Indicator -->
           <div class="wizard-step-progress-bar" id="wizardStepProgressBar">
@@ -5710,300 +5523,7 @@
             <p>Web sitemiz üzerinden canlı fiyat hesaplayarak 2 dakika içinde sipariş verebilir veya +90 546 647 90 04 numaralı WhatsApp hattımızdan bize ulaşabilirsiniz.</p>
           </article>
         </section>
-      
-    <!-- ==========================================
-         BÖLÜM 5: 48 NOKTA DİJİTAL KALİTE & HİJYEN DENETİMİ
-         ========================================== -->
-    <div id="quality-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-    <section class="wp-section quality-showcase-section" id="inpageQualitySection" aria-label="48 Nokta Kalite Güvencesi">
-      <div class="wp-section-container">
-        <div class="wp-sec-header text-center">
-          <span class="wp-sec-badge">🛡️ DİJİTAL KALİTE GÜVENCESİ</span>
-          <h2 class="wp-sec-title">48 Nokta Denetim & Hijyen Sertifikası</h2>
-          <p class="wp-sec-sub">Her temizlik sonunda ekip şefimiz tarafından fotoğraflı kontrol edilen kurumsal kalite karnesi.</p>
-        </div>
-
-        <div class="qr-score-strip wp-quality-strip">
-          <div class="qr-score-circle">
-            <span class="score-num">99.8%</span>
-            <span class="score-lbl">Hijyen Skoru</span>
-          </div>
-          <div class="qr-score-info">
-            <strong>Ekip Şefi Tarafından Onaylanmış Dijital Mühür</strong>
-            <p>Hizmet tamamlandığında telefonunuza SMS ve WhatsApp ile interaktif fotoğraflı kalite raporu, hava temizlik ölçüm belgesi ve garanti sertifikası iletilir.</p>
-          </div>
-        </div>
-
-        <div class="qr-checklist-grid wp-quality-grid">
-          <div class="qr-check-category wp-qcard">
-            <h5>🛏️ Yaşam Alanları & Odalar (12 Nokta)</h5>
-            <ul>
-              <li><span class="c-ok">✓</span> Baza altı ve koltuk arası derin vakumlama</li>
-              <li><span class="c-ok">✓</span> Antistatik mobilya ve aydınlatma tozu alma</li>
-              <li><span class="c-ok">✓</span> Kapı kolları ve anahtarlık dezenfeksiyonu</li>
-              <li><span class="c-ok">✓</span> Pervaz, süpürgelik ve ayna parlatma</li>
-            </ul>
-          </div>
-          <div class="qr-check-category wp-qcard">
-            <h5>🍳 Mutfak & Pişirme Alanı (14 Nokta)</h5>
-            <ul>
-              <li><span class="c-ok">✓</span> Davlumbaz ve ocak yağ çözücü arındırma</li>
-              <li><span class="c-ok">✓</span> Eviye ve armatür kireç parlatma</li>
-              <li><span class="c-ok">✓</span> Tezgah ve fayans buharlı hijyen</li>
-              <li><span class="c-ok">✓</span> Dolap dış kapakları ve kulp sterilizasyonu</li>
-            </ul>
-          </div>
-          <div class="qr-check-category wp-qcard">
-            <h5>🚿 Banyo & Islak Hacimler (12 Nokta)</h5>
-            <ul>
-              <li><span class="c-ok">✓</span> Duşakabin camı su itici nano koruma</li>
-              <li><span class="c-ok">✓</span> Derz araları kireç ve mantar arındırma</li>
-              <li><span class="c-ok">✓</span> Klozet ve lavabo 140°C buharlı sterilizasyon</li>
-              <li><span class="c-ok">✓</span> Ayna, batarya ve gider kokusuzlaştırma</li>
-            </ul>
-          </div>
-          <div class="qr-check-category wp-qcard">
-            <h5>🌬️ Hava & Zemin Kalitesi (10 Nokta)</h5>
-            <ul>
-              <li><span class="c-ok">✓</span> HEPA 13 filtreli ortam hava arındırma</li>
-              <li><span class="c-ok">✓</span> Seçilen imza koku difüzyonu</li>
-              <li><span class="c-ok">✓</span> pH nötr parke ve mermer besleme</li>
-              <li><span class="c-ok">✓</span> Sıfır mikrop & bakteri hava karnesi</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="wp-quality-footer">
-          <div class="qr-signature-box">
-            <span class="sig-title">Operasyon & Kalite Direktörlüğü:</span>
-            <span class="sig-name">M. Kemal A. — Kalite Denetim Şefi ✓</span>
-          </div>
-          <button type="button" class="btn-scroll-to-booking" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});">
-            <span>✨ Şimdi Fiyat Hesaplayın & Randevu Alın ➔</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         BÖLÜM 6: MÜŞTERİ YORUMLARI & REFERANSLAR
-         ========================================== -->
-    <div id="reviews-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-    <section class="wp-section reviews-showcase-section" id="inpageReviewsSection" aria-label="Müşteri Değerlendirmeleri">
-      <div class="wp-section-container">
-        <div class="wp-sec-header text-center">
-          <span class="wp-sec-badge">⭐ MÜŞTERİ MEMNUNİYETİ</span>
-          <h2 class="wp-sec-title">4.98 / 5.0 — 12.000+ Mutlu Müşteri</h2>
-          <p class="wp-sec-sub">Türkiye ve Polonya genelinde müşterilerimizin gerçek deneyimleri.</p>
-        </div>
-
-        <div class="wp-reviews-grid">
-          <div class="wp-review-card">
-            <div class="wpr-top">
-              <div class="wpr-stars">★★★★★</div>
-              <span class="wpr-city">📍 Kadıköy, İstanbul</span>
-            </div>
-            <p class="wpr-text">“Kadıköy'deki 3+1 evimiz için detaylı temizlik aldık. Ekip tam vaktinde geldi, banyo ve mutfak sıfır gibi oldu. Buharlı dezenfeksiyon gerçekten fark yaratıyor. Kesinlikle tavsiye ederim.”</p>
-            <div class="wpr-author">
-              <div class="wpr-avatar">ZD</div>
-              <div>
-                <strong>Zeynep D.</strong>
-                <small>Detaylı Ev Temizliği (Doğrulanmış Müşteri)</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="wp-review-card featured">
-            <div class="wpr-badge-rec">🌟 En Çok Beğenilen</div>
-            <div class="wpr-top">
-              <div class="wpr-stars">★★★★★</div>
-              <span class="wpr-city">📍 Karşıyaka, İzmir</span>
-            </div>
-            <p class="wpr-text">“İnşaat sonrası temizlik için çağırdık. Boya ve alçı lekelerini parkeleri hiç çizmeden temizlediler. Ekip şefi tek tek 48 noktayı kontrol etti ve fotoğraflı rapor gönderdi. İşçilik 10/10.”</p>
-            <div class="wpr-author">
-              <div class="wpr-avatar">EK</div>
-              <div>
-                <strong>Emre K.</strong>
-                <small>İnşaat Sonrası Temizlik (Doğrulanmış Müşteri)</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="wp-review-card">
-            <div class="wpr-top">
-              <div class="wpr-stars">★★★★★</div>
-              <span class="wpr-city">📍 Mokotów, Warszawa</span>
-            </div>
-            <p class="wpr-text">“Bardzo profesjonalna obsługa w Warszawie! Mieszkanie po przeprowadzce lśni czystością. Punktualność, kultura osobista personelu i świetny kontakt przez WhatsApp.”</p>
-            <div class="wpr-author">
-              <div class="wpr-avatar">PW</div>
-              <div>
-                <strong>Piotr W.</strong>
-                <small>Sprzątanie po Przeprowadzce (Klient Zweryfikowany)</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="wp-review-cta-row">
-          <button type="button" class="btn-open-review-modal" onclick="document.getElementById('reviewFeedbackModal').style.display='flex';">
-            <span>⭐ Hizmeti Değerlendir & +50 TL İndirim Kazan</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         BÖLÜM 7: SIKÇA SORULAN SORULAR (FAQ ACCORDION)
-         ========================================== -->
-    <div id="faq-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-    <section class="wp-section faq-showcase-section" id="inpageFaqSection" aria-label="Sıkça Sorulan Sorular">
-      <div class="wp-section-container">
-        <div class="wp-sec-header text-center">
-          <span class="wp-sec-badge">❓ MERAK EDİLENLER</span>
-          <h2 class="wp-sec-title">Sıkça Sorulan Sorular</h2>
-          <p class="wp-sec-sub">Temizlik hizmetimiz, ekipmanlarımız ve garantimiz hakkında tüm yanıtlar.</p>
-        </div>
-
-        <div class="wp-faq-accordion">
-          <details class="wp-faq-item" open>
-            <summary class="wp-faq-q">
-              <span>🧹 Deterjanları ve temizlik ekipmanlarını kim temin ediyor?</span>
-              <span class="wp-faq-arrow">▼</span>
-            </summary>
-            <div class="wp-faq-a">
-              <p>Tüm profesyonel temizlik kimyasalları, mikrofiber bez setleri, buharlı makineler ve HEPA 13 filtreli sanayi tipi süpürgeler uzman ekiplerimiz tarafından eksiksiz getirilir. Sizin hiçbir malzeme temin etmenize gerek yoktur.</p>
-            </div>
-          </details>
-
-          <details class="wp-faq-item">
-            <summary class="wp-faq-q">
-              <span>🔑 Temizlik esnasında evde bulunmam gerekiyor mu?</span>
-              <span class="wp-faq-arrow">▼</span>
-            </summary>
-            <div class="wp-faq-a">
-              <p>Hayır, bulunmanız zorunlu değildir. Hizmet başlangıcında personellerimize kapıyı açabilir veya anahtar teslimi yapabilirsiniz. Temizlik tamamlanmadan 30 dakika önce sizi arayarak bilgilendiririz.</p>
-            </div>
-          </details>
-
-          <details class="wp-faq-item">
-            <summary class="wp-faq-q">
-              <span>🛡️ %100 Memnuniyet garantisi nasıl çalışıyor?</span>
-              <span class="wp-faq-arrow">▼</span>
-            </summary>
-            <div class="wp-faq-a">
-              <p>Hizmetten herhangi bir nedenle memnun kalmazsanız, 24 saat içerisinde müşteri hizmetlerimize bildirmeniz yeterlidir. Denetim ekibimiz en geç ertesi gün adresinize gelerek eksik görülen alanları tamamen ücretsiz yeniden temizler.</p>
-            </div>
-          </details>
-
-          <details class="wp-faq-item">
-            <summary class="wp-faq-q">
-              <span>💳 Ödeme seçenekleri nelerdir?</span>
-              <span class="wp-faq-arrow">▼</span>
-            </summary>
-            <div class="wp-faq-a">
-              <p>Sitemiz üzerinden 3D Secure güvenceli online kredi kartı, banka havalesi / FAST veya hizmet bitiminde kapıda nakit / kredi kartı ile güvenle ödeme yapabilirsiniz.</p>
-            </div>
-          </details>
-
-          <details class="wp-faq-item">
-            <summary class="wp-faq-q">
-              <span>⚡ Aynı gün içinde acil temizlik randevusu alabilir miyim?</span>
-              <span class="wp-faq-arrow">▼</span>
-            </summary>
-            <div class="wp-faq-a">
-              <p>Evet! Mobil saha filomuz sayesinde İstanbul, İzmir, Ankara, Antalya, Bursa ve Warszawa'da müsaitlik durumuna göre 2 saat içinde adrese ulaşan acil ekspres sevk hizmetimiz mevcuttur.</p>
-            </div>
-          </details>
-
-          <details class="wp-faq-item">
-            <summary class="wp-faq-q">
-              <span>🐾 Evcil hayvanım var, ürünler güvenli mi?</span>
-              <span class="wp-faq-arrow">▼</span>
-            </summary>
-            <div class="wp-faq-a">
-              <p>Kullandığımız temizleyiciler pH nötr, hipoalerjenik ve evcil hayvan sağlığına tamamen zararsızdır. Uçucu kimyasal içermeyen buharlı sterilizasyon teknolojisi tercih ediyoruz.</p>
-            </div>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         BÖLÜM 8: KURUMSAL FOOTER & İLETİŞİM
-         ========================================== -->
-    <div id="footer-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-    <footer class="wp-section footer-showcase-section" id="inpageFooterSection" aria-label="Kurumsal Bilgi ve İletişim">
-      <div class="wp-section-container">
-        <div class="wp-footer-top-grid">
-          <!-- Col 1: Brand -->
-          <div class="wp-fcol brand-col">
-            <div class="wp-flogo">
-              <img src="/images/logo_leaf.svg" alt="RELAXAX Logo" width="32" height="32" />
-              <span class="wp-flogo-text">RELAXAX</span>
-            </div>
-            <p class="wp-fdesc">Türkiye ve Polonya genelinde 5 yıldızlı otel kalitesinde profesyonel ev, ofis, taşınma ve inşaat sonrası temizlik teknolojileri.</p>
-            <div class="wp-fsocials">
-              <a href="https://instagram.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸 Instagram</a>
-              <a href="https://facebook.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" aria-label="Facebook">📘 Facebook</a>
-              <a href="https://wa.me/905466479004" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">💬 WhatsApp</a>
-            </div>
-          </div>
-
-          <!-- Col 2: Services Links -->
-          <div class="wp-fcol">
-            <h4>Hizmetlerimiz</h4>
-            <ul>
-              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Standart Ev Temizliği</a></li>
-              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Detaylı / Bahar Temizliği</a></li>
-              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Taşınma / Boş Ev Temizliği</a></li>
-              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">İnşaat Sonrası Temizlik</a></li>
-              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Ofis & Kurumsal Hijyen</a></li>
-              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Buharlı Dezenfeksiyon</a></li>
-            </ul>
-          </div>
-
-          <!-- Col 3: Cities -->
-          <div class="wp-fcol">
-            <h4>Hizmet Şehirleri</h4>
-            <ul>
-              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Istanbul');">İstanbul (Avrupa & Anadolu)</a></li>
-              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Izmir');">İzmir (Karşıyaka, Alsancak...)</a></li>
-              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Ankara');">Ankara (Çankaya, Çayyolu...)</a></li>
-              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Antalya');">Antalya (Muratpaşa, Konyaaltı)</a></li>
-              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Bursa');">Bursa (Nilüfer, Osmangazi)</a></li>
-              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Warszawa');">Warszawa (Polska)</a></li>
-            </ul>
-          </div>
-
-          <!-- Col 4: Contact & Phone -->
-          <div class="wp-fcol contact-col">
-            <h4>Canlı Destek & İletişim</h4>
-            <div class="wp-fcontact-box">
-              <a href="tel:+905466479004" class="wp-fphone">📞 0546 647 90 04</a>
-              <span class="wp-fhours">🕒 7 Gün / 08:00 – 22:00</span>
-              <span class="wp-femail">✉️ info@relaxax.com</span>
-              <a href="https://wa.me/905466479004?text=Merhaba,%20RELAXAX%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="wp-fwa-btn">
-                <span>💬 WhatsApp Hızlı Sipariş</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="wp-footer-bottom">
-          <p>© 2026 RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. Tüm Hakları Saklıdır.</p>
-          <div class="wp-flegal-links">
-            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('terms'); return false;">Kullanıcı Sözleşmesi</a>
-            <span>•</span>
-            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('kvkk'); return false;">KVKK ve Gizlilik</a>
-            <span>•</span>
-            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('cancellation'); return false;">İptal & İade</a>
-          </div>
-        </div>
-      </div>
-    </footer>
-
-  </main>
+      </main>
 
       <footer>
         <p>© 2026 RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. Tüm hakları saklıdır. Telefon: +90 546 647 9004 | E-posta: info@relaxax.com</p>
