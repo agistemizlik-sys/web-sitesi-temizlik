@@ -3905,6 +3905,25 @@ function setupPortalIntroClick() {
 
   window.addEventListener('wheel', onWheel, { passive: true });
 
+  // ── WORDPRESS FLOW: NATIVE DOCUMENT SCROLL SCRUBBER ──
+  const handleScrollScrub = () => {
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (!heroTrack) return;
+    const rect = heroTrack.getBoundingClientRect();
+    const trackH = heroTrack.offsetHeight;
+    const vH = window.innerHeight || 800;
+    const maxScroll = trackH - vH;
+    if (maxScroll <= 0) return;
+    
+    // Progress from 0.0 to 1.0 based on position in hero track
+    const scrolled = -rect.top;
+    const progress = Math.max(0, Math.min(1.0, scrolled / maxScroll));
+    targetProgress = progress;
+    startDampingLoop();
+  };
+  window.addEventListener('scroll', handleScrollScrub, { passive: true });
+
+
   // ── TOUCH DRAG HANDLERS (MOBILE) ──
   let touchStartY = 0;
   let isTouching = false;
@@ -3950,8 +3969,10 @@ function setupPortalIntroClick() {
       if (e) {
         try { e.stopPropagation(); } catch(err){}
       }
-      targetProgress = 1.0;
-      startDampingLoop();
+      const citiesSec = document.getElementById('portal-stage') || document.getElementById('cities-section');
+      if (citiesSec) {
+        citiesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     };
     hud.addEventListener('click', handleHudAdvance);
     hud.addEventListener('touchend', handleHudAdvance, { passive: true });
@@ -3975,13 +3996,9 @@ function setupPortalIntroClick() {
   renderFrame(0);
 
   window._dismissIntroHero = () => {
-    triggered = true;
-    if (dampingRafId) cancelAnimationFrame(dampingRafId);
-    const heroTrack = document.getElementById('book-scroll-hero-track');
-    if (heroTrack) {
-      heroTrack.style.setProperty('display', 'none', 'important');
-      heroTrack.style.setProperty('opacity', '0', 'important');
-      heroTrack.style.setProperty('pointer-events', 'none', 'important');
+    const citiesSec = document.getElementById('portal-stage') || document.getElementById('cities-section');
+    if (citiesSec) {
+      citiesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -5574,44 +5591,10 @@ function setupPortalGateway() {
     }
     setCityState(city, true);
 
-    const portalStage = document.getElementById('portal-stage');
-    const csoOverlay = document.getElementById('country-selector-overlay') || document.getElementById('countrySelectionOverlay') || document.querySelector('.country-selector-overlay, .country-selection-overlay');
-    const portalIntro = document.getElementById('portal-intro-stage');
-
-    if (portalIntro) {
-      portalIntro.style.display = 'none';
-    }
-    if (csoOverlay) {
-      csoOverlay.style.display = 'none';
-    }
-    if (portalStage) {
-      gsap.to(portalStage, {
-        opacity: 0,
-        duration: 0.25,
-        ease: 'power2.out',
-        onComplete: () => {
-          portalStage.style.display = 'none';
-        }
-      });
-    }
-
-    document.body.classList.remove('flag-selection-mode', 'portal-intro-mode');
-
-    const mainContent = document.getElementById('main-content');
-    if (mainContent) {
-      mainContent.style.display = 'block';
-      mainContent.style.opacity = '1';
-      mainContent.style.pointerEvents = 'all';
-    }
-
-    if (STATE.lenisInstance) {
-      STATE.lenisInstance.start();
-      STATE.lenisInstance.scrollTo(0, { immediate: true });
-    }
-    window.scrollTo(0, 0);
-
-    if (typeof window.goToCinemaStep === 'function') {
-      window.goToCinemaStep(1);
+    // In WordPress flow: smoothly scroll down to Services section!
+    const servicesSec = document.getElementById('services-section') || document.getElementById('servicesTextOverlay') || document.getElementById('cinema-section');
+    if (servicesSec) {
+      servicesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
   _boundSelectCityGlobal = selectCityGlobal;
@@ -6889,13 +6872,19 @@ function setupMobileDrawer() {
         }
 
         if (target === 'home') {
-          if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(0);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (target === 'services') {
-          if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(1);
-        } else if (target === 'contact') {
-          openBookingScreen();
-        } else if (target === 'cinema') {
-          if (typeof window.goToCinemaStep === 'function') window.goToCinemaStep(2);
+          document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (target === 'contact' || target === 'booking') {
+          document.getElementById('bookingReveal')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (target === 'cities') {
+          document.getElementById('portal-stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (target === 'quality') {
+          document.getElementById('quality-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (target === 'reviews') {
+          document.getElementById('reviews-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (target === 'faq') {
+          document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 300);
     });
@@ -8217,28 +8206,8 @@ function setupCinemaEngine() {
   window.addEventListener('click', handleCinemaTap);
 
   // Wheel: step navigation in the cinema, native scrolling inside overlays/portal
-  window.addEventListener('wheel', (e) => {
-    if (portalActive()) return; // portal & country selector keep native scroll
-    
-    // Check if Services section overlay is active
-    const servicesOverlay = document.getElementById('servicesTextOverlay');
-    const isServicesActive = currentStep === 1 || (servicesOverlay && servicesOverlay.classList.contains('active'));
-    if (isServicesActive || e.target.closest('#servicesTextOverlay')) {
-      return; // DO NOT auto-advance or jump back to city video on scroll! Fully allow native scroll inside services section.
-    }
-
-    // Performance guard: only perform DOM traversal if any overlay is active
-    const isOverlayOpen = (servicesModalEl && !servicesModalEl.hasAttribute('hidden')) ||
-                          (bookingRevealEl && !bookingRevealEl.hasAttribute('hidden')) ||
-                          document.body.classList.contains('mobile-drawer-open');
-    if (isOverlayOpen && e.target.closest('#services-modal, .booking-reveal-screen, .mobile-drawer')) return;
-    
-    e.preventDefault();
-    if (Math.abs(e.deltaY) < 14) return;
-    if (gestureDebounced(600)) return;
-    if (e.deltaY > 0) stepNext();
-    else stepPrev();
-  }, { passive: false });
+  // In WordPress continuous flow: wheel events scroll the page natively!
+  // No e.preventDefault() on wheel to allow completely natural vertical scrolling.
 
   // Keyboard: arrows / page keys / space mirror the wheel behaviour
   window.addEventListener('keydown', (e) => {
@@ -8442,51 +8411,12 @@ function setupCinemaEngine() {
 // 7. BOOKING REVEAL SCREEN CONTROL
 // ==========================================
 function openBookingScreen() {
-  const mainContent = document.getElementById('main-content');
-  const portalStage = document.getElementById('portal-stage');
-  const bookingEl = document.getElementById('bookingReveal');
-
-  // Pause all running scene videos in background to save CPU and GPU resources
-  if (scenes && Array.isArray(scenes)) {
-    scenes.forEach(sc => {
-      if (sc.video && !sc.video.paused) {
-        try { sc.video.pause(); } catch(e) {}
-      }
-    });
-  }
-  const ivyVideo = document.getElementById('servicesIvyVideo');
-  if (ivyVideo && !ivyVideo.paused) {
-    try { ivyVideo.pause(); } catch(e) {}
-  }
-
-  // Pause Lenis smooth scroll so user can freely scroll inside overlay
-  if (STATE.lenisInstance) {
-    STATE.lenisInstance.stop();
-  }
-
-  // Show the booking overlay
+  const bookingEl = document.getElementById('bookingReveal') || document.getElementById('booking-section');
   if (bookingEl) {
     bookingEl.removeAttribute('hidden');
     bookingEl.style.display = 'block';
     bookingEl.classList.add('active');
-    document.body.classList.add('booking-reveal-active');
-    bookingEl.scrollTop = 0;
-    
-    // Prevent event bubbling to background canvas / Lenis engine
-    if (!bookingEl._scrollEventsAttached) {
-      bookingEl._scrollEventsAttached = true;
-      bookingEl.addEventListener('touchmove', (e) => { e.stopPropagation(); }, { passive: true });
-      bookingEl.addEventListener('wheel', (e) => { e.stopPropagation(); }, { passive: true });
-    }
-
-    if (typeof window.pushAppState === 'function') {
-      window.pushAppState('booking');
-    }
-
-    gsap.fromTo(bookingEl, 
-      { opacity: 0 }, 
-      { opacity: 1, duration: 0.35, ease: 'power2.out' }
-    );
+    bookingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     if (typeof window.updateRoseVineProgress === 'function') {
       setTimeout(window.updateRoseVineProgress, 150);
@@ -8503,7 +8433,7 @@ function openBookingScreen() {
       }
     } catch (e) {}
 
-    // Initialize In-Card Scroll Parallax Video Engine & Sub-Ms Loop Registration
+    // Initialize In-Card Scroll Parallax Video Engine
     if (typeof window.setupInCardVideoScrollEngine === 'function') {
       window.setupInCardVideoScrollEngine();
     }
@@ -8512,27 +8442,6 @@ function openBookingScreen() {
         window.attachSubMsVideoLoop(v);
       });
     }
-  }
-
-  // Hide portal if visible
-  if (portalStage && getComputedStyle(portalStage).display !== 'none' && getComputedStyle(portalStage).opacity !== '0') {
-    gsap.to(portalStage, { opacity: 0, pointerEvents: 'none', duration: 0.4, ease: 'power2.out', onComplete: () => {
-      portalStage.style.display = 'none';
-    }});
-  }
-
-  // Ensure main content is visible behind the overlay
-  if (mainContent && getComputedStyle(mainContent).opacity === '0') {
-    mainContent.style.display = 'block';
-    mainContent.style.opacity = '1';
-    mainContent.style.pointerEvents = 'all';
-  }
-
-  // Hide background cinema cards overlay to prevent duplicate overlapping views
-  const bgServicesOverlay = document.getElementById('servicesTextOverlay');
-  if (bgServicesOverlay) {
-    bgServicesOverlay.style.opacity = '0';
-    bgServicesOverlay.style.pointerEvents = 'none';
   }
 
   // Update translations & bank selector according to active language
@@ -8546,9 +8455,6 @@ function openBookingScreen() {
 
   // Update prices
   updatePriceSliderDisplay();
-  document.body.classList.add('wizard-modal-open', 'booking-open');
-  if (typeof window.pauseCinemaLoop === 'function') window.pauseCinemaLoop();
-  if (typeof window.startGardenLoop === 'function') window.startGardenLoop();
 }
 window.openBookingScreen = openBookingScreen;
 
@@ -13453,3 +13359,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+
+// Ensure Leaflet Turkey map is initialized when DOM is ready for WordPress continuous scroll
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { if (typeof initLeafletMap === 'function') initLeafletMap('turkey'); }, 600);
+  });
+} else {
+  setTimeout(() => { if (typeof initLeafletMap === 'function') initLeafletMap('turkey'); }, 600);
+}

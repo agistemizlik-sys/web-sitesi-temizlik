@@ -19542,6 +19542,10 @@ html[dir="rtl"] .counter-btn.plus {
   }
 }
 
+.mobile-bottom-dock {
+  display: none;
+}
+
 /* ==========================================================================
    📱 ULTRA-RESPONSIVE MOBILE ENHANCEMENTS & SMART BOTTOM DOCK
    ========================================================================== */
@@ -21262,3 +21266,685 @@ html, body {
 }
 
 
+
+
+/* ==========================================================================
+   WORDPRESS CONTINUOUS VERTICAL SCROLL ARCHITECTURE
+   ========================================================================== */
+html {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+  height: auto !important;
+}
+
+body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+  height: auto !important;
+  min-height: 100% !important;
+  position: relative !important;
+  background-color: #030712 !important;
+}
+
+/* 1. Global Floating Navbar - Always Visible & Floating */
+#main-nav,
+.rx-floating-nav-bar {
+  position: fixed !important;
+  top: 14px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 100000 !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  width: max-content !important;
+  max-width: 98vw !important;
+}
+
+body.wp-flow-body #main-nav,
+body.portal-intro-mode #main-nav,
+body.flag-selection-mode #main-nav,
+#portal-stage ~ #main-nav {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* 2. Hero Section: 3D Book Scroll Track */
+#book-scroll-hero-track,
+.book-scroll-hero-track {
+  position: relative !important;
+  width: 100% !important;
+  height: 220vh !important;
+  min-height: 220vh !important;
+  inset: auto !important;
+  z-index: 2 !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  touch-action: pan-y !important;
+  user-select: none !important;
+  background: #030712 !important;
+}
+
+#portal-intro-stage,
+.portal-intro-stage {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 5 !important;
+}
+
+/* 3. Cities & Neon Leaflet Map Section */
+#portal-stage,
+.cities-showcase-section {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 85vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  z-index: 10 !important;
+  padding: 60px 16px 80px 16px !important;
+  background: radial-gradient(ellipse at 50% 10%, #0d1a33 0%, #081124 50%, #030712 100%) !important;
+  box-sizing: border-box !important;
+}
+
+.portal-map-selector-stage {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  width: 100% !important;
+  max-width: 1300px !important;
+  margin: 0 auto !important;
+}
+
+/* 4. Main Content Wrapper */
+#main-content,
+.wp-main-content {
+  position: relative !important;
+  width: 100% !important;
+  overflow: visible !important;
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: #030712 !important;
+  z-index: 11 !important;
+}
+
+/* 5. Services Section */
+#cinema-section {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: auto !important;
+  inset: auto !important;
+  overflow: visible !important;
+  display: block !important;
+  background: #030712 !important;
+  z-index: 12 !important;
+  padding: 0 !important;
+  touch-action: pan-y !important;
+}
+
+.cinema-stage {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: auto !important;
+  inset: auto !important;
+  overflow: visible !important;
+  display: block !important;
+  background: none !important;
+  z-index: 1 !important;
+}
+
+#servicesTextOverlay,
+.services-text-overlay {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: auto !important;
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  background: #030712 !important;
+  padding: 60px 16px 80px 16px !important;
+  box-sizing: border-box !important;
+  z-index: 10 !important;
+}
+
+.services-select-card {
+  width: 100% !important;
+  max-width: 1260px !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* 6. Booking Calculator Section */
+#bookingReveal,
+.booking-section-wrapper {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: auto !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  background: radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%) !important;
+  padding: 60px 16px 100px 16px !important;
+  z-index: 15 !important;
+  box-sizing: border-box !important;
+}
+
+.booking-section-inner {
+  width: 100% !important;
+  max-width: 1260px !important;
+  margin: 0 auto !important;
+}
+
+#bookingReveal .booking-close-btn {
+  display: none !important;
+}
+
+/* 7. In-Page Sections Styling (WordPress Style) */
+.wp-section {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 80px 20px !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.wp-section-container {
+  max-width: 1260px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+}
+
+.wp-sec-header {
+  margin-bottom: 40px !important;
+}
+
+.wp-sec-header.text-center {
+  text-align: center !important;
+}
+
+.wp-sec-badge {
+  display: inline-block !important;
+  padding: 6px 16px !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  color: #38bdf8 !important;
+  border-radius: 999px !important;
+  font-size: 0.8rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  margin-bottom: 12px !important;
+}
+
+.wp-sec-title {
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem) !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 0 10px 0 !important;
+  letter-spacing: -0.5px !important;
+}
+
+.wp-sec-sub {
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem) !important;
+  color: #94a3b8 !important;
+  max-width: 650px !important;
+  margin: 0 auto !important;
+  line-height: 1.5 !important;
+}
+
+/* Section 5: Quality */
+.quality-showcase-section {
+  background: #050b18 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.wp-quality-strip {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+  margin-bottom: 30px !important;
+}
+
+.wp-quality-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 20px !important;
+  margin-bottom: 30px !important;
+}
+
+.wp-qcard {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  padding: 20px !important;
+  transition: transform 0.2s ease, border-color 0.2s ease !important;
+}
+
+.wp-qcard:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+.wp-qcard h5 {
+  font-size: 1rem !important;
+  color: #f1f5f9 !important;
+  margin: 0 0 14px 0 !important;
+  font-weight: 700 !important;
+}
+
+.wp-qcard ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.wp-qcard li {
+  font-size: 0.86rem !important;
+  color: #cbd5e1 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.wp-qcard .c-ok {
+  color: #34d399 !important;
+  font-weight: bold !important;
+}
+
+.wp-quality-footer {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 20px !important;
+  padding-top: 10px !important;
+}
+
+.btn-scroll-to-booking {
+  background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+  color: #fff !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  padding: 14px 28px !important;
+  border-radius: 999px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.3) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.btn-scroll-to-booking:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(2, 132, 199, 0.5) !important;
+}
+
+/* Section 6: Reviews */
+.reviews-showcase-section {
+  background: #030712 !important;
+}
+
+.wp-reviews-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+  gap: 24px !important;
+  margin-bottom: 30px !important;
+}
+
+.wp-review-card {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  position: relative !important;
+}
+
+.wp-review-card.featured {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  background: radial-gradient(circle at top, rgba(251, 191, 36, 0.06) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+}
+
+.wpr-badge-rec {
+  position: absolute !important;
+  top: -12px !important;
+  right: 20px !important;
+  background: linear-gradient(135deg, #d97706, #fbbf24) !important;
+  color: #000 !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  padding: 3px 12px !important;
+  border-radius: 999px !important;
+}
+
+.wpr-top {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 14px !important;
+}
+
+.wpr-stars {
+  color: #fbbf24 !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 2px !important;
+}
+
+.wpr-city {
+  font-size: 0.78rem !important;
+  color: #94a3b8 !important;
+}
+
+.wpr-text {
+  font-size: 0.92rem !important;
+  color: #cbd5e1 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 20px !important;
+  font-style: italic !important;
+}
+
+.wpr-author {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.wpr-avatar {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 800 !important;
+  font-size: 0.85rem !important;
+}
+
+.wpr-author strong {
+  display: block !important;
+  color: #ffffff !important;
+  font-size: 0.9rem !important;
+}
+
+.wpr-author small {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.75rem !important;
+}
+
+.wp-review-cta-row {
+  text-align: center !important;
+  margin-top: 10px !important;
+}
+
+.btn-open-review-modal {
+  background: rgba(251, 191, 36, 0.12) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(251, 191, 36, 0.4) !important;
+  padding: 12px 24px !important;
+  border-radius: 999px !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-open-review-modal:hover {
+  background: rgba(251, 191, 36, 0.25) !important;
+}
+
+/* Section 7: FAQ */
+.faq-showcase-section {
+  background: #050b18 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.wp-faq-accordion {
+  max-width: 860px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+.wp-faq-item {
+  background: rgba(15, 23, 42, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.wp-faq-item[open] {
+  border-color: rgba(56, 189, 248, 0.4) !important;
+}
+
+.wp-faq-q {
+  padding: 18px 20px !important;
+  font-size: 0.98rem !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+  cursor: pointer !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  user-select: none !important;
+}
+
+.wp-faq-arrow {
+  font-size: 0.75rem !important;
+  color: #38bdf8 !important;
+  transition: transform 0.2s ease !important;
+}
+
+.wp-faq-item[open] .wp-faq-arrow {
+  transform: rotate(180deg) !important;
+}
+
+.wp-faq-a {
+  padding: 0 20px 18px 20px !important;
+  font-size: 0.9rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.6 !important;
+}
+
+.wp-faq-a p {
+  margin: 0 !important;
+}
+
+/* Section 8: Footer */
+.footer-showcase-section {
+  background: #02050c !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 70px 20px 40px 20px !important;
+}
+
+.wp-footer-top-grid {
+  display: grid !important;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr !important;
+  gap: 40px !important;
+  margin-bottom: 50px !important;
+}
+
+@media (max-width: 900px) {
+  .wp-footer-top-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .wp-footer-top-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.wp-flogo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+.wp-flogo-text {
+  font-family: var(--font-serif) !important;
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.15em !important;
+  color: #ffffff !important;
+}
+
+.wp-fdesc {
+  font-size: 0.85rem !important;
+  color: #64748b !important;
+  line-height: 1.6 !important;
+  margin-bottom: 18px !important;
+}
+
+.wp-fsocials {
+  display: flex !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+}
+
+.wp-fsocials a {
+  font-size: 0.82rem !important;
+  color: #94a3b8 !important;
+  text-decoration: none !important;
+}
+
+.wp-fsocials a:hover {
+  color: #38bdf8 !important;
+}
+
+.wp-fcol h4 {
+  font-size: 1rem !important;
+  color: #ffffff !important;
+  margin: 0 0 16px 0 !important;
+  font-weight: 700 !important;
+}
+
+.wp-fcol ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.wp-fcol a {
+  font-size: 0.85rem !important;
+  color: #94a3b8 !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease !important;
+}
+
+.wp-fcol a:hover {
+  color: #38bdf8 !important;
+}
+
+.wp-fcontact-box {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.wp-fphone {
+  font-size: 1.1rem !important;
+  font-weight: 800 !important;
+  color: #38bdf8 !important;
+  text-decoration: none !important;
+}
+
+.wp-fhours,
+.wp-femail {
+  font-size: 0.85rem !important;
+  color: #94a3b8 !important;
+}
+
+.wp-fwa-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 10px 18px !important;
+  background: rgba(37, 211, 102, 0.15) !important;
+  border: 1px solid rgba(37, 211, 102, 0.4) !important;
+  color: #25d366 !important;
+  border-radius: 999px !important;
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  margin-top: 6px !important;
+}
+
+.wp-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding-top: 24px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 14px !important;
+  font-size: 0.82rem !important;
+  color: #64748b !important;
+}
+
+.wp-flegal-links {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.wp-flegal-links a {
+  color: #64748b !important;
+  text-decoration: none !important;
+}
+
+.wp-flegal-links a:hover {
+  color: #94a3b8 !important;
+}

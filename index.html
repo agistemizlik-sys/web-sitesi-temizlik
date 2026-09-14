@@ -413,7 +413,7 @@
     })();
   </script>
 </head>
-<body class="portal-intro-mode">
+<body class="wp-flow-body">
   <!-- Meta Pixel Noscript Tracking Fallback -->
   <noscript>
     <img height="1" width="1" style="display:none" alt="Facebook Pixel" src="https://www.facebook.com/tr?id=PIXEL_ID_BURAYA&ev=PageView&noscript=1" />
@@ -423,8 +423,9 @@
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
   <!-- 📖 IMMERSIVE FIRST-PERSON FULL-SCREEN INTRO PORTAL -->
-  <div id="book-scroll-hero-track" class="book-scroll-hero-track" style="position: fixed; inset: 0; width: 100%; height: 100dvh; z-index: 9999; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none;">
-    <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport" style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; will-change: transform;">
+  <div id="hero-section" style="position:relative; top:0; height:0; pointer-events:none;"></div>
+  <div id="book-scroll-hero-track" class="book-scroll-hero-track">
+    <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport">
       <!-- Canvas Frame-by-Frame Scrub Renderer for Instant 120fps Scroll Response -->
       <canvas id="portalIntroCanvas" class="portal-intro-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform;"></canvas>
 
@@ -589,7 +590,8 @@
   <!-- ==========================================
        PORTAL GATEWAY (Giriş & 6 Şehir Seçimi)
        ========================================== -->
-  <section id="portal-stage" aria-label="Giriş Geçidi ve Şehir Seçimi" style="display: none;">
+  <div id="cities-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+  <section id="portal-stage" class="wp-section cities-showcase-section" aria-label="Giriş Geçidi ve Şehir Seçimi">
     <div class="portal-ambient-bg" id="portalAmbientBg" aria-hidden="true"></div>
     
     <button type="button" class="portal-audio-toggle" id="portalAudioToggle" aria-label="Sesi Kapat/Aç">
@@ -1314,7 +1316,8 @@
   <!-- ==========================================
        ANA SİTE İÇERİĞİ (Portal sonrası)
        ========================================== -->
-  <main id="main-content" style="opacity: 0; pointer-events: none;">
+  <div id="services-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+  <main id="main-content" class="wp-main-content">
     
     <!-- ── FLOATING TOP PILL NAV BAR (1:1 AS USER SCREENSHOTS) ─────────────────────────────────── -->
     <nav id="main-nav" class="rx-floating-nav-bar" aria-label="Ana Menü">
@@ -1844,7 +1847,8 @@
     </section>
 
     <!-- 🌹 DYNAMIC OPULENT ROYAL ROSE & BOTANICAL VINE SCROLL SYSTEM 🌹 -->
-    <section class="booking-section-wrapper" id="bookingReveal" data-lenis-prevent="true" data-lenis-prevent-wheel="true" data-lenis-prevent-touch="true" hidden>
+    <div id="booking-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="booking-section-wrapper wp-section booking-showcase-section" id="bookingReveal">
       <button type="button" class="booking-close-btn" onclick="if(typeof closeBookingScreen==='function')closeBookingScreen();" aria-label="Kapat">&times;</button>
         <div class="booking-section-inner">
           
@@ -3064,6 +3068,299 @@
           <img src="/images/canli_destek_icon.png" alt="Canlı Destek RELAXAX" class="custom-chat-avatar-img" />
         </div>
       </div>
+
+  
+    <!-- ==========================================
+         BÖLÜM 5: 48 NOKTA DİJİTAL KALİTE & HİJYEN DENETİMİ
+         ========================================== -->
+    <div id="quality-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section quality-showcase-section" id="inpageQualitySection" aria-label="48 Nokta Kalite Güvencesi">
+      <div class="wp-section-container">
+        <div class="wp-sec-header text-center">
+          <span class="wp-sec-badge">🛡️ DİJİTAL KALİTE GÜVENCESİ</span>
+          <h2 class="wp-sec-title">48 Nokta Denetim & Hijyen Sertifikası</h2>
+          <p class="wp-sec-sub">Her temizlik sonunda ekip şefimiz tarafından fotoğraflı kontrol edilen kurumsal kalite karnesi.</p>
+        </div>
+
+        <div class="qr-score-strip wp-quality-strip">
+          <div class="qr-score-circle">
+            <span class="score-num">99.8%</span>
+            <span class="score-lbl">Hijyen Skoru</span>
+          </div>
+          <div class="qr-score-info">
+            <strong>Ekip Şefi Tarafından Onaylanmış Dijital Mühür</strong>
+            <p>Hizmet tamamlandığında telefonunuza SMS ve WhatsApp ile interaktif fotoğraflı kalite raporu, hava temizlik ölçüm belgesi ve garanti sertifikası iletilir.</p>
+          </div>
+        </div>
+
+        <div class="qr-checklist-grid wp-quality-grid">
+          <div class="qr-check-category wp-qcard">
+            <h5>🛏️ Yaşam Alanları & Odalar (12 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> Baza altı ve koltuk arası derin vakumlama</li>
+              <li><span class="c-ok">✓</span> Antistatik mobilya ve aydınlatma tozu alma</li>
+              <li><span class="c-ok">✓</span> Kapı kolları ve anahtarlık dezenfeksiyonu</li>
+              <li><span class="c-ok">✓</span> Pervaz, süpürgelik ve ayna parlatma</li>
+            </ul>
+          </div>
+          <div class="qr-check-category wp-qcard">
+            <h5>🍳 Mutfak & Pişirme Alanı (14 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> Davlumbaz ve ocak yağ çözücü arındırma</li>
+              <li><span class="c-ok">✓</span> Eviye ve armatür kireç parlatma</li>
+              <li><span class="c-ok">✓</span> Tezgah ve fayans buharlı hijyen</li>
+              <li><span class="c-ok">✓</span> Dolap dış kapakları ve kulp sterilizasyonu</li>
+            </ul>
+          </div>
+          <div class="qr-check-category wp-qcard">
+            <h5>🚿 Banyo & Islak Hacimler (12 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> Duşakabin camı su itici nano koruma</li>
+              <li><span class="c-ok">✓</span> Derz araları kireç ve mantar arındırma</li>
+              <li><span class="c-ok">✓</span> Klozet ve lavabo 140°C buharlı sterilizasyon</li>
+              <li><span class="c-ok">✓</span> Ayna, batarya ve gider kokusuzlaştırma</li>
+            </ul>
+          </div>
+          <div class="qr-check-category wp-qcard">
+            <h5>🌬️ Hava & Zemin Kalitesi (10 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> HEPA 13 filtreli ortam hava arındırma</li>
+              <li><span class="c-ok">✓</span> Seçilen imza koku difüzyonu</li>
+              <li><span class="c-ok">✓</span> pH nötr parke ve mermer besleme</li>
+              <li><span class="c-ok">✓</span> Sıfır mikrop & bakteri hava karnesi</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="wp-quality-footer">
+          <div class="qr-signature-box">
+            <span class="sig-title">Operasyon & Kalite Direktörlüğü:</span>
+            <span class="sig-name">M. Kemal A. — Kalite Denetim Şefi ✓</span>
+          </div>
+          <button type="button" class="btn-scroll-to-booking" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});">
+            <span>✨ Şimdi Fiyat Hesaplayın & Randevu Alın ➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         BÖLÜM 6: MÜŞTERİ YORUMLARI & REFERANSLAR
+         ========================================== -->
+    <div id="reviews-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section reviews-showcase-section" id="inpageReviewsSection" aria-label="Müşteri Değerlendirmeleri">
+      <div class="wp-section-container">
+        <div class="wp-sec-header text-center">
+          <span class="wp-sec-badge">⭐ MÜŞTERİ MEMNUNİYETİ</span>
+          <h2 class="wp-sec-title">4.98 / 5.0 — 12.000+ Mutlu Müşteri</h2>
+          <p class="wp-sec-sub">Türkiye ve Polonya genelinde müşterilerimizin gerçek deneyimleri.</p>
+        </div>
+
+        <div class="wp-reviews-grid">
+          <div class="wp-review-card">
+            <div class="wpr-top">
+              <div class="wpr-stars">★★★★★</div>
+              <span class="wpr-city">📍 Kadıköy, İstanbul</span>
+            </div>
+            <p class="wpr-text">“Kadıköy'deki 3+1 evimiz için detaylı temizlik aldık. Ekip tam vaktinde geldi, banyo ve mutfak sıfır gibi oldu. Buharlı dezenfeksiyon gerçekten fark yaratıyor. Kesinlikle tavsiye ederim.”</p>
+            <div class="wpr-author">
+              <div class="wpr-avatar">ZD</div>
+              <div>
+                <strong>Zeynep D.</strong>
+                <small>Detaylı Ev Temizliği (Doğrulanmış Müşteri)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="wp-review-card featured">
+            <div class="wpr-badge-rec">🌟 En Çok Beğenilen</div>
+            <div class="wpr-top">
+              <div class="wpr-stars">★★★★★</div>
+              <span class="wpr-city">📍 Karşıyaka, İzmir</span>
+            </div>
+            <p class="wpr-text">“İnşaat sonrası temizlik için çağırdık. Boya ve alçı lekelerini parkeleri hiç çizmeden temizlediler. Ekip şefi tek tek 48 noktayı kontrol etti ve fotoğraflı rapor gönderdi. İşçilik 10/10.”</p>
+            <div class="wpr-author">
+              <div class="wpr-avatar">EK</div>
+              <div>
+                <strong>Emre K.</strong>
+                <small>İnşaat Sonrası Temizlik (Doğrulanmış Müşteri)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="wp-review-card">
+            <div class="wpr-top">
+              <div class="wpr-stars">★★★★★</div>
+              <span class="wpr-city">📍 Mokotów, Warszawa</span>
+            </div>
+            <p class="wpr-text">“Bardzo profesjonalna obsługa w Warszawie! Mieszkanie po przeprowadzce lśni czystością. Punktualność, kultura osobista personelu i świetny kontakt przez WhatsApp.”</p>
+            <div class="wpr-author">
+              <div class="wpr-avatar">PW</div>
+              <div>
+                <strong>Piotr W.</strong>
+                <small>Sprzątanie po Przeprowadzce (Klient Zweryfikowany)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wp-review-cta-row">
+          <button type="button" class="btn-open-review-modal" onclick="document.getElementById('reviewFeedbackModal').style.display='flex';">
+            <span>⭐ Hizmeti Değerlendir & +50 TL İndirim Kazan</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         BÖLÜM 7: SIKÇA SORULAN SORULAR (FAQ ACCORDION)
+         ========================================== -->
+    <div id="faq-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section faq-showcase-section" id="inpageFaqSection" aria-label="Sıkça Sorulan Sorular">
+      <div class="wp-section-container">
+        <div class="wp-sec-header text-center">
+          <span class="wp-sec-badge">❓ MERAK EDİLENLER</span>
+          <h2 class="wp-sec-title">Sıkça Sorulan Sorular</h2>
+          <p class="wp-sec-sub">Temizlik hizmetimiz, ekipmanlarımız ve garantimiz hakkında tüm yanıtlar.</p>
+        </div>
+
+        <div class="wp-faq-accordion">
+          <details class="wp-faq-item" open>
+            <summary class="wp-faq-q">
+              <span>🧹 Deterjanları ve temizlik ekipmanlarını kim temin ediyor?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Tüm profesyonel temizlik kimyasalları, mikrofiber bez setleri, buharlı makineler ve HEPA 13 filtreli sanayi tipi süpürgeler uzman ekiplerimiz tarafından eksiksiz getirilir. Sizin hiçbir malzeme temin etmenize gerek yoktur.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>🔑 Temizlik esnasında evde bulunmam gerekiyor mu?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Hayır, bulunmanız zorunlu değildir. Hizmet başlangıcında personellerimize kapıyı açabilir veya anahtar teslimi yapabilirsiniz. Temizlik tamamlanmadan 30 dakika önce sizi arayarak bilgilendiririz.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>🛡️ %100 Memnuniyet garantisi nasıl çalışıyor?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Hizmetten herhangi bir nedenle memnun kalmazsanız, 24 saat içerisinde müşteri hizmetlerimize bildirmeniz yeterlidir. Denetim ekibimiz en geç ertesi gün adresinize gelerek eksik görülen alanları tamamen ücretsiz yeniden temizler.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>💳 Ödeme seçenekleri nelerdir?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Sitemiz üzerinden 3D Secure güvenceli online kredi kartı, banka havalesi / FAST veya hizmet bitiminde kapıda nakit / kredi kartı ile güvenle ödeme yapabilirsiniz.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>⚡ Aynı gün içinde acil temizlik randevusu alabilir miyim?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Evet! Mobil saha filomuz sayesinde İstanbul, İzmir, Ankara, Antalya, Bursa ve Warszawa'da müsaitlik durumuna göre 2 saat içinde adrese ulaşan acil ekspres sevk hizmetimiz mevcuttur.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>🐾 Evcil hayvanım var, ürünler güvenli mi?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Kullandığımız temizleyiciler pH nötr, hipoalerjenik ve evcil hayvan sağlığına tamamen zararsızdır. Uçucu kimyasal içermeyen buharlı sterilizasyon teknolojisi tercih ediyoruz.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         BÖLÜM 8: KURUMSAL FOOTER & İLETİŞİM
+         ========================================== -->
+    <div id="footer-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <footer class="wp-section footer-showcase-section" id="inpageFooterSection" aria-label="Kurumsal Bilgi ve İletişim">
+      <div class="wp-section-container">
+        <div class="wp-footer-top-grid">
+          <!-- Col 1: Brand -->
+          <div class="wp-fcol brand-col">
+            <div class="wp-flogo">
+              <img src="/images/logo_leaf.svg" alt="RELAXAX Logo" width="32" height="32" />
+              <span class="wp-flogo-text">RELAXAX</span>
+            </div>
+            <p class="wp-fdesc">Türkiye ve Polonya genelinde 5 yıldızlı otel kalitesinde profesyonel ev, ofis, taşınma ve inşaat sonrası temizlik teknolojileri.</p>
+            <div class="wp-fsocials">
+              <a href="https://instagram.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸 Instagram</a>
+              <a href="https://facebook.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" aria-label="Facebook">📘 Facebook</a>
+              <a href="https://wa.me/905466479004" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">💬 WhatsApp</a>
+            </div>
+          </div>
+
+          <!-- Col 2: Services Links -->
+          <div class="wp-fcol">
+            <h4>Hizmetlerimiz</h4>
+            <ul>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Standart Ev Temizliği</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Detaylı / Bahar Temizliği</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Taşınma / Boş Ev Temizliği</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">İnşaat Sonrası Temizlik</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Ofis & Kurumsal Hijyen</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Buharlı Dezenfeksiyon</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Cities -->
+          <div class="wp-fcol">
+            <h4>Hizmet Şehirleri</h4>
+            <ul>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Istanbul');">İstanbul (Avrupa & Anadolu)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Izmir');">İzmir (Karşıyaka, Alsancak...)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Ankara');">Ankara (Çankaya, Çayyolu...)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Antalya');">Antalya (Muratpaşa, Konyaaltı)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Bursa');">Bursa (Nilüfer, Osmangazi)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Warszawa');">Warszawa (Polska)</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 4: Contact & Phone -->
+          <div class="wp-fcol contact-col">
+            <h4>Canlı Destek & İletişim</h4>
+            <div class="wp-fcontact-box">
+              <a href="tel:+905466479004" class="wp-fphone">📞 0546 647 90 04</a>
+              <span class="wp-fhours">🕒 7 Gün / 08:00 – 22:00</span>
+              <span class="wp-femail">✉️ info@relaxax.com</span>
+              <a href="https://wa.me/905466479004?text=Merhaba,%20RELAXAX%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="wp-fwa-btn">
+                <span>💬 WhatsApp Hızlı Sipariş</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="wp-footer-bottom">
+          <p>© 2026 RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. Tüm Hakları Saklıdır.</p>
+          <div class="wp-flegal-links">
+            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('terms'); return false;">Kullanıcı Sözleşmesi</a>
+            <span>•</span>
+            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('kvkk'); return false;">KVKK ve Gizlilik</a>
+            <span>•</span>
+            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('cancellation'); return false;">İptal & İade</a>
+          </div>
+        </div>
+      </div>
+    </footer>
 
   </main>
 
@@ -5413,7 +5710,300 @@
             <p>Web sitemiz üzerinden canlı fiyat hesaplayarak 2 dakika içinde sipariş verebilir veya +90 546 647 90 04 numaralı WhatsApp hattımızdan bize ulaşabilirsiniz.</p>
           </article>
         </section>
-      </main>
+      
+    <!-- ==========================================
+         BÖLÜM 5: 48 NOKTA DİJİTAL KALİTE & HİJYEN DENETİMİ
+         ========================================== -->
+    <div id="quality-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section quality-showcase-section" id="inpageQualitySection" aria-label="48 Nokta Kalite Güvencesi">
+      <div class="wp-section-container">
+        <div class="wp-sec-header text-center">
+          <span class="wp-sec-badge">🛡️ DİJİTAL KALİTE GÜVENCESİ</span>
+          <h2 class="wp-sec-title">48 Nokta Denetim & Hijyen Sertifikası</h2>
+          <p class="wp-sec-sub">Her temizlik sonunda ekip şefimiz tarafından fotoğraflı kontrol edilen kurumsal kalite karnesi.</p>
+        </div>
+
+        <div class="qr-score-strip wp-quality-strip">
+          <div class="qr-score-circle">
+            <span class="score-num">99.8%</span>
+            <span class="score-lbl">Hijyen Skoru</span>
+          </div>
+          <div class="qr-score-info">
+            <strong>Ekip Şefi Tarafından Onaylanmış Dijital Mühür</strong>
+            <p>Hizmet tamamlandığında telefonunuza SMS ve WhatsApp ile interaktif fotoğraflı kalite raporu, hava temizlik ölçüm belgesi ve garanti sertifikası iletilir.</p>
+          </div>
+        </div>
+
+        <div class="qr-checklist-grid wp-quality-grid">
+          <div class="qr-check-category wp-qcard">
+            <h5>🛏️ Yaşam Alanları & Odalar (12 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> Baza altı ve koltuk arası derin vakumlama</li>
+              <li><span class="c-ok">✓</span> Antistatik mobilya ve aydınlatma tozu alma</li>
+              <li><span class="c-ok">✓</span> Kapı kolları ve anahtarlık dezenfeksiyonu</li>
+              <li><span class="c-ok">✓</span> Pervaz, süpürgelik ve ayna parlatma</li>
+            </ul>
+          </div>
+          <div class="qr-check-category wp-qcard">
+            <h5>🍳 Mutfak & Pişirme Alanı (14 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> Davlumbaz ve ocak yağ çözücü arındırma</li>
+              <li><span class="c-ok">✓</span> Eviye ve armatür kireç parlatma</li>
+              <li><span class="c-ok">✓</span> Tezgah ve fayans buharlı hijyen</li>
+              <li><span class="c-ok">✓</span> Dolap dış kapakları ve kulp sterilizasyonu</li>
+            </ul>
+          </div>
+          <div class="qr-check-category wp-qcard">
+            <h5>🚿 Banyo & Islak Hacimler (12 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> Duşakabin camı su itici nano koruma</li>
+              <li><span class="c-ok">✓</span> Derz araları kireç ve mantar arındırma</li>
+              <li><span class="c-ok">✓</span> Klozet ve lavabo 140°C buharlı sterilizasyon</li>
+              <li><span class="c-ok">✓</span> Ayna, batarya ve gider kokusuzlaştırma</li>
+            </ul>
+          </div>
+          <div class="qr-check-category wp-qcard">
+            <h5>🌬️ Hava & Zemin Kalitesi (10 Nokta)</h5>
+            <ul>
+              <li><span class="c-ok">✓</span> HEPA 13 filtreli ortam hava arındırma</li>
+              <li><span class="c-ok">✓</span> Seçilen imza koku difüzyonu</li>
+              <li><span class="c-ok">✓</span> pH nötr parke ve mermer besleme</li>
+              <li><span class="c-ok">✓</span> Sıfır mikrop & bakteri hava karnesi</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="wp-quality-footer">
+          <div class="qr-signature-box">
+            <span class="sig-title">Operasyon & Kalite Direktörlüğü:</span>
+            <span class="sig-name">M. Kemal A. — Kalite Denetim Şefi ✓</span>
+          </div>
+          <button type="button" class="btn-scroll-to-booking" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});">
+            <span>✨ Şimdi Fiyat Hesaplayın & Randevu Alın ➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         BÖLÜM 6: MÜŞTERİ YORUMLARI & REFERANSLAR
+         ========================================== -->
+    <div id="reviews-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section reviews-showcase-section" id="inpageReviewsSection" aria-label="Müşteri Değerlendirmeleri">
+      <div class="wp-section-container">
+        <div class="wp-sec-header text-center">
+          <span class="wp-sec-badge">⭐ MÜŞTERİ MEMNUNİYETİ</span>
+          <h2 class="wp-sec-title">4.98 / 5.0 — 12.000+ Mutlu Müşteri</h2>
+          <p class="wp-sec-sub">Türkiye ve Polonya genelinde müşterilerimizin gerçek deneyimleri.</p>
+        </div>
+
+        <div class="wp-reviews-grid">
+          <div class="wp-review-card">
+            <div class="wpr-top">
+              <div class="wpr-stars">★★★★★</div>
+              <span class="wpr-city">📍 Kadıköy, İstanbul</span>
+            </div>
+            <p class="wpr-text">“Kadıköy'deki 3+1 evimiz için detaylı temizlik aldık. Ekip tam vaktinde geldi, banyo ve mutfak sıfır gibi oldu. Buharlı dezenfeksiyon gerçekten fark yaratıyor. Kesinlikle tavsiye ederim.”</p>
+            <div class="wpr-author">
+              <div class="wpr-avatar">ZD</div>
+              <div>
+                <strong>Zeynep D.</strong>
+                <small>Detaylı Ev Temizliği (Doğrulanmış Müşteri)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="wp-review-card featured">
+            <div class="wpr-badge-rec">🌟 En Çok Beğenilen</div>
+            <div class="wpr-top">
+              <div class="wpr-stars">★★★★★</div>
+              <span class="wpr-city">📍 Karşıyaka, İzmir</span>
+            </div>
+            <p class="wpr-text">“İnşaat sonrası temizlik için çağırdık. Boya ve alçı lekelerini parkeleri hiç çizmeden temizlediler. Ekip şefi tek tek 48 noktayı kontrol etti ve fotoğraflı rapor gönderdi. İşçilik 10/10.”</p>
+            <div class="wpr-author">
+              <div class="wpr-avatar">EK</div>
+              <div>
+                <strong>Emre K.</strong>
+                <small>İnşaat Sonrası Temizlik (Doğrulanmış Müşteri)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="wp-review-card">
+            <div class="wpr-top">
+              <div class="wpr-stars">★★★★★</div>
+              <span class="wpr-city">📍 Mokotów, Warszawa</span>
+            </div>
+            <p class="wpr-text">“Bardzo profesjonalna obsługa w Warszawie! Mieszkanie po przeprowadzce lśni czystością. Punktualność, kultura osobista personelu i świetny kontakt przez WhatsApp.”</p>
+            <div class="wpr-author">
+              <div class="wpr-avatar">PW</div>
+              <div>
+                <strong>Piotr W.</strong>
+                <small>Sprzątanie po Przeprowadzce (Klient Zweryfikowany)</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wp-review-cta-row">
+          <button type="button" class="btn-open-review-modal" onclick="document.getElementById('reviewFeedbackModal').style.display='flex';">
+            <span>⭐ Hizmeti Değerlendir & +50 TL İndirim Kazan</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         BÖLÜM 7: SIKÇA SORULAN SORULAR (FAQ ACCORDION)
+         ========================================== -->
+    <div id="faq-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <section class="wp-section faq-showcase-section" id="inpageFaqSection" aria-label="Sıkça Sorulan Sorular">
+      <div class="wp-section-container">
+        <div class="wp-sec-header text-center">
+          <span class="wp-sec-badge">❓ MERAK EDİLENLER</span>
+          <h2 class="wp-sec-title">Sıkça Sorulan Sorular</h2>
+          <p class="wp-sec-sub">Temizlik hizmetimiz, ekipmanlarımız ve garantimiz hakkında tüm yanıtlar.</p>
+        </div>
+
+        <div class="wp-faq-accordion">
+          <details class="wp-faq-item" open>
+            <summary class="wp-faq-q">
+              <span>🧹 Deterjanları ve temizlik ekipmanlarını kim temin ediyor?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Tüm profesyonel temizlik kimyasalları, mikrofiber bez setleri, buharlı makineler ve HEPA 13 filtreli sanayi tipi süpürgeler uzman ekiplerimiz tarafından eksiksiz getirilir. Sizin hiçbir malzeme temin etmenize gerek yoktur.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>🔑 Temizlik esnasında evde bulunmam gerekiyor mu?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Hayır, bulunmanız zorunlu değildir. Hizmet başlangıcında personellerimize kapıyı açabilir veya anahtar teslimi yapabilirsiniz. Temizlik tamamlanmadan 30 dakika önce sizi arayarak bilgilendiririz.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>🛡️ %100 Memnuniyet garantisi nasıl çalışıyor?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Hizmetten herhangi bir nedenle memnun kalmazsanız, 24 saat içerisinde müşteri hizmetlerimize bildirmeniz yeterlidir. Denetim ekibimiz en geç ertesi gün adresinize gelerek eksik görülen alanları tamamen ücretsiz yeniden temizler.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>💳 Ödeme seçenekleri nelerdir?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Sitemiz üzerinden 3D Secure güvenceli online kredi kartı, banka havalesi / FAST veya hizmet bitiminde kapıda nakit / kredi kartı ile güvenle ödeme yapabilirsiniz.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>⚡ Aynı gün içinde acil temizlik randevusu alabilir miyim?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Evet! Mobil saha filomuz sayesinde İstanbul, İzmir, Ankara, Antalya, Bursa ve Warszawa'da müsaitlik durumuna göre 2 saat içinde adrese ulaşan acil ekspres sevk hizmetimiz mevcuttur.</p>
+            </div>
+          </details>
+
+          <details class="wp-faq-item">
+            <summary class="wp-faq-q">
+              <span>🐾 Evcil hayvanım var, ürünler güvenli mi?</span>
+              <span class="wp-faq-arrow">▼</span>
+            </summary>
+            <div class="wp-faq-a">
+              <p>Kullandığımız temizleyiciler pH nötr, hipoalerjenik ve evcil hayvan sağlığına tamamen zararsızdır. Uçucu kimyasal içermeyen buharlı sterilizasyon teknolojisi tercih ediyoruz.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         BÖLÜM 8: KURUMSAL FOOTER & İLETİŞİM
+         ========================================== -->
+    <div id="footer-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
+    <footer class="wp-section footer-showcase-section" id="inpageFooterSection" aria-label="Kurumsal Bilgi ve İletişim">
+      <div class="wp-section-container">
+        <div class="wp-footer-top-grid">
+          <!-- Col 1: Brand -->
+          <div class="wp-fcol brand-col">
+            <div class="wp-flogo">
+              <img src="/images/logo_leaf.svg" alt="RELAXAX Logo" width="32" height="32" />
+              <span class="wp-flogo-text">RELAXAX</span>
+            </div>
+            <p class="wp-fdesc">Türkiye ve Polonya genelinde 5 yıldızlı otel kalitesinde profesyonel ev, ofis, taşınma ve inşaat sonrası temizlik teknolojileri.</p>
+            <div class="wp-fsocials">
+              <a href="https://instagram.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸 Instagram</a>
+              <a href="https://facebook.com/relaxaxserwis" target="_blank" rel="noopener noreferrer" aria-label="Facebook">📘 Facebook</a>
+              <a href="https://wa.me/905466479004" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">💬 WhatsApp</a>
+            </div>
+          </div>
+
+          <!-- Col 2: Services Links -->
+          <div class="wp-fcol">
+            <h4>Hizmetlerimiz</h4>
+            <ul>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Standart Ev Temizliği</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Detaylı / Bahar Temizliği</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Taşınma / Boş Ev Temizliği</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">İnşaat Sonrası Temizlik</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Ofis & Kurumsal Hijyen</a></li>
+              <li><a href="#services-section" onclick="document.getElementById('services-section')?.scrollIntoView({behavior:'smooth'});">Buharlı Dezenfeksiyon</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Cities -->
+          <div class="wp-fcol">
+            <h4>Hizmet Şehirleri</h4>
+            <ul>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Istanbul');">İstanbul (Avrupa & Anadolu)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Izmir');">İzmir (Karşıyaka, Alsancak...)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Ankara');">Ankara (Çankaya, Çayyolu...)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Antalya');">Antalya (Muratpaşa, Konyaaltı)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Bursa');">Bursa (Nilüfer, Osmangazi)</a></li>
+              <li><a href="#cities-section" onclick="if(typeof selectCityGlobal==='function')selectCityGlobal('Warszawa');">Warszawa (Polska)</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 4: Contact & Phone -->
+          <div class="wp-fcol contact-col">
+            <h4>Canlı Destek & İletişim</h4>
+            <div class="wp-fcontact-box">
+              <a href="tel:+905466479004" class="wp-fphone">📞 0546 647 90 04</a>
+              <span class="wp-fhours">🕒 7 Gün / 08:00 – 22:00</span>
+              <span class="wp-femail">✉️ info@relaxax.com</span>
+              <a href="https://wa.me/905466479004?text=Merhaba,%20RELAXAX%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="wp-fwa-btn">
+                <span>💬 WhatsApp Hızlı Sipariş</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="wp-footer-bottom">
+          <p>© 2026 RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. Tüm Hakları Saklıdır.</p>
+          <div class="wp-flegal-links">
+            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('terms'); return false;">Kullanıcı Sözleşmesi</a>
+            <span>•</span>
+            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('kvkk'); return false;">KVKK ve Gizlilik</a>
+            <span>•</span>
+            <a href="#" onclick="if(typeof openLegalModal==='function')openLegalModal('cancellation'); return false;">İptal & İade</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </main>
 
       <footer>
         <p>© 2026 RELAXAX Temizlik ve Hijyen Teknolojileri A.Ş. Tüm hakları saklıdır. Telefon: +90 546 647 9004 | E-posta: info@relaxax.com</p>
