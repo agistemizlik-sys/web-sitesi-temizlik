@@ -76,8 +76,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Playfair+Display:ital,wght@1,600;1,700;1,800&family=Marck+Script&display=swap" rel="stylesheet">
 
-  <!-- Preload Critical Frame 1 for Instant Mobile & Desktop Book Presentation -->
-  <link rel="preload" href="/videos/journey_hd/f_001.webp?v=tiltup_golden_sky_v1" as="image" type="image/webp" fetchpriority="high">
+  <!-- Preload Critical Frame 1 for Instant House Walkthrough Presentation -->
+  <link rel="preload" href="/videos/journey_hd/f_001.webp?v=house_walk_v2" as="image" type="image/webp" fetchpriority="high">
 
   <!-- Additive: self-referencing canonical for ?lang= URL variants -->
   <script>
@@ -422,79 +422,72 @@
   <!-- Top-level Global Ambient Dust & Atmospheric Particles Canvas -->
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
-  <!-- 📖 IMMERSIVE FIRST-PERSON FULL-SCREEN INTRO PORTAL -->
-  <!-- ==========================================
-       ✨ 1. WORDPRESS CINEMATIC LUXURY HERO SECTION
-       ========================================== -->
+  <!-- 🏠 IMMERSIVE FIRST-PERSON HOUSE WALKTHROUGH INTRO PORTAL -->
   <div id="hero-section" style="position:relative; top:0; height:0; pointer-events:none;"></div>
-  <section class="wp-hero-cinematic" id="heroSection" aria-label="RELAXAX Premium Hijyen">
-    <!-- 1. Ultra-HD Cinematic Video Background -->
-    <div class="wp-hero-video-wrap">
-      <video class="wp-hero-video desktop-video" autoplay muted loop playsinline preload="auto" poster="/images/hero_luxury_poster.jpg">
-        <source src="/videos/hero_luxury_clean.mp4" type="video/mp4" />
-      </video>
-      <video class="wp-hero-video mobile-video" autoplay muted loop playsinline preload="auto" poster="/images/hero_luxury_poster.jpg">
-        <source src="/videos/hero_luxury_clean_mobile.mp4" type="video/mp4" />
-      </video>
-      <div class="wp-hero-vignette"></div>
-      <div class="wp-hero-particles-glow"></div>
-    </div>
+  <div id="book-scroll-hero-track" class="book-scroll-hero-track">
+    <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport">
+      <!-- High-DPI Interactive Walkthrough Canvas -->
+      <canvas id="portalIntroCanvas" class="portal-intro-canvas" aria-label="Lüks Ev Turu ve Hijyen Deneyimi"></canvas>
 
-    <!-- 2. Hero Luxury Header Bar -->
-    <header class="wp-hero-topbar">
-      <div class="wp-hero-brand">
-        <img src="/images/logo_leaf.svg" alt="RELAXAX" class="wp-hero-logo" width="32" height="32" />
-        <span class="wp-hero-brand-name">RELAXAX</span>
-      </div>
-      <div class="wp-hero-top-actions">
-        <button type="button" class="wp-hero-quick-btn" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});" aria-label="Şehir Haritası">
-          <span>🗺️ Şehir Haritası</span>
-          <span class="quick-btn-arrow">➔</span>
-        </button>
-        <button type="button" class="wp-hero-quick-btn primary" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior: 'smooth'});" aria-label="Fiyat Hesapla">
-          <span>✨ Fiyat Hesapla</span>
-          <span class="quick-btn-arrow">➔</span>
-        </button>
-      </div>
-    </header>
+      <!-- Atmospheric Penthouse Vignette Overlay -->
+      <div class="house-walk-vignette" aria-hidden="true"></div>
 
-    <!-- 3. Editorial Luxury Cover Content -->
-    <div class="wp-hero-container">
-      <div class="wp-hero-content wp-cover-content">
-        <!-- Refined Eyebrow Tag -->
-        <div class="wp-cover-eyebrow">
-          <span class="wp-cover-eyebrow-accent">✦</span>
-          <span>AYRICALIKLI YAŞAM ALANLARI</span>
-          <span class="wp-cover-eyebrow-accent">✦</span>
+
+      <!-- Minimalist Editorial Overlays Linked to House Rooms -->
+      <div class="house-walk-overlays" id="houseWalkOverlays" aria-hidden="true">
+        <!-- Room Card 1: Foyer & Living Room (0% - 32%) -->
+        <div class="house-room-card" id="roomCard1">
+          <div class="room-eyebrow">
+            <span class="room-sparkle">✦</span>
+            <span>GİRİŞ &amp; YAŞAM ALANI</span>
+            <span class="room-sparkle">✦</span>
+          </div>
+          <h1 class="room-title">Sessiz Lüks.<br/><span class="room-gradient">Kusursuz Hijyen.</span></h1>
+          <p class="room-desc">Rezidans ve seçkin konutlar için ayrıcalıklı yaşam alanı ferahlığı.</p>
         </div>
 
-        <!-- Grand Editorial Headline -->
-        <h1 class="wp-cover-title">
-          Sessiz Lüks.<br />
-          <span class="wp-cover-gradient-text">Kusursuz Temizlik.</span>
-        </h1>
-
-        <!-- Poetic Subline -->
-        <p class="wp-cover-subline">
-          Rezidans, yalı ve seçkin konutlar için ayrıcalıklı yaşam alanı hijyeni.
-        </p>
-
-        <!-- Single Ultra-Luxury Action Pill -->
-        <div class="wp-cover-action-wrap">
-          <button type="button" class="wp-cover-btn-primary" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});" aria-label="Randevu Oluştur & Fiyat Hesapla">
-            <span>✨ Randevu Oluştur &amp; Fiyat Hesapla</span>
-            <span class="cover-btn-arrow">➔</span>
-          </button>
+        <!-- Room Card 2: Island Kitchen & Dining (36% - 66%) -->
+        <div class="house-room-card" id="roomCard2">
+          <div class="room-eyebrow">
+            <span class="room-sparkle">✦</span>
+            <span>ADA MUTFAK &amp; YEMEK</span>
+            <span class="room-sparkle">✦</span>
+          </div>
+          <h2 class="room-title">Mermerin Zarafeti.<br/><span class="room-gradient">Mikron Düzeyinde Arınma.</span></h2>
+          <p class="room-desc">Calacatta mermer, ahşap ve pirinç yüzeylere özel organik bakım.</p>
         </div>
 
-        <!-- Minimalist Luxury Scroll Indicator -->
-        <a href="#portal-stage" class="wp-cover-scroll-indicator" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior:'smooth'}); return false;" aria-label="Aşağı kaydırarak keşfedin">
-          <span class="cover-scroll-track"><span class="cover-scroll-dot"></span></span>
-          <span class="cover-scroll-caption">KEŞFET</span>
-        </a>
+        <!-- Room Card 3: Master Suite & Marble Spa (70% - 96%) -->
+        <div class="house-room-card" id="roomCard3">
+          <div class="room-eyebrow">
+            <span class="room-sparkle">✦</span>
+            <span>MASTER SUİT &amp; SPA</span>
+            <span class="room-sparkle">✦</span>
+          </div>
+          <h2 class="room-title">Arınmış Bir Zihin,<br/><span class="room-gradient">Kusursuz Dinlenme.</span></h2>
+          <p class="room-desc">Doğal esansiyel ferahlık, ipeksi dokular ve 5 yıldızlı huzur.</p>
+        </div>
       </div>
+
+      <!-- Scroll Progress HUD & Prompt -->
+      <div class="scroll-journey-hud" id="scrollJourneyHud">
+        <div class="sjh-badge" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});">
+          <span class="sjh-icon">🏠</span>
+          <span id="sjhText">AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN</span>
+          <span class="sjh-arrow">↓</span>
+        </div>
+        <div class="sjh-progress-bar-wrap">
+          <div id="sjhProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Direct Skip / Explore Cities Button -->
+      <button type="button" class="portal-skip-btn" id="portalSkipBtn" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});" aria-label="Turu Geç">
+        <span>Şehirleri Keşfet</span>
+        <span class="skip-arrow">➔</span>
+      </button>
     </div>
-  </section>
+  </div>
   
   <!-- Accessibility skip link -->
   <a href="#main-content" class="sr-only">Ana içeriğe atla</a>

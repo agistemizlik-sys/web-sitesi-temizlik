@@ -3357,15 +3357,10 @@ function setupPortalIntroClick() {
   const hudText = document.getElementById('sjhText');
   const hud = document.getElementById('scrollJourneyHud');
   
-  const poleLeft = document.getElementById('bannerPoleLeft');
-  const poleLeftNear = document.getElementById('bannerPoleLeftNear');
-  const poleRight = document.getElementById('bannerPoleRight');
-  const poleRightNear = document.getElementById('bannerPoleRightNear');
-
   if (!introStage || !canvas) return;
 
   const ctx = canvas.getContext('2d');
-  const TOTAL_FRAMES = 140;
+  const TOTAL_FRAMES = 120;
   const frameImages = [];
   let lastDrawnImage = null;
 
@@ -3461,14 +3456,14 @@ function setupPortalIntroClick() {
 
   let lastFrameRect = { ox: 0, oy: 0, rw: 1280, rh: 720, isPortrait: false };
 
-  // Magical floating golden dust particles inside the book
+  // Magical floating golden dust particles inside the rooms
   const magicalParticles = Array.from({ length: 36 }, () => ({
-    x: 0.35 + Math.random() * 0.30,
-    y: 0.30 + Math.random() * 0.45,
-    size: 2.5 + Math.random() * 5.0,
-    speedY: 0.15 + Math.random() * 0.25,
+    x: 0.15 + Math.random() * 0.70,
+    y: 0.15 + Math.random() * 0.70,
+    size: 2.0 + Math.random() * 4.0,
+    speedY: 0.12 + Math.random() * 0.20,
     phase: Math.random() * Math.PI * 2,
-    baseAlpha: 0.4 + Math.random() * 0.6
+    baseAlpha: 0.35 + Math.random() * 0.55
   }));
 
   // Preload and hardware-decode all frames to prevent any on-scroll image decoding hiccups
@@ -3476,7 +3471,7 @@ function setupPortalIntroClick() {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
     img.decoding = 'async';
-    img.src = `/videos/journey_hd/f_${numStr}.webp?v=tiltup_golden_sky_v1`;
+    img.src = `/videos/journey_hd/f_${numStr}.webp?v=house_walk_v2`;
     if (typeof img.decode === 'function') {
       img.decode().catch(() => {});
     }
@@ -3553,119 +3548,20 @@ function setupPortalIntroClick() {
         }
       }
 
-      // 2. Realistic Book Atmospheric Lighting & Optical Page Bloom Overlay
-      // Phase A: Golden Light Glow & Floating Sparkle Dust from Opening Pages (0.20 - 0.60)
-      if (progress >= 0.18 && progress <= 0.62) {
-        const glowPhase = progress < 0.40 ? (progress - 0.18) / 0.22 : (0.62 - progress) / 0.22;
-        const glowAlpha = Math.max(0, Math.min(0.28, glowPhase * 0.28));
+      // 2. Subtle Luxury Penthouse Floating Sunlight Sparkles (Atmospheric room motes)
+      const moteAlpha = Math.min(0.35, Math.max(0.12, 0.22 + Math.sin(progress * Math.PI) * 0.1));
+      magicalParticles.forEach((p) => {
+        const particleY = (p.y - (progress * p.speedY * 1.2)) % 1.0;
+        const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
+        const actualX = (p.x + Math.sin(progress * 8 + p.phase) * 0.03) * canvas.width;
+        const pAlpha = p.baseAlpha * moteAlpha;
 
-        if (glowAlpha > 0.02) {
-          const radialGlow = ctx.createRadialGradient(
-            canvas.width * 0.5, canvas.height * 0.52, 10,
-            canvas.width * 0.5, canvas.height * 0.52, canvas.width * 0.45
-          );
-          radialGlow.addColorStop(0, `rgba(251, 191, 36, ${glowAlpha.toFixed(3)})`);
-          radialGlow.addColorStop(0.45, `rgba(245, 158, 11, ${(glowAlpha * 0.5).toFixed(3)})`);
-          radialGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-          ctx.globalAlpha = 1.0;
-          ctx.fillStyle = radialGlow;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          // Render fast pre-rendered particle sprite
-          magicalParticles.forEach((p) => {
-            const particleY = (p.y - (progress * p.speedY * 2)) % 1.0;
-            const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
-            const actualX = (p.x + Math.sin(progress * 15 + p.phase) * 0.04) * canvas.width;
-            const pAlpha = p.baseAlpha * glowPhase;
-
-            if (pAlpha > 0.05) {
-              ctx.globalAlpha = pAlpha;
-              ctx.drawImage(particleSpriteCanvas, actualX - p.size, actualY - p.size, p.size * 2, p.size * 2);
-            }
-          });
-          ctx.globalAlpha = 1.0;
+        if (pAlpha > 0.04) {
+          ctx.globalAlpha = pAlpha;
+          ctx.drawImage(particleSpriteCanvas, actualX - p.size, actualY - p.size, p.size * 1.8, p.size * 1.8);
         }
-      }
-
-      // Phase B: Page Dive Cloud Mist / Sunburst Veil (0.52 - 0.74)
-      if (progress >= 0.52 && progress <= 0.74) {
-        const mistPhase = progress < 0.63 ? (progress - 0.52) / 0.11 : (0.74 - progress) / 0.11;
-        const mistAlpha = Math.max(0, Math.min(0.22, mistPhase * 0.22));
-
-        if (mistAlpha > 0.02) {
-          const sunburst = ctx.createRadialGradient(
-            canvas.width * 0.5, canvas.height * 0.46, 30,
-            canvas.width * 0.5, canvas.height * 0.46, canvas.width * 0.55
-          );
-          sunburst.addColorStop(0, `rgba(255, 255, 245, ${mistAlpha.toFixed(3)})`);
-          sunburst.addColorStop(0.6, `rgba(254, 243, 199, ${(mistAlpha * 0.5).toFixed(3)})`);
-          sunburst.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-          ctx.globalAlpha = 1.0;
-          ctx.fillStyle = sunburst;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-      }
-
-      // Phase C: Volumetric Sunset God Rays & Ambient Golden Atmosphere (0.70 - 1.00)
-      if (progress >= 0.70) {
-        const skyPhase = (progress - 0.70) / 0.30;
-        const rayAlpha = Math.min(0.28, skyPhase * 0.28);
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-        const sunCenterX = canvas.width * 0.50;
-        const sunCenterY = canvas.height * 0.72;
-
-        // Soft golden sun aura
-        const sunGlow = ctx.createRadialGradient(
-          sunCenterX, sunCenterY, 20,
-          sunCenterX, sunCenterY, canvas.width * 0.70
-        );
-        sunGlow.addColorStop(0, `rgba(254, 240, 138, ${(rayAlpha * 1.5).toFixed(3)})`);
-        sunGlow.addColorStop(0.35, `rgba(245, 158, 11, ${(rayAlpha * 0.8).toFixed(3)})`);
-        sunGlow.addColorStop(0.70, `rgba(217, 119, 6, ${(rayAlpha * 0.35).toFixed(3)})`);
-        sunGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = sunGlow;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Volumetric light ray fans (reusing single pre-calculated gradient)
-        const rayGrad = ctx.createRadialGradient(
-          sunCenterX, sunCenterY, 30,
-          sunCenterX, sunCenterY, canvas.width * 0.85
-        );
-        rayGrad.addColorStop(0, `rgba(255, 248, 220, ${(rayAlpha * 0.95).toFixed(3)})`);
-        rayGrad.addColorStop(0.55, `rgba(251, 191, 36, ${(rayAlpha * 0.45).toFixed(3)})`);
-        rayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = rayGrad;
-
-        const numRays = 5;
-        for (let r = 0; r < numRays; r++) {
-          const baseAngle = -Math.PI * 0.5 + (r - (numRays - 1) / 2) * 0.25;
-          const rayW = 0.11 + Math.sin(progress * 6 + r) * 0.025;
-          ctx.beginPath();
-          ctx.moveTo(sunCenterX, sunCenterY);
-          ctx.lineTo(sunCenterX + Math.cos(baseAngle - rayW) * canvas.width * 1.2, sunCenterY + Math.sin(baseAngle - rayW) * canvas.height * 1.2);
-          ctx.lineTo(sunCenterX + Math.cos(baseAngle + rayW) * canvas.width * 1.2, sunCenterY + Math.sin(baseAngle + rayW) * canvas.height * 1.2);
-          ctx.closePath();
-          ctx.fill();
-        }
-
-        // Floating golden dust particles in the sunset
-        magicalParticles.forEach((p) => {
-          const particleY = (p.y - (progress * p.speedY * 1.5)) % 1.0;
-          const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
-          const actualX = (p.x + Math.sin(progress * 12 + p.phase) * 0.06) * canvas.width;
-          const pAlpha = p.baseAlpha * skyPhase * 0.9;
-          if (pAlpha > 0.05) {
-            ctx.globalAlpha = pAlpha;
-            ctx.drawImage(particleSpriteCanvas, actualX - p.size, actualY - p.size, p.size * 2.2, p.size * 2.2);
-          }
-        });
-
-        ctx.restore();
-      }
+      });
+      ctx.globalAlpha = 1.0;
     }
 
     // 3. HUD & Progress bar (DOM State Diffing)
@@ -3685,9 +3581,19 @@ function setupPortalIntroClick() {
     }
 
     if (hudText) {
-      const targetText = progress >= 0.70 
-        ? 'AŞAĞI DOĞRU KAYDIRARAK KEŞFEDİN' 
-        : 'AŞAĞI KAYDIRIN VEYA DOKUNUN';
+      let targetText = 'AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN';
+      if (progress < 0.28) {
+        targetText = '✦ GİRİŞ & SALON — AŞAĞI KAYDIRIN ✦';
+      } else if (progress < 0.55) {
+        targetText = '✦ PANORAMİK SALON & MANZARA ✦';
+      } else if (progress < 0.78) {
+        targetText = '✦ ADA MUTFAK & MİMARİ DETAYLAR ✦';
+      } else if (progress < 0.94) {
+        targetText = '✦ MASTER SUİT & MARBLE SPA ✦';
+      } else {
+        targetText = '✦ HİZMET ŞEHİRLERİMİZ & HARİTA ➔ ✦';
+      }
+
       if (targetText !== lastHudText) {
         hudText.textContent = targetText;
         lastHudText = targetText;
@@ -3696,125 +3602,55 @@ function setupPortalIntroClick() {
 
     const sjhIconEl = hud ? hud.querySelector('.sjh-icon') : null;
     if (sjhIconEl) {
-      const desiredIcon = '🧭';
+      const desiredIcon = progress >= 0.94 ? '🗺️' : '🏠';
       if (sjhIconEl.textContent !== desiredIcon) sjhIconEl.textContent = desiredIcon;
     }
-    const sjhArrowEl = hud ? hud.querySelector('.sjh-arrow') : null;
-    if (sjhArrowEl) {
-      sjhArrowEl.style.display = 'inline-block';
-    }
 
-    // 4. Stable 1:1 Camera Parity (No synthetic scale distortion)
+    // 4. Stable 1:1 Camera Parity
     if (canvas && canvas.style.transform) {
       canvas.style.transform = 'none';
     }
 
-    // 5. Splittable Valley Slogan (Appears strictly when soaring in the fantasy valley)
-    const updateSplittableSlogan = (boxId, leftId, rightId, subId, p, start, enterPeak, exitStart, end) => {
-      const box = document.getElementById(boxId);
-      if (!box) return;
+    // 5. Update Minimal Editorial Luxury Room Overlays
+    const updateRoomOverlay = (cardId, p, start, enterPeak, exitStart, end) => {
+      const card = document.getElementById(cardId);
+      if (!card) return;
 
       if (p < start || p > end) {
-        if (box.style.visibility !== 'hidden') {
-          box.style.visibility = 'hidden';
-          box.style.opacity = '0';
+        if (card.style.visibility !== 'hidden') {
+          card.style.visibility = 'hidden';
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
         }
         return;
       }
 
-      box.style.visibility = 'visible';
+      card.style.visibility = 'visible';
+      card.style.pointerEvents = 'auto';
 
-      let leftTx = 0;
-      let rightTx = 0;
-      let leftRot = 0;
-      let rightRot = 0;
-      let wordOp = 1.0;
+      let op = 1.0;
+      let ty = 0;
 
       if (p < enterPeak) {
-        // Softly entering and merging into center while flying into the valley
-        const t = (p - start) / (enterPeak - start);
-        const easeT = 1.0 - Math.pow(1.0 - t, 2);
-        wordOp = easeT;
-        leftTx = (1.0 - easeT) * -30;
-        rightTx = (1.0 - easeT) * 30;
+        const t = (p - start) / Math.max(0.001, enterPeak - start);
+        op = t;
+        ty = (1.0 - t) * 20;
       } else if (p > exitStart) {
-        // Splitting into two halves and flying outward to screen edges as royal banners descend!
-        const t = (p - exitStart) / (end - exitStart);
-        const easeT = Math.pow(t, 1.8);
-        wordOp = Math.max(0, 1.0 - easeT * 1.25);
-        leftTx = -easeT * 55; // 55vw left
-        rightTx = easeT * 55; // 55vw right
-        leftRot = -easeT * 7;
-        rightRot = easeT * 7;
+        const t = (p - exitStart) / Math.max(0.001, end - exitStart);
+        op = Math.max(0, 1.0 - t);
+        ty = -t * 20;
       }
 
-      box.style.opacity = '1';
-
-      const leftEl = document.getElementById(leftId);
-      const rightEl = document.getElementById(rightId);
-      const subEl = subId ? document.getElementById(subId) : null;
-      const dividerEl = document.getElementById('slogan1Divider');
-
-      if (leftEl) {
-        const unit = p > exitStart ? 'vw' : 'px';
-        leftEl.style.transform = `translate3d(${leftTx.toFixed(2)}${unit}, 0, 0) rotateZ(${leftRot.toFixed(2)}deg)`;
-        leftEl.style.opacity = wordOp.toFixed(2);
-      }
-      if (rightEl) {
-        const unit = p > exitStart ? 'vw' : 'px';
-        rightEl.style.transform = `translate3d(${rightTx.toFixed(2)}${unit}, 0, 0) rotateZ(${rightRot.toFixed(2)}deg)`;
-        rightEl.style.opacity = wordOp.toFixed(2);
-      }
-      if (subEl) {
-        subEl.style.opacity = (wordOp * 0.95).toFixed(2);
-        const subTy = p > exitStart ? -((p - exitStart) / (end - exitStart)) * 25 : (1.0 - wordOp) * 15;
-        subEl.style.transform = `translate3d(0, ${subTy.toFixed(2)}px, 0)`;
-      }
-      if (dividerEl) {
-        dividerEl.style.opacity = (wordOp * 0.9).toFixed(2);
-      }
+      card.style.opacity = op.toFixed(2);
+      card.style.transform = `translate(-50%, calc(-50% + ${ty.toFixed(1)}px))`;
     };
 
-    // User directive: Slogan appears strictly while gliding in the valley (0.37 - 0.58), completely hidden in book phase and sky phase
-    updateSplittableSlogan('slogan1', 'slogan1Left', 'slogan1Right', 'slogan1Sub', progress, 0.37, 0.42, 0.51, 0.58);
-
-    // 6. Majestic Sky Typography (Replaces Banners / Flags - "aşşagı dogru kaysın")
-    const heroSkyLayer = document.getElementById('heroSkyTextLayer');
-    const heroSkyCard = document.getElementById('heroSkyCard');
-    
-    let skyTextOpacity = 0;
-    let skyTextProgress = 0;
-    if (progress > 0.60) {
-      skyTextProgress = Math.min(1.0, (progress - 0.60) / 0.20);
-      skyTextOpacity = 1.0 - Math.pow(1.0 - skyTextProgress, 2);
-    }
-
-    if (skyTextOpacity > 0.01 && heroSkyLayer) {
-      heroSkyLayer.style.opacity = skyTextOpacity.toFixed(2);
-      heroSkyLayer.style.visibility = 'visible';
-      heroSkyLayer.style.pointerEvents = skyTextOpacity > 0.35 ? 'auto' : 'none';
-
-      if (heroSkyCard) {
-        // "aşşagı dogru kaysın": smooth continuous downward gliding parallax as scroll progresses
-        const glideDownOffset = (1.0 - skyTextProgress) * -50 + (progress - 0.60) * 65;
-        heroSkyCard.style.transform = `translate3d(0, ${glideDownOffset.toFixed(1)}px, 0)`;
-      }
-    } else if (heroSkyLayer) {
-      heroSkyLayer.style.opacity = '0';
-      heroSkyLayer.style.visibility = 'hidden';
-      heroSkyLayer.style.pointerEvents = 'none';
-    }
-
-    if (poleLeft) {
-      poleLeft.style.opacity = '0';
-      poleLeft.style.visibility = 'hidden';
-      poleLeft.style.pointerEvents = 'none';
-    }
-    if (poleRight) {
-      poleRight.style.opacity = '0';
-      poleRight.style.visibility = 'hidden';
-      poleRight.style.pointerEvents = 'none';
-    }
+    // Card 1: Foyer & Living Room (0.00 to 0.32) - fully visible on landing
+    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.22, 0.32);
+    // Card 2: Island Kitchen & Dining (0.35 to 0.67)
+    updateRoomOverlay('roomCard2', progress, 0.35, 0.42, 0.58, 0.67);
+    // Card 3: Master Suite & Marble Spa (0.70 to 0.96)
+    updateRoomOverlay('roomCard3', progress, 0.70, 0.77, 0.88, 0.96);
   };
 
   // ── SOFT LERP DAMPING ENGINE (Purely driven by user scroll target) ──

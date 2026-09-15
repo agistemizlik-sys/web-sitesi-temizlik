@@ -20186,128 +20186,94 @@ html, body {
 }
 
 /* ==========================================================================
-   ✨ LUXURY CINEMATIC STORYTELLING SLOGANS (SPLITTABLE MANUSCRIPT TYPOGRAPHY)
+   🏠 LUXURY HOUSE WALKTHROUGH EDITORIAL OVERLAYS & CONTROLS
    ========================================================================== */
-.cinematic-slogans-layer {
+.house-walk-vignette {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
-  z-index: 11;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.08) 35%, rgba(2, 6, 23, 0.45) 80%, rgba(2, 6, 23, 0.8) 100%);
+  z-index: 5;
 }
 
-.slogan-manuscript-box {
+.book-portal-topbar {
   position: absolute;
-  top: 48%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 92vw;
-  width: 100%;
-  text-align: center;
+  top: 24px;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  will-change: transform, opacity;
-  pointer-events: none;
+  padding: 0 clamp(20px, 4vw, 56px);
+  pointer-events: auto;
 }
 
-.slogan-split-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: clamp(8px, 2vw, 24px);
-  width: 100%;
-}
-
-.slogan-word-left,
-.slogan-word-right {
-  display: inline-block;
-  will-change: transform, opacity;
-  line-height: 1.25;
-}
-
-/* 📜 THEME 1: CELESTIAL GOLD VALLEY INSCRIPTION (Vadide Süzülürken) */
-.slogan-book-theme {
-  top: 38%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: clamp(320px, 64vw, 760px);
-}
-
-.slogan-book-theme .slogan-word-left,
-.slogan-book-theme .slogan-word-right {
-  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.8rem, 3.6vw, 3.2rem);
-  font-weight: 800;
-  font-style: italic;
-  letter-spacing: 0.04em;
-  background: linear-gradient(180deg, #ffffff 0%, #fef3c7 40%, #fbbf24 80%, #d97706 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 24px rgba(251, 191, 36, 0.6));
-  text-shadow: none;
-}
-
-.manuscript-divider {
+.book-portal-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
-  margin-top: 10px;
-  color: #fbbf24;
-  font-size: 0.95rem;
-  opacity: 0.95;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 16px rgba(251, 191, 36, 0.7));
+  user-select: none;
 }
 
-.manuscript-line {
-  width: clamp(30px, 8vw, 65px);
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+.book-portal-logo {
+  filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.75));
 }
 
-.slogan-sub-line {
-  font-family: 'Inter', -apple-system, sans-serif;
-  font-size: clamp(0.72rem, 1.3vw, 1rem);
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+.book-portal-brand-name {
+  font-family: var(--font-serif, 'Cormorant Garamond', serif);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+.book-portal-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.book-portal-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.95);
-  margin-top: 10px;
-  text-align: center;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-@media (max-width: 768px) {
-  .slogan-book-theme {
-    top: 32%;
-    max-width: 90vw;
-  }
-  .slogan-book-theme .slogan-word-left,
-  .slogan-book-theme .slogan-word-right {
-    font-size: clamp(1.45rem, 5.8vw, 2.1rem);
-  }
-  .slogan-sub-line {
-    font-size: 0.68rem;
-    letter-spacing: 0.16em;
-  }
+.book-portal-quick-btn:hover {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(251, 191, 36, 0.6);
+  color: #fbbf24;
+  transform: translateY(-1px);
 }
 
-/* ==========================================================================
-   ✨ MAJESTIC HERO SKY TYPOGRAPHY (NO FLAGS / CONTINUOUS SCROLL FLOW)
-   ========================================================================== */
-.hero-sky-text-layer {
+.book-portal-quick-btn.primary {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.15) 100%);
+  border-color: rgba(251, 191, 36, 0.65);
+  color: #fef08a;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.25);
+}
+
+.book-portal-quick-btn.primary:hover {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(245, 158, 11, 0.25) 100%);
+  border-color: #fbbf24;
+  color: #ffffff;
+}
+
+.house-walk-overlays {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -20317,13 +20283,15 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
-  overflow: hidden;
-  transition: opacity 0.3s ease;
+  padding: 0 24px;
 }
 
-.hero-sky-card {
-  max-width: clamp(340px, 82vw, 860px);
+.house-room-card {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: clamp(340px, 80vw, 760px);
   width: 100%;
   text-align: center;
   display: flex;
@@ -20331,121 +20299,187 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 48px);
-  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.76) 0%, rgba(3, 7, 18, 0.90) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(251, 191, 36, 0.45);
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.72) 0%, rgba(3, 7, 18, 0.88) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(251, 191, 36, 0.4);
   border-radius: 28px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(251, 191, 36, 0.22);
-  cursor: pointer;
-  pointer-events: auto;
-  user-select: none;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 40px rgba(251, 191, 36, 0.18);
+  opacity: 0;
+  visibility: hidden;
   will-change: transform, opacity;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  pointer-events: none;
 }
 
-.hero-sky-card:hover {
-  border-color: rgba(251, 191, 36, 0.85);
-  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.85), 0 0 60px rgba(251, 191, 36, 0.4);
-}
-
-.hero-sky-badge {
+.house-room-card .room-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 18px;
+  padding: 5px 16px;
   border-radius: 9999px;
   background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.38);
   color: #fbbf24;
-  font-size: clamp(0.72rem, 1.2vw, 0.88rem);
+  font-size: clamp(0.70rem, 1.1vw, 0.82rem);
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
-.hero-sky-badge .hsb-dot {
-  color: #f59e0b;
-  font-size: 0.85em;
-}
-
-.hero-sky-headline {
-  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.9rem, 4.2vw, 3.8rem);
+.house-room-card .room-title {
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(1.85rem, 3.8vw, 3.4rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.16;
   letter-spacing: 0.02em;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+
+.house-room-card .room-gradient {
   background: linear-gradient(180deg, #ffffff 0%, #fef3c7 45%, #fbbf24 85%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 28px rgba(251, 191, 36, 0.65));
-  margin: 0 0 16px 0;
+  filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.6));
 }
 
-.hero-sky-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: #fbbf24;
-  font-size: 1.1rem;
-  margin-bottom: 18px;
-}
-
-.hero-sky-divider .hsd-line {
-  display: inline-block;
-  width: clamp(40px, 8vw, 80px);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
-}
-
-.hero-sky-desc {
+.house-room-card .room-desc {
   font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: clamp(0.95rem, 1.6vw, 1.22rem);
-  font-weight: 500;
-  line-height: 1.6;
+  font-size: clamp(0.92rem, 1.4vw, 1.12rem);
+  font-weight: 400;
+  line-height: 1.55;
   color: rgba(241, 245, 249, 0.92);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-  max-width: 680px;
-  margin: 0 0 26px 0;
+  max-width: 580px;
+  margin: 0;
 }
 
-.hero-sky-cta-wrap {
+.scroll-journey-hud {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  user-select: none;
 }
 
-.hero-sky-scroll-pill {
+.sjh-badge {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(251, 191, 36, 0.6);
+  color: #fbbf24;
+  padding: 10px 22px;
+  border-radius: 40px;
+  font-size: clamp(0.78rem, 1.2vw, 0.90rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(251, 191, 36, 0.25);
+  transition: all 0.25s ease;
+}
+
+.sjh-badge:hover {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 30px rgba(251, 191, 36, 0.4);
+}
+
+.sjh-arrow {
+  animation: sjhBounceDown 1.5s infinite;
+}
+
+@keyframes sjhBounceDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+.sjh-progress-bar-wrap {
+  width: 170px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+#sjhProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #fbbf24);
+  transition: width 0.08s linear;
+}
+
+.portal-skip-btn {
+  position: absolute;
+  bottom: 28px;
+  right: clamp(20px, 4vw, 48px);
+  z-index: 20;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.15) 100%);
-  border: 1.5px solid rgba(251, 191, 36, 0.65);
-  color: #fef08a;
-  padding: 10px 24px;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 9px 18px;
   border-radius: 9999px;
-  font-size: clamp(0.85rem, 1.3vw, 0.98rem);
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.3);
-  animation: heroPillGlide 2s ease-in-out infinite;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s ease;
 }
 
-.hero-sky-scroll-pill .hsc-icon {
-  font-size: 1.15em;
+.portal-skip-btn:hover {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: #fbbf24;
   color: #fbbf24;
+  transform: translateX(2px);
 }
 
-@keyframes heroPillGlide {
-  0%, 100% {
-    transform: translateY(0);
+@media (max-width: 768px) {
+  .book-portal-topbar {
+    top: 16px;
+    padding: 0 16px;
   }
-  50% {
-    transform: translateY(6px);
+  .book-portal-top-actions .book-portal-quick-btn:first-child {
+    display: none;
+  }
+  .portal-skip-btn {
+    display: none;
+  }
+  .house-room-card {
+    top: 42%;
+    padding: 20px 16px;
+    max-width: 90vw;
+    border-radius: 20px;
+  }
+  .house-room-card .room-title {
+    font-size: clamp(1.4rem, 5.8vw, 1.95rem);
+    margin-bottom: 8px;
+  }
+  .house-room-card .room-desc {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+  .scroll-journey-hud {
+    display: none !important;
   }
 }
+
 
 /* ==========================================================================
    🪢 ROYAL INTERACTIVE COUNTRY BANNERS (EXACT USER REFERENCE DESIGN)
