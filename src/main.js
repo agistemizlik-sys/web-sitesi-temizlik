@@ -13363,76 +13363,62 @@ function initHeroScrollCinematicTimeline() {
   const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const heroVideos = hero.querySelectorAll('.wp-hero-video');
   const topbar = hero.querySelector('.wp-hero-topbar');
-  const badge = hero.querySelector('.wp-hero-badge');
-  const title = hero.querySelector('.wp-hero-title');
-  const dividerLines = hero.querySelectorAll('.wp-hdivider-line');
-  const desc = hero.querySelector('.wp-hero-desc');
-  const ctaButtons = hero.querySelectorAll('.wp-hero-cta-group > *');
-  const trustStrip = hero.querySelector('.wp-hero-trust-strip');
-  const scrollPrompt = hero.querySelector('.wp-hero-scroll-prompt');
+  const eyebrow = hero.querySelector('.wp-cover-eyebrow, .wp-hero-badge');
+  const title = hero.querySelector('.wp-cover-title, .wp-hero-title');
+  const subline = hero.querySelector('.wp-cover-subline, .wp-hero-desc');
+  const ctaBtn = hero.querySelector('.wp-cover-btn-primary, .wp-hero-btn-primary');
+  const scrollIndicator = hero.querySelector('.wp-cover-scroll-indicator, .wp-hero-scroll-prompt');
   const vignette = hero.querySelector('.wp-hero-vignette');
   const particlesGlow = hero.querySelector('.wp-hero-particles-glow');
 
   if (isReducedMotion) {
-    if (heroVideos.length) gsap.set(heroVideos, { opacity: 0.88, scale: 1 });
+    if (heroVideos.length) gsap.set(heroVideos, { opacity: 0.95, scale: 1 });
     return;
   }
 
-  // 1. Initial Page Load Reveal Sequence (Spring ease entrance)
+  // 1. Initial Page Load Reveal Sequence (Editorial Spring Ease)
   const loadTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
   if (heroVideos.length) {
     loadTl.fromTo(heroVideos, 
-      { opacity: 0, scale: 1.08 }, 
-      { opacity: 0.88, scale: 1, duration: 1.4, ease: 'power2.out' }, 0);
+      { opacity: 0, scale: 1.06 }, 
+      { opacity: 0.95, scale: 1, duration: 1.5, ease: 'power2.out' }, 0);
   }
 
   if (topbar) {
     loadTl.fromTo(topbar, 
-      { y: -30, opacity: 0 }, 
+      { y: -25, opacity: 0 }, 
       { y: 0, opacity: 1, duration: 0.8 }, 0.15);
   }
 
-  if (badge) {
-    loadTl.fromTo(badge, 
-      { y: -25, opacity: 0, scale: 0.88 }, 
-      { y: 0, opacity: 1, scale: 1, duration: 0.85, ease: 'back.out(1.4)' }, 0.3);
+  if (eyebrow) {
+    loadTl.fromTo(eyebrow, 
+      { y: -20, opacity: 0 }, 
+      { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out' }, 0.3);
   }
 
   if (title) {
     loadTl.fromTo(title, 
-      { y: 40, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 0.95 }, 0.4);
+      { y: 45, opacity: 0 }, 
+      { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out' }, 0.4);
   }
 
-  if (dividerLines && dividerLines.length > 0) {
-    loadTl.fromTo(dividerLines, 
-      { scaleX: 0 }, 
-      { scaleX: 1, duration: 0.8, ease: 'power2.out', transformOrigin: 'center center' }, 0.55);
-  }
-
-  if (desc) {
-    loadTl.fromTo(desc, 
+  if (subline) {
+    loadTl.fromTo(subline, 
       { y: 25, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 0.85 }, 0.65);
+      { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out' }, 0.6);
   }
 
-  if (ctaButtons && ctaButtons.length > 0) {
-    loadTl.fromTo(ctaButtons, 
+  if (ctaBtn) {
+    loadTl.fromTo(ctaBtn, 
       { y: 25, opacity: 0, scale: 0.94 }, 
-      { y: 0, opacity: 1, scale: 1, duration: 0.75, stagger: 0.12, ease: 'back.out(1.2)' }, 0.75);
+      { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.2)' }, 0.75);
   }
 
-  if (trustStrip) {
-    loadTl.fromTo(trustStrip, 
-      { y: 25, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 0.8 }, 0.9);
-  }
-
-  if (scrollPrompt) {
-    loadTl.fromTo(scrollPrompt, 
-      { opacity: 0, y: 18 }, 
-      { opacity: 1, y: 0, duration: 0.8 }, 1.05);
+  if (scrollIndicator) {
+    loadTl.fromTo(scrollIndicator, 
+      { opacity: 0, y: 15 }, 
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0.95);
   }
 
   // 2. High-Performance Scroll-Linked Parallax & Dissolve Timeline (ScrollTrigger)
@@ -13450,9 +13436,9 @@ function initHeroScrollCinematicTimeline() {
     // A. Video Camera Depth Parallax (Zoom in + subtle downward drift)
     if (heroVideos.length) {
       scrollTl.to(heroVideos, {
-        scale: 1.22,
+        scale: 1.25,
         yPercent: 18,
-        filter: 'brightness(0.60) contrast(1.1) saturate(1.15)',
+        filter: 'brightness(0.65) contrast(1.1) saturate(1.15)',
         ease: 'none'
       }, 0);
     }
@@ -13461,7 +13447,7 @@ function initHeroScrollCinematicTimeline() {
     if (vignette) {
       scrollTl.to(vignette, {
         opacity: 1,
-        backgroundColor: 'rgba(2, 6, 23, 0.85)',
+        backgroundColor: 'rgba(2, 6, 23, 0.88)',
         ease: 'none'
       }, 0);
     }
@@ -13477,20 +13463,20 @@ function initHeroScrollCinematicTimeline() {
     // C. Topbar glides away
     if (topbar) {
       scrollTl.to(topbar, {
-        y: -45,
+        y: -35,
         opacity: 0,
         ease: 'power1.in'
       }, 0);
     }
 
-    // D. Multi-layer content elevation, shrink, blur, and dissolve
-    if (scrollPrompt) {
-      // Scroll cue vanishes immediately in initial 15% of scroll
-      gsap.to(scrollPrompt, {
+    // D. Minimal Cover Content Dissolve
+    if (scrollIndicator) {
+      // Scroll cue vanishes immediately in initial 12% of scroll
+      gsap.to(scrollIndicator, {
         scrollTrigger: {
           trigger: hero,
           start: 'top top',
-          end: '15% top',
+          end: '12% top',
           scrub: true
         },
         opacity: 0,
@@ -13499,10 +13485,9 @@ function initHeroScrollCinematicTimeline() {
       });
     }
 
-    if (badge) {
-      scrollTl.to(badge, {
-        y: -45,
-        scale: 0.92,
+    if (eyebrow) {
+      scrollTl.to(eyebrow, {
+        y: -40,
         opacity: 0,
         ease: 'power1.out'
       }, 0);
@@ -13513,54 +13498,36 @@ function initHeroScrollCinematicTimeline() {
         y: -65,
         scale: 0.95,
         opacity: 0,
-        filter: 'blur(8px)',
+        filter: 'blur(10px)',
         ease: 'power1.out'
       }, 0);
     }
 
-    if (dividerLines && dividerLines.length > 0) {
-      scrollTl.to(dividerLines, {
-        scaleX: 0,
-        opacity: 0,
-        ease: 'power1.out'
-      }, 0.05);
-    }
-
-    if (desc) {
-      scrollTl.to(desc, {
-        y: -55,
-        opacity: 0,
-        ease: 'power1.out'
-      }, 0.05);
-    }
-
-    if (ctaButtons && ctaButtons.length > 0) {
-      scrollTl.to(ctaButtons, {
+    if (subline) {
+      scrollTl.to(subline, {
         y: -45,
         opacity: 0,
-        scale: 0.94,
-        stagger: 0.03,
         ease: 'power1.out'
-      }, 0.1);
+      }, 0.05);
     }
 
-    if (trustStrip) {
-      scrollTl.to(trustStrip, {
-        y: -40,
+    if (ctaBtn) {
+      scrollTl.to(ctaBtn, {
+        y: -35,
         opacity: 0,
-        scale: 0.96,
+        scale: 0.94,
         ease: 'power1.out'
-      }, 0.1);
+      }, 0.05);
     }
   }
 
   // 3. Desktop Interactive 3D Cursor Tilt (Micro-Parallax)
   if (window.matchMedia('(min-width: 1025px) and (pointer: fine)').matches) {
-    const titleText = hero.querySelector('.wp-hero-title');
-    const badgeEl = hero.querySelector('.wp-hero-badge');
-    if (titleText && badgeEl) {
-      const setBadgeX = gsap.quickTo(badgeEl, 'x', { duration: 0.6, ease: 'power2.out' });
-      const setBadgeY = gsap.quickTo(badgeEl, 'y', { duration: 0.6, ease: 'power2.out' });
+    const titleText = hero.querySelector('.wp-cover-title, .wp-hero-title');
+    const eyebrowEl = hero.querySelector('.wp-cover-eyebrow, .wp-hero-badge');
+    if (titleText && eyebrowEl) {
+      const setEyebrowX = gsap.quickTo(eyebrowEl, 'x', { duration: 0.6, ease: 'power2.out' });
+      const setEyebrowY = gsap.quickTo(eyebrowEl, 'y', { duration: 0.6, ease: 'power2.out' });
       const setTitleRotateX = gsap.quickTo(titleText, 'rotationX', { duration: 0.8, ease: 'power2.out' });
       const setTitleRotateY = gsap.quickTo(titleText, 'rotationY', { duration: 0.8, ease: 'power2.out' });
 
@@ -13569,15 +13536,15 @@ function initHeroScrollCinematicTimeline() {
         const normX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
         const normY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
 
-        setBadgeX(normX * 12);
-        setBadgeY(normY * 8);
-        setTitleRotateY(normX * 6);
-        setTitleRotateX(-normY * 5);
+        setEyebrowX(normX * 8);
+        setEyebrowY(normY * 5);
+        setTitleRotateY(normX * 5);
+        setTitleRotateX(-normY * 4);
       }, { passive: true });
 
       hero.addEventListener('mouseleave', () => {
-        setBadgeX(0);
-        setBadgeY(0);
+        setEyebrowX(0);
+        setEyebrowY(0);
         setTitleRotateX(0);
         setTitleRotateY(0);
       }, { passive: true });
