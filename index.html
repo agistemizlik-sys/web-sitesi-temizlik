@@ -423,164 +423,109 @@
   <canvas id="dust-canvas" aria-hidden="true"></canvas>
   
   <!-- 📖 IMMERSIVE FIRST-PERSON FULL-SCREEN INTRO PORTAL -->
+  <!-- ==========================================
+       ✨ 1. WORDPRESS CINEMATIC LUXURY HERO SECTION
+       ========================================== -->
   <div id="hero-section" style="position:relative; top:0; height:0; pointer-events:none;"></div>
-  <div id="book-scroll-hero-track" class="book-scroll-hero-track">
-    <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport">
-      <!-- Canvas Frame-by-Frame Scrub Renderer for Instant 120fps Scroll Response -->
-      <canvas id="portalIntroCanvas" class="portal-intro-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; will-change: transform;"></canvas>
+  <section class="wp-hero-cinematic" id="heroSection" aria-label="RELAXAX Premium Hijyen">
+    <!-- 1. Ultra-HD Cinematic Video Background -->
+    <div class="wp-hero-video-wrap">
+      <video class="wp-hero-video desktop-video" autoplay muted loop playsinline preload="auto" poster="/images/hero_luxury_poster.jpg">
+        <source src="/videos/hero_luxury_clean.mp4" type="video/mp4" />
+      </video>
+      <video class="wp-hero-video mobile-video" autoplay muted loop playsinline preload="auto" poster="/images/hero_luxury_poster.jpg">
+        <source src="/videos/hero_luxury_clean_mobile.mp4" type="video/mp4" />
+      </video>
+      <div class="wp-hero-vignette"></div>
+      <div class="wp-hero-particles-glow"></div>
+    </div>
 
-      <!-- 👑 Top Luxury Header Bar -->
-      <header class="book-portal-topbar" style="position: absolute; top: 20px; left: 0; right: 0; z-index: 12; display: flex; justify-content: space-between; align-items: center; padding: 0 28px; pointer-events: auto;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <img src="/images/logo_leaf.svg" alt="RELAXAX" style="width: 32px; height: 32px; filter: drop-shadow(0 0 12px rgba(251,191,36,0.8));" />
-          <span style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 800; letter-spacing: 0.15em; color: #ffffff; text-shadow: 0 0 16px rgba(251,191,36,0.6);">RELAXAX</span>
-        </div>
-        <button type="button" class="book-quick-skip-btn" id="bookQuickSkipBtn" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});" aria-label="Şehir Haritasına Geç" style="background: rgba(15,23,42,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.7); color: #fbbf24; padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.5), 0 0 15px rgba(251,191,36,0.25);">
-          <span>🗺️ Şehir Haritası</span>
-          <span>➔</span>
-        </button>
-      </header>
-
-      <!-- ✨ LUXURY CINEMATIC SLOGAN (ELEGANT VALLEY CELESTIAL TYPOGRAPHY) -->
-      <div class="cinematic-slogans-layer" id="cinematicSlogansLayer" aria-hidden="true">
-        <!-- SLOGAN 1: Gliding through the fantasy valley -->
-        <div class="slogan-manuscript-box slogan-book-theme" id="slogan1">
-          <div class="slogan-split-row">
-            <span class="slogan-word-left" id="slogan1Left">“Temizliği</span>
-            <span class="slogan-word-right" id="slogan1Right">bizimle hisset.”</span>
-          </div>
-          <div class="manuscript-divider" id="slogan1Divider">
-            <span>❦</span> <span class="manuscript-line"></span> <span>✦</span> <span class="manuscript-line"></span> <span>❦</span>
-          </div>
-          <p class="slogan-sub-line" id="slogan1Sub">Ayrıcalıklı Hijyen &amp; Saray Zarafeti</p>
-        </div>
+    <!-- 2. Hero Luxury Header Bar -->
+    <header class="wp-hero-topbar">
+      <div class="wp-hero-brand">
+        <img src="/images/logo_leaf.svg" alt="RELAXAX" class="wp-hero-logo" width="32" height="32" />
+        <span class="wp-hero-brand-name">RELAXAX</span>
       </div>
+      <div class="wp-hero-top-actions">
+        <button type="button" class="wp-hero-quick-btn" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});" aria-label="Şehir Haritası">
+          <span>🗺️ Şehir Haritası</span>
+          <span class="quick-btn-arrow">➔</span>
+        </button>
+        <button type="button" class="wp-hero-quick-btn primary" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior: 'smooth'});" aria-label="Fiyat Hesapla">
+          <span>✨ Fiyat Hesapla</span>
+          <span class="quick-btn-arrow">➔</span>
+        </button>
+      </div>
+    </header>
 
-      <!-- ✨ MAJESTIC HERO SKY TYPOGRAPHY (REPLACES BANNERS / FLAGS) -->
-      <div class="hero-sky-text-layer" id="heroSkyTextLayer" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden;">
-        <div class="hero-sky-card" id="heroSkyCard" role="button" tabindex="0" aria-label="Aşağı Kaydırarak Keşfedin">
-          <div class="hero-sky-badge">
-            <span class="hsb-dot">✦</span>
-            <span>PREMİUM HİJYEN &amp; TEMİZLİK DENEYİMİ</span>
-            <span class="hsb-dot">✦</span>
+    <!-- 3. Main Center Content Card -->
+    <div class="wp-hero-container">
+      <div class="wp-hero-content">
+        <div class="wp-hero-badge">
+          <span class="wp-badge-sparkle">✦</span>
+          <span>5 YILDIZLI OTEL STANDARTLARINDA HİJYEN &amp; TEMİZLİK</span>
+          <span class="wp-badge-sparkle">✦</span>
+        </div>
+
+        <h1 class="wp-hero-title">
+          Evinizde Saray Zarafeti,<br />
+          <span class="wp-hero-gradient-text">Kusursuz Temizlik</span>
+        </h1>
+
+        <div class="wp-hero-divider">
+          <span>❦</span> <span class="wp-hdivider-line"></span> <span>✦</span> <span class="wp-hdivider-line"></span> <span>❦</span>
+        </div>
+
+        <p class="wp-hero-desc">
+          İstanbul, İzmir, Ankara, Antalya ve Warszawa'nın seçkin rezidans ve konutları için sertifikalı uzman kadro, nano-teknolojik buharlı arındırma ve %100 memnuniyet güvencesi.
+        </p>
+
+        <!-- 4. Dual Call-to-Action Buttons -->
+        <div class="wp-hero-cta-group">
+          <button type="button" class="wp-hero-btn-primary" onclick="document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});" aria-label="Canlı Fiyat Hesapla">
+            <span>✨ Canlı Fiyat Hesapla &amp; Randevu Al</span>
+            <span class="btn-arrow">➔</span>
+          </button>
+
+          <button type="button" class="wp-hero-btn-secondary" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior:'smooth'});" aria-label="Hizmet Şehirlerini İncele">
+            <span>📍 Hizmet Şehirlerini İncele</span>
+          </button>
+        </div>
+
+        <!-- 5. Trust Indicators Strip -->
+        <div class="wp-hero-trust-strip">
+          <div class="wp-hero-trust-item">
+            <span class="trust-icon">⭐</span>
+            <div class="trust-text">
+              <strong>4.98 / 5.0</strong>
+              <span>12.000+ Mutlu Ev</span>
+            </div>
           </div>
-          <h2 class="hero-sky-headline">Kusursuz Temizlik, Saray Zarafeti</h2>
-          <div class="hero-sky-divider">
-            <span>❦</span> <span class="hsd-line"></span> <span>✦</span> <span class="hsd-line"></span> <span>❦</span>
+          <div class="wp-hero-trust-item">
+            <span class="trust-icon">🛡️</span>
+            <div class="trust-text">
+              <strong>48 Nokta Denetim</strong>
+              <span>Fotoğraflı Kalite Karnesi</span>
+            </div>
           </div>
-          <p class="hero-sky-desc">Yaşam alanlarınız için 5 yıldızlı otel kalitesinde profesyonel temizlik. Aşağı doğru kaydırarak keşfedin.</p>
-          <div class="hero-sky-cta-wrap">
-            <div class="hero-sky-scroll-pill">
-              <span class="hsc-icon">↓</span>
-              <span class="hsc-text">AŞAĞI DOĞRU KAYDIRIN</span>
-              <span class="hsc-icon">↓</span>
+          <div class="wp-hero-trust-item">
+            <span class="trust-icon">⚡</span>
+            <div class="trust-text">
+              <strong>2 Saatte Ekspres</strong>
+              <span>Adrese Anında Sevk</span>
             </div>
           </div>
         </div>
+
+        <!-- 6. Downward Scroll Cue -->
+        <a href="#portal-stage" class="wp-hero-scroll-prompt" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior:'smooth'}); return false;" aria-label="Aşağı kaydırarak keşfedin">
+          <span class="scroll-mouse"><span class="scroll-wheel"></span></span>
+          <span class="scroll-text">AŞAĞI KAYDIRARAK KEŞFEDİN</span>
+          <span class="scroll-chevron">↓</span>
+        </a>
       </div>
-
-      <!-- Cinematic Ambient Vignette Overlay -->
-      <div class="cinematic-atmosphere-vignette" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, transparent 60%, rgba(2,6,23,0.3) 85%, rgba(2,6,23,0.65) 100%); z-index: 6;"></div>
-
-      <!-- Scroll Progress HUD & Prompt -->
-      <div class="scroll-journey-hud" id="scrollJourneyHud" style="position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 11; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; transition: opacity 0.3s ease;">
-        <div class="sjh-badge" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(251,191,36,0.6); color: #fbbf24; padding: 10px 24px; border-radius: 40px; font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.6), 0 0 20px rgba(251,191,36,0.25);">
-          <span class="sjh-icon">🧭</span>
-          <span id="sjhText">AŞAĞI KAYDIRIN & İLERLEYİN</span>
-          <span class="sjh-arrow" style="animation: bounceDown 1.5s infinite;">↓</span>
-        </div>
-        <div class="sjh-progress-bar-wrap" style="width: 160px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 9999px; overflow: hidden;">
-          <div id="sjhProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #fbbf24); transition: width 0.1s linear;"></div>
-        </div>
-      </div>
-
     </div>
-  </div>
-
-    <script>
-      (function(){
-        // Smooth scroll tracker initialization helper
-        window.dismissIntroScreen = function() {
-          var cso = document.getElementById('country-selector-overlay');
-          if (cso) {
-            cso.classList.remove('cso-hidden');
-            cso.style.display = 'flex';
-            cso.style.visibility = 'visible';
-            cso.style.opacity = '1';
-            cso.style.pointerEvents = 'all';
-          }
-        };
-
-        function attachSeamlessLoop(video) {
-          if (!video) return;
-          video.addEventListener('timeupdate', function() {
-            try {
-              if (video.duration > 0.5 && video.currentTime >= (video.duration - 0.05)) {
-                video.currentTime = 0;
-                var p = video.play();
-                if (p !== undefined) p.catch(function(){});
-              }
-            } catch(e){}
-          }, { passive: true });
-          video.addEventListener('ended', function() {
-            try {
-              video.currentTime = 0;
-              var p = video.play();
-              if (p !== undefined) p.catch(function(){});
-            } catch(e){}
-          });
-        }
-
-        function setMobileVideoSources() {
-          var isMob = (window.innerWidth <= 820) || (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-          
-          var intro = document.getElementById('portalIntroVideo');
-          if (intro) {
-            var targetIntro = '/videos/book_intro.mp4';
-            if (intro.getAttribute('src') !== targetIntro) {
-              intro.setAttribute('src', targetIntro);
-            }
-            intro.muted = true;
-            intro.playsInline = true;
-            intro.setAttribute('muted', '');
-            intro.setAttribute('playsinline', '');
-            intro.setAttribute('webkit-playsinline', '');
-            try { intro.pause(); intro.currentTime = 0; } catch(e){}
-          }
-
-          var earth = document.getElementById('csoEarthVideo');
-          if (earth) {
-            attachSeamlessLoop(earth);
-            var targetEarth = isMob ? '/videos/earth_rotating_mobil.mp4' : '/videos/earth_rotating.mp4';
-            if (earth.getAttribute('src') !== targetEarth) {
-              earth.setAttribute('src', targetEarth);
-              earth.muted = true;
-              earth.playsInline = true;
-              earth.setAttribute('muted', '');
-              earth.setAttribute('playsinline', '');
-            }
-          }
-
-          var ivy = document.getElementById('servicesIvyVideo');
-          if (ivy) {
-            attachSeamlessLoop(ivy);
-            var targetIvy = isMob ? '/videos/sarmasik_mobil.mp4' : '/videos/sarmasik.mp4';
-            if (ivy.getAttribute('src') !== targetIvy) {
-              ivy.setAttribute('src', targetIvy);
-              ivy.muted = true;
-              ivy.playsInline = true;
-              ivy.setAttribute('muted', '');
-              ivy.setAttribute('playsinline', '');
-            }
-          }
-        }
-
-        setMobileVideoSources();
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', setMobileVideoSources);
-        }
-      })();
-    </script>
+  </section>
   
   <!-- Accessibility skip link -->
   <a href="#main-content" class="sr-only">Ana içeriğe atla</a>
