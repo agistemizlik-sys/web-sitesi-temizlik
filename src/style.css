@@ -22728,6 +22728,14 @@ body.flag-selection-mode #main-nav,
   will-change: opacity, transform;
 }
 
+section.wp-reveal,
+.wp-section.wp-reveal,
+.services-showcase-section,
+.rx-prestige-section {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 .wp-reveal.is-revealed {
   opacity: 1 !important;
   transform: translateY(0) !important;
