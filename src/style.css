@@ -22730,10 +22730,20 @@ body.flag-selection-mode #main-nav,
 
 section.wp-reveal,
 .wp-section.wp-reveal,
-.services-showcase-section,
-.rx-prestige-section {
+.services-showcase-section {
   opacity: 1 !important;
   transform: none !important;
+}
+
+#portal-stage,
+.rx-prestige-section {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
 }
 
 .wp-reveal.is-revealed {

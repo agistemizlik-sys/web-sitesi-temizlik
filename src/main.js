@@ -3801,9 +3801,9 @@ function setupPortalIntroClick() {
       if (e) {
         try { e.stopPropagation(); } catch(err){}
       }
-      const citiesSec = document.getElementById('portal-stage') || document.getElementById('cities-section');
-      if (citiesSec) {
-        citiesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const targetSec = document.getElementById('servicesSection') || document.getElementById('bookingReveal');
+      if (targetSec) {
+        targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     };
     hud.addEventListener('click', handleHudAdvance);
@@ -3828,9 +3828,9 @@ function setupPortalIntroClick() {
   renderFrame(0);
 
   window._dismissIntroHero = () => {
-    const citiesSec = document.getElementById('portal-stage') || document.getElementById('cities-section');
-    if (citiesSec) {
-      citiesSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const targetSec = document.getElementById('servicesSection') || document.getElementById('bookingReveal');
+    if (targetSec) {
+      targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -3862,17 +3862,11 @@ function setupPortalIntroClick() {
     }
     const portalStageEl = document.getElementById('portal-stage');
     if (portalStageEl) {
-      portalStageEl.style.setProperty('display', 'flex', 'important');
-      portalStageEl.style.setProperty('opacity', '1', 'important');
-      portalStageEl.style.setProperty('visibility', 'visible', 'important');
-      portalStageEl.style.setProperty('pointer-events', 'all', 'important');
+      portalStageEl.style.setProperty('display', 'none', 'important');
     }
     const mapStageEl = document.querySelector('.portal-map-selector-stage');
     if (mapStageEl) {
-      mapStageEl.style.setProperty('display', 'block', 'important');
-      mapStageEl.style.setProperty('visibility', 'visible', 'important');
-      mapStageEl.style.setProperty('pointer-events', 'all', 'important');
-      mapStageEl.style.setProperty('opacity', '1', 'important');
+      mapStageEl.style.setProperty('display', 'none', 'important');
     }
     if (typeof window.selectCountryGlobal === 'function') {
       window.selectCountryGlobal('tr');
@@ -3881,6 +3875,7 @@ function setupPortalIntroClick() {
     } else if (typeof window.selectCountry === 'function') {
       window.selectCountry('tr');
     }
+    document.getElementById('servicesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => { isTransitioning = false; }, 600);
   };
 
@@ -3911,17 +3906,11 @@ function setupPortalIntroClick() {
     }
     const portalStageEl = document.getElementById('portal-stage');
     if (portalStageEl) {
-      portalStageEl.style.setProperty('display', 'flex', 'important');
-      portalStageEl.style.setProperty('opacity', '1', 'important');
-      portalStageEl.style.setProperty('visibility', 'visible', 'important');
-      portalStageEl.style.setProperty('pointer-events', 'all', 'important');
+      portalStageEl.style.setProperty('display', 'none', 'important');
     }
     const mapStageEl = document.querySelector('.portal-map-selector-stage');
     if (mapStageEl) {
-      mapStageEl.style.setProperty('display', 'block', 'important');
-      mapStageEl.style.setProperty('visibility', 'visible', 'important');
-      mapStageEl.style.setProperty('pointer-events', 'all', 'important');
-      mapStageEl.style.setProperty('opacity', '1', 'important');
+      mapStageEl.style.setProperty('display', 'none', 'important');
     }
     if (typeof window.selectCountryGlobal === 'function') {
       window.selectCountryGlobal('pl');
@@ -3930,6 +3919,7 @@ function setupPortalIntroClick() {
     } else if (typeof window.selectCountry === 'function') {
       window.selectCountry('pl');
     }
+    document.getElementById('servicesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => { isTransitioning = false; }, 600);
   };
 

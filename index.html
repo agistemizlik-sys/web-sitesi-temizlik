@@ -501,9 +501,9 @@
           <h2 class="room-title">Arınmış Bir Zihin,<br/><span class="room-gradient">Kusursuz Dinlenme.</span></h2>
           <p class="room-desc">Doğal esansiyel ferahlık, ipeksi dokular ve 5 yıldızlı huzur.</p>
           <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn secondary" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior:'smooth'});">
+            <button type="button" class="hero-primary-cta-btn secondary" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});">
               <span class="cta-icon">🗺️</span>
-              <span>Hizmet Şehirlerini Keşfet</span>
+              <span>Ayrıcalıklı Hizmetleri İncele</span>
               <span class="cta-arrow">➔</span>
             </button>
           </div>
@@ -512,7 +512,7 @@
 
       <!-- Scroll Progress HUD & Prompt -->
       <div class="scroll-journey-hud" id="scrollJourneyHud">
-        <div class="sjh-badge" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});">
+        <div class="sjh-badge" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});">
           <span class="sjh-icon">🏠</span>
           <span id="sjhText">AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN</span>
           <span class="sjh-arrow">↓</span>
@@ -523,8 +523,8 @@
       </div>
 
       <!-- Direct Skip / Explore Cities Button -->
-      <button type="button" class="portal-skip-btn" id="portalSkipBtn" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior: 'smooth'});" aria-label="Turu Geç">
-        <span>Şehirleri Keşfet</span>
+      <button type="button" class="portal-skip-btn" id="portalSkipBtn" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});" aria-label="Turu Geç">
+        <span>Hizmetleri İncele</span>
         <span class="skip-arrow">➔</span>
       </button>
     </div>
@@ -539,174 +539,10 @@
        PORTAL GATEWAY (Giriş & 6 Şehir Seçimi)
        ========================================== -->
   <div id="cities-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-  <section id="portal-stage" class="wp-section rx-prestige-section" aria-label="Ayrıcalıklı Yaşam ve Hizmet Standartları">
-    <div class="portal-ambient-bg" id="portalAmbientBg" aria-hidden="true"></div>
-
-    <!-- Hidden dummy element so legacy scripts don't fail -->
+  <!-- Hidden portal stage placeholder so legacy JS doesn't break -->
+  <div id="portal-stage" style="display: none !important; height: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden !important;">
     <div class="portal-map-selector-stage" style="display: none !important;"></div>
-
-    <div class="wp-container">
-      
-      <!-- Section Header -->
-      <div class="wp-section-header">
-        <div class="wp-section-badge">
-          <span class="wp-badge-icon">✦</span>
-          <span>AYRICALIKLI YAŞAM STANDARTLARI</span>
-          <span class="wp-badge-icon">✦</span>
-        </div>
-        <h2 class="wp-section-title">5 Yıldızlı Otel Kalitesi, Rezidansınızın Mahremiyetinde</h2>
-        <div class="wp-section-divider">
-          <span>❦</span> <span class="wp-divider-line"></span> <span>✦</span> <span class="wp-divider-line"></span> <span>❦</span>
-        </div>
-        <p class="wp-section-desc">Sıradan bir temizlik hizmetinin ötesinde; mimari dokulara saygılı nano-teknolojik protokoller, adli sicil teyitli diplomatik kadro ve seçkin konutlara özel organik hijyen ritüeli.</p>
-      </div>
-
-      <!-- 3 Luxury Pillars Cards Grid -->
-      <div class="rx-pillars-grid">
-        <!-- Pillar 1: Diplomatik Güvenlik -->
-        <div class="rx-pillar-card">
-          <div class="pillar-glow"></div>
-          <div class="pillar-icon-box">
-            <span class="pillar-icon">🏛️</span>
-            <span class="pillar-chip">🛡️ Diplomatik Güvenlik</span>
-          </div>
-          <h3 class="pillar-title">Adli Sicil Teyitli &amp; Gizlilik Sözleşmeli Kadro</h3>
-          <p class="pillar-desc">Yaşam alanınızın mahremiyeti ve güvenliği bizim için esastır. Tüm kat şeflerimiz ve personellerimiz 5 yıldızlı uluslararası otel deneyimli, düzenli sağlık taramalı ve kapsamlı gizlilik protokollerine tabidir.</p>
-          <ul class="pillar-features">
-            <li><span>✓</span> Tam Kapsamlı Kurumsal Sigorta Teminatı</li>
-            <li><span>✓</span> Düzenli Periyodik Sabit Personel Tercihi</li>
-            <li><span>✓</span> Adli Sicil ve Güvenlik Soruşturması Onaylı</li>
-          </ul>
-        </div>
-
-        <!-- Pillar 2: 140°C Kuru Buhar & Nano-Sterilizasyon -->
-        <div class="rx-pillar-card featured">
-          <div class="pillar-glow"></div>
-          <div class="pillar-icon-box">
-            <span class="pillar-icon">🔬</span>
-            <span class="pillar-chip gold">⭐ %99.99 Biyolojik Arınma</span>
-          </div>
-          <h3 class="pillar-title">140°C Kuru Buhar &amp; Organik Nano-Hijyen</h3>
-          <p class="pillar-desc">Yüzeyleri ıslatmadan ve kimyasal koku bırakmadan mikron düzeyinde sterilizasyon. Alman Kärcher endüstriyel buhar jeneratörleri ve HEPA-14 filtrasyon sistemleriyle patojenleri tamamen yok ediyoruz.</p>
-          <ul class="pillar-features">
-            <li><span>✓</span> Evcil Hayvan &amp; Bebek Dostu Sıfır Toksik Formül</li>
-            <li><span>✓</span> Kumaş, Deri &amp; Yatak Derin Akar Dezenfeksiyonu</li>
-            <li><span>✓</span> Hava Kanalları &amp; Menfez Ozonlu Arındırma</li>
-          </ul>
-        </div>
-
-        <!-- Pillar 3: Mimari Yüzey Koruma -->
-        <div class="rx-pillar-card">
-          <div class="pillar-glow"></div>
-          <div class="pillar-icon-box">
-            <span class="pillar-icon">💎</span>
-            <span class="pillar-chip">✨ Malzeme Mühendisliği</span>
-          </div>
-          <h3 class="pillar-title">Calacatta Mermer, Masif Ahşap &amp; Pirinç Bakımı</h3>
-          <p class="pillar-desc">Her yüzey özel bir formül gerektirir. İtalyan mermerleri, lamine meşe parkeler, lake dolaplar ve pirinç bataryalar asidik kimyasallarla değil, pH-nötr yüzey koruyucu organik sütlerle arındırılır ve parlatılır.</p>
-          <ul class="pillar-features">
-            <li><span>✓</span> Çizilmez Mikrofiber &amp; Yüzey Koruma Protokolü</li>
-            <li><span>✓</span> Kireç &amp; Su Lekesini Önleyen Nano Hidrofobik Katman</li>
-            <li><span>✓</span> Mermer Cilası &amp; Ahşap Besleyici Doğal Yağlar</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Luxury City Presence Strip (Zarif Şehir & Bölge Vitrini) -->
-      <div class="rx-city-presence-strip">
-        <div class="rx-cps-header">
-          <div class="rx-cps-badge">📍 HİZMET AĞIMIZ</div>
-          <h3 class="rx-cps-title">Seçkin Lokasyonlarda Kesintisiz Rezidans Hizmeti</h3>
-          <p class="rx-cps-sub">Aşağıdaki şehirlerden birini seçerek dakikalar içinde şeffaf canlı fiyat hesaplayabilir ve anında randevu alabilirsiniz:</p>
-        </div>
-
-        <div class="rx-cps-grid">
-          <!-- İstanbul -->
-          <div class="rx-city-capsule is-active" data-city="Istanbul" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Istanbul';c.dispatchEvent(new Event('change'));}},300);}">
-            <div class="rx-cc-left">
-              <span class="rx-cc-pin">📍</span>
-              <div>
-                <strong class="rx-cc-name">İstanbul</strong>
-                <span class="rx-cc-region">Boğaz Hattı, Beşiktaş, Sarıyer, Kadıköy</span>
-              </div>
-            </div>
-            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
-          </div>
-
-          <!-- İzmir -->
-          <div class="rx-city-capsule" data-city="Izmir" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Izmir';c.dispatchEvent(new Event('change'));}},300);}">
-            <div class="rx-cc-left">
-              <span class="rx-cc-pin">📍</span>
-              <div>
-                <strong class="rx-cc-name">İzmir</strong>
-                <span class="rx-cc-region">Çeşme, Urla, Karşıyaka, Alsancak</span>
-              </div>
-            </div>
-            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
-          </div>
-
-          <!-- Antalya -->
-          <div class="rx-city-capsule" data-city="Antalya" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Antalya';c.dispatchEvent(new Event('change'));}},300);}">
-            <div class="rx-cc-left">
-              <span class="rx-cc-pin">📍</span>
-              <div>
-                <strong class="rx-cc-name">Antalya</strong>
-                <span class="rx-cc-region">Lara, Konyaaltı, Belek, Kemer Villaları</span>
-              </div>
-            </div>
-            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
-          </div>
-
-          <!-- Kocaeli & Sakarya -->
-          <div class="rx-city-capsule" data-city="Kocaeli" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Kocaeli';c.dispatchEvent(new Event('change'));}},300);}">
-            <div class="rx-cc-left">
-              <span class="rx-cc-pin">📍</span>
-              <div>
-                <strong class="rx-cc-name">Kocaeli &amp; Sakarya</strong>
-                <span class="rx-cc-region">İzmit, Sapanca, Serdivan Konutları</span>
-              </div>
-            </div>
-            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
-          </div>
-
-          <!-- Samsun & Balıkesir -->
-          <div class="rx-city-capsule" data-city="Balikesir" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Balikesir';c.dispatchEvent(new Event('change'));}},300);}">
-            <div class="rx-cc-left">
-              <span class="rx-cc-pin">📍</span>
-              <div>
-                <strong class="rx-cc-name">Samsun &amp; Balıkesir</strong>
-                <span class="rx-cc-region">Atakum, Edremit Körfezi &amp; Ayvalık</span>
-              </div>
-            </div>
-            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
-          </div>
-
-          <!-- Warszawa (Polska) -->
-          <div class="rx-city-capsule poland-special" data-city="Warszawa" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Warszawa';c.dispatchEvent(new Event('change'));}},300);}">
-            <div class="rx-cc-left">
-              <span class="rx-cc-pin">🇵🇱</span>
-              <div>
-                <strong class="rx-cc-name">Warszawa (Polska)</strong>
-                <span class="rx-cc-region">Śródmieście, Mokotów, Wilanów</span>
-              </div>
-            </div>
-            <span class="rx-cc-status">🟢 Dostępne Dzisiaj</span>
-          </div>
-        </div>
-
-        <!-- Quick Action Bar -->
-        <div class="rx-cps-actions">
-          <button type="button" class="btn-cps-calc" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
-            <span>🧮 Canlı Fiyat Hesaplayıcıyı Aç ➔</span>
-          </button>
-          <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20rezidans%20temizlik%20hizmeti%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-cps-wa">
-            <span>💬 Özel Müşteri Danışmanı ile WhatsApp'tan Konuş</span>
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </section>
+  </div>
 
   <!-- ==========================================
        ANA SİTE İÇERİĞİ (Portal sonrası)
