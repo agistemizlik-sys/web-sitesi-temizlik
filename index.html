@@ -426,12 +426,14 @@
   <div id="hero-section" style="position:relative; top:0; height:0; pointer-events:none;"></div>
   <div id="book-scroll-hero-track" class="book-scroll-hero-track">
     <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport">
+      <!-- High-Fidelity Zero-Flash Foyer Poster Fallback -->
+      <img src="/videos/journey_hd/f_001.webp" alt="Lüks Penthouse Yaşam Alanı" class="portal-intro-poster" id="portalIntroPoster" fetchpriority="high" />
+
       <!-- High-DPI Interactive Walkthrough Canvas -->
       <canvas id="portalIntroCanvas" class="portal-intro-canvas" aria-label="Lüks Ev Turu ve Hijyen Deneyimi"></canvas>
 
       <!-- Atmospheric Penthouse Vignette Overlay -->
       <div class="house-walk-vignette" aria-hidden="true"></div>
-
 
       <!-- Minimalist Editorial Overlays Linked to House Rooms -->
       <div class="house-walk-overlays" id="houseWalkOverlays" aria-hidden="true">
@@ -439,33 +441,72 @@
         <div class="house-room-card" id="roomCard1">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>GİRİŞ &amp; YAŞAM ALANI</span>
+            <span>AYRICALIKLI YAŞAM ALANLARI</span>
             <span class="room-sparkle">✦</span>
           </div>
-          <h1 class="room-title">Sessiz Lüks.<br/><span class="room-gradient">Kusursuz Hijyen.</span></h1>
-          <p class="room-desc">Rezidans ve seçkin konutlar için ayrıcalıklı yaşam alanı ferahlığı.</p>
+          <h1 class="room-title">Sessiz Lüks.<br/><span class="room-gradient">Kusursuz Temizlik.</span></h1>
+          <p class="room-desc">Rezidans, yalı ve seçkin konutlar için ayrıcalıklı yaşam alanı hijyeni.</p>
+          
+          <div class="room-actions-row">
+            <button type="button" class="hero-primary-cta-btn" id="heroPrimaryCtaBtn" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
+              <span class="cta-shimmer"></span>
+              <span class="cta-icon">✨</span>
+              <span>Randevu Oluştur &amp; Fiyat Hesapla</span>
+              <span class="cta-arrow">➔</span>
+            </button>
+          </div>
+
+          <!-- Quick Interactive Room Jump Pills -->
+          <div class="hero-room-nav-pills" id="heroRoomNavPills" aria-label="Yaşam Alanları">
+            <button type="button" class="room-nav-pill is-active" data-room="foyer" onclick="window._setProgress(0.12);" title="Panoramik Salona Geç">
+              <span class="r-icon">🛋️</span>
+              <span>Panoramik Salon</span>
+            </button>
+            <button type="button" class="room-nav-pill" data-room="kitchen" onclick="window._setProgress(0.50);" title="Ada Mutfağa Geç">
+              <span class="r-icon">🍳</span>
+              <span>Ada Mutfak</span>
+            </button>
+            <button type="button" class="room-nav-pill" data-room="spa" onclick="window._setProgress(0.85);" title="Master Spa'ya Geç">
+              <span class="r-icon">🛁</span>
+              <span>Master Spa</span>
+            </button>
+          </div>
         </div>
 
         <!-- Room Card 2: Island Kitchen & Dining (36% - 66%) -->
         <div class="house-room-card" id="roomCard2">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>ADA MUTFAK &amp; YEMEK</span>
+            <span>ADA MUTFAK &amp; YEMEK ALANI</span>
             <span class="room-sparkle">✦</span>
           </div>
           <h2 class="room-title">Mermerin Zarafeti.<br/><span class="room-gradient">Mikron Düzeyinde Arınma.</span></h2>
-          <p class="room-desc">Calacatta mermer, ahşap ve pirinç yüzeylere özel organik bakım.</p>
+          <p class="room-desc">Calacatta mermer, ahşap ve pirinç yüzeylere özel organik nano bakım.</p>
+          <div class="room-actions-row">
+            <button type="button" class="hero-primary-cta-btn secondary" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
+              <span class="cta-icon">🍳</span>
+              <span>Mutfak &amp; Detaylı Temizlik Seç</span>
+              <span class="cta-arrow">➔</span>
+            </button>
+          </div>
         </div>
 
         <!-- Room Card 3: Master Suite & Marble Spa (70% - 96%) -->
         <div class="house-room-card" id="roomCard3">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>MASTER SUİT &amp; SPA</span>
+            <span>MASTER SUİT &amp; MARBLE SPA</span>
             <span class="room-sparkle">✦</span>
           </div>
           <h2 class="room-title">Arınmış Bir Zihin,<br/><span class="room-gradient">Kusursuz Dinlenme.</span></h2>
           <p class="room-desc">Doğal esansiyel ferahlık, ipeksi dokular ve 5 yıldızlı huzur.</p>
+          <div class="room-actions-row">
+            <button type="button" class="hero-primary-cta-btn secondary" onclick="document.getElementById('cities-section')?.scrollIntoView({behavior:'smooth'});">
+              <span class="cta-icon">🗺️</span>
+              <span>Hizmet Şehirlerini Keşfet</span>
+              <span class="cta-arrow">➔</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -498,734 +539,178 @@
        PORTAL GATEWAY (Giriş & 6 Şehir Seçimi)
        ========================================== -->
   <div id="cities-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
-  <section id="portal-stage" class="wp-section cities-showcase-section" aria-label="Giriş Geçidi ve Şehir Seçimi">
+  <section id="portal-stage" class="wp-section rx-prestige-section wp-reveal" aria-label="Ayrıcalıklı Yaşam ve Hizmet Standartları">
     <div class="portal-ambient-bg" id="portalAmbientBg" aria-hidden="true"></div>
-    
-    <button type="button" class="portal-audio-toggle" id="portalAudioToggle" aria-label="Sesi Kapat/Aç">
-      <div class="audio-visualizer-bars">
-        <span class="v-bar bar-1"></span>
-        <span class="v-bar bar-2"></span>
-        <span class="v-bar bar-3"></span>
-        <span class="v-bar bar-4"></span>
-      </div>
-      <span class="audio-toggle-text">Ses açık</span>
-    </button>
 
+    <!-- Hidden dummy element so legacy scripts don't fail -->
+    <div class="portal-map-selector-stage" style="display: none !important;"></div>
 
-
-    <!-- ── COUNTRY SELECTOR OVERLAY PERMANENTLY REMOVED: INTEGRATED INTO BOOK INTRO ─────────────────── -->
-    <div id="country-selector-overlay" class="country-selector-overlay cso-hidden" aria-hidden="true"></div>
-
-    <!-- İnteraktif Neon Türkiye Haritası Geçidi -->
-    <!-- İnteraktif Türkiye Haritası Şehir Seçim Geçidi -->
-    <div class="portal-map-selector-stage">
-
-      <!-- 1. Unified WordPress Section Header for Cities -->
-      <div class="wp-section-header wp-reveal">
+    <div class="wp-container">
+      
+      <!-- Section Header -->
+      <div class="wp-section-header">
         <div class="wp-section-badge">
-          <span class="wp-badge-icon">📍</span>
-          <span>GLOBAL OPERASYON AĞIMIZ</span>
-          <span class="wp-badge-icon">📍</span>
+          <span class="wp-badge-icon">✦</span>
+          <span>AYRICALIKLI YAŞAM STANDARTLARI</span>
+          <span class="wp-badge-icon">✦</span>
         </div>
-        <h2 class="wp-section-title">Hizmet Şehirlerimiz &amp; İnteraktif Harita</h2>
+        <h2 class="wp-section-title">5 Yıldızlı Otel Kalitesi, Rezidansınızın Mahremiyetinde</h2>
         <div class="wp-section-divider">
           <span>❦</span> <span class="wp-divider-line"></span> <span>✦</span> <span class="wp-divider-line"></span> <span>❦</span>
         </div>
-        <p class="wp-section-desc">Türkiye ve Polonya genelinde 10+ metropolde 5 yıldızlı otel kalitesinde hizmet sunuyoruz. Size en yakın hizmet noktasını seçin.</p>
-        
-        <!-- Country Selector In-Page Tabs -->
-        <div class="wp-country-tabs-row" id="wpCountryTabsRow">
-          <button type="button" class="wp-country-tab active" id="tabCountryTR" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('tr');" aria-label="Türkiye Haritasını Görüntüle">
-            <span class="wp-tab-flag">🇹🇷</span>
-            <span class="wp-tab-name">TÜRKİYE</span>
-            <span class="wp-tab-cities">İstanbul, Ankara, İzmir, Antalya, Bursa, Samsun</span>
+        <p class="wp-section-desc">Sıradan bir temizlik hizmetinin ötesinde; mimari dokulara saygılı nano-teknolojik protokoller, adli sicil teyitli diplomatik kadro ve seçkin konutlara özel organik hijyen ritüeli.</p>
+      </div>
+
+      <!-- 3 Luxury Pillars Cards Grid -->
+      <div class="rx-pillars-grid">
+        <!-- Pillar 1: Diplomatik Güvenlik -->
+        <div class="rx-pillar-card">
+          <div class="pillar-glow"></div>
+          <div class="pillar-icon-box">
+            <span class="pillar-icon">🏛️</span>
+            <span class="pillar-chip">🛡️ Diplomatik Güvenlik</span>
+          </div>
+          <h3 class="pillar-title">Adli Sicil Teyitli &amp; Gizlilik Sözleşmeli Kadro</h3>
+          <p class="pillar-desc">Yaşam alanınızın mahremiyeti ve güvenliği bizim için esastır. Tüm kat şeflerimiz ve personellerimiz 5 yıldızlı uluslararası otel deneyimli, düzenli sağlık taramalı ve kapsamlı gizlilik protokollerine tabidir.</p>
+          <ul class="pillar-features">
+            <li><span>✓</span> Tam Kapsamlı Kurumsal Sigorta Teminatı</li>
+            <li><span>✓</span> Düzenli Periyodik Sabit Personel Tercihi</li>
+            <li><span>✓</span> Adli Sicil ve Güvenlik Soruşturması Onaylı</li>
+          </ul>
+        </div>
+
+        <!-- Pillar 2: 140°C Kuru Buhar & Nano-Sterilizasyon -->
+        <div class="rx-pillar-card featured">
+          <div class="pillar-glow"></div>
+          <div class="pillar-icon-box">
+            <span class="pillar-icon">🔬</span>
+            <span class="pillar-chip gold">⭐ %99.99 Biyolojik Arınma</span>
+          </div>
+          <h3 class="pillar-title">140°C Kuru Buhar &amp; Organik Nano-Hijyen</h3>
+          <p class="pillar-desc">Yüzeyleri ıslatmadan ve kimyasal koku bırakmadan mikron düzeyinde sterilizasyon. Alman Kärcher endüstriyel buhar jeneratörleri ve HEPA-14 filtrasyon sistemleriyle patojenleri tamamen yok ediyoruz.</p>
+          <ul class="pillar-features">
+            <li><span>✓</span> Evcil Hayvan &amp; Bebek Dostu Sıfır Toksik Formül</li>
+            <li><span>✓</span> Kumaş, Deri &amp; Yatak Derin Akar Dezenfeksiyonu</li>
+            <li><span>✓</span> Hava Kanalları &amp; Menfez Ozonlu Arındırma</li>
+          </ul>
+        </div>
+
+        <!-- Pillar 3: Mimari Yüzey Koruma -->
+        <div class="rx-pillar-card">
+          <div class="pillar-glow"></div>
+          <div class="pillar-icon-box">
+            <span class="pillar-icon">💎</span>
+            <span class="pillar-chip">✨ Malzeme Mühendisliği</span>
+          </div>
+          <h3 class="pillar-title">Calacatta Mermer, Masif Ahşap &amp; Pirinç Bakımı</h3>
+          <p class="pillar-desc">Her yüzey özel bir formül gerektirir. İtalyan mermerleri, lamine meşe parkeler, lake dolaplar ve pirinç bataryalar asidik kimyasallarla değil, pH-nötr yüzey koruyucu organik sütlerle arındırılır ve parlatılır.</p>
+          <ul class="pillar-features">
+            <li><span>✓</span> Çizilmez Mikrofiber &amp; Yüzey Koruma Protokolü</li>
+            <li><span>✓</span> Kireç &amp; Su Lekesini Önleyen Nano Hidrofobik Katman</li>
+            <li><span>✓</span> Mermer Cilası &amp; Ahşap Besleyici Doğal Yağlar</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Luxury City Presence Strip (Zarif Şehir & Bölge Vitrini) -->
+      <div class="rx-city-presence-strip">
+        <div class="rx-cps-header">
+          <div class="rx-cps-badge">📍 HİZMET AĞIMIZ</div>
+          <h3 class="rx-cps-title">Seçkin Lokasyonlarda Kesintisiz Rezidans Hizmeti</h3>
+          <p class="rx-cps-sub">Aşağıdaki şehirlerden birini seçerek dakikalar içinde şeffaf canlı fiyat hesaplayabilir ve anında randevu alabilirsiniz:</p>
+        </div>
+
+        <div class="rx-cps-grid">
+          <!-- İstanbul -->
+          <div class="rx-city-capsule is-active" data-city="Istanbul" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Istanbul';c.dispatchEvent(new Event('change'));}},300);}">
+            <div class="rx-cc-left">
+              <span class="rx-cc-pin">📍</span>
+              <div>
+                <strong class="rx-cc-name">İstanbul</strong>
+                <span class="rx-cc-region">Boğaz Hattı, Beşiktaş, Sarıyer, Kadıköy</span>
+              </div>
+            </div>
+            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
+          </div>
+
+          <!-- İzmir -->
+          <div class="rx-city-capsule" data-city="Izmir" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Izmir';c.dispatchEvent(new Event('change'));}},300);}">
+            <div class="rx-cc-left">
+              <span class="rx-cc-pin">📍</span>
+              <div>
+                <strong class="rx-cc-name">İzmir</strong>
+                <span class="rx-cc-region">Çeşme, Urla, Karşıyaka, Alsancak</span>
+              </div>
+            </div>
+            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
+          </div>
+
+          <!-- Antalya -->
+          <div class="rx-city-capsule" data-city="Antalya" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Antalya';c.dispatchEvent(new Event('change'));}},300);}">
+            <div class="rx-cc-left">
+              <span class="rx-cc-pin">📍</span>
+              <div>
+                <strong class="rx-cc-name">Antalya</strong>
+                <span class="rx-cc-region">Lara, Konyaaltı, Belek, Kemer Villaları</span>
+              </div>
+            </div>
+            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
+          </div>
+
+          <!-- Kocaeli & Sakarya -->
+          <div class="rx-city-capsule" data-city="Kocaeli" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Kocaeli';c.dispatchEvent(new Event('change'));}},300);}">
+            <div class="rx-cc-left">
+              <span class="rx-cc-pin">📍</span>
+              <div>
+                <strong class="rx-cc-name">Kocaeli &amp; Sakarya</strong>
+                <span class="rx-cc-region">İzmit, Sapanca, Serdivan Konutları</span>
+              </div>
+            </div>
+            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
+          </div>
+
+          <!-- Samsun & Balıkesir -->
+          <div class="rx-city-capsule" data-city="Balikesir" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Balikesir';c.dispatchEvent(new Event('change'));}},300);}">
+            <div class="rx-cc-left">
+              <span class="rx-cc-pin">📍</span>
+              <div>
+                <strong class="rx-cc-name">Samsun &amp; Balıkesir</strong>
+                <span class="rx-cc-region">Atakum, Edremit Körfezi &amp; Ayvalık</span>
+              </div>
+            </div>
+            <span class="rx-cc-status">🟢 Canlı Randevu Açık</span>
+          </div>
+
+          <!-- Warszawa (Polska) -->
+          <div class="rx-city-capsule poland-special" data-city="Warszawa" role="button" tabindex="0" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();setTimeout(()=>{const c=document.getElementById('cCity');if(c){c.value='Warszawa';c.dispatchEvent(new Event('change'));}},300);}">
+            <div class="rx-cc-left">
+              <span class="rx-cc-pin">🇵🇱</span>
+              <div>
+                <strong class="rx-cc-name">Warszawa (Polska)</strong>
+                <span class="rx-cc-region">Śródmieście, Mokotów, Wilanów</span>
+              </div>
+            </div>
+            <span class="rx-cc-status">🟢 Dostępne Dzisiaj</span>
+          </div>
+        </div>
+
+        <!-- Quick Action Bar -->
+        <div class="rx-cps-actions">
+          <button type="button" class="btn-cps-calc" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
+            <span>🧮 Canlı Fiyat Hesaplayıcıyı Aç ➔</span>
           </button>
-          <button type="button" class="wp-country-tab" id="tabCountryPL" onclick="if(typeof selectCountryGlobal==='function')selectCountryGlobal('pl');" aria-label="Polonya Haritasını Görüntüle">
-            <span class="wp-tab-flag">🇵🇱</span>
-            <span class="wp-tab-name">POLONYA (POLSKA)</span>
-            <span class="wp-tab-cities">Warszawa, Kraków, Wrocław, Gdańsk, Poznań, Łódź</span>
-          </button>
+          <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20rezidans%20temizlik%20hizmeti%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-cps-wa">
+            <span>💬 Özel Müşteri Danışmanı ile WhatsApp'tan Konuş</span>
+          </a>
         </div>
       </div>
 
-      <!-- 3. Search & Location Row -->
-      <div class="tms-search-row">
-        <div class="tms-search-wrap">
-          <span class="tms-search-icon">🔍</span>
-          <input type="text" class="tms-search-input" id="tmsCitySearchInput" placeholder="Şehir ara veya seç..." aria-label="Şehir ara veya seç" />
-        </div>
-        <button type="button" class="tms-gps-btn" id="tmsUseGpsBtn">
-          <span>🎯</span> Konumumu kullan
-        </button>
-      </div>
-
-
-
-      <!-- 5. Main Grid Layout (Map + Selected City Card) -->
-      <div class="tms-main-grid">
-        
-        <!-- Left Panel: Map Container -->
-        <div class="portal-map-wrapper">
-          
-          <!-- Filter Pills Row Overlay on Map -->
-          <div class="tms-filters-row">
-            <button type="button" class="tms-filter-btn active" data-filter="all">🎛️ Tüm</button>
-            <button type="button" class="tms-filter-btn" data-filter="active">🟢 Aktif</button>
-            <button type="button" class="tms-filter-btn" data-filter="coming_soon">🟡 Yakında</button>
-            <button type="button" class="tms-filter-btn" data-filter="none">⚪ Diğer</button>
-          </div>
-
-          <div class="portal-leaflet-map" id="portalNeonMap"></div>
-          <div class="portal-leaflet-map" id="portalNeonMapPoland" style="display: none;"></div>
-          
-          <!-- Floating Bottom Left Widget -->
-          <div class="tms-near-widget">
-            <span>📍</span>
-            <div>
-              <div class="tms-near-title">Size en yakın hizmet noktası:</div>
-              <div class="tms-near-city">Kadıköy, İstanbul <span class="tms-near-dist">(2.4 km uzaklıkta)</span></div>
-            </div>
-            <span style="color: #10b981; font-weight: 800; margin-left: 8px;">➔</span>
-          </div>
-
-          <!-- Floating Bottom Right Inset Graphic Box -->
-          <div class="tms-map-inset-box">
-            <button type="button" class="tms-reset-map-btn" id="tmsResetMapBtn">
-              Türkiye genelini görün
-            </button>
-          </div>
-        </div>
-
-        <!-- Right Panel: Selected City Preview Card -->
-        <div class="portal-preview-panel">
-          
-          <!-- Default State (Başlangıç ekranı) -->
-          <div class="portal-default-panel" id="portalDefaultPanel" style="display: none; opacity: 0; pointer-events: none;">
-            <h3 class="cc-default-title">RELAXAX</h3>
-            <p class="cc-default-sub">Premium Temizlik Hizmetleri</p>
-            <div class="cc-default-desc">
-              Türkiye'nin altı şehrinde profesyonel temizlik. Başlamak için haritadan bir şehir seçin.
-            </div>
-          </div>
-          
-          <!-- Şehir Kartları Konteyneri -->
-          <div class="portal-preview-cards" id="portalPreviewCards">
-            
-            <!-- KART: İSTANBUL (Default Active Card) -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Istanbul" data-market="marmara" role="button" tabindex="0" aria-label="İstanbul temizlik hizmetlerini seçin" style="display: block; opacity: 1;">
-              <div class="tms-card-image-header">
-                <img src="/images/istanbul_day_landmark.jpg" alt="İstanbul" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">İstanbul</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">İstanbul'un tüm ilçelerinde profesyonel temizlik hizmetlerimizle yanınızdayız.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev Temizliği</span>
-                  <span class="tms-service-chip">⏱️ Ofis Temizliği</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">🏚️ İnşaat Sonrası</span>
-                  <span class="tms-service-chip">📅 Düzenli Temizlik</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val"><span class="tms-avail-badge">Bugün Müsait</span> 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn">📅 Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Istanbul">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: İZMİR -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Izmir" data-market="ege" role="button" tabindex="0" aria-label="İzmir temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/izmir_landmark.webp" alt="İzmir" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">İzmir</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">İzmir ve Ege bölgesinde uzman ekibimizle premium hijyen hizmeti sunuyoruz.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev & Villa</span>
-                  <span class="tms-service-chip">⏱️ Ofis Temizliği</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val"><span class="tms-avail-badge">Bugün Müsait</span> 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn">📅 Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Izmir">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: ANKARA -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Ankara" data-market="icanadolu" role="button" tabindex="0" aria-label="Ankara temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/istanbul_day_landmark.jpg" alt="Ankara" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Ankara</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Başkent Ankara genelinde sigortalı personel ve 100% hijyen garantili temizlik.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev Temizliği</span>
-                  <span class="tms-service-chip">⏱️ Kurumsal B2B</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val"><span class="tms-avail-badge">Bugün Müsait</span> 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn">📅 Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Ankara">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: SAMSUN -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Samsun" data-market="karadeniz" role="button" tabindex="0" aria-label="Samsun temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/samsun_landmark.webp" alt="Samsun" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Samsun</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Samsun ve Karadeniz bölgesinde ev, konut ve iş yerleriniz için profesyonel temizlik.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev Temizliği</span>
-                  <span class="tms-service-chip">⏱️ Ofis Temizliği</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val"><span class="tms-avail-badge">Bugün Müsait</span> 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn">📅 Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Samsun">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: ANTALYA -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Antalya" data-market="akdeniz" role="button" tabindex="0" aria-label="Antalya temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/antalya_landmark.webp" alt="Antalya" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Antalya</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Akdeniz'in gözbebeği Antalya'da villa, yazlık ve rezidanslar için VIP temizlik çözümleri.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Villa & Yazlık</span>
-                  <span class="tms-service-chip">⏱️ Otel Rezidans</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val"><span class="tms-avail-badge">Bugün Müsait</span> 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn">📅 Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Antalya">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: KOCAELİ -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Kocaeli" data-market="marmara" role="button" tabindex="0" aria-label="Kocaeli temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/kocaeli_landmark.webp" alt="Kocaeli" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Kocaeli</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Sanayinin kalbi Kocaeli'de fabrika, konut ve ticari alanlar için kesintisiz temizlik ekibi.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev Temizliği</span>
-                  <span class="tms-service-chip">⏱️ Fabrika & Depo</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val"><span class="tms-avail-badge">Bugün Müsait</span> 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn">📅 Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Kocaeli">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: SAKARYA -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Sakarya" data-market="marmara" role="button" tabindex="0" aria-label="Sakarya temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/sakarya_landmark.webp" alt="Sakarya" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Sakarya</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Sakarya genelinde çevre dostu ürünler ve uzman hijyen kadrosu ile profesyonel hizmet.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev & Bahçe</span>
-                  <span class="tms-service-chip">⏱️ Ofis Temizliği</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val">Bugün Müsait - 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn" style="background:none; border:none; color:#059669; font-size:0.78rem; font-weight:700; cursor:pointer;">Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Sakarya">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: BALIKESİR -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Balikesir" data-market="ege" role="button" tabindex="0" aria-label="Balıkesir temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/balikesir_landmark.webp" alt="Balıkesir" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Favorilere Ekle">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Kapat">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Türkiye</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Balıkesir</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Balıkesir ve Edremit körfezinde yazlık konutlar ve daireler için özel hijyen paketleri.</p>
-                
-                <div class="tms-card-services-header">Hizmetlerimiz</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Ev & Yazlık</span>
-                  <span class="tms-service-chip">⏱️ Sezonluk Bakım</span>
-                  <span class="tms-service-chip">🧼 Cam Temizliği</span>
-                  <span class="tms-service-chip">+3 daha</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 En yakın müsait tarih</div>
-                    <div class="tms-date-info-val">Bugün Müsait - 15 Ağustos 2026, Cuma</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn" style="background:none; border:none; color:#059669; font-size:0.78rem; font-weight:700; cursor:pointer;">Tarih değiştir</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Balikesir">
-                  Şehri Seç ➔
-                </button>
-              </div>
-            </div>
-
-            <!-- KART: WARSZAWA (For Poland Switch) -->
-            <div class="cc-gateway-card tms-styled-card" data-city="Warszawa" data-market="mazowsze" role="button" tabindex="0" aria-label="Warszawa temizlik hizmetlerini seçin" style="display: none; opacity: 0;">
-              <div class="tms-card-image-header">
-                <img src="/images/warszawa_day_landmark.jpg" alt="Warszawa" class="tms-card-image" />
-                <span class="tms-card-status-badge">🟢 Hizmet veriliyor</span>
-                <div class="tms-card-actions">
-                  <button type="button" class="tms-icon-btn" title="Dodaj do ulubionych">🤍</button>
-                  <button type="button" class="tms-icon-btn tms-close-card-btn" title="Zamknij">✕</button>
-                </div>
-              </div>
-              <div class="tms-card-body">
-                <div class="tms-card-country-tag">📍 Polska</div>
-                <div class="tms-card-title-row">
-                  <h3 class="tms-card-city-name">Warszawa</h3>
-                  <span class="tms-verified-check">✔️</span>
-                </div>
-                <p class="tms-card-desc">Profesjonalne usługi sprzątania mieszkań i biur w Warszawie i okolicach.</p>
-                
-                <div class="tms-card-services-header">Usługi</div>
-                <div class="tms-services-chips">
-                  <span class="tms-service-chip">🏢 Sprzątanie Mieszkań</span>
-                  <span class="tms-service-chip">⏱️ Sprzątanie Biur</span>
-                  <span class="tms-service-chip">🧼 Mycie Okien</span>
-                  <span class="tms-service-chip">+3 więcej</span>
-                </div>
-
-                <div class="tms-date-box">
-                  <div>
-                    <div class="tms-date-info-title">📅 Najbliższy wolny termin</div>
-                    <div class="tms-date-info-val">Dostępne dzisiaj - 15 Sierpnia 2026</div>
-                  </div>
-                  <button type="button" class="tms-date-change-btn" style="background:none; border:none; color:#059669; font-size:0.78rem; font-weight:700; cursor:pointer;">Zmień datę</button>
-                </div>
-
-                <button type="button" class="tms-select-city-btn city-select-btn" data-city="Warszawa">
-                  Wybierz Miasto ➔
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-      <!-- 6. Popular Cities Grid Carousel -->
-      <section class="tms-popular-section">
-        <div class="tms-popular-header">
-          <h3 class="tms-popular-title" id="tmsPopularTitle">🏠 ŞEHİRLER</h3>
-          <a href="#" class="tms-see-all-link" style="color: #64748b; font-size: 0.82rem; font-weight: 600; text-decoration: none;">Tüm şehirleri gör ➔</a>
-        </div>
-
-        <div class="tms-popular-wrapper">
-          <div class="tms-popular-grid">
-            
-            <div class="tms-city-mini-card is-active" data-city="Istanbul">
-              <img src="/images/istanbul_day_landmark.jpg" alt="İstanbul" class="tms-mini-thumb" />
-              <div>
-                <div class="tms-mini-name">İstanbul</div>
-                <div class="tms-mini-region">Marmara Bölgesi</div>
-                <div style="font-size: 0.68rem; color: #10b981; font-weight: 600;">🟢 Hizmet veriliyor</div>
-              </div>
-            </div>
-
-            <div class="tms-city-mini-card" data-city="Samsun">
-              <img src="/images/samsun_landmark.webp" alt="Samsun" class="tms-mini-thumb" />
-              <div>
-                <div class="tms-mini-name">Samsun</div>
-                <div class="tms-mini-region">Karadeniz Bölgesi</div>
-                <div style="font-size: 0.68rem; color: #10b981; font-weight: 600;">🟢 Hizmet veriliyor</div>
-              </div>
-            </div>
-
-            <div class="tms-city-mini-card" data-city="Izmir">
-              <img src="/images/izmir_landmark.webp" alt="İzmir" class="tms-mini-thumb" />
-              <div>
-                <div class="tms-mini-name">İzmir</div>
-                <div class="tms-mini-region">Ege Bölgesi</div>
-                <div style="font-size: 0.68rem; color: #10b981; font-weight: 600;">🟢 Hizmet veriliyor</div>
-              </div>
-            </div>
-
-            <div class="tms-city-mini-card" data-city="Antalya">
-              <img src="/images/antalya_landmark.webp" alt="Antalya" class="tms-mini-thumb" />
-              <div>
-                <div class="tms-mini-name">Antalya</div>
-                <div class="tms-mini-region">Akdeniz Bölgesi</div>
-                <div style="font-size: 0.68rem; color: #10b981; font-weight: 600;">🟢 Hizmet veriliyor</div>
-              </div>
-            </div>
-
-            <div class="tms-city-mini-card" data-city="Bursa">
-              <img src="/images/bursa_landmark.jpg" alt="Bursa" class="tms-mini-thumb" />
-              <div>
-                <div class="tms-mini-name">Bursa</div>
-                <div class="tms-mini-region">Marmara Bölgesi</div>
-                <div style="font-size: 0.68rem; color: #10b981; font-weight: 600;">🟢 Hizmet veriliyor</div>
-              </div>
-            </div>
-
-            <div class="tms-city-mini-card" data-city="Kocaeli">
-              <img src="/images/kocaeli_landmark.webp" alt="Kocaeli" class="tms-mini-thumb" />
-              <div>
-                <div class="tms-mini-name">Kocaeli</div>
-                <div class="tms-mini-region">Marmara Bölgesi</div>
-                <div style="font-size: 0.68rem; color: #10b981; font-weight: 600;">🟢 Hizmet veriliyor</div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Carousel Right Circular Arrow Button -->
-          <button type="button" class="tms-carousel-next-btn" title="Sonraki şehirler">➔</button>
-        </div>
-      </section>
-
-      <!-- 7. Bottom Trust Bar -->
-      <footer class="tms-trust-bar">
-        <div class="tms-trust-item">
-          <span class="tms-trust-icon">🛡️</span>
-          <div>
-            <div class="tms-trust-title">Güvenilir Hizmet</div>
-            <div class="tms-trust-desc">Sigortalı ve güvenilir temizlik hizmeti</div>
-          </div>
-        </div>
-
-        <div class="tms-trust-item">
-          <span class="tms-trust-icon">📅</span>
-          <div>
-            <div class="tms-trust-title">Esnek Randevu</div>
-            <div class="tms-trust-desc">Size uygun zaman dilimini seçin</div>
-          </div>
-        </div>
-
-        <div class="tms-trust-item">
-          <span class="tms-trust-icon">👥</span>
-          <div>
-            <div class="tms-trust-title">Profesyonel Ekip</div>
-            <div class="tms-trust-desc">Eğitimli ve deneyimli personel</div>
-          </div>
-        </div>
-
-        <div class="tms-trust-item">
-          <span class="tms-trust-icon">🌱</span>
-          <div>
-            <div class="tms-trust-title">%100 Memnuniyet</div>
-            <div class="tms-trust-desc">Memnun kalmadığınızda tekrar hizmet</div>
-          </div>
-        </div>
-
-        <div class="tms-trust-item">
-          <span class="tms-trust-icon">🎧</span>
-          <div>
-            <div class="tms-trust-title">7/24 Destek</div>
-            <div class="tms-trust-desc">Her zaman yanınızdayız</div>
-          </div>
-        </div>
-      </footer>
-
-      <!-- 💎 7. RELAXAX BOUTIQUE & EXCLUSIVE GIFT SHOWCASE -->
-      <section class="rx-boutique-section" id="boutiqueShowcaseSection">
-        <div class="rx-boutique-container">
-          <div class="rx-boutique-header">
-            <span class="rx-boutique-badge">✨ RELAXAX LUXURY BOUTIQUE COLLECTION</span>
-            <h3 class="rx-boutique-title">Özel Üretim El Yapımı Butik Hediye & Çiçek Koleksiyonu</h3>
-            <p class="rx-boutique-subtitle">Doğal gül özleri, altın varaklı zanaatkar dokunuşlar ve seçkin hediye sunumuyla yaşam alanlarınıza zarafet katın.</p>
-          </div>
-
-          <div class="rx-boutique-card">
-            <div class="rx-bc-image-wrap">
-              <img src="/images/product_rose_gift_box.webp" alt="RELAXAX Rose Elegance Butik Hediye Kutusu" class="rx-bc-img" loading="lazy" />
-              <div class="rx-bc-img-badge">🌹 ÖZEL BUTİK SERİ</div>
-            </div>
-
-            <div class="rx-bc-content">
-              <div class="rx-bc-tag-row">
-                <span class="rx-bc-tag gold">★ %100 El Yapımı (Artisan Craft)</span>
-                <span class="rx-bc-tag rose">🌿 Doğal Botanik Esanslar</span>
-                <span class="rx-bc-tag">🎁 Özel Pencereli Lüks Kutu</span>
-              </div>
-
-              <h4 class="rx-bc-prod-title">Rose Elegance — Butik Çiçek & Aromaterapi Hediye Seti</h4>
-              <p class="rx-bc-desc">
-                Özel günlerde sevdiklerinize ya da evinize ferahlık ve şıklık katmak için tasarlanmış birinci sınıf el yapımı çiçek & aroma seti. Altın varak detaylı özel figürler ve pastel gül tonlarıyla lüks bir hediye deneyimi sunar.
-              </p>
-
-              <div class="rx-bc-specs-grid">
-                <div class="rx-bc-spec-item">
-                  <span class="spec-lbl">İçerik:</span>
-                  <strong>5 Parça Özel Tasarım Set</strong>
-                </div>
-                <div class="rx-bc-spec-item">
-                  <span class="spec-lbl">Sunum:</span>
-                  <strong>Pencereli Beyaz Lüks Hediye Kutusu</strong>
-                </div>
-                <div class="rx-bc-spec-item">
-                  <span class="spec-lbl">Özel Detay:</span>
-                  <strong>Altın Varak & Gül Tomurcuğu İşleme</strong>
-                </div>
-                <div class="rx-bc-spec-item">
-                  <span class="spec-lbl">Kullanım:</span>
-                  <strong>Hediyelik & Oda Parfümü / Dekorasyon</strong>
-                </div>
-              </div>
-
-              <div class="rx-bc-pricing-row">
-                <div class="rx-bc-price-box">
-                  <span class="rx-bc-old-price">650 TL</span>
-                  <span class="rx-bc-cur-price">490 TL</span>
-                  <span class="rx-bc-discount-pill">%25 İNDİRİM</span>
-                </div>
-
-                <div class="rx-bc-actions">
-                  <button type="button" class="btn-boutique-add-order" onclick="if(typeof openBookingScreen==='function'){openBookingScreen(); setTimeout(()=>{ const btn = document.querySelector('.wizard-extra-card[data-extra=\'butik_hediye_kutusu\']'); if(btn){ btn.click(); btn.scrollIntoView({behavior:'smooth'}); } }, 600);}">
-                    <span>✨ Temizlik Siparişine Ekle</span>
-                  </button>
-                  <a href="https://wa.me/905466479004?text=Merhaba%20RELAXAX,%20Rose%20Elegance%20Butik%20Hediye%20Kutusundan%20siparis%20vermek%20istiyorum." target="_blank" rel="noopener noreferrer" class="btn-boutique-wa">
-                    <span>💬 WhatsApp ile Doğrudan Sipariş Ver</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- Mobile City Selector Buttons (Clean Layout for Mobile Viewports) -->
-    <div class="mobile-city-selector" id="mobileCitySelector">
-      <div class="mobile-selector-title">HIZLI ŞEHİR SEÇİMİ</div>
-      <div class="mobile-city-grid">
-        <button type="button" class="mobile-city-btn" data-city="Istanbul" data-market="marmara">
-          <span class="btn-city-name">İSTANBUL</span>
-          <span class="btn-city-market">MARMARA</span>
-        </button>
-        <button type="button" class="mobile-city-btn" data-city="Izmir" data-market="ege">
-          <span class="btn-city-name">İZMİR</span>
-          <span class="btn-city-market">EGE</span>
-        </button>
-        <button type="button" class="mobile-city-btn" data-city="Kocaeli" data-market="marmara">
-          <span class="btn-city-name">KOCAELİ</span>
-          <span class="btn-city-market">MARMARA</span>
-        </button>
-        <button type="button" class="mobile-city-btn" data-city="Sakarya" data-market="marmara">
-          <span class="btn-city-name">SAKARYA</span>
-          <span class="btn-city-market">MARMARA</span>
-        </button>
-        <button type="button" class="mobile-city-btn" data-city="Balikesir" data-market="ege">
-          <span class="btn-city-name">BALIKESİR</span>
-          <span class="btn-city-market">EGE</span>
-        </button>
-        <button type="button" class="mobile-city-btn" data-city="Samsun" data-market="karadeniz">
-          <span class="btn-city-name">SAMSUN</span>
-          <span class="btn-city-market">KARADENİZ</span>
-        </button>
-        <button type="button" class="mobile-city-btn" data-city="Antalya" data-market="akdeniz">
-          <span class="btn-city-name">ANTALYA</span>
-          <span class="btn-city-market">AKDENİZ</span>
-        </button>
-
-        <!-- Yakında Gelecek Şehirler -->
-        <button type="button" class="mobile-city-btn is-coming-soon" data-city="Ankara" data-market="icanadolu" data-status="coming_soon">
-          <span class="btn-city-name">ANKARA <span class="mobile-cs-badge">YAKINDA</span></span>
-          <span class="btn-city-market">İÇ ANADOLU</span>
-        </button>
-        <button type="button" class="mobile-city-btn is-coming-soon" data-city="Bursa" data-market="marmara" data-status="coming_soon">
-          <span class="btn-city-name">BURSA <span class="mobile-cs-badge">YAKINDA</span></span>
-          <span class="btn-city-market">MARMARA</span>
-        </button>
-        <button type="button" class="mobile-city-btn is-coming-soon" data-city="Adana" data-market="akdeniz" data-status="coming_soon">
-          <span class="btn-city-name">ADANA <span class="mobile-cs-badge">YAKINDA</span></span>
-          <span class="btn-city-market">AKDENİZ</span>
-        </button>
-        <button type="button" class="mobile-city-btn is-coming-soon" data-city="Gaziantep" data-market="guneydogu" data-status="coming_soon">
-          <span class="btn-city-name">GAZİANTEP <span class="mobile-cs-badge">YAKINDA</span></span>
-          <span class="btn-city-market">GÜNEYDOĞU</span>
-        </button>
-        <button type="button" class="mobile-city-btn is-coming-soon" data-city="Bodrum" data-market="ege" data-status="coming_soon">
-          <span class="btn-city-name">BODRUM <span class="mobile-cs-badge">YAKINDA</span></span>
-          <span class="btn-city-market">EGE</span>
-        </button>
-        <button type="button" class="mobile-city-btn is-coming-soon" data-city="Trabzon" data-market="karadeniz" data-status="coming_soon">
-          <span class="btn-city-name">TRABZON <span class="mobile-cs-badge">YAKINDA</span></span>
-          <span class="btn-city-market">KARADENİZ</span>
-        </button>
-      </div>
     </div>
   </section>
 
   <!-- ==========================================
        ANA SİTE İÇERİĞİ (Portal sonrası)
        ========================================== -->
-  <div id="services-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
   <main id="main-content" class="wp-main-content">
     
     <!-- ── FLOATING TOP PILL NAV BAR (1:1 AS USER SCREENSHOTS) ─────────────────────────────────── -->
@@ -1338,7 +823,17 @@
          ========================================== -->
     <div id="services-section" style="position:relative; top:-60px; height:0; pointer-events:none;"></div>
     <section class="wp-section services-showcase-section wp-reveal" id="servicesSection" aria-label="Temizlik Hizmetlerimiz">
-      <div class="wp-container">
+      <!-- 🌿 Luxury Architectural Botanical Ivy Wall Background -->
+      <div class="services-ivy-bg-wrap" id="servicesIvyBgWrap" aria-hidden="true">
+        <picture>
+          <source media="(max-width: 768px)" srcset="/images/services_ivy_luxury_mob.webp" type="image/webp">
+          <img src="/images/services_ivy_luxury_bg.webp" alt="Lüks Botanik Sarmaşık Duvarı" class="services-ivy-bg-img" id="servicesIvyBgImg" loading="lazy" decoding="async">
+        </picture>
+        <div class="services-ivy-vignette"></div>
+        <div class="services-ivy-ambient-glow"></div>
+      </div>
+
+      <div class="wp-container" style="position: relative; z-index: 5;">
         
         <!-- Standard WordPress Section Header -->
         <div class="wp-section-header">

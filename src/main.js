@@ -3606,12 +3606,34 @@ function setupPortalIntroClick() {
       if (sjhIconEl.textContent !== desiredIcon) sjhIconEl.textContent = desiredIcon;
     }
 
-    // 4. Stable 1:1 Camera Parity
-    if (canvas && canvas.style.transform) {
-      canvas.style.transform = 'none';
+    // 4. Cinematic 3D Camera Depth Glide (Forward Momentum through Penthouse)
+    if (canvas) {
+      const camScale = 1.0 + Math.sin(progress * Math.PI) * 0.032;
+      const camY = Math.sin(progress * Math.PI * 2) * 5;
+      canvas.style.transform = `scale(${camScale.toFixed(4)}) translateY(${camY.toFixed(1)}px)`;
     }
 
-    // 5. Update Minimal Editorial Luxury Room Overlays
+    // Hide poster once first canvas frame is painted
+    const poster = document.getElementById('portalIntroPoster');
+    if (poster && poster.style.opacity !== '0' && lastDrawnImage) {
+      poster.style.opacity = '0';
+    }
+
+    // 5. Update Interactive Room Navigation Pills Active State
+    const navPills = document.querySelectorAll('.room-nav-pill');
+    if (navPills.length > 0) {
+      const activeRoom = progress < 0.35 ? 'foyer' : (progress < 0.68 ? 'kitchen' : 'spa');
+      navPills.forEach(btn => {
+        const matches = btn.getAttribute('data-room') === activeRoom;
+        if (matches && !btn.classList.contains('is-active')) {
+          btn.classList.add('is-active');
+        } else if (!matches && btn.classList.contains('is-active')) {
+          btn.classList.remove('is-active');
+        }
+      });
+    }
+
+    // 6. Update Minimal Editorial Luxury Room Overlays
     const updateRoomOverlay = (cardId, p, start, enterPeak, exitStart, end) => {
       const card = document.getElementById(cardId);
       if (!card) return;
@@ -3645,12 +3667,12 @@ function setupPortalIntroClick() {
       card.style.transform = `translate(-50%, calc(-50% + ${ty.toFixed(1)}px))`;
     };
 
-    // Card 1: Foyer & Living Room (0.00 to 0.32) - fully visible on landing
-    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.22, 0.32);
-    // Card 2: Island Kitchen & Dining (0.35 to 0.67)
-    updateRoomOverlay('roomCard2', progress, 0.35, 0.42, 0.58, 0.67);
+    // Card 1: Foyer & Living Room (0.00 to 0.34) - fully visible on landing
+    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.24, 0.34);
+    // Card 2: Island Kitchen & Dining (0.36 to 0.68)
+    updateRoomOverlay('roomCard2', progress, 0.36, 0.44, 0.58, 0.68);
     // Card 3: Master Suite & Marble Spa (0.70 to 0.96)
-    updateRoomOverlay('roomCard3', progress, 0.70, 0.77, 0.88, 0.96);
+    updateRoomOverlay('roomCard3', progress, 0.70, 0.78, 0.88, 0.96);
   };
 
   // ── SOFT LERP DAMPING ENGINE (Purely driven by user scroll target) ──
@@ -3683,6 +3705,14 @@ function setupPortalIntroClick() {
   // Expose global scroll progress helpers for interactive controls & automation
   window._setProgress = (p, instant = false) => {
     targetProgress = Math.max(0, Math.min(1.0, p));
+    const heroTrack = document.getElementById('book-scroll-hero-track');
+    if (heroTrack) {
+      const maxScroll = heroTrack.offsetHeight - window.innerHeight;
+      if (maxScroll > 0) {
+        const targetScrollY = heroTrack.offsetTop + (targetProgress * maxScroll);
+        window.scrollTo({ top: targetScrollY, behavior: instant ? 'instant' : 'smooth' });
+      }
+    }
     if (instant) {
       currentProgress = targetProgress;
       if (dampingRafId) cancelAnimationFrame(dampingRafId);

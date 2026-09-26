@@ -20014,6 +20014,17 @@ html, body {
   will-change: transform;
 }
 
+.portal-intro-poster {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  pointer-events: none !important;
+  z-index: 0;
+  transition: opacity 0.4s ease;
+}
+
 .portal-intro-canvas {
   position: absolute !important;
   inset: 0 !important;
@@ -20021,6 +20032,7 @@ html, body {
   height: 100% !important;
   object-fit: cover !important;
   pointer-events: none !important;
+  z-index: 2;
   will-change: transform;
 }
 
@@ -20355,6 +20367,119 @@ html, body {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
   max-width: 580px;
   margin: 0;
+}
+
+/* ── HERO CTA ACTIONS & LUXURY BUTTONS ── */
+.room-actions-row {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.hero-primary-cta-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  color: #ffffff;
+  padding: 13px 32px;
+  border-radius: 9999px;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: clamp(0.88rem, 1.3vw, 1.02rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(2, 132, 199, 0.45), 0 0 24px rgba(56, 189, 248, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow;
+}
+
+.hero-primary-cta-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 12px 36px rgba(2, 132, 199, 0.6), 0 0 32px rgba(56, 189, 248, 0.5);
+}
+
+.hero-primary-cta-btn.secondary {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(251, 191, 36, 0.6);
+  color: #fbbf24;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(251, 191, 36, 0.25);
+  padding: 10px 24px;
+  font-size: 0.88rem;
+}
+
+.hero-primary-cta-btn.secondary:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: #fde047;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 28px rgba(251, 191, 36, 0.4);
+}
+
+.hero-primary-cta-btn .cta-shimmer {
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+  transform: skewX(-24deg);
+  animation: heroCtaShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes heroCtaShimmer {
+  0%, 65% { left: -120%; }
+  100% { left: 160%; }
+}
+
+/* ── QUICK ROOM NAVIGATION PILLS ── */
+.hero-room-nav-pills {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.room-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.room-nav-pill:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+  transform: translateY(-1px);
+}
+
+.room-nav-pill.is-active {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: #fbbf24;
+  color: #fef08a;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
 }
 
 .scroll-journey-hud {
@@ -22257,12 +22382,59 @@ body.flag-selection-mode #main-nav,
    WORDPRESS SERVICES SHOWCASE SECTION (6 MODERN CARDS GRID)
    ========================================================================== */
 .services-showcase-section {
-  background: radial-gradient(circle at 50% 10%, #0c1830 0%, #030712 70%) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  padding: 90px 20px 80px 20px !important;
   position: relative !important;
+  background: #020617 !important;
+  border-top: 1px solid rgba(251, 191, 36, 0.15) !important;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.15) !important;
+  padding: 100px 20px 90px 20px !important;
+  overflow: hidden !important;
   z-index: 10 !important;
+}
+
+.services-ivy-bg-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.services-ivy-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  will-change: transform;
+  transform: scale(1.02);
+  animation: servicesIvyBreath 20s ease-in-out infinite alternate;
+}
+
+@keyframes servicesIvyBreath {
+  0% {
+    transform: scale(1.02) translateY(0);
+  }
+  100% {
+    transform: scale(1.05) translateY(-8px);
+  }
+}
+
+.services-ivy-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(2, 6, 23, 0.25) 0%, rgba(2, 6, 23, 0.65) 60%, rgba(2, 6, 23, 0.94) 100%);
+  pointer-events: none;
+}
+
+.services-ivy-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 220px;
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 191, 36, 0.03) 50%, transparent 100%);
+  pointer-events: none;
 }
 
 .wp-services-grid {
@@ -22925,5 +23097,295 @@ body.flag-selection-mode #main-nav,
     font-size: 0.96rem !important;
   }
 }
+
+/* ==========================================================================
+   ✨ RELAXAX RESIDENTIAL EXCELLENCE & BOUTIQUE CITY SHOWCASE
+   ========================================================================== */
+.rx-prestige-section {
+  position: relative !important;
+  width: 100% !important;
+  padding: 100px 20px 110px 20px !important;
+  background: radial-gradient(circle at 50% 15%, #0f1d38 0%, #081124 55%, #020617 100%) !important;
+  border-top: 1px solid rgba(251, 191, 36, 0.18) !important;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.18) !important;
+  overflow: hidden !important;
+  z-index: 10 !important;
+}
+
+.rx-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  margin-top: 48px;
+  width: 100%;
+}
+
+.rx-pillar-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rx-pillar-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(251, 191, 36, 0.15);
+}
+
+.rx-pillar-card.featured {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.85) 100%);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 25px rgba(251, 191, 36, 0.18);
+}
+
+.rx-pillar-card .pillar-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pillar-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.pillar-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.pillar-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+}
+
+.pillar-chip.gold {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.45);
+  color: #fbbf24;
+}
+
+.pillar-title {
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffffff;
+  margin: 0 0 14px 0;
+}
+
+.pillar-desc {
+  font-size: 0.90rem;
+  line-height: 1.6;
+  color: rgba(203, 213, 225, 0.9);
+  margin: 0 0 22px 0;
+  flex-grow: 1;
+}
+
+.pillar-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+}
+
+.pillar-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: rgba(241, 245, 249, 0.95);
+}
+
+.pillar-features li span {
+  color: #10b981;
+  font-weight: 800;
+}
+
+/* ── BOUTIQUE CITY PRESENCE STRIP ── */
+.rx-city-presence-strip {
+  margin-top: 64px;
+  padding: 40px clamp(20px, 4vw, 44px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(251, 191, 36, 0.3);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+.rx-cps-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 32px auto;
+}
+
+.rx-cps-badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 9999px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.rx-cps-title {
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+}
+
+.rx-cps-sub {
+  font-size: 0.88rem;
+  color: rgba(203, 213, 225, 0.85);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.rx-cps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.rx-city-capsule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.rx-city-capsule:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(251, 191, 36, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(251, 191, 36, 0.15);
+}
+
+.rx-city-capsule.is-active {
+  background: rgba(251, 191, 36, 0.14);
+  border-color: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.25);
+}
+
+.rx-cc-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rx-cc-pin {
+  font-size: 1.3rem;
+}
+
+.rx-cc-name {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.rx-cc-region {
+  display: block;
+  font-size: 0.74rem;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.rx-cc-status {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #10b981;
+  white-space: nowrap;
+}
+
+.rx-cps-actions {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-cps-calc {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  color: #ffffff;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-size: 0.90rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+  transition: all 0.25s ease;
+}
+
+.btn-cps-calc:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 0 8px 26px rgba(2, 132, 199, 0.55);
+}
+
+.btn-cps-wa {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  padding: 12px 26px;
+  border-radius: 9999px;
+  font-size: 0.90rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-cps-wa:hover {
+  background: rgba(16, 185, 129, 0.28);
+  border-color: #34d399;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
 
 
