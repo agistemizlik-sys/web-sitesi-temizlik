@@ -22736,7 +22736,10 @@ section.wp-reveal,
 }
 
 #portal-stage,
-.rx-prestige-section {
+.rx-prestige-section,
+#reviews-section,
+.reviews-showcase-section,
+#inpageReviewsSection {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
