@@ -3363,29 +3363,49 @@ function setupPortalIntroClick() {
   const TOTAL_FRAMES = 120;
   const frameImages = [];
   let lastDrawnImage = null;
+  let entranceTriggered = false;
 
-  // ── High-Performance Pre-Rendered Offscreen Particle Sprite ──
-  const particleSpriteCanvas = document.createElement('canvas');
-  particleSpriteCanvas.width = 32;
-  particleSpriteCanvas.height = 32;
-  const pctx = particleSpriteCanvas.getContext('2d');
-  if (pctx) {
-    const grad = pctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    grad.addColorStop(0.35, 'rgba(251, 191, 36, 0.9)');
-    grad.addColorStop(0.7, 'rgba(245, 158, 11, 0.4)');
-    grad.addColorStop(1, 'rgba(245, 158, 11, 0)');
-    pctx.fillStyle = grad;
-    pctx.beginPath();
-    pctx.arc(16, 16, 16, 0, Math.PI * 2);
-    pctx.fill();
+  // ── High-Performance Pre-Rendered Offscreen Particle Sprites (Multi-Depth) ──
+  // 1. Soft Warm Bokeh Orb (Foreground)
+  const bokehSprite = document.createElement('canvas');
+  bokehSprite.width = 48;
+  bokehSprite.height = 48;
+  const bctx = bokehSprite.getContext('2d');
+  if (bctx) {
+    const bGrad = bctx.createRadialGradient(24, 24, 0, 24, 24, 24);
+    bGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    bGrad.addColorStop(0.25, 'rgba(253, 230, 138, 0.75)');
+    bGrad.addColorStop(0.55, 'rgba(245, 158, 11, 0.28)');
+    bGrad.addColorStop(0.85, 'rgba(245, 158, 11, 0.08)');
+    bGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    bctx.fillStyle = bGrad;
+    bctx.beginPath();
+    bctx.arc(24, 24, 24, 0, Math.PI * 2);
+    bctx.fill();
+  }
+
+  // 2. Crisp Sunlight Dust Mote (Mid & Background)
+  const dustSprite = document.createElement('canvas');
+  dustSprite.width = 24;
+  dustSprite.height = 24;
+  const dctx = dustSprite.getContext('2d');
+  if (dctx) {
+    const dGrad = dctx.createRadialGradient(12, 12, 0, 12, 12, 12);
+    dGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    dGrad.addColorStop(0.35, 'rgba(251, 191, 36, 0.85)');
+    dGrad.addColorStop(0.7, 'rgba(245, 158, 11, 0.35)');
+    dGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+    dctx.fillStyle = dGrad;
+    dctx.beginPath();
+    dctx.arc(12, 12, 12, 0, Math.PI * 2);
+    dctx.fill();
   }
 
   // ── High-DPI Canvas Scaling (Ultra-fluid 60–120 FPS performance) ──
   const resizeCanvas = () => {
     if (!canvas) return;
     const isMobile = window.innerWidth <= 768;
-    const maxDpr = isMobile ? 1.4 : 1.75;
+    const maxDpr = isMobile ? 1.5 : 2.0;
     const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     const targetW = Math.round(window.innerWidth * dpr);
     const targetH = Math.round(window.innerHeight * dpr);
@@ -3396,24 +3416,22 @@ function setupPortalIntroClick() {
     }
     if (ctx) {
       ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'medium';
+      ctx.imageSmoothingQuality = 'high';
     }
   };
   window.addEventListener('resize', () => {
     resizeCanvas();
-    renderFrame(currentProgress);
+    renderFrame(currentProgress, 0, performance.now());
   }, { passive: true });
   window.addEventListener('orientationchange', () => {
     setTimeout(() => {
       resizeCanvas();
-      renderFrame(currentProgress);
+      renderFrame(currentProgress, 0, performance.now());
     }, 150);
   }, { passive: true });
   resizeCanvas();
 
-  // Draw image with responsive aspect-ratio framing:
-  // - On desktop/landscape: 100% full-screen cover
-  // - On portrait mobile: intelligent subject framing with ambient blurred vertical fill
+  // Draw image with responsive aspect-ratio framing
   const drawImageCover = (img, alpha = 1.0) => {
     if (!img || !img.complete || img.naturalWidth <= 0 || !ctx || !canvas) return;
     const cw = canvas.width;
@@ -3427,7 +3445,6 @@ function setupPortalIntroClick() {
     ctx.globalAlpha = alpha;
 
     if (canvasRatio >= 1.0) {
-      // Landscape / Desktop: Classic high-fidelity cover math
       let rw, rh, ox, oy;
       if (canvasRatio > imageRatio) {
         rw = cw;
@@ -3441,32 +3458,35 @@ function setupPortalIntroClick() {
         oy = (ch - rh) / 2;
       }
       ctx.drawImage(img, ox, oy, rw, rh);
-      lastFrameRect = { ox, oy, rw, rh, isPortrait: false };
     } else {
-      // Portrait / Mobile: True full-bleed cinematic cover math (edge-to-edge on all mobile screens)
       const r = Math.max(cw / iw, ch / ih);
       const rw = iw * r;
       const rh = ih * r;
       const ox = (cw - rw) / 2;
       const oy = (ch - rh) / 2;
       ctx.drawImage(img, ox, oy, rw, rh);
-      lastFrameRect = { ox, oy, rw, rh, isPortrait: true };
     }
   };
 
-  let lastFrameRect = { ox: 0, oy: 0, rw: 1280, rh: 720, isPortrait: false };
+  // ── Multi-Depth Photorealistic Sunlight Bokeh Particles ──
+  const atmosphericMotes = Array.from({ length: 36 }, (_, i) => {
+    const isForeground = i < 8;
+    const isMidground = i >= 8 && i < 24;
+    return {
+      x: 0.10 + Math.random() * 0.80,
+      y: 0.08 + Math.random() * 0.84,
+      isForeground,
+      isMidground,
+      size: isForeground ? (3.6 + Math.random() * 3.4) : (isMidground ? (2.2 + Math.random() * 2.0) : (1.2 + Math.random() * 1.4)),
+      speedY: isForeground ? 0.08 : (isMidground ? 0.05 : 0.03),
+      driftSpeedX: 0.03 + Math.random() * 0.05,
+      phase: Math.random() * Math.PI * 2,
+      baseAlpha: isForeground ? (0.28 + Math.random() * 0.35) : (isMidground ? (0.40 + Math.random() * 0.40) : (0.25 + Math.random() * 0.30)),
+      radialExpansionRate: isForeground ? 1.8 : 0.8
+    };
+  });
 
-  // Magical floating golden dust particles inside the rooms
-  const magicalParticles = Array.from({ length: 36 }, () => ({
-    x: 0.15 + Math.random() * 0.70,
-    y: 0.15 + Math.random() * 0.70,
-    size: 2.0 + Math.random() * 4.0,
-    speedY: 0.12 + Math.random() * 0.20,
-    phase: Math.random() * Math.PI * 2,
-    baseAlpha: 0.35 + Math.random() * 0.55
-  }));
-
-  // Preload and hardware-decode all frames to prevent any on-scroll image decoding hiccups
+  // Preload and hardware-decode all frames
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
     const img = new Image();
     const numStr = String(i).padStart(3, '0');
@@ -3478,15 +3498,20 @@ function setupPortalIntroClick() {
     img.onload = () => {
       const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
       if (i - 1 === currentTargetFrame && ctx && canvas) {
-        renderFrame(currentProgress);
+        renderFrame(currentProgress, 0, performance.now());
         lastDrawnImage = img;
+        triggerEntranceOnce();
       } else if (!lastDrawnImage && i === 1 && ctx && canvas) {
-        renderFrame(0);
+        renderFrame(0, 0, performance.now());
         lastDrawnImage = img;
+        triggerEntranceOnce();
       }
     };
     if (img.complete && img.naturalWidth > 0 && i === 1 && !lastDrawnImage && ctx && canvas) {
-      requestAnimationFrame(() => renderFrame(0));
+      requestAnimationFrame(() => {
+        renderFrame(0, 0, performance.now());
+        triggerEntranceOnce();
+      });
       lastDrawnImage = img;
     }
     frameImages.push(img);
@@ -3495,35 +3520,44 @@ function setupPortalIntroClick() {
   let triggered = false;
   let targetProgress = 0;
   let currentProgress = 0;
-  let isDamping = false;
-  let dampingRafId = null;
+  let currentVelocity = 0;
+  let isPhysicsRunning = false;
+  let physicsRafId = null;
+  let lastTimestamp = performance.now();
 
-  // DOM State Cache to eliminate layout thrashing
-  let lastHudText = '';
-  let lastProgressBarW = '';
-  let lastS1Op = -1;
-  let lastS2Op = -1;
-  let lastS3Op = -1;
-  let lastBannerOp = -1;
+  // ── CINEMATIC ENTRANCE TRIGGER ──
+  const triggerEntranceOnce = () => {
+    if (entranceTriggered) return;
+    entranceTriggered = true;
 
-  // Pure Frame Renderer with Dual-Frame Temporal Blending & High-FPS Optimization
-  const renderFrame = (progress) => {
+    if (window.scrollY <= 15 && introStage) {
+      introStage.classList.add('hero-entrance-active');
+      setTimeout(() => {
+        introStage.classList.remove('hero-entrance-active');
+      }, 2200);
+    }
+  };
+
+  // ── PURE FRAME RENDERER WITH QUINTIC SMOOTHSTEP & STEADICAM DYNAMICS ──
+  const renderFrame = (progress, velocity = 0, now = performance.now()) => {
     if (triggered) return;
 
-    // 1. Dual-Frame Sub-Frame Interpolation
+    // 1. Quintic Smoothstep Sub-Frame Interpolation for Photometric Realism
     const exactFrame = progress * (TOTAL_FRAMES - 1);
     const frameIndexA = Math.floor(exactFrame);
     const frameIndexB = Math.min(TOTAL_FRAMES - 1, frameIndexA + 1);
-    const blendFactor = exactFrame - frameIndexA;
+    const rawT = exactFrame - frameIndexA;
+    // 6t^5 - 15t^4 + 10t^3
+    const blendFactor = rawT * rawT * rawT * (rawT * (rawT * 6 - 15) + 10);
 
     const imgA = frameImages[frameIndexA];
     const imgB = frameImages[frameIndexB];
 
     if (ctx && canvas) {
       if (imgA && imgA.complete && imgA.naturalWidth > 0) {
-        if (blendFactor < 0.08) {
+        if (blendFactor < 0.015) {
           drawImageCover(imgA, 1.0);
-        } else if (blendFactor > 0.92 && imgB && imgB.complete && imgB.naturalWidth > 0) {
+        } else if (blendFactor > 0.985 && imgB && imgB.complete && imgB.naturalWidth > 0) {
           drawImageCover(imgB, 1.0);
         } else {
           drawImageCover(imgA, 1.0);
@@ -3533,7 +3567,6 @@ function setupPortalIntroClick() {
           }
         }
       } else {
-        // Fallback: search nearest loaded frame
         for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
           const prev = frameImages[frameIndexA - offset];
           if (prev && prev.complete && prev.naturalWidth > 0) {
@@ -3548,69 +3581,50 @@ function setupPortalIntroClick() {
         }
       }
 
-      // 2. Subtle Luxury Penthouse Floating Sunlight Sparkles (Atmospheric room motes)
-      const moteAlpha = Math.min(0.35, Math.max(0.12, 0.22 + Math.sin(progress * Math.PI) * 0.1));
-      magicalParticles.forEach((p) => {
-        const particleY = (p.y - (progress * p.speedY * 1.2)) % 1.0;
-        const actualY = (particleY < 0 ? particleY + 1.0 : particleY) * canvas.height;
-        const actualX = (p.x + Math.sin(progress * 8 + p.phase) * 0.03) * canvas.width;
-        const pAlpha = p.baseAlpha * moteAlpha;
+      // 2. Realistic Multi-Depth Sunlight Dust Motes
+      const nowSec = now * 0.001;
+      const moteAtmosphere = Math.min(0.42, Math.max(0.14, 0.25 + Math.sin(progress * Math.PI) * 0.14));
+      const velocityOffset = Math.max(-0.04, Math.min(0.08, velocity * 0.8));
 
-        if (pAlpha > 0.04) {
+      atmosphericMotes.forEach((p) => {
+        const harmonicX = Math.sin(nowSec * p.driftSpeedX + p.phase) * 0.025;
+        const currentP = progress * p.speedY * 1.5;
+        const particleY = (p.y - currentP + Math.sin(nowSec * 0.3 + p.phase) * 0.02) % 1.0;
+        const actualNormY = particleY < 0 ? particleY + 1.0 : particleY;
+
+        const centerDistX = (p.x + harmonicX) - 0.5;
+        const centerDistY = actualNormY - 0.5;
+        const radialPush = 1.0 + (velocityOffset * p.radialExpansionRate);
+
+        const actualX = (0.5 + centerDistX * radialPush) * canvas.width;
+        const actualY = (0.5 + centerDistY * radialPush) * canvas.height;
+
+        const pAlpha = p.baseAlpha * moteAtmosphere;
+
+        if (pAlpha > 0.03 && actualX >= -50 && actualX <= canvas.width + 50 && actualY >= -50 && actualY <= canvas.height + 50) {
           ctx.globalAlpha = pAlpha;
-          ctx.drawImage(particleSpriteCanvas, actualX - p.size, actualY - p.size, p.size * 1.8, p.size * 1.8);
+          const sprite = p.isForeground ? bokehSprite : dustSprite;
+          const sz = p.size * (p.isForeground ? 2.4 : 1.6);
+          ctx.drawImage(sprite, actualX - sz, actualY - sz, sz * 2, sz * 2);
         }
       });
       ctx.globalAlpha = 1.0;
     }
 
-    // 3. HUD & Progress bar (DOM State Diffing)
-    if (progressBar) {
-      const curW = `${(progress * 100).toFixed(1)}%`;
-      if (curW !== lastProgressBarW) {
-        progressBar.style.width = curW;
-        lastProgressBarW = curW;
-      }
-    }
+    // 3. Cinematic 3D Steadicam Gimbal Dynamics
+    if (canvas && (!introStage.classList.contains('hero-entrance-active') || progress > 0.02)) {
+      const nowSec = now * 0.0012;
+      const forwardVelocityPunch = Math.max(-0.02, Math.min(0.045, velocity * 0.18));
+      const pathScale = 1.0 + Math.sin(progress * Math.PI) * 0.036;
+      const breathY = Math.sin(nowSec * 1.1) * 1.6;
+      const breathScale = 1.0 + Math.sin(nowSec * 0.8) * 0.0015;
 
-    if (hud) {
-      hud.style.opacity = '1';
-      hud.style.visibility = 'visible';
-      hud.style.pointerEvents = 'auto';
-      hud.style.cursor = 'pointer';
-    }
+      const totalScale = (pathScale + forwardVelocityPunch) * breathScale;
+      const swayX = Math.sin(progress * Math.PI * 4 + nowSec * 0.6) * 2.4;
+      const swayY = Math.sin(progress * Math.PI * 2) * 5.0 + breathY;
+      const rollDeg = Math.sin(progress * Math.PI * 2) * 0.22 + (velocity * 0.35);
 
-    if (hudText) {
-      let targetText = 'AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN';
-      if (progress < 0.28) {
-        targetText = '✦ GİRİŞ & SALON — AŞAĞI KAYDIRIN ✦';
-      } else if (progress < 0.55) {
-        targetText = '✦ PANORAMİK SALON & MANZARA ✦';
-      } else if (progress < 0.78) {
-        targetText = '✦ ADA MUTFAK & MİMARİ DETAYLAR ✦';
-      } else if (progress < 0.94) {
-        targetText = '✦ MASTER SUİT & MARBLE SPA ✦';
-      } else {
-        targetText = '✦ HİZMET ŞEHİRLERİMİZ & HARİTA ➔ ✦';
-      }
-
-      if (targetText !== lastHudText) {
-        hudText.textContent = targetText;
-        lastHudText = targetText;
-      }
-    }
-
-    const sjhIconEl = hud ? hud.querySelector('.sjh-icon') : null;
-    if (sjhIconEl) {
-      const desiredIcon = progress >= 0.94 ? '🗺️' : '🏠';
-      if (sjhIconEl.textContent !== desiredIcon) sjhIconEl.textContent = desiredIcon;
-    }
-
-    // 4. Cinematic 3D Camera Depth Glide (Forward Momentum through Penthouse)
-    if (canvas) {
-      const camScale = 1.0 + Math.sin(progress * Math.PI) * 0.032;
-      const camY = Math.sin(progress * Math.PI * 2) * 5;
-      canvas.style.transform = `scale(${camScale.toFixed(4)}) translateY(${camY.toFixed(1)}px)`;
+      canvas.style.transform = `scale(${totalScale.toFixed(4)}) translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) rotate(${rollDeg.toFixed(3)}deg)`;
     }
 
     // Hide poster once first canvas frame is painted
@@ -3619,31 +3633,16 @@ function setupPortalIntroClick() {
       poster.style.opacity = '0';
     }
 
-    // 5. Update Interactive Room Navigation Pills Active State
-    const navPills = document.querySelectorAll('.room-nav-pill');
-    if (navPills.length > 0) {
-      const activeRoom = progress < 0.35 ? 'foyer' : (progress < 0.68 ? 'kitchen' : 'spa');
-      navPills.forEach(btn => {
-        const matches = btn.getAttribute('data-room') === activeRoom;
-        if (matches && !btn.classList.contains('is-active')) {
-          btn.classList.add('is-active');
-        } else if (!matches && btn.classList.contains('is-active')) {
-          btn.classList.remove('is-active');
-        }
-      });
-    }
-
-    // 6. Update Minimal Editorial Luxury Room Overlays
+    // 4. Optical Rack-Focus Editorial Room Overlays
     const updateRoomOverlay = (cardId, p, start, enterPeak, exitStart, end) => {
       const card = document.getElementById(cardId);
       if (!card) return;
 
       if (p < start || p > end) {
-        if (card.style.visibility !== 'hidden') {
-          card.style.visibility = 'hidden';
-          card.style.opacity = '0';
-          card.style.pointerEvents = 'none';
-        }
+        card.style.visibility = 'hidden';
+        card.style.opacity = '0';
+        card.style.filter = 'blur(10px)';
+        card.style.pointerEvents = 'none';
         return;
       }
 
@@ -3652,57 +3651,91 @@ function setupPortalIntroClick() {
 
       let op = 1.0;
       let ty = 0;
+      let blurPx = 0;
 
       if (p < enterPeak) {
-        const t = (p - start) / Math.max(0.001, enterPeak - start);
+        const rawT = (p - start) / Math.max(0.001, enterPeak - start);
+        const t = rawT * rawT * (3 - 2 * rawT);
         op = t;
-        ty = (1.0 - t) * 20;
+        ty = (1.0 - t) * 26;
+        blurPx = (1.0 - t) * 8;
       } else if (p > exitStart) {
-        const t = (p - exitStart) / Math.max(0.001, end - exitStart);
+        const rawT = (p - exitStart) / Math.max(0.001, end - exitStart);
+        const t = rawT * rawT * (3 - 2 * rawT);
         op = Math.max(0, 1.0 - t);
-        ty = -t * 20;
+        ty = -t * 26;
+        blurPx = t * 8;
       }
 
-      card.style.opacity = op.toFixed(2);
+      card.style.opacity = op.toFixed(3);
+      card.style.filter = blurPx > 0.1 ? `blur(${blurPx.toFixed(1)}px)` : 'none';
       card.style.transform = `translate(-50%, calc(-50% + ${ty.toFixed(1)}px))`;
     };
 
-    // Card 1: Foyer & Living Room (0.00 to 0.34) - fully visible on landing
-    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.24, 0.34);
-    // Card 2: Island Kitchen & Dining (0.36 to 0.68)
-    updateRoomOverlay('roomCard2', progress, 0.36, 0.44, 0.58, 0.68);
+    // Card 1: Foyer & Living Room (0.00 to 0.33)
+    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.22, 0.33);
+    // Card 2: Island Kitchen & Dining (0.35 to 0.68)
+    updateRoomOverlay('roomCard2', progress, 0.35, 0.44, 0.58, 0.68);
     // Card 3: Master Suite & Marble Spa (0.70 to 0.96)
     updateRoomOverlay('roomCard3', progress, 0.70, 0.78, 0.88, 0.96);
   };
 
-  // ── SOFT LERP DAMPING ENGINE (Purely driven by user scroll target) ──
-  const startDampingLoop = () => {
-    if (isDamping) return;
-    isDamping = true;
+  // ── SECOND-ORDER DAMPED SPRING PHYSICS ENGINE (MOMENTUM & INERTIA) ──
+  const startPhysicsLoop = () => {
+    if (isPhysicsRunning) return;
+    isPhysicsRunning = true;
+    lastTimestamp = performance.now();
 
-    const dampStep = () => {
+    const physicsStep = (now) => {
       if (triggered) {
-        isDamping = false;
+        isPhysicsRunning = false;
         return;
       }
 
-      const diff = targetProgress - currentProgress;
-      if (Math.abs(diff) < 0.0005) {
+      const dt = Math.min(0.04, Math.max(0.001, (now - lastTimestamp) / 1000));
+      lastTimestamp = now;
+
+      const dist = targetProgress - currentProgress;
+      const absDist = Math.abs(dist);
+
+      if (absDist > 0.0001 || Math.abs(currentVelocity) > 0.0001) {
+        if (introStage.classList.contains('hero-entrance-active') && (absDist > 0.005 || currentProgress > 0.005)) {
+          introStage.classList.remove('hero-entrance-active');
+        }
+
+        const springForce = dist * 28.0;
+        currentVelocity += springForce * dt;
+        currentVelocity *= Math.pow(0.08, dt);
+        currentProgress += currentVelocity * dt;
+
+        if (currentProgress < 0) {
+          currentProgress = 0;
+          currentVelocity = 0;
+        } else if (currentProgress > 1) {
+          currentProgress = 1;
+          currentVelocity = 0;
+        }
+
+        renderFrame(currentProgress, currentVelocity, now);
+        physicsRafId = requestAnimationFrame(physicsStep);
+      } else {
         currentProgress = targetProgress;
-        renderFrame(currentProgress);
-        isDamping = false;
-        return;
-      }
+        currentVelocity = 0;
 
-      currentProgress += diff * 0.22;
-      renderFrame(currentProgress);
-      dampingRafId = requestAnimationFrame(dampStep);
+        if (currentProgress < 0.08) {
+          renderFrame(currentProgress, 0, now);
+          physicsRafId = requestAnimationFrame(physicsStep);
+        } else {
+          renderFrame(currentProgress, 0, now);
+          isPhysicsRunning = false;
+        }
+      }
     };
 
-    dampingRafId = requestAnimationFrame(dampStep);
+    physicsRafId = requestAnimationFrame(physicsStep);
   };
 
-  // Expose global scroll progress helpers for interactive controls & automation
+  // Expose global scroll progress helpers
   window._setProgress = (p, instant = false) => {
     targetProgress = Math.max(0, Math.min(1.0, p));
     const heroTrack = document.getElementById('book-scroll-hero-track');
@@ -3715,26 +3748,21 @@ function setupPortalIntroClick() {
     }
     if (instant) {
       currentProgress = targetProgress;
-      if (dampingRafId) cancelAnimationFrame(dampingRafId);
-      isDamping = false;
-      renderFrame(currentProgress);
+      currentVelocity = 0;
+      if (physicsRafId) cancelAnimationFrame(physicsRafId);
+      isPhysicsRunning = false;
+      renderFrame(currentProgress, 0, performance.now());
     } else {
-      startDampingLoop();
+      startPhysicsLoop();
     }
   };
   window._getProgress = () => currentProgress;
 
-  // ── SINGLE OPTIMIZED SCROLL WHEEL HANDLER (CALIBRATED SENSITIVITY) ──
-  const onWheel = (e) => {
+  // ── WHEEL LISTENER (WAKES PHYSICS ENGINE) ──
+  const onWheel = () => {
     if (triggered) return;
-    const rawDelta = e.deltaY || (e.wheelDelta ? -e.wheelDelta : 0);
-    // Smooth bounded delta normalization for consistent feel across mice & trackpads
-    const clampedDelta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 100);
-    const step = (clampedDelta / 100) * 0.024;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
-    startDampingLoop();
+    startPhysicsLoop();
   };
-
   window.addEventListener('wheel', onWheel, { passive: true });
 
   // ── WORDPRESS FLOW: NATIVE DOCUMENT SCROLL SCRUBBER ──
@@ -3747,14 +3775,12 @@ function setupPortalIntroClick() {
     const maxScroll = trackH - vH;
     if (maxScroll <= 0) return;
     
-    // Progress from 0.0 to 1.0 based on position in hero track
     const scrolled = -rect.top;
     const progress = Math.max(0, Math.min(1.0, scrolled / maxScroll));
     targetProgress = progress;
-    startDampingLoop();
+    startPhysicsLoop();
   };
   window.addEventListener('scroll', handleScrollScrub, { passive: true });
-
 
   // ── TOUCH DRAG HANDLERS (MOBILE) ──
   let touchStartY = 0;
@@ -3781,13 +3807,13 @@ function setupPortalIntroClick() {
     const step = (deltaY / denominator) * 0.9;
     targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
     touchStartY = currentY;
-    startDampingLoop();
+    startPhysicsLoop();
   };
 
   const onTouchEnd = () => {
     if (!touchMoved && !triggered && targetProgress < 0.75) {
       targetProgress = Math.min(1.0, targetProgress + 0.18);
-      startDampingLoop();
+      startPhysicsLoop();
     }
     isTouching = false;
   };
@@ -3796,36 +3822,21 @@ function setupPortalIntroClick() {
   window.addEventListener('touchmove', onTouchMove, { passive: true });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
 
-  if (hud) {
-    const handleHudAdvance = (e) => {
-      if (e) {
-        try { e.stopPropagation(); } catch(err){}
-      }
-      const targetSec = document.getElementById('servicesSection') || document.getElementById('bookingReveal');
-      if (targetSec) {
-        targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    };
-    hud.addEventListener('click', handleHudAdvance);
-    hud.addEventListener('touchend', handleHudAdvance, { passive: true });
-  }
-
   // ── KEYBOARD HANDLER ──
   const onKeyDown = (e) => {
     if (triggered) return;
     if (e.code === 'ArrowDown' || e.code === 'PageDown' || e.code === 'Space') {
       targetProgress = Math.min(1.0, targetProgress + 0.05);
-      startDampingLoop();
+      startPhysicsLoop();
     } else if (e.code === 'ArrowUp' || e.code === 'PageUp') {
       targetProgress = Math.max(0.0, targetProgress - 0.05);
-      startDampingLoop();
+      startPhysicsLoop();
     }
   };
-
   document.addEventListener('keydown', onKeyDown, { passive: true });
 
   // Initial draw on page load
-  renderFrame(0);
+  renderFrame(0, 0, performance.now());
 
   window._dismissIntroHero = () => {
     const targetSec = document.getElementById('servicesSection') || document.getElementById('bookingReveal');

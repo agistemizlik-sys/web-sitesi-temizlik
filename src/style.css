@@ -20342,9 +20342,83 @@ html, body {
   box-shadow: none !important;
   opacity: 0;
   visibility: hidden;
-  will-change: transform, opacity;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  will-change: transform, opacity, filter;
   pointer-events: none;
+}
+
+#roomCard1 {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── ULTRA-PREMIUM CINEMATIC ENTRANCE STAGGER ON INITIAL LANDING ── */
+.hero-entrance-active #roomCard1 .room-eyebrow {
+  animation: heroCinematicEyebrow 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.hero-entrance-active #roomCard1 .room-title {
+  animation: heroCinematicTitle 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.hero-entrance-active #roomCard1 .room-desc {
+  animation: heroCinematicDesc 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both;
+}
+
+@keyframes heroCinematicEyebrow {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+    letter-spacing: 7px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 4px;
+  }
+}
+
+@keyframes heroCinematicTitle {
+  0% {
+    opacity: 0;
+    transform: translateY(34px) scale(0.965);
+    filter: blur(14px);
+  }
+  50% {
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes heroCinematicDesc {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+}
+
+.hero-entrance-active .portal-intro-canvas {
+  animation: heroLensWakeup 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes heroLensWakeup {
+  0% {
+    transform: scale(1.055);
+    filter: brightness(1.10) contrast(1.04) saturate(1.05);
+  }
+  100% {
+    transform: scale(1.000);
+    filter: brightness(1.00) contrast(1.00) saturate(1.00);
+  }
 }
 
 .house-room-card .room-eyebrow {
