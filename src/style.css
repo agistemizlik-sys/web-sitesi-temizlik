@@ -54,7 +54,7 @@
 }
 
 html {
-  background-color: #030712;
+  background-color: #fbf9f5;
   scroll-behavior: auto;
   scrollbar-width: none;
   -webkit-text-size-adjust: 100%;
@@ -66,7 +66,7 @@ html::-webkit-scrollbar {
 }
 
 body {
-  background-color: #030712;
+  background-color: #fbf9f5;
   color: var(--clr-text);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -76,7 +76,7 @@ body {
 
 body.portal-intro-mode,
 body.flag-selection-mode {
-  background-color: #030712;
+  background-color: #fbf9f5;
 }
 
 body.flag-selection-mode {
@@ -21502,7 +21502,7 @@ html, body {
   }
 
   #bookingReveal,
-  .booking-section-wrapper {
+.booking-section-wrapper {
     padding-bottom: calc(140px + env(safe-area-inset-bottom, 20px)) !important;
   }
 
@@ -21762,7 +21762,7 @@ body.flag-selection-mode #main-nav,
   overflow: visible !important;
   touch-action: pan-y !important;
   user-select: none !important;
-  background: #030712 !important;
+  background: #fbf9f5 !important;
 }
 
 #portal-intro-stage,
@@ -21821,7 +21821,7 @@ body.flag-selection-mode #main-nav,
   display: block !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  background: #030712 !important;
+  background: #fbf9f5 !important;
   z-index: 11 !important;
 }
 
@@ -21834,7 +21834,7 @@ body.flag-selection-mode #main-nav,
   inset: auto !important;
   overflow: visible !important;
   display: block !important;
-  background: #030712 !important;
+  background: #fbf9f5 !important;
   z-index: 12 !important;
   padding: 0 !important;
   touch-action: pan-y !important;
@@ -21864,7 +21864,7 @@ body.flag-selection-mode #main-nav,
   visibility: visible !important;
   pointer-events: auto !important;
   overflow: visible !important;
-  background: #030712 !important;
+  background: #fbf9f5 !important;
   padding: 60px 16px 80px 16px !important;
   box-sizing: border-box !important;
   z-index: 10 !important;
@@ -21891,7 +21891,7 @@ body.flag-selection-mode #main-nav,
   visibility: visible !important;
   pointer-events: auto !important;
   overflow: visible !important;
-  background: radial-gradient(ellipse at 50% 8%, #0d1a33 0%, #081124 45%, #030712 100%) !important;
+  background: #f7f4ee !important;
   padding: 60px 16px 100px 16px !important;
   z-index: 15 !important;
   box-sizing: border-box !important;
@@ -21961,9 +21961,9 @@ body.flag-selection-mode #main-nav,
 
 /* Section 5: Quality */
 .quality-showcase-section {
-  background: #050b18 !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: #f7f4ee !important;
+  border-top: 1px solid #e8e2d5 !important;
+  border-bottom: 1px solid #e8e2d5 !important;
 }
 
 .wp-quality-strip {
@@ -22173,8 +22173,8 @@ body.flag-selection-mode #main-nav,
 
 /* Section 7: FAQ */
 .faq-showcase-section {
-  background: #050b18 !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: #fbf9f5 !important;
+  border-top: 1px solid #e8e2d5 !important;
 }
 
 .wp-faq-accordion {
@@ -22232,8 +22232,8 @@ body.flag-selection-mode #main-nav,
 
 /* Section 8: Footer */
 .footer-showcase-section {
-  background: #02050c !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: #f0eae0 !important;
+  border-top: 1px solid #dfd8cc !important;
   padding: 70px 20px 40px 20px !important;
 }
 
@@ -22514,9 +22514,9 @@ body.flag-selection-mode #main-nav,
    ========================================================================== */
 .services-showcase-section {
   position: relative !important;
-  background: #020617 !important;
-  border-top: 1px solid rgba(251, 191, 36, 0.15) !important;
-  border-bottom: 1px solid rgba(251, 191, 36, 0.15) !important;
+  background: #faf7f2 !important;
+  border-top: 1px solid #e8e2d5 !important;
+  border-bottom: 1px solid #e8e2d5 !important;
   padding: 100px 20px 90px 20px !important;
   overflow: hidden !important;
   z-index: 10 !important;
@@ -23560,3 +23560,1268 @@ section.wp-reveal,
   padding: 0 !important;
   border: none !important;
 }
+
+
+/* ==========================================================================
+   🏛️ ULTRA-LUXURY ARCHITECTURAL CREAM & OFF-WHITE SUITE (RELAXAX THEME) 🏛️
+   ========================================================================== */
+
+/* ── 1. Global Reset & Body System ── */
+html, body {
+  background-color: #fbf9f5 !important;
+  color: #1c1917 !important;
+}
+
+body.wp-flow-body,
+body.portal-intro-mode,
+body.flag-selection-mode,
+#main-content,
+.wp-main-content {
+  background: #fbf9f5 !important;
+  color: #1c1917 !important;
+}
+
+/* ── 2. Top Floating Navigation Bar (Ultra-Luxury Frosted Milk Glass) ── */
+.c-floating-navbar {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(214, 203, 185, 0.75) !important;
+  border-radius: 9999px !important;
+  box-shadow: 
+    0 10px 30px rgba(44, 38, 28, 0.08),
+    0 1px 3px rgba(44, 38, 28, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  color: #1c1917 !important;
+}
+
+.c-nav-brand-title {
+  color: #1c1917 !important;
+}
+
+.c-nav-theme-badge {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #b45309 !important;
+  border: 1px solid rgba(217, 119, 6, 0.3) !important;
+}
+
+.c-nav-pill-btn {
+  background: rgba(247, 244, 236, 0.8) !important;
+  border: 1px solid rgba(214, 203, 185, 0.7) !important;
+  color: #292524 !important;
+}
+
+.c-nav-pill-btn:hover {
+  background: #ffffff !important;
+  border-color: #d97706 !important;
+  color: #1c1917 !important;
+  box-shadow: 0 4px 14px rgba(44, 38, 28, 0.08) !important;
+}
+
+.c-nav-vip-btn {
+  background: rgba(254, 243, 199, 0.85) !important;
+  border-color: rgba(217, 119, 6, 0.4) !important;
+}
+
+.c-nav-vip-btn #cNavVipText {
+  color: #b45309 !important;
+  font-weight: 800 !important;
+}
+
+.c-nav-dropdown-menu {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(214, 203, 185, 0.7) !important;
+  box-shadow: 0 20px 45px rgba(44, 38, 28, 0.12) !important;
+}
+
+.c-nav-dropdown-header {
+  color: #78716c !important;
+  border-bottom: 1px solid rgba(214, 203, 185, 0.5) !important;
+}
+
+.c-nav-dropdown-item {
+  color: #292524 !important;
+}
+
+.c-nav-dropdown-item:hover {
+  background: #f7f4ec !important;
+  color: #1c1917 !important;
+}
+
+.c-nav-lang-dropdown {
+  background: #ffffff !important;
+  border: 1px solid rgba(214, 203, 185, 0.7) !important;
+  box-shadow: 0 16px 36px rgba(44, 38, 28, 0.12) !important;
+}
+
+.c-nav-lang-opt {
+  color: #292524 !important;
+}
+
+.c-nav-lang-opt:hover {
+  background: #f7f4ec !important;
+  color: #1c1917 !important;
+}
+
+.c-nav-lang-opt.active {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #b45309 !important;
+  font-weight: 700 !important;
+}
+
+/* ── 3. Section Headers & Typography Hierarchy ── */
+.wp-sec-header,
+.wp-section-header {
+  margin-bottom: 44px !important;
+}
+
+.wp-sec-badge,
+.wp-section-badge,
+.b-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 18px !important;
+  border-radius: 999px !important;
+  background: rgba(217, 119, 6, 0.10) !important;
+  border: 1px solid rgba(217, 119, 6, 0.32) !important;
+  color: #b45309 !important;
+  font-size: 0.78rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 14px !important;
+}
+
+.wp-sec-title,
+.wp-section-title,
+.b-sec-main-title {
+  font-family: 'Cinzel', 'Fraunces', serif, system-ui !important;
+  font-size: clamp(1.8rem, 3.5vw, 2.7rem) !important;
+  font-weight: 800 !important;
+  color: #1c1917 !important;
+  letter-spacing: -0.5px !important;
+  line-height: 1.25 !important;
+  margin: 0 0 12px 0 !important;
+}
+
+.wp-sec-sub,
+.wp-section-desc,
+.b-sec-main-sub {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: clamp(0.96rem, 1.7vw, 1.12rem) !important;
+  color: #57534e !important;
+  max-width: 680px !important;
+  margin: 0 auto !important;
+  line-height: 1.6 !important;
+}
+
+.wp-section-divider {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  color: #c99a3e !important;
+  font-size: 0.9rem !important;
+  margin: 0 auto 16px auto !important;
+}
+
+.wp-divider-line {
+  width: 44px !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(201, 154, 62, 0.55), transparent) !important;
+}
+
+/* ── 4. Services Showcase Section (6 Architectural Cards) ── */
+.services-showcase-section,
+#servicesSection {
+  background: #faf7f2 !important;
+  border-top: 1px solid #e8e2d5 !important;
+  border-bottom: 1px solid #e8e2d5 !important;
+}
+
+.services-ivy-vignette {
+  background: radial-gradient(circle at 50% 30%, rgba(250, 247, 242, 0.25) 0%, rgba(250, 247, 242, 0.8) 60%, #faf7f2 100%) !important;
+}
+
+.services-ivy-ambient-glow {
+  background: linear-gradient(180deg, rgba(201, 154, 62, 0.12) 0%, rgba(201, 154, 62, 0.03) 50%, transparent 100%) !important;
+}
+
+.wp-service-card {
+  position: relative !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(214, 203, 185, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  padding: 28px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease !important;
+  box-shadow: 0 8px 24px rgba(44, 38, 28, 0.06) !important;
+  cursor: pointer !important;
+  color: #1c1917 !important;
+}
+
+.wp-service-card:hover {
+  transform: translateY(-8px) !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 20px 40px rgba(44, 38, 28, 0.10), 0 0 25px rgba(217, 119, 6, 0.18) !important;
+}
+
+.wp-service-card.selected {
+  border-color: #d97706 !important;
+  box-shadow: 0 0 30px rgba(217, 119, 6, 0.24) !important;
+  background: #fffdf9 !important;
+}
+
+.wp-sc-overlay {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.97) 100%) !important;
+}
+
+.wp-sc-title {
+  color: #1c1917 !important;
+}
+
+.wp-sc-sub {
+  color: #78716c !important;
+}
+
+.wp-sc-desc {
+  color: #44403c !important;
+}
+
+.wp-sc-features li {
+  color: #57534e !important;
+}
+
+.wp-sc-features li span {
+  color: #059669 !important;
+}
+
+.wp-sc-icon {
+  background: #f5f0e6 !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.wp-sc-meta {
+  background: #f7f4ec !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.wp-meta-time {
+  color: #78716c !important;
+}
+
+.wp-meta-price {
+  color: #b45309 !important;
+}
+
+.wp-meta-price small {
+  color: #78716c !important;
+}
+
+.wp-sc-action-btn {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #ffffff !important;
+  border: 1px solid #d97706 !important;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.25) !important;
+}
+
+.wp-sc-action-btn:hover {
+  background: linear-gradient(135deg, #b45309, #92400e) !important;
+  color: #ffffff !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.4) !important;
+}
+
+.wp-sc-badge.popular {
+  background: #fef3c7 !important;
+  border: 1px solid #fde68a !important;
+  color: #92400e !important;
+}
+
+.wp-sc-badge.recommended {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+.wp-sc-badge.general {
+  background: #f5f5f4 !important;
+  border: 1px solid #e7e5e4 !important;
+  color: #44403c !important;
+}
+
+.wp-sc-check {
+  background: rgba(217, 119, 6, 0.15) !important;
+  border-color: rgba(217, 119, 6, 0.4) !important;
+  color: #b45309 !important;
+}
+
+.wp-service-card.selected .wp-sc-check {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.5) !important;
+}
+
+.wp-trust-row {
+  background: #ffffff !important;
+  border: 1px solid rgba(214, 203, 185, 0.65) !important;
+  box-shadow: 0 8px 24px rgba(44, 38, 28, 0.05) !important;
+}
+
+.wp-trust-text strong {
+  color: #1c1917 !important;
+}
+
+.wp-trust-text span,
+.wp-ti-content small {
+  color: #57534e !important;
+}
+
+/* ── 5. Booking Wizard Section & Calculator Suite ── */
+#bookingReveal,
+.booking-section-wrapper,
+.booking-showcase-section {
+  background: #f7f4ee !important;
+  color: #1c1917 !important;
+}
+
+.wizard-sound-toggle-btn {
+  background: #ffffff !important;
+  border: 1px solid #e8e2d5 !important;
+  color: #292524 !important;
+  box-shadow: 0 2px 8px rgba(44, 38, 28, 0.06) !important;
+}
+
+.wizard-sound-toggle-btn:hover {
+  background: #fffbf0 !important;
+  border-color: #d97706 !important;
+  color: #b45309 !important;
+}
+
+.wizard-step-progress-bar {
+  background: #ffffff !important;
+  border: 1px solid #e8e2d5 !important;
+  box-shadow: 0 4px 14px rgba(44, 38, 28, 0.04) !important;
+}
+
+.w-step-item {
+  color: #78716c !important;
+}
+
+.w-step-num {
+  background: #e8e2d5 !important;
+  color: #57534e !important;
+}
+
+.w-step-item.active .w-step-num {
+  background: #d97706 !important;
+  color: #ffffff !important;
+}
+
+.w-step-item.active .w-step-text {
+  color: #1c1917 !important;
+  font-weight: 800 !important;
+}
+
+.w-step-line {
+  background: #e8e2d5 !important;
+}
+
+.wizard-toggle-tabs {
+  background: #eae4d8 !important;
+  border: 1px solid #dbd2c2 !important;
+}
+
+.wizard-tab-btn {
+  color: #57534e !important;
+}
+
+.wizard-tab-btn.active {
+  background: #ffffff !important;
+  color: #1c1917 !important;
+  box-shadow: 0 4px 12px rgba(44, 38, 28, 0.08) !important;
+}
+
+.wizard-section-card,
+.wizard-summary-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(214, 203, 185, 0.75) !important;
+  box-shadow: 0 12px 36px rgba(44, 38, 28, 0.06) !important;
+  color: #1c1917 !important;
+}
+
+.wizard-card-video-overlay {
+  background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.95) 45%, rgba(255, 255, 255, 0.4) 80%, transparent 100%) !important;
+}
+
+.wizard-sec-title,
+.wizard-sec-title-center {
+  color: #1c1917 !important;
+}
+
+.wizard-sec-sub-center {
+  color: #57534e !important;
+}
+
+.wizard-badge-soft {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1px solid #fde68a !important;
+}
+
+/* Service Preset Cards */
+.wizard-service-preset-card {
+  background: #fbf9f5 !important;
+  border: 1.5px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+  box-shadow: 0 4px 14px rgba(44, 38, 28, 0.04) !important;
+}
+
+.wizard-service-preset-card:hover {
+  background: #fefdfa !important;
+  border-color: #d97706 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.15) !important;
+}
+
+.wizard-service-preset-card.active {
+  background: #fffbf0 !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.3), 0 10px 28px rgba(217, 119, 6, 0.12) !important;
+}
+
+.wizard-service-preset-card .s-preset-info strong {
+  color: #1c1917 !important;
+}
+
+.wizard-service-preset-card.active .s-preset-info strong {
+  color: #b45309 !important;
+}
+
+.wizard-service-preset-card .s-preset-info span {
+  color: #57534e !important;
+}
+
+.s-preset-check {
+  background: #fef3c7 !important;
+  border: 1.5px solid #d97706 !important;
+  color: #b45309 !important;
+}
+
+.wizard-service-preset-card.active .s-preset-check {
+  background: #d97706 !important;
+  color: #ffffff !important;
+}
+
+/* Area Chips */
+.wizard-area-quick-chips {
+  background: #f7f4ec !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.area-chips-label {
+  color: #57534e !important;
+}
+
+.area-chip {
+  background: #ffffff !important;
+  border: 1.5px solid #d8d0c2 !important;
+  color: #1c1917 !important;
+  box-shadow: 0 2px 6px rgba(44, 38, 28, 0.05) !important;
+}
+
+.area-chip:hover {
+  background: #fff8eb !important;
+  border-color: #d97706 !important;
+  color: #b45309 !important;
+}
+
+.area-chip.active {
+  background: #d97706 !important;
+  border-color: #b45309 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(217, 119, 6, 0.35) !important;
+}
+
+/* Counter Box */
+.wizard-counter-box {
+  background: #fbf9f5 !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.counter-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #d8d0c2 !important;
+  color: #1c1917 !important;
+}
+
+.counter-btn:hover {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #b45309 !important;
+}
+
+.counter-num {
+  color: #1c1917 !important;
+}
+
+.counter-lbl {
+  color: #78716c !important;
+}
+
+.wizard-kitchen-row,
+.wizard-house-row,
+.duplex-check-item,
+.villa-check-item {
+  background: #fbf9f5 !important;
+  border: 1px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.wizard-check-item {
+  color: #1c1917 !important;
+}
+
+/* Frequency Cards */
+.wizard-freq-card {
+  background: #fbf9f5 !important;
+  border: 1.5px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.wizard-freq-card:hover {
+  background: #fefdfa !important;
+  border-color: #d97706 !important;
+}
+
+.wizard-freq-card.active {
+  background: #fffbf0 !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.15) !important;
+}
+
+.wizard-freq-card .freq-name {
+  color: #1c1917 !important;
+}
+
+.wizard-freq-card.active .freq-name {
+  color: #b45309 !important;
+}
+
+.wizard-freq-card .freq-price {
+  color: #b45309 !important;
+}
+
+.wizard-freq-card.active .freq-price {
+  color: #b45309 !important;
+}
+
+/* Extra Cards */
+.wizard-extra-card {
+  background: #fbf9f5 !important;
+  border: 1.5px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.wizard-extra-card:hover {
+  background: #fefdfa !important;
+  border-color: #d97706 !important;
+}
+
+.wizard-extra-card.active {
+  background: #fffbf0 !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.3) !important;
+}
+
+.w-extra-name {
+  color: #1c1917 !important;
+}
+
+.w-extra-badge {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1px solid #fde68a !important;
+}
+
+.w-old-price {
+  color: #78716c !important;
+}
+
+.wizard-vacuum-banner {
+  background: #fbf9f5 !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.v-text-wrap {
+  color: #44403c !important;
+}
+
+/* Fields & Inputs */
+.w-field label,
+.key-opt-label {
+  color: #44403c !important;
+}
+
+.w-field input,
+.w-field select,
+.w-field textarea,
+.wizard-city-select {
+  background: #ffffff !important;
+  border: 1.5px solid #d8d0c2 !important;
+  color: #1c1917 !important;
+}
+
+.w-field input:focus,
+.w-field select:focus,
+.w-field textarea:focus {
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 3.5px rgba(217, 119, 6, 0.2) !important;
+  background: #ffffff !important;
+}
+
+/* Payment Tabs & Bank Suite */
+.wizard-pay-tab-btn {
+  background: #fbf9f5 !important;
+  border: 1.5px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.wizard-pay-tab-btn:hover {
+  background: #fefdfa !important;
+  border-color: #d97706 !important;
+}
+
+.wizard-pay-tab-btn.active {
+  background: #fffbf0 !important;
+  border-color: #d97706 !important;
+  color: #1c1917 !important;
+}
+
+.p-tab-info strong {
+  color: #1c1917 !important;
+}
+
+.p-tab-info span {
+  color: #57534e !important;
+}
+
+.bank-pill-btn {
+  background: #f5f0e6 !important;
+  border: 1px solid #d8d0c2 !important;
+  color: #44403c !important;
+}
+
+.bank-pill-btn:hover {
+  background: #fff8eb !important;
+  color: #b45309 !important;
+  border-color: #d97706 !important;
+}
+
+.bank-pill-btn.active {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #b45309 !important;
+}
+
+.selected-bank-detail-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+  box-shadow: 0 6px 20px rgba(44, 38, 28, 0.05) !important;
+}
+
+.b-active-bank-name {
+  color: #b45309 !important;
+}
+
+.b-field-val-wrap {
+  background: #f7f4ec !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.b-field-val {
+  color: #1c1917 !important;
+}
+
+.b-iban-display {
+  color: #b45309 !important;
+}
+
+.btn-copy-mini {
+  background: #f5f0e6 !important;
+  border: 1px solid #d8d0c2 !important;
+  color: #44403c !important;
+}
+
+.btn-copy-iban-main {
+  background: #d97706 !important;
+  border: 1px solid #b45309 !important;
+  color: #ffffff !important;
+}
+
+.transfer-notice-box {
+  background: #fef3c7 !important;
+  border: 1px solid #fde68a !important;
+  color: #78350f !important;
+}
+
+.cash-feat-item {
+  background: #fbf9f5 !important;
+  border: 1px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.cash-feat-item strong {
+  color: #1c1917 !important;
+}
+
+.cash-feat-item span {
+  color: #57534e !important;
+}
+
+/* Summary Card */
+.w-sum-title {
+  color: #1c1917 !important;
+}
+
+.w-sum-base-price {
+  color: #b45309 !important;
+}
+
+.wizard-promo-block {
+  background: #f7f4ec !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.w-promo-input-row input {
+  background: #ffffff !important;
+  border: 1px solid #d8d0c2 !important;
+  color: #1c1917 !important;
+}
+
+.w-promo-input-row button {
+  background: #d97706 !important;
+  border: 1px solid #b45309 !important;
+  color: #ffffff !important;
+}
+
+.wizard-price-checkout-box {
+  border-top: 1px solid #e8e2d5 !important;
+}
+
+.p-label {
+  color: #57534e !important;
+}
+
+.p-final {
+  color: #b45309 !important;
+}
+
+.p-gross {
+  color: #78716c !important;
+}
+
+.wizard-submit-btn {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #d97706 !important;
+  box-shadow: 0 6px 22px rgba(217, 119, 6, 0.35) !important;
+}
+
+.wizard-submit-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 30px rgba(217, 119, 6, 0.5) !important;
+}
+
+.wizard-live-radar-box {
+  background: #ffffff !important;
+  border: 1px solid #e8e2d5 !important;
+  box-shadow: 0 4px 14px rgba(44, 38, 28, 0.04) !important;
+}
+
+.radar-text-wrap strong {
+  color: #1c1917 !important;
+}
+
+.radar-text-wrap span {
+  color: #57534e !important;
+}
+
+.wizard-inspect-report-btn {
+  background: #f7f4ec !important;
+  border: 1px solid #e8e2d5 !important;
+  color: #44403c !important;
+}
+
+.btn-wizard-next-step {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #d97706 !important;
+  box-shadow: 0 4px 18px rgba(217, 119, 6, 0.35) !important;
+}
+
+.btn-wizard-next-step:hover {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%) !important;
+  box-shadow: 0 8px 28px rgba(217, 119, 6, 0.5) !important;
+}
+
+.btn-wizard-prev-step {
+  background: #f5f0e6 !important;
+  color: #44403c !important;
+  border: 1.5px solid #d8d0c2 !important;
+}
+
+.btn-wizard-prev-step:hover {
+  background: #ffffff !important;
+  color: #1c1917 !important;
+  border-color: #d97706 !important;
+}
+
+/* ── 6. Quality Showcase Section ── */
+.quality-showcase-section,
+#inpageQualitySection {
+  background: #f7f4ee !important;
+  border-top: 1px solid #e8e2d5 !important;
+  border-bottom: 1px solid #e8e2d5 !important;
+}
+
+.wp-quality-strip {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(217, 119, 6, 0.35) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(44, 38, 28, 0.05) !important;
+}
+
+.qr-score-circle {
+  background: #fffbf0 !important;
+  border: 2px solid #d97706 !important;
+  color: #b45309 !important;
+}
+
+.qr-score-info strong {
+  color: #1c1917 !important;
+}
+
+.qr-score-info p {
+  color: #57534e !important;
+}
+
+.wp-qcard {
+  background: #ffffff !important;
+  border: 1px solid #e8e2d5 !important;
+  box-shadow: 0 4px 16px rgba(44, 38, 28, 0.04) !important;
+}
+
+.wp-qcard:hover {
+  transform: translateY(-3px) !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 8px 24px rgba(44, 38, 28, 0.08) !important;
+}
+
+.wp-qcard h5 {
+  color: #1c1917 !important;
+}
+
+.wp-qcard li {
+  color: #44403c !important;
+}
+
+.wp-qcard .c-ok {
+  color: #059669 !important;
+}
+
+.sig-title {
+  color: #78716c !important;
+}
+
+.sig-name {
+  color: #1c1917 !important;
+}
+
+.btn-scroll-to-booking {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #ffffff !important;
+  border: 1px solid #d97706 !important;
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3) !important;
+}
+
+.btn-scroll-to-booking:hover {
+  background: linear-gradient(135deg, #b45309, #92400e) !important;
+  box-shadow: 0 10px 28px rgba(217, 119, 6, 0.45) !important;
+}
+
+/* ── 7. FAQ Section ── */
+.faq-showcase-section,
+#inpageFaqSection {
+  background: #fbf9f5 !important;
+  border-top: 1px solid #e8e2d5 !important;
+}
+
+.wp-faq-item {
+  background: #ffffff !important;
+  border: 1px solid #e8e2d5 !important;
+  box-shadow: 0 2px 10px rgba(44, 38, 28, 0.03) !important;
+}
+
+.wp-faq-item[open] {
+  border-color: #d97706 !important;
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.1) !important;
+}
+
+.wp-faq-q {
+  color: #1c1917 !important;
+}
+
+.wp-faq-arrow {
+  color: #b45309 !important;
+}
+
+.wp-faq-a {
+  color: #44403c !important;
+}
+
+/* ── 8. Corporate Footer & Legal Bar ── */
+.footer-showcase-section,
+#inpageFooterSection {
+  background: #f0eae0 !important;
+  border-top: 1px solid #dfd8cc !important;
+}
+
+.wp-flogo-text {
+  color: #1c1917 !important;
+}
+
+.wp-fdesc {
+  color: #57534e !important;
+}
+
+.wp-fsocials a {
+  color: #57534e !important;
+}
+
+.wp-fsocials a:hover {
+  color: #b45309 !important;
+}
+
+.wp-fcol h4 {
+  color: #1c1917 !important;
+}
+
+.wp-fcol a {
+  color: #57534e !important;
+}
+
+.wp-fcol a:hover {
+  color: #b45309 !important;
+}
+
+.wp-fphone {
+  color: #b45309 !important;
+}
+
+.wp-fhours,
+.wp-femail {
+  color: #57534e !important;
+}
+
+.wp-footer-bottom {
+  border-top: 1px solid #dfd8cc !important;
+  color: #78716c !important;
+}
+
+.wp-flegal-links a {
+  color: #78716c !important;
+}
+
+.wp-flegal-links a:hover {
+  color: #1c1917 !important;
+}
+
+/* ── 9. Corporate Modal System ── */
+.rx-corporate-modal-card {
+  background: #ffffff !important;
+  border: 1px solid #d8d0c2 !important;
+  box-shadow: 0 25px 60px rgba(44, 38, 28, 0.18) !important;
+  color: #1c1917 !important;
+}
+
+.rx-cmodal-header {
+  background: #faf7f2 !important;
+  border-bottom: 1px solid #e8e2d5 !important;
+}
+
+.rx-cmodal-title {
+  color: #1c1917 !important;
+}
+
+.rx-cmodal-sub {
+  color: #57534e !important;
+}
+
+.rx-cmodal-badge {
+  background: rgba(217, 119, 6, 0.1) !important;
+  border: 1px solid rgba(217, 119, 6, 0.3) !important;
+  color: #b45309 !important;
+}
+
+.rx-cmodal-close {
+  color: #78716c !important;
+}
+
+.rx-cmodal-close:hover {
+  color: #1c1917 !important;
+  background: #e8e2d5 !important;
+}
+
+.rx-cmodal-body {
+  color: #292524 !important;
+}
+
+/* ── 10. Strict Clean Hero Enforcement ── */
+.room-actions-row,
+.hero-room-nav-pills,
+.hero-primary-cta-btn,
+.room-nav-pill,
+.scroll-journey-hud,
+.sjh-badge,
+.portal-skip-btn {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+
+
+/* ==========================================================================
+   ✨ LUXURY ARCHITECTURAL CREAM REFINEMENTS & CONTRAST CALIBRATION ✨
+   ========================================================================== */
+
+/* ── 1. Booking Calculator Header High Contrast ── */
+.booking-section-header .b-sec-main-title,
+#bookingReveal .booking-section-header .b-sec-main-title,
+#bookingReveal .b-sec-main-title {
+  color: #1c1917 !important;
+  text-shadow: none !important;
+  font-family: 'Cinzel', 'Fraunces', serif, system-ui !important;
+  font-weight: 800 !important;
+}
+
+.booking-section-header .b-sec-main-sub,
+#bookingReveal .booking-section-header .b-sec-main-sub,
+#bookingReveal .b-sec-main-sub {
+  color: #57534e !important;
+  text-shadow: none !important;
+  font-weight: 400 !important;
+}
+
+/* ── 2. Quality Score Badge High Contrast ── */
+.qr-score-circle {
+  background: #fffbf0 !important;
+  border: 2.5px solid #d97706 !important;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.2) !important;
+}
+
+.qr-score-circle .score-num {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+  font-size: 1.6rem !important;
+  text-shadow: none !important;
+}
+
+.qr-score-circle .score-lbl {
+  color: #78716c !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  text-shadow: none !important;
+}
+
+.qr-signature-box .sig-title {
+  color: #78716c !important;
+}
+
+.qr-signature-box .sig-name {
+  color: #1c1917 !important;
+  font-weight: 800 !important;
+}
+
+/* ── 3. Voice Assistant Button in Champagne Bronze ── */
+.rx-floating-voice-btn {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.35), 0 0 15px rgba(217, 119, 6, 0.2) !important;
+}
+
+.rx-floating-voice-btn:hover {
+  background: linear-gradient(135deg, #b45309, #92400e) !important;
+  box-shadow: 0 12px 30px rgba(217, 119, 6, 0.5) !important;
+}
+
+/* ── 4. Wizard Inner Panels & Addons Contrast ── */
+.wizard-card-video-bg {
+  opacity: 0.25 !important;
+  filter: grayscale(0.2) brightness(1.05) !important;
+}
+
+.wizard-card-video-overlay {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.94) 50%, rgba(255, 255, 255, 0.82) 100%) !important;
+}
+
+.duplex-check-item,
+.villa-check-item {
+  background: #fbf9f5 !important;
+  border: 1px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.wizard-supply-choice-row {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+
+.supply-choice-header .s-info strong {
+  color: #166534 !important;
+}
+
+.supply-choice-header .s-info span {
+  color: #15803d !important;
+}
+
+.key-opt-label {
+  color: #44403c !important;
+}
+
+.key-opt-card {
+  background: #fbf9f5 !important;
+  border: 1.5px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.key-opt-card:hover {
+  background: #fefdfa !important;
+  border-color: #d97706 !important;
+  color: #b45309 !important;
+}
+
+.key-opt-card.active {
+  background: #fffbf0 !important;
+  border-color: #d97706 !important;
+  color: #b45309 !important;
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.2) !important;
+}
+
+.transfer-alert-box {
+  background: #fef3c7 !important;
+  border: 1px solid #fde68a !important;
+  color: #92400e !important;
+  padding: 14px 18px !important;
+  border-radius: 14px !important;
+  margin-bottom: 16px !important;
+}
+
+.t-alert-txt strong {
+  color: #78350f !important;
+  display: block !important;
+  margin-bottom: 4px !important;
+}
+
+.t-alert-txt span {
+  color: #92400e !important;
+}
+
+.cash-banner-box {
+  background: #f7f4ec !important;
+  border: 1px solid #e8e2d5 !important;
+  padding: 16px 20px !important;
+  border-radius: 14px !important;
+  margin-bottom: 18px !important;
+}
+
+.c-banner-txt strong {
+  color: #1c1917 !important;
+  display: block !important;
+  margin-bottom: 4px !important;
+}
+
+.c-banner-txt span {
+  color: #57534e !important;
+  line-height: 1.5 !important;
+}
+
+.est-pill {
+  background: #fbf9f5 !important;
+  border: 1px solid #e8e2d5 !important;
+}
+
+.est-text small {
+  color: #78716c !important;
+}
+
+.est-text strong {
+  color: #1c1917 !important;
+}
+
+/* ── 5. Mobile Floating Checkout Bar ── */
+.mobile-wizard-sticky-bar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-top: 1px solid #e8e2d5 !important;
+  box-shadow: 0 -4px 20px rgba(44, 38, 28, 0.08) !important;
+}
+
+.m-sticky-lbl {
+  color: #78716c !important;
+}
+
+.m-sticky-price {
+  color: #b45309 !important;
+}
+
+.m-sticky-btn {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  color: #ffffff !important;
+}
+
+/* ── 6. Assigned Cleaner Card (Post-Order Live State) ── */
+.assigned-cleaner-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e8e2d5 !important;
+  box-shadow: 0 10px 30px rgba(44, 38, 28, 0.06) !important;
+}
+
+.acc-top-badge {
+  background: #f7f4ec !important;
+  border-bottom: 1px solid #e8e2d5 !important;
+  color: #1c1917 !important;
+}
+
+.acc-name-row h4 {
+  color: #1c1917 !important;
+}
+
+.acc-rating,
+.acc-exp,
+.acc-location {
+  color: #57534e !important;
+}
+
+.acc-step-txt {
+  color: #78716c !important;
+}
+
+.acc-step.active .acc-step-txt {
+  color: #1c1917 !important;
+  font-weight: 800 !important;
+}
+
