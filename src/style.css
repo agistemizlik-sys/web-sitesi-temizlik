@@ -20351,21 +20351,21 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 20px;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.55) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(229, 220, 206, 0.3) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   color: #dfd7c8 !important;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 3.5px;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  margin-bottom: 16px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 1px 3px #000000 !important;
 }
 
 .house-room-card .room-title {
@@ -23467,3 +23467,22 @@ section.wp-reveal,
 
 
 
+
+/* ── STRICT BUTTONLESS HERO ENFORCEMENT ── */
+.room-actions-row,
+.hero-room-nav-pills,
+.hero-primary-cta-btn,
+.room-nav-pill,
+.scroll-journey-hud,
+.sjh-badge,
+.portal-skip-btn {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}

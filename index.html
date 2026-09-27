@@ -435,84 +435,45 @@
       <!-- Atmospheric Penthouse Vignette Overlay -->
       <div class="house-walk-vignette" aria-hidden="true"></div>
 
-      <!-- Minimalist Editorial Overlays Linked to House Rooms -->
+            <!-- Minimalist Editorial Overlays Linked to House Rooms -->
       <div class="house-walk-overlays" id="houseWalkOverlays" aria-hidden="true">
         <!-- Room Card 1: Foyer & Living Room (0% - 32%) -->
         <div class="house-room-card" id="roomCard1">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>AYRICALIKLI YAŞAM ALANLARI</span>
+            <span>PROFESYONEL EV TEMİZLİĞİ</span>
             <span class="room-sparkle">✦</span>
           </div>
-          <h1 class="room-title">Sessiz Lüks.<br/><span class="room-gradient">Kusursuz Temizlik.</span></h1>
-          <p class="room-desc">Rezidans, yalı ve seçkin konutlar için ayrıcalıklı yaşam alanı hijyeni.</p>
-          
-          <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn" id="heroPrimaryCtaBtn" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
-              <span class="cta-shimmer"></span>
-              <span class="cta-icon">✨</span>
-              <span>Randevu Oluştur &amp; Fiyat Hesapla</span>
-              <span class="cta-arrow">➔</span>
-            </button>
-          </div>
-
-          <!-- Quick Interactive Room Jump Pills -->
-          <div class="hero-room-nav-pills" id="heroRoomNavPills" aria-label="Yaşam Alanları">
-            <button type="button" class="room-nav-pill is-active" data-room="foyer" onclick="window._setProgress(0.12);" title="Panoramik Salona Geç">
-              <span class="r-icon">🛋️</span>
-              <span>Panoramik Salon</span>
-            </button>
-            <button type="button" class="room-nav-pill" data-room="kitchen" onclick="window._setProgress(0.50);" title="Ada Mutfağa Geç">
-              <span class="r-icon">🍳</span>
-              <span>Ada Mutfak</span>
-            </button>
-            <button type="button" class="room-nav-pill" data-room="spa" onclick="window._setProgress(0.85);" title="Master Spa'ya Geç">
-              <span class="r-icon">🛁</span>
-              <span>Master Spa</span>
-            </button>
-          </div>
+          <h1 class="room-title">Evinize Hak Ettiği Özen.<br/><span class="room-gradient">Detaylı ve Güvenilir.</span></h1>
+          <p class="room-desc">Rezidans ve yaşam alanlarınız için deneyimli ekiplerle özenli, hijyenik ve güvenilir temizlik.</p>
         </div>
 
         <!-- Room Card 2: Island Kitchen & Dining (36% - 66%) -->
         <div class="house-room-card" id="roomCard2">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>ADA MUTFAK &amp; YEMEK ALANI</span>
+            <span>MUTFAK &amp; YAŞAM ALANLARI</span>
             <span class="room-sparkle">✦</span>
           </div>
-          <h2 class="room-title">Mermerin Zarafeti.<br/><span class="room-gradient">Mikron Düzeyinde Arınma.</span></h2>
-          <p class="room-desc">Calacatta mermer, ahşap ve pirinç yüzeylere özel organik nano bakım.</p>
-          <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn secondary" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
-              <span class="cta-icon">🍳</span>
-              <span>Mutfak &amp; Detaylı Temizlik Seç</span>
-              <span class="cta-arrow">➔</span>
-            </button>
-          </div>
+          <h2 class="room-title">Her Detayda Hijyen.<br/><span class="room-gradient">Tertemiz Yüzeyler.</span></h2>
+          <p class="room-desc">Dolap içlerinden tezgahlara kadar tüm yüzeylerde özenli ve derinlemesine bakım.</p>
         </div>
 
         <!-- Room Card 3: Master Suite & Marble Spa (70% - 96%) -->
         <div class="house-room-card" id="roomCard3">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>MASTER SUİT &amp; MARBLE SPA</span>
+            <span>YATAK ODASI &amp; BANYO</span>
             <span class="room-sparkle">✦</span>
           </div>
-          <h2 class="room-title">Arınmış Bir Zihin,<br/><span class="room-gradient">Kusursuz Dinlenme.</span></h2>
-          <p class="room-desc">Doğal esansiyel ferahlık, ipeksi dokular ve 5 yıldızlı huzur.</p>
-          <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn secondary" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});">
-              <span class="cta-icon">🗺️</span>
-              <span>Ayrıcalıklı Hizmetleri İncele</span>
-              <span class="cta-arrow">➔</span>
-            </button>
-          </div>
+          <h2 class="room-title">Ferah ve Taze.<br/><span class="room-gradient">Eksiksiz Temizlik.</span></h2>
+          <p class="room-desc">Buharlı hijyen ve titiz dokunuşlarla tertemiz, sağlıklı yaşam alanları.</p>
         </div>
       </div>
 
-      <!-- Scroll Progress HUD & Prompt -->
-      <div class="scroll-journey-hud" id="scrollJourneyHud">
-        <div class="sjh-badge" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});">
+      <!-- Scroll Progress HUD & Prompt (Hidden for clean visual experience) -->
+      <div class="scroll-journey-hud" id="scrollJourneyHud" style="display: none !important; opacity: 0 !important; pointer-events: none !important;">
+        <div class="sjh-badge">
           <span class="sjh-icon">🏠</span>
           <span id="sjhText">AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN</span>
           <span class="sjh-arrow">↓</span>
@@ -522,8 +483,8 @@
         </div>
       </div>
 
-      <!-- Direct Skip / Explore Cities Button -->
-      <button type="button" class="portal-skip-btn" id="portalSkipBtn" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});" aria-label="Turu Geç">
+      <!-- Direct Skip / Explore Cities Button (Hidden) -->
+      <button type="button" class="portal-skip-btn" id="portalSkipBtn" aria-label="Turu Geç" style="display: none !important; opacity: 0 !important; pointer-events: none !important;">
         <span>Hizmetleri İncele</span>
         <span class="skip-arrow">➔</span>
       </button>
