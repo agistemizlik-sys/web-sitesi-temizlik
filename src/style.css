@@ -20326,70 +20326,92 @@ html, body {
   top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: clamp(340px, 80vw, 760px);
+  max-width: clamp(360px, 90vw, 1050px);
   width: 100%;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 48px);
-  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.72) 0%, rgba(3, 7, 18, 0.88) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1.5px solid rgba(251, 191, 36, 0.4);
-  border-radius: 28px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 40px rgba(251, 191, 36, 0.18);
+  padding: 30px 24px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(3, 7, 18, 0.40) 0%, rgba(3, 7, 18, 0.18) 45%, transparent 72%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   opacity: 0;
   visibility: hidden;
   will-change: transform, opacity;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
   pointer-events: none;
 }
 
 .house-room-card .room-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 16px;
+  gap: 10px;
+  padding: 7px 24px;
   border-radius: 9999px;
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.38);
-  color: #fbbf24;
-  font-size: clamp(0.70rem, 1.1vw, 0.82rem);
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(251, 191, 36, 0.5) !important;
+  color: #fde047 !important;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: clamp(0.72rem, 1.0vw, 0.84rem);
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65), 0 0 15px rgba(251, 191, 36, 0.2);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
 }
 
 .house-room-card .room-title {
-  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
-  font-size: clamp(1.85rem, 3.8vw, 3.4rem);
-  font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: 0.02em;
-  color: #ffffff;
-  margin: 0 0 12px 0;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+  font-family: 'Playfair Display', 'Cormorant Garamond', Didot, 'Bodoni MT', Georgia, serif !important;
+  font-style: italic !important;
+  font-size: clamp(2.6rem, 5.8vw, 5.0rem) !important;
+  font-weight: 600 !important;
+  line-height: 1.12 !important;
+  letter-spacing: -0.01em !important;
+  color: #ffffff !important;
+  margin: 0 0 16px 0 !important;
+  text-shadow: 
+    0 4px 25px rgba(0, 0, 0, 0.95),
+    0 8px 45px rgba(0, 0, 0, 0.9),
+    0 2px 4px #000000 !important;
 }
 
 .house-room-card .room-gradient {
-  background: linear-gradient(180deg, #ffffff 0%, #fef3c7 45%, #fbbf24 85%, #d97706 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.6));
+  display: inline-block;
+  font-family: inherit;
+  font-style: italic;
+  color: #fde047 !important;
+  -webkit-text-fill-color: #fde047 !important;
+  background: none !important;
+  filter: none !important;
+  text-shadow: 
+    0 0 35px rgba(251, 191, 36, 0.5),
+    0 4px 25px rgba(0, 0, 0, 0.95),
+    0 8px 45px rgba(0, 0, 0, 0.9),
+    0 2px 4px #000000 !important;
 }
 
 .house-room-card .room-desc {
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: clamp(0.92rem, 1.4vw, 1.12rem);
-  font-weight: 400;
-  line-height: 1.55;
-  color: rgba(241, 245, 249, 0.92);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-  max-width: 580px;
-  margin: 0;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif !important;
+  font-style: italic !important;
+  font-size: clamp(1.25rem, 2.1vw, 1.65rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0.015em !important;
+  color: #ffffff !important;
+  text-shadow: 
+    0 2px 14px rgba(0, 0, 0, 0.95),
+    0 6px 28px rgba(0, 0, 0, 0.9),
+    0 1px 3px #000000 !important;
+  max-width: 720px !important;
+  margin: 0 0 24px 0 !important;
 }
 
 /* ── HERO CTA ACTIONS & LUXURY BUTTONS ── */
@@ -20611,17 +20633,22 @@ html, body {
   }
   .house-room-card {
     top: 42%;
-    padding: 20px 16px;
-    max-width: 90vw;
-    border-radius: 20px;
+    padding: 14px 12px;
+    max-width: 95vw;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
   }
   .house-room-card .room-title {
-    font-size: clamp(1.4rem, 5.8vw, 1.95rem);
-    margin-bottom: 8px;
+    font-size: clamp(1.85rem, 7.2vw, 2.6rem) !important;
+    margin-bottom: 10px !important;
+    line-height: 1.18 !important;
   }
   .house-room-card .room-desc {
-    font-size: 0.82rem;
-    line-height: 1.45;
+    font-size: clamp(1.0rem, 3.8vw, 1.15rem) !important;
+    line-height: 1.4 !important;
+    margin-bottom: 16px !important;
   }
   .scroll-journey-hud {
     display: none !important;
