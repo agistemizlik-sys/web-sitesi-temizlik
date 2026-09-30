@@ -3353,20 +3353,18 @@ function setupPortalIntroClick() {
   const heroTrack = document.getElementById('book-scroll-hero-track');
   const introStage = document.getElementById('portal-intro-stage');
   const canvas = document.getElementById('portalIntroCanvas');
+  const video = document.getElementById('portalIntroVideo');
+  const poster = document.getElementById('portalIntroPoster');
   const progressBar = document.getElementById('sjhProgressBar');
   const hudText = document.getElementById('sjhText');
   const hud = document.getElementById('scrollJourneyHud');
   
-  if (!introStage || !canvas) return;
+  if (!introStage) return;
 
-  const ctx = canvas.getContext('2d');
-  const TOTAL_FRAMES = 120;
-  const frameImages = [];
-  let lastDrawnImage = null;
+  const ctx = canvas ? canvas.getContext('2d') : null;
   let entranceTriggered = false;
 
-  // ── High-Performance Pre-Rendered Offscreen Particle Sprites (Multi-Depth) ──
-  // 1. Soft Warm Bokeh Orb (Foreground)
+  // ── High-Performance Pre-Rendered Offscreen Particle Sprites (Sunlight Depth) ──
   const bokehSprite = document.createElement('canvas');
   bokehSprite.width = 48;
   bokehSprite.height = 48;
@@ -3384,7 +3382,6 @@ function setupPortalIntroClick() {
     bctx.fill();
   }
 
-  // 2. Crisp Sunlight Dust Mote (Mid & Background)
   const dustSprite = document.createElement('canvas');
   dustSprite.width = 24;
   dustSprite.height = 24;
@@ -3401,7 +3398,7 @@ function setupPortalIntroClick() {
     dctx.fill();
   }
 
-  // ── High-DPI Canvas Scaling (Ultra-fluid 60–120 FPS performance) ──
+  // ── High-DPI Canvas Scaling ──
   const resizeCanvas = () => {
     if (!canvas) return;
     const isMobile = window.innerWidth <= 768;
@@ -3431,43 +3428,6 @@ function setupPortalIntroClick() {
   }, { passive: true });
   resizeCanvas();
 
-  // Draw image with responsive aspect-ratio framing
-  const drawImageCover = (img, alpha = 1.0) => {
-    if (!img || !img.complete || img.naturalWidth <= 0 || !ctx || !canvas) return;
-    const cw = canvas.width;
-    const ch = canvas.height;
-    const iw = img.naturalWidth;
-    const ih = img.naturalHeight;
-
-    const canvasRatio = cw / ch;
-    const imageRatio = iw / ih;
-
-    ctx.globalAlpha = alpha;
-
-    if (canvasRatio >= 1.0) {
-      let rw, rh, ox, oy;
-      if (canvasRatio > imageRatio) {
-        rw = cw;
-        rh = cw / imageRatio;
-        ox = 0;
-        oy = (ch - rh) / 2;
-      } else {
-        rh = ch;
-        rw = ch * imageRatio;
-        ox = (cw - rw) / 2;
-        oy = (ch - rh) / 2;
-      }
-      ctx.drawImage(img, ox, oy, rw, rh);
-    } else {
-      const r = Math.max(cw / iw, ch / ih);
-      const rw = iw * r;
-      const rh = ih * r;
-      const ox = (cw - rw) / 2;
-      const oy = (ch - rh) / 2;
-      ctx.drawImage(img, ox, oy, rw, rh);
-    }
-  };
-
   // ── Multi-Depth Photorealistic Sunlight Bokeh Particles ──
   const atmosphericMotes = Array.from({ length: 36 }, (_, i) => {
     const isForeground = i < 8;
@@ -3485,37 +3445,6 @@ function setupPortalIntroClick() {
       radialExpansionRate: isForeground ? 1.8 : 0.8
     };
   });
-
-  // Preload and hardware-decode all frames
-  for (let i = 1; i <= TOTAL_FRAMES; i++) {
-    const img = new Image();
-    const numStr = String(i).padStart(3, '0');
-    img.decoding = 'async';
-    img.src = `/videos/journey_hd/f_${numStr}.webp?v=house_walk_v2`;
-    if (typeof img.decode === 'function') {
-      img.decode().catch(() => {});
-    }
-    img.onload = () => {
-      const currentTargetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(currentProgress * (TOTAL_FRAMES - 1))));
-      if (i - 1 === currentTargetFrame && ctx && canvas) {
-        renderFrame(currentProgress, 0, performance.now());
-        lastDrawnImage = img;
-        triggerEntranceOnce();
-      } else if (!lastDrawnImage && i === 1 && ctx && canvas) {
-        renderFrame(0, 0, performance.now());
-        lastDrawnImage = img;
-        triggerEntranceOnce();
-      }
-    };
-    if (img.complete && img.naturalWidth > 0 && i === 1 && !lastDrawnImage && ctx && canvas) {
-      requestAnimationFrame(() => {
-        renderFrame(0, 0, performance.now());
-        triggerEntranceOnce();
-      });
-      lastDrawnImage = img;
-    }
-    frameImages.push(img);
-  }
 
   let triggered = false;
   let targetProgress = 0;
@@ -3538,50 +3467,50 @@ function setupPortalIntroClick() {
     }
   };
 
-  // ── PURE FRAME RENDERER WITH QUINTIC SMOOTHSTEP & STEADICAM DYNAMICS ──
+  // ── VIDEO PLAYBACK & UNLOCK ENGINE ──
+  if (video) {
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    video.autoplay = true;
+
+    const startPlayback = () => {
+      const p = video.play();
+      if (p !== undefined) {
+        p.then(() => {
+          triggerEntranceOnce();
+          if (poster) poster.style.opacity = '0';
+        }).catch(() => {});
+      }
+    };
+
+    startPlayback();
+    video.addEventListener('canplay', startPlayback, { once: true });
+    video.addEventListener('loadeddata', startPlayback, { once: true });
+    video.addEventListener('playing', () => {
+      triggerEntranceOnce();
+      if (poster) poster.style.opacity = '0';
+    });
+
+    const onUserWake = () => {
+      startPlayback();
+      window.removeEventListener('touchstart', onUserWake);
+      window.removeEventListener('click', onUserWake);
+      window.removeEventListener('scroll', onUserWake);
+    };
+    window.addEventListener('touchstart', onUserWake, { passive: true });
+    window.addEventListener('click', onUserWake, { passive: true });
+    window.addEventListener('scroll', onUserWake, { passive: true });
+  }
+
+  // ── ULTRA-FLUID FRAME RENDERER WITH PARTICLES & OVERLAYS ──
   const renderFrame = (progress, velocity = 0, now = performance.now()) => {
     if (triggered) return;
 
-    // 1. Quintic Smoothstep Sub-Frame Interpolation for Photometric Realism
-    const exactFrame = progress * (TOTAL_FRAMES - 1);
-    const frameIndexA = Math.floor(exactFrame);
-    const frameIndexB = Math.min(TOTAL_FRAMES - 1, frameIndexA + 1);
-    const rawT = exactFrame - frameIndexA;
-    // 6t^5 - 15t^4 + 10t^3
-    const blendFactor = rawT * rawT * rawT * (rawT * (rawT * 6 - 15) + 10);
-
-    const imgA = frameImages[frameIndexA];
-    const imgB = frameImages[frameIndexB];
-
+    // 1. Draw Golden Sunlight Dust Motes over the 4K Video
     if (ctx && canvas) {
-      if (imgA && imgA.complete && imgA.naturalWidth > 0) {
-        if (blendFactor < 0.015) {
-          drawImageCover(imgA, 1.0);
-        } else if (blendFactor > 0.985 && imgB && imgB.complete && imgB.naturalWidth > 0) {
-          drawImageCover(imgB, 1.0);
-        } else {
-          drawImageCover(imgA, 1.0);
-          if (imgB && imgB.complete && imgB.naturalWidth > 0 && imgA !== imgB) {
-            drawImageCover(imgB, blendFactor);
-            ctx.globalAlpha = 1.0;
-          }
-        }
-      } else {
-        for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
-          const prev = frameImages[frameIndexA - offset];
-          if (prev && prev.complete && prev.naturalWidth > 0) {
-            drawImageCover(prev, 1.0);
-            break;
-          }
-          const next = frameImages[frameIndexA + offset];
-          if (next && next.complete && next.naturalWidth > 0) {
-            drawImageCover(next, 1.0);
-            break;
-          }
-        }
-      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 2. Realistic Multi-Depth Sunlight Dust Motes
       const nowSec = now * 0.001;
       const moteAtmosphere = Math.min(0.42, Math.max(0.14, 0.25 + Math.sin(progress * Math.PI) * 0.14));
       const velocityOffset = Math.max(-0.04, Math.min(0.08, velocity * 0.8));
@@ -3611,29 +3540,35 @@ function setupPortalIntroClick() {
       ctx.globalAlpha = 1.0;
     }
 
-    // 3. Cinematic 3D Steadicam Gimbal Dynamics
-    if (canvas && (!introStage.classList.contains('hero-entrance-active') || progress > 0.02)) {
-      const nowSec = now * 0.0012;
-      const forwardVelocityPunch = Math.max(-0.02, Math.min(0.045, velocity * 0.18));
-      const pathScale = 1.0 + Math.sin(progress * Math.PI) * 0.036;
-      const breathY = Math.sin(nowSec * 1.1) * 1.6;
-      const breathScale = 1.0 + Math.sin(nowSec * 0.8) * 0.0015;
+    // 2. Dynamic Video Steadicam & Inertia
+    if (video) {
+      if (!video.paused) {
+        const targetRate = Math.max(0.85, Math.min(2.0, 1.0 + Math.abs(velocity) * 1.2));
+        video.playbackRate = targetRate;
+      }
 
-      const totalScale = (pathScale + forwardVelocityPunch) * breathScale;
-      const swayX = Math.sin(progress * Math.PI * 4 + nowSec * 0.6) * 2.4;
-      const swayY = Math.sin(progress * Math.PI * 2) * 5.0 + breathY;
-      const rollDeg = Math.sin(progress * Math.PI * 2) * 0.22 + (velocity * 0.35);
+      if (!introStage.classList.contains('hero-entrance-active') || progress > 0.02) {
+        const nowSec = now * 0.0012;
+        const forwardPunch = Math.max(-0.015, Math.min(0.035, velocity * 0.12));
+        const pathScale = 1.0 + Math.sin(progress * Math.PI) * 0.03;
+        const breathY = Math.sin(nowSec * 1.1) * 1.4;
+        const breathScale = 1.0 + Math.sin(nowSec * 0.8) * 0.0012;
 
-      canvas.style.transform = `scale(${totalScale.toFixed(4)}) translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) rotate(${rollDeg.toFixed(3)}deg)`;
+        const totalScale = (pathScale + forwardPunch) * breathScale;
+        const swayX = Math.sin(progress * Math.PI * 4 + nowSec * 0.6) * 1.8;
+        const swayY = Math.sin(progress * Math.PI * 2) * 3.5 + breathY;
+        const rollDeg = Math.sin(progress * Math.PI * 2) * 0.15 + (velocity * 0.2);
+
+        video.style.transform = `scale(${totalScale.toFixed(4)}) translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) rotate(${rollDeg.toFixed(3)}deg)`;
+      }
     }
 
-    // Hide poster once first canvas frame is painted
-    const poster = document.getElementById('portalIntroPoster');
-    if (poster && poster.style.opacity !== '0' && lastDrawnImage) {
+    // Hide poster once video is active
+    if (poster && poster.style.opacity !== '0' && video && (video.currentTime > 0 || video.readyState >= 2)) {
       poster.style.opacity = '0';
     }
 
-    // 4. Optical Rack-Focus Editorial Room Overlays
+    // 3. Optical Editorial Room Overlays with Clean Discrete Intervals
     const updateRoomOverlay = (cardId, p, start, enterPeak, exitStart, end) => {
       const card = document.getElementById(cardId);
       if (!card) return;
@@ -3641,7 +3576,7 @@ function setupPortalIntroClick() {
       if (p < start || p > end) {
         card.style.visibility = 'hidden';
         card.style.opacity = '0';
-        card.style.filter = 'blur(10px)';
+        card.style.filter = 'blur(4px)';
         card.style.pointerEvents = 'none';
         return;
       }
@@ -3657,27 +3592,27 @@ function setupPortalIntroClick() {
         const rawT = (p - start) / Math.max(0.001, enterPeak - start);
         const t = rawT * rawT * (3 - 2 * rawT);
         op = t;
-        ty = (1.0 - t) * 26;
-        blurPx = (1.0 - t) * 8;
+        ty = (1.0 - t) * 20;
+        blurPx = (1.0 - t) * 4;
       } else if (p > exitStart) {
         const rawT = (p - exitStart) / Math.max(0.001, end - exitStart);
         const t = rawT * rawT * (3 - 2 * rawT);
         op = Math.max(0, 1.0 - t);
-        ty = -t * 26;
-        blurPx = t * 8;
+        ty = -t * 20;
+        blurPx = t * 4;
       }
 
       card.style.opacity = op.toFixed(3);
-      card.style.filter = blurPx > 0.1 ? `blur(${blurPx.toFixed(1)}px)` : 'none';
+      card.style.filter = blurPx > 0.05 ? `blur(${blurPx.toFixed(1)}px)` : 'none';
       card.style.transform = `translate(-50%, calc(-50% + ${ty.toFixed(1)}px))`;
     };
 
-    // Card 1: Foyer & Living Room (0.00 to 0.33)
-    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.22, 0.33);
-    // Card 2: Island Kitchen & Dining (0.35 to 0.68)
-    updateRoomOverlay('roomCard2', progress, 0.35, 0.44, 0.58, 0.68);
-    // Card 3: Master Suite & Marble Spa (0.70 to 0.96)
-    updateRoomOverlay('roomCard3', progress, 0.70, 0.78, 0.88, 0.96);
+    // Card 1: Foyer & Living Room (0.00 to 0.28, peak: 0.00 - 0.20)
+    updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.20, 0.28);
+    // Card 2: Living Room & Panoramic Windows (0.32 to 0.62, peak: 0.38 - 0.54)
+    updateRoomOverlay('roomCard2', progress, 0.32, 0.38, 0.54, 0.62);
+    // Card 3: Residence & Villa Hygiene (0.66 to 0.96, peak: 0.72 - 0.88)
+    updateRoomOverlay('roomCard3', progress, 0.66, 0.72, 0.88, 0.96);
   };
 
   // ── SECOND-ORDER DAMPED SPRING PHYSICS ENGINE (MOMENTUM & INERTIA) ──
@@ -3722,11 +3657,11 @@ function setupPortalIntroClick() {
         currentProgress = targetProgress;
         currentVelocity = 0;
 
-        if (currentProgress < 0.08) {
+        // Keep rendering dust motes gently if hero track is active
+        if (currentProgress < 1.0) {
           renderFrame(currentProgress, 0, now);
           physicsRafId = requestAnimationFrame(physicsStep);
         } else {
-          renderFrame(currentProgress, 0, now);
           isPhysicsRunning = false;
         }
       }
@@ -3765,7 +3700,7 @@ function setupPortalIntroClick() {
   };
   window.addEventListener('wheel', onWheel, { passive: true });
 
-  // ── WORDPRESS FLOW: NATIVE DOCUMENT SCROLL SCRUBBER ──
+  // ── DOCUMENT SCROLL SCRUBBER ──
   const handleScrollScrub = () => {
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (!heroTrack) return;
@@ -3835,8 +3770,10 @@ function setupPortalIntroClick() {
   };
   document.addEventListener('keydown', onKeyDown, { passive: true });
 
-  // Initial draw on page load
+  // Initial draw and loop wake
   renderFrame(0, 0, performance.now());
+  startPhysicsLoop();
+  triggerEntranceOnce();
 
   window._dismissIntroHero = () => {
     const targetSec = document.getElementById('servicesSection') || document.getElementById('bookingReveal');
@@ -3947,7 +3884,7 @@ function setupPortalIntroClick() {
     heroSkyCardEl.addEventListener('touchend', scrollToNext, { passive: false });
   }
 
-    const btnTR = document.getElementById('btnBannerTR');
+  const btnTR = document.getElementById('btnBannerTR');
   const btnPL = document.getElementById('btnBannerPL');
   const poleLeft = document.getElementById('poleLeft');
   const poleRight = document.getElementById('poleRight');
@@ -3970,7 +3907,6 @@ function setupPortalIntroClick() {
     btnPL.addEventListener('touchend', handleSelectPL, { passive: false });
   }
 }
-
 /**
  * 🌸 Scent & Pet Care Preference Handlers
  */

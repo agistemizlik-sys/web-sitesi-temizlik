@@ -77,7 +77,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700;1,800&family=Marck+Script&display=swap" rel="stylesheet">
 
   <!-- Preload Critical Frame 1 for Instant House Walkthrough Presentation -->
-  <link rel="preload" href="/videos/journey_hd/f_001.webp?v=house_walk_v2" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="/videos/hero_walkthrough_4k.mp4" as="video" type="video/mp4">
+  <link rel="preload" href="/videos/hero_walkthrough_1080p.mp4" as="video" type="video/mp4">
 
   <!-- Additive: self-referencing canonical for ?lang= URL variants -->
   <script>
@@ -426,8 +427,11 @@
   <div id="hero-section" style="position:relative; top:0; height:0; pointer-events:none;"></div>
   <div id="book-scroll-hero-track" class="book-scroll-hero-track">
     <div id="portal-intro-stage" class="portal-intro-stage book-sticky-viewport">
-      <!-- High-Fidelity Zero-Flash Foyer Poster Fallback -->
-      <img src="/videos/journey_hd/f_001.webp" alt="Lüks Penthouse Yaşam Alanı" class="portal-intro-poster" id="portalIntroPoster" fetchpriority="high" />
+      <!-- 4K Ultra-Luxury Minimalist Villa Walkthrough Video -->
+      <video id="portalIntroVideo" class="portal-intro-video" src="/videos/hero_walkthrough_4k.mp4" autoplay muted loop playsinline preload="auto" aria-label="Lüks Ev Turu ve Temizlik Deneyimi">
+        <source src="/videos/hero_walkthrough_4k.mp4" type="video/mp4" />
+        <source src="/videos/hero_walkthrough_1080p.mp4" type="video/mp4" />
+      </video>
 
       <!-- High-DPI Interactive Walkthrough Canvas -->
       <canvas id="portalIntroCanvas" class="portal-intro-canvas" aria-label="Lüks Ev Turu ve Hijyen Deneyimi"></canvas>
@@ -448,26 +452,26 @@
           <p class="room-desc">Rezidans ve yaşam alanlarınız için deneyimli ekiplerle özenli, hijyenik ve güvenilir temizlik.</p>
         </div>
 
-        <!-- Room Card 2: Island Kitchen & Dining (36% - 66%) -->
+        <!-- Room Card 2: Living Room & Panoramic Windows (36% - 66%) -->
         <div class="house-room-card" id="roomCard2">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>MUTFAK &amp; YAŞAM ALANLARI</span>
+            <span>SALON &amp; YAŞAM ALANLARI</span>
             <span class="room-sparkle">✦</span>
           </div>
           <h2 class="room-title">Her Detayda Hijyen.<br/><span class="room-gradient">Tertemiz Yüzeyler.</span></h2>
-          <p class="room-desc">Dolap içlerinden tezgahlara kadar tüm yüzeylerde özenli ve derinlemesine bakım.</p>
+          <p class="room-desc">Mermer zeminlerden panoramik camlara kadar tüm yüzeylerde özenli ve derinlemesine bakım.</p>
         </div>
 
-        <!-- Room Card 3: Master Suite & Marble Spa (70% - 96%) -->
+        <!-- Room Card 3: Residence & Villa Hygiene (70% - 96%) -->
         <div class="house-room-card" id="roomCard3">
           <div class="room-eyebrow">
             <span class="room-sparkle">✦</span>
-            <span>YATAK ODASI &amp; BANYO</span>
+            <span>REZİDANS &amp; VİLLA TEMİZLİĞİ</span>
             <span class="room-sparkle">✦</span>
           </div>
           <h2 class="room-title">Ferah ve Taze.<br/><span class="room-gradient">Eksiksiz Temizlik.</span></h2>
-          <p class="room-desc">Buharlı hijyen ve titiz dokunuşlarla tertemiz, sağlıklı yaşam alanları.</p>
+          <p class="room-desc">Buharlı hijyen ve titiz dokunuşlarla tertemiz, sağlıklı ve huzurlu yaşam alanları.</p>
         </div>
       </div>
 

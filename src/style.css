@@ -7378,10 +7378,17 @@ video::-webkit-media-controls-overlay-play-button {
 }
 
 .portal-intro-video {
-  display: none !important;
-  visibility: hidden !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
   pointer-events: none !important;
-  opacity: 0 !important;
+  z-index: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  will-change: transform;
 }
 
 body.portal-intro-mode #portal-stage {
@@ -20038,14 +20045,20 @@ html, body {
 }
 
 .portal-intro-poster {
+  display: none !important;
+}
+
+.portal-intro-video {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
   pointer-events: none !important;
-  z-index: 0;
-  transition: opacity 0.4s ease;
+  z-index: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .portal-intro-canvas {
@@ -20057,6 +20070,7 @@ html, body {
   pointer-events: none !important;
   z-index: 2;
   will-change: transform;
+  background: transparent !important;
 }
 
 /* ========================================================
