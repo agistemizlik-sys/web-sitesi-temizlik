@@ -6994,7 +6994,50 @@ function setupCinemaEngine() {
             sc.video.classList.remove('portrait-video');
           }
         }
-      };
+      }
+
+  const cNavAuthBtn = document.getElementById('cNavAuthBtn');
+  if (cNavAuthBtn) {
+    cNavAuthBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof window.openAuthModalGlobal === 'function') {
+        window.openAuthModalGlobal('login');
+      }
+    });
+  }
+
+  const cNavVipConciergeBtn = document.getElementById('cNavVipConciergeBtn');
+  if (cNavVipConciergeBtn) {
+    cNavVipConciergeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof window.openVipConciergeModal === 'function') {
+        window.openVipConciergeModal();
+      }
+    });
+  }
+
+  const drawerAuthItem = document.getElementById('drawerAuthItem');
+  if (drawerAuthItem) {
+    drawerAuthItem.addEventListener('click', (e) => {
+      e.preventDefault();
+      const mobileDrawer = document.getElementById('mobile-menu-drawer');
+      if (mobileDrawer) mobileDrawer.hidden = true;
+      if (typeof window.openAuthModalGlobal === 'function') {
+        window.openAuthModalGlobal('login');
+      }
+    });
+  }
+
+  // Allow clicking the hero title card to enter services
+  const roomCard1 = document.getElementById('roomCard1');
+  if (roomCard1) {
+    roomCard1.style.cursor = 'pointer';
+    roomCard1.addEventListener('click', (e) => {
+      const target = document.getElementById('servicesSection') || document.getElementById('bookingReveal');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+;
 
       if (sc.video.readyState >= 1) {
         checkAspectRatio();

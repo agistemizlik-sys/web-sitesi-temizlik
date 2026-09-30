@@ -25377,3 +25377,9 @@ body.flag-selection-mode,
 .rx-order-track-card .ot-modal-specialist-box .acc-location {
   color: #94a3b8 !important;
 }
+
+
+#roomCard1 {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
