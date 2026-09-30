@@ -3947,8 +3947,10 @@ function setupPortalIntroClick() {
     heroSkyCardEl.addEventListener('touchend', scrollToNext, { passive: false });
   }
 
-  const btnTR = document.getElementById('btnBannerTR');
+    const btnTR = document.getElementById('btnBannerTR');
   const btnPL = document.getElementById('btnBannerPL');
+  const poleLeft = document.getElementById('poleLeft');
+  const poleRight = document.getElementById('poleRight');
 
   if (poleLeft) {
     poleLeft.addEventListener('click', handleSelectTR);
@@ -11370,6 +11372,7 @@ function setupBookingReveal() {
 
     // Function to render APPROVED State when Admin clicks "Onayla & Yola Çıkar"
     const renderOrderApprovedState = (jobData) => {
+      try { applyLiveOrderState("enroute", jobData); } catch(e){}
       if (!targetSuccessEl) return;
 
       const bubbleEl = targetSuccessEl.querySelector('#successStatusBubble');
@@ -13530,10 +13533,483 @@ function initWordPressScrollArchitecture() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initWordPressScrollArchitecture();
+    try { setupOrderTrackingModal(); initLiveCourierRadarMap(); } catch(e){ console.warn("[TRACKING_INIT_WARN]", e); }
     setTimeout(() => { if (typeof initLeafletMap === 'function') initLeafletMap('turkey'); }, 600);
   });
 } else {
   initWordPressScrollArchitecture();
+    try { setupOrderTrackingModal(); initLiveCourierRadarMap(); } catch(e){ console.warn("[TRACKING_INIT_WARN]", e); }
   setTimeout(() => { if (typeof initLeafletMap === 'function') initLeafletMap('turkey'); }, 600);
 }
 
+
+
+/* ==========================================================================
+   📍 LIVE COURIER & ORDER TRACKING SYSTEM ENGINE (Clean Architecture)
+   ========================================================================== */
+
+let gActiveOrderData = null;
+let gCourierAnimFrame = null;
+let gCurrentVehicleProgress = 0.25;
+
+/**
+ * Animate Courier Vehicle along SVG route
+ */
+function animateCourierVehicle(targetProgress, duration = 1200, callback) {
+  const route = document.getElementById('lcmRouteLine');
+  const vehicle = document.getElementById('lcmVehiclePin');
+  if (!route || !vehicle) return;
+
+  if (gCourierAnimFrame) cancelAnimationFrame(gCourierAnimFrame);
+
+  const startP = gCurrentVehicleProgress;
+  const startTime = performance.now();
+  let totalLen = 600;
+  try {
+    totalLen = route.getTotalLength() || 600;
+  } catch(e) {}
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const t = Math.min(1, elapsed / duration);
+    // Smooth easeInOutCubic
+    const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const currentP = startP + (targetProgress - startP) * ease;
+    gCurrentVehicleProgress = currentP;
+
+    try {
+      const pt = route.getPointAtLength(totalLen * currentP);
+      vehicle.setAttribute('transform', `translate(${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`);
+      
+      // Update modal vehicle if open
+      const modalVehicle = document.getElementById('otModalVehiclePin');
+      if (modalVehicle) {
+        modalVehicle.setAttribute('transform', `translate(${(pt.x * 0.95).toFixed(1)}, ${(pt.y * 0.75).toFixed(1)})`);
+      }
+    } catch(err) {}
+
+    if (t < 1) {
+      gCourierAnimFrame = requestAnimationFrame(step);
+    } else {
+      gCourierAnimFrame = null;
+      if (typeof callback === 'function') callback();
+    }
+  }
+
+  gCourierAnimFrame = requestAnimationFrame(step);
+}
+
+/**
+ * Apply real-time order state across all UI elements
+ * states: 'pending' | 'approved' | 'enroute' | 'arrived' | 'completed'
+ */
+function applyLiveOrderState(state, customData = {}) {
+  const isPl = (STATE && STATE.language === 'pl');
+  const order = customData || gActiveOrderData || {};
+  gActiveOrderData = order;
+
+  const resCode = order.orderCode || order.resCode || order.id || 'RLX-849201';
+  const staffInfo = (order.assignedStaff && typeof order.assignedStaff === 'object') ? order.assignedStaff : {
+    name: (typeof order.assignedStaff === 'string' && order.assignedStaff !== 'Atama Bekliyor') ? order.assignedStaff : 'Ayşe K. (Kıdemli Temizlik Uzmanı)',
+    phone: '0546 647 90 04',
+    rating: '4.98',
+    experience: '6 Yıl',
+    avatar: '👩‍💼',
+    plate: '34 RLX 2026',
+    distanceKm: '1.4 km',
+    etaMinutes: '12 dakika'
+  };
+
+  // Update Simulator active button
+  document.querySelectorAll('.lcm-sim-btn').forEach(btn => {
+    if (btn.dataset.simState === state) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+
+  // DOM Elements
+  const statusPill = document.getElementById('pendingStatusPill');
+  const statusPillText = document.getElementById('pendingStatusPillText');
+  const bubbleEl = document.getElementById('successStatusBubble');
+  const accTopBadgeTitle = document.getElementById('accTopBadgeTitle');
+  const accDistancePill = document.getElementById('accDistancePill');
+  const accCleanerAvatar = document.getElementById('accCleanerAvatar');
+  const accCleanerName = document.getElementById('accCleanerName');
+  const accCleanerRating = document.getElementById('accCleanerRating');
+  const accCleanerExp = document.getElementById('accCleanerExp');
+  const accCleanerLocation = document.getElementById('accCleanerLocation');
+  const accContactActions = document.getElementById('accContactActions');
+  const accCallBtn = document.getElementById('accCallBtn');
+  const accWaBtn = document.getElementById('accWaBtn');
+
+  // Map elements
+  const mapTitle = document.getElementById('lcmMapTitle');
+  const liveStatusText = document.getElementById('lcmLiveStatusText');
+  const speedBadge = document.getElementById('lcmVehicleSpeedBadge');
+  const etaValue = document.getElementById('lcmEtaValue');
+  const distanceValue = document.getElementById('lcmDistanceValue');
+  const equipValue = document.getElementById('lcmEquipValue');
+  const vehicleIcon = document.getElementById('lcmVehicleIcon');
+  const vehicleBadgeText = document.getElementById('lcmVehicleBadgeText');
+
+  // Modal elements
+  const otPillBadge = document.getElementById('otModalPillBadge');
+  const otPillText = document.getElementById('otModalPillText');
+  const otResCode = document.getElementById('otModalResCodeVal');
+  const otStaffName = document.getElementById('otModalStaffName');
+  const otEtaVal = document.getElementById('otModalEtaVal');
+  const otDistVal = document.getElementById('otModalDistVal');
+  const otCallBtn = document.getElementById('otModalCallBtn');
+  const otWaBtn = document.getElementById('otModalWaBtn');
+
+  if (otResCode) otResCode.textContent = `#${resCode}`;
+  if (otStaffName) otStaffName.textContent = staffInfo.name;
+
+  // Phone and WhatsApp links
+  const waCleanPhone = (staffInfo.phone || '05466479004').replace(/\D/g, '');
+  const waOrderMsg = encodeURIComponent(`Merhaba ${staffInfo.name}, #${resCode} numaralı temizlik siparişim hakkında bilgi almak istiyorum.`);
+  if (accCallBtn) accCallBtn.href = `tel:${staffInfo.phone || '05466479004'}`;
+  if (accWaBtn) accWaBtn.href = `https://wa.me/90${waCleanPhone}?text=${waOrderMsg}`;
+  if (otCallBtn) otCallBtn.href = `tel:${staffInfo.phone || '05466479004'}`;
+  if (otWaBtn) otWaBtn.href = `https://wa.me/90${waCleanPhone}?text=${waOrderMsg}`;
+
+  // Step Reset Helper
+  const setStepState = (prefix, activeUpto, pulseIndex) => {
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById(prefix + i);
+      if (!el) continue;
+      el.className = 'acc-step';
+      if (i <= activeUpto) el.classList.add('active');
+      if (i === pulseIndex) el.classList.add(pulseIndex === 2 && state === 'pending' ? 'pending-pulse' : 'pulse');
+    }
+  };
+
+  switch (state) {
+    case 'pending':
+      // 🟡 1. BEKLİYOR / İNCELENİYOR
+      if (bubbleEl) bubbleEl.textContent = '⏳';
+      if (statusPill) {
+        statusPill.style.background = 'rgba(251, 191, 36, 0.15)';
+        statusPill.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+        statusPill.style.color = '#fbbf24';
+      }
+      if (statusPillText) statusPillText.textContent = isPl ? 'OCZEKUJE NA POTWIERDZENIE DYSPOZYTORA' : 'YÖNETİCİ ONAYI BEKLENİYOR';
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = isPl ? 'DYSPOZYCJA W TOKU' : 'OPERASYON MERKEZİ ATAMA BEKLİYOR';
+      if (accDistancePill) accDistancePill.textContent = '⏳ Ortalama Onay: ~2-5 dk';
+      if (accCleanerAvatar) accCleanerAvatar.textContent = '⏳';
+      if (accCleanerName) accCleanerName.textContent = isPl ? 'Dobieranie personelu...' : 'Temizlik Uzmanı Atanıyor...';
+      if (accCleanerRating) accCleanerRating.textContent = '📋 Rezervasyon Masada İnceleniyor';
+      if (accCleanerExp) accCleanerExp.textContent = 'Canlı Radar Aktif';
+      if (accCleanerLocation) accCleanerLocation.textContent = '📍 Operasyon yöneticisi bölgenizdeki en uygun sertifikalı ekibi görevlendirdiğinde canlı takip ekranı aktifleşecektir.';
+      if (accContactActions) accContactActions.style.display = 'none';
+
+      // Map UI
+      if (mapTitle) mapTitle.textContent = 'EN YAKIN EKİP & SAHA MERKEZİ TARANIYOR';
+      if (liveStatusText) liveStatusText.textContent = 'RADAR TARAMASI AKTİF';
+      if (speedBadge) speedBadge.textContent = '0 km/s';
+      if (etaValue) etaValue.textContent = '~2-5 Dk (Onay)';
+      if (distanceValue) distanceValue.textContent = 'Merkez Taraması';
+      if (equipValue) equipValue.textContent = 'Rezerv Hazırlıkta';
+      if (vehicleIcon) vehicleIcon.textContent = '⏳';
+      if (vehicleBadgeText) vehicleBadgeText.textContent = 'RELAXAX Bölge Operasyon Masası';
+
+      if (otPillBadge) { otPillBadge.style.background = 'rgba(251, 191, 36, 0.15)'; otPillBadge.style.color = '#fbbf24'; }
+      if (otPillText) otPillText.textContent = 'YÖNETİCİ ONAYI BEKLENİYOR';
+      if (otEtaVal) otEtaVal.textContent = '~2-5 Dk';
+      if (otDistVal) otDistVal.textContent = 'Bölge Taraması';
+
+      setStepState('accStep', 1, 2);
+      setStepState('otStep', 1, 2);
+      animateCourierVehicle(0.08, 600);
+      break;
+
+    case 'approved':
+      // 🟢 2. ONAYLANDI & HAZIRLANIYOR
+      if (bubbleEl) bubbleEl.textContent = '✓';
+      if (statusPill) {
+        statusPill.style.background = 'rgba(16, 185, 129, 0.15)';
+        statusPill.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        statusPill.style.color = '#34d399';
+      }
+      if (statusPillText) statusPillText.textContent = isPl ? 'ZAMÓWIENIE ZATWIERDZONE' : 'SİPARİŞ ONAYLANDI & EKİPMAN YÜKLENİYOR';
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = isPl ? 'PERSONEL PRZYPISANY' : 'CANLI TEMİZLİK UZMANI EŞLEŞTİRİLDİ';
+      if (accDistancePill) accDistancePill.textContent = '📍 Yola Çıkış Hazırlığı Yapılıyor';
+      if (accCleanerAvatar) accCleanerAvatar.textContent = staffInfo.avatar || '👩‍💼';
+      if (accCleanerName) accCleanerName.textContent = staffInfo.name;
+      if (accCleanerRating) accCleanerRating.textContent = `★ ${staffInfo.rating || '4.98'} (142 Yorum)`;
+      if (accCleanerExp) accCleanerExp.textContent = `${staffInfo.experience || '6 Yıl'} Deneyim`;
+      if (accCleanerLocation) accCleanerLocation.textContent = '📍 Siparişiniz onaylandı! Saha ekibi buharlı dezenfeksiyon ekipmanlarını araca yükledi, adrese hareket etmek üzere.';
+      if (accContactActions) accContactActions.style.display = 'flex';
+
+      if (mapTitle) mapTitle.textContent = 'EKİP ONAYLANDI • ÇIKIŞ HAZIRLIĞI';
+      if (liveStatusText) liveStatusText.textContent = 'HAZIRLIK TAMAMLANDI';
+      if (speedBadge) speedBadge.textContent = 'Hazırlanıyor';
+      if (etaValue) etaValue.textContent = '~15 Dakika';
+      if (distanceValue) distanceValue.textContent = '1.8 km';
+      if (equipValue) equipValue.textContent = '140°C Buhar & HEPA Yüklü';
+      if (vehicleIcon) vehicleIcon.textContent = '🚗';
+      if (vehicleBadgeText) vehicleBadgeText.textContent = `${staffInfo.name} • ${staffInfo.plate || '34 RLX 2026'}`;
+
+      if (otPillBadge) { otPillBadge.style.background = 'rgba(16, 185, 129, 0.15)'; otPillBadge.style.color = '#34d399'; }
+      if (otPillText) otPillText.textContent = 'SİPARİŞ ONAYLANDI & HAZIRLANIYOR';
+      if (otEtaVal) otEtaVal.textContent = '~15 Dakika';
+      if (otDistVal) otDistVal.textContent = '1.8 km';
+
+      setStepState('accStep', 2, 3);
+      setStepState('otStep', 2, 3);
+      animateCourierVehicle(0.20, 800);
+      break;
+
+    case 'enroute':
+      // 🚗 3. EKİP / KURYE YOLDA (CANLI GPS TAKİBİ)
+      if (bubbleEl) bubbleEl.textContent = '🚗';
+      if (statusPill) {
+        statusPill.style.background = 'rgba(16, 185, 129, 0.2)';
+        statusPill.style.borderColor = 'rgba(16, 185, 129, 0.6)';
+        statusPill.style.color = '#34d399';
+      }
+      if (statusPillText) statusPillText.textContent = isPl ? 'EKIPA W DRODZE • ŚLEDZENIE GPS' : 'EKİP / KURYE YOLDA • CANLI GPS TAKİBİ';
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = 'CANLI EKİP SEYİR HALİNDE';
+      if (accDistancePill) accDistancePill.textContent = '⚡ Tahmini Varış: ~12 dk (1.4 km)';
+      if (accCleanerAvatar) accCleanerAvatar.textContent = staffInfo.avatar || '👩‍💼';
+      if (accCleanerName) accCleanerName.textContent = staffInfo.name;
+      if (accCleanerRating) accCleanerRating.textContent = `★ ${staffInfo.rating || '4.98'} (142 Yorum)`;
+      if (accCleanerExp) accCleanerExp.textContent = '6 Yıl Deneyim';
+      if (accCleanerLocation) accCleanerLocation.textContent = '📍 Temizlik aracı yolda. Navigasyon trafik durumuna göre en hızlı rotayı kullanıyor.';
+      if (accContactActions) accContactActions.style.display = 'flex';
+
+      if (mapTitle) mapTitle.textContent = 'CANLI EKİP & KURYE KONUMU';
+      if (liveStatusText) liveStatusText.textContent = 'CANLI GPS AKTİF';
+      if (speedBadge) speedBadge.textContent = '42 km/s';
+      if (etaValue) etaValue.textContent = '~12 Dakika';
+      if (distanceValue) distanceValue.textContent = '1.4 km';
+      if (equipValue) equipValue.textContent = 'Buharlı Dezenfektan Hazır';
+      if (vehicleIcon) vehicleIcon.textContent = '🚗';
+      if (vehicleBadgeText) vehicleBadgeText.textContent = `RELAXAX Mobil Ekip • ${staffInfo.plate || '34 RLX 2026'}`;
+
+      if (otPillBadge) { otPillBadge.style.background = 'rgba(16, 185, 129, 0.2)'; otPillBadge.style.color = '#34d399'; }
+      if (otPillText) otPillText.textContent = 'EKİP / KURYE YOLDA • CANLI GPS';
+      if (otEtaVal) otEtaVal.textContent = '~12 Dakika';
+      if (otDistVal) otDistVal.textContent = '1.4 km';
+
+      setStepState('accStep', 3, 3);
+      setStepState('otStep', 3, 3);
+      animateCourierVehicle(0.65, 1800);
+      break;
+
+    case 'arrived':
+      // 🏠 4. ADRESTE & TEMİZLİK BAŞLADI
+      if (bubbleEl) bubbleEl.textContent = '✨';
+      if (statusPill) {
+        statusPill.style.background = 'rgba(59, 130, 246, 0.2)';
+        statusPill.style.borderColor = 'rgba(59, 130, 246, 0.6)';
+        statusPill.style.color = '#60a5fa';
+      }
+      if (statusPillText) statusPillText.textContent = isPl ? 'PERSONEL NA MIEJSCU • SPRZĄTANIE ROZPOCZĘTE' : 'EKİP ADRESİNİZDE • TEMİZLİK BAŞLADI';
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = 'HİJYEN UZMANI ADRESE ULAŞTI';
+      if (accDistancePill) accDistancePill.textContent = '🏠 Kapınızda (0.0 km)';
+      if (accCleanerLocation) accCleanerLocation.textContent = '📍 Uzmanımız adresinize ulaşmış ve hijyen protokolü doğrultusunda temizliğe başlamıştır.';
+
+      if (mapTitle) mapTitle.textContent = 'ADRESE ULAŞILDI • TEMİZLİK BAŞLADI';
+      if (liveStatusText) liveStatusText.textContent = 'ADRESTE AKTİF';
+      if (speedBadge) speedBadge.textContent = '0 km/s';
+      if (etaValue) etaValue.textContent = 'Ulaşıldı';
+      if (distanceValue) distanceValue.textContent = '0.0 km (Kapıda)';
+      if (equipValue) equipValue.textContent = 'Buharlı Hijyen Aktif';
+      if (vehicleIcon) vehicleIcon.textContent = '✨';
+
+      if (otPillBadge) { otPillBadge.style.background = 'rgba(59, 130, 246, 0.2)'; otPillBadge.style.color = '#60a5fa'; }
+      if (otPillText) otPillText.textContent = 'EKİP ADRESİNİZDE • TEMİZLİK BAŞLADI';
+      if (otEtaVal) otEtaVal.textContent = 'Kapıda';
+      if (otDistVal) otDistVal.textContent = '0.0 km';
+
+      setStepState('accStep', 4, 4);
+      setStepState('otStep', 4, 4);
+      animateCourierVehicle(1.0, 1000);
+      break;
+
+    case 'completed':
+      // ⭐ 5. TAMAMLANDI
+      if (bubbleEl) bubbleEl.textContent = '🏆';
+      if (statusPill) {
+        statusPill.style.background = 'rgba(251, 191, 36, 0.2)';
+        statusPill.style.borderColor = 'rgba(251, 191, 36, 0.6)';
+        statusPill.style.color = '#fbbf24';
+      }
+      if (statusPillText) statusPillText.textContent = isPl ? 'USŁUGA ZAKOŃCZONA SUKCESEM' : 'HİZMET BAŞARIYLA TAMAMLANDI';
+      if (accTopBadgeTitle) accTopBadgeTitle.textContent = 'HİJYEN VE KALİTE KONTROL ONAYLANDI';
+      if (accDistancePill) accDistancePill.textContent = '⭐ %100 Memnuniyet Onaylı';
+      if (accCleanerLocation) accCleanerLocation.textContent = '📍 48 Nokta hijyen kontrolü eksiksiz tamamlanmış, eviniz tertemiz teslim edilmiştir.';
+
+      if (mapTitle) mapTitle.textContent = 'HİZMET TAMAMLANDI';
+      if (liveStatusText) liveStatusText.textContent = 'İŞLEM BAŞARILI';
+      if (speedBadge) speedBadge.textContent = 'Tamamlandı';
+      if (etaValue) etaValue.textContent = 'Eksiksiz';
+      if (distanceValue) distanceValue.textContent = 'Teslim Edildi';
+      if (equipValue) equipValue.textContent = 'Kalite Kontrol ✓';
+      if (vehicleIcon) vehicleIcon.textContent = '🏆';
+
+      if (otPillBadge) { otPillBadge.style.background = 'rgba(251, 191, 36, 0.2)'; otPillBadge.style.color = '#fbbf24'; }
+      if (otPillText) otPillText.textContent = 'HİZMET TAMAMLANDI';
+      if (otEtaVal) otEtaVal.textContent = 'Tamamlandı';
+      if (otDistVal) otDistVal.textContent = 'Teslim Edildi';
+
+      setStepState('accStep', 5, 5);
+      setStepState('otStep', 5, 5);
+      animateCourierVehicle(1.0, 500);
+
+      if (typeof window.playSuccessChime === 'function') window.playSuccessChime();
+      break;
+  }
+}
+
+/**
+ * Initialize simulation buttons on Live Courier Map
+ */
+function initLiveCourierRadarMap() {
+  const container = document.getElementById('liveCourierMapCard');
+  if (!container) return;
+
+  const simButtons = container.querySelectorAll('.lcm-sim-btn');
+  simButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const state = btn.dataset.simState;
+      applyLiveOrderState(state, gActiveOrderData || {});
+    });
+  });
+}
+
+/**
+ * Initialize dedicated Order Tracking Modal
+ */
+function setupOrderTrackingModal() {
+  const modal = document.getElementById('orderTrackingModal');
+  const navBtn = document.getElementById('cNavOrderTrackBtn');
+  const drawerBtn = document.getElementById('drawerOrderTrackItem');
+  const footerLink = document.getElementById('footerOrderTrackLink');
+  const closeBtn = document.getElementById('btnCloseOrderTrackModal');
+  const queryBtn = document.getElementById('btnQueryOrderTrack');
+  const inputCode = document.getElementById('orderTrackInputCode');
+
+  const openModal = (e) => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+
+    // Auto-fill latest booking if available
+    try {
+      const history = JSON.parse(localStorage.getItem('relaxax_booking_history') || '[]');
+      if (history.length > 0) {
+        const latest = history[0];
+        const code = latest.orderCode || latest.resCode || latest.id;
+        if (code && inputCode && !inputCode.value) {
+          inputCode.value = code;
+        }
+        applyLiveOrderState(latest.status === 'Onaylandı' ? 'enroute' : 'pending', latest);
+      } else {
+        applyLiveOrderState('enroute', { orderCode: 'RLX-849201' });
+      }
+    } catch(err) {
+      applyLiveOrderState('enroute', { orderCode: 'RLX-849201' });
+    }
+  };
+
+  const closeModal = (e) => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    if (!modal) return;
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  if (navBtn) navBtn.addEventListener('click', openModal);
+  if (drawerBtn) drawerBtn.addEventListener('click', openModal);
+  if (footerLink) footerLink.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // Handle Query Submit
+  const handleQuery = async () => {
+    const rawVal = inputCode ? inputCode.value.trim().toUpperCase() : '';
+    if (!rawVal) {
+      if (inputCode) inputCode.focus();
+      return;
+    }
+
+    if (queryBtn) {
+      queryBtn.innerHTML = '<span>Taranıyor... ⏳</span>';
+      queryBtn.disabled = true;
+    }
+
+    // Try fetching from /api/orders
+    let matchedOrder = null;
+    try {
+      const res = await fetch(`/api/orders?code=${encodeURIComponent(rawVal)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && data.order) {
+          matchedOrder = data.order;
+        }
+      }
+    } catch(err) {}
+
+    // Fallback: check localStorage
+    if (!matchedOrder) {
+      try {
+        const history = JSON.parse(localStorage.getItem('relaxax_booking_history') || '[]');
+        matchedOrder = history.find(item => {
+          const c = item.orderCode || item.resCode || item.id || '';
+          const p = (item.phone || item.customerPhone || '').replace(/\D/g, '');
+          const queryClean = rawVal.replace(/\D/g, '');
+          return c.toUpperCase().includes(rawVal) || (queryClean && p.includes(queryClean));
+        });
+      } catch(e) {}
+    }
+
+    // Default demonstration fallback if not found
+    if (!matchedOrder) {
+      matchedOrder = {
+        orderCode: rawVal.startsWith('RLX-') ? rawVal : `RLX-${rawVal}`,
+        status: 'Onaylandı',
+        assignedStaff: {
+          name: 'Ayşe K. (Kıdemli Temizlik Uzmanı)',
+          phone: '0546 647 90 04',
+          rating: '4.98',
+          experience: '6 Yıl',
+          avatar: '👩‍💼',
+          plate: '34 RLX 2026',
+          distanceKm: '1.4 km',
+          etaMinutes: '12 dakika'
+        }
+      };
+    }
+
+    setTimeout(() => {
+      if (queryBtn) {
+        queryBtn.innerHTML = '<span>Takip Et ➔</span>';
+        queryBtn.disabled = false;
+      }
+      applyLiveOrderState('enroute', matchedOrder);
+    }, 450);
+  };
+
+  if (queryBtn) queryBtn.addEventListener('click', handleQuery);
+  if (inputCode) {
+    inputCode.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleQuery();
+    });
+  }
+}
+
+// Global exposure
+window.applyLiveOrderStateGlobal = applyLiveOrderState;
+window.setupOrderTrackingModalGlobal = setupOrderTrackingModal;
+window.initLiveCourierRadarMapGlobal = initLiveCourierRadarMap;

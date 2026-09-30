@@ -6,22 +6,22 @@
 
 // Turkish & Polish Base Rates
 export const RATES_TR = {
-  roomBase: 450,
-  bathBase: 250,
-  minBase: 1450,
-  smallKitchenDiscount: 10,
-  villaMultiplier: 1.2,
-  duplexAddon: 150,
+  roomBase: 350,
+  bathBase: 350,
+  minBase: 1850,
+  smallKitchenDiscount: 150,
+  villaMultiplier: 1.25,
+  duplexAddon: 300,
   transferDiscountRate: 0.05
 };
 
 export const RATES_PL = {
-  roomBase: 65,
-  bathBase: 45,
-  minBase: 189,
-  smallKitchenDiscount: 5,
-  villaMultiplier: 1.2,
-  duplexAddon: 30,
+  roomBase: 49,
+  bathBase: 55,
+  minBase: 219,
+  smallKitchenDiscount: 20,
+  villaMultiplier: 1.25,
+  duplexAddon: 45,
   transferDiscountRate: 0.05
 };
 

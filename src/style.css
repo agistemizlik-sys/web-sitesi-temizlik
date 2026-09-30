@@ -24841,3 +24841,539 @@ body.flag-selection-mode,
   overflow: hidden !important;
 }
 
+
+
+/* ==========================================================================
+   📍 LIVE COURIER & ORDER TRACKING SYSTEM (CANLI KURYE & SİPARİŞ TAKİP SİSTEMİ)
+   ========================================================================== */
+
+.c-nav-track-btn {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  color: #34d399 !important;
+  font-weight: 700 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.c-nav-track-btn:hover {
+  background: rgba(16, 185, 129, 0.22) !important;
+  border-color: #34d399 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* 5-Step Order Journey Bar */
+.acc-5-steps {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+.acc-5-steps .acc-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.acc-5-steps .acc-step .acc-step-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.acc-5-steps .acc-step.active {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  font-weight: 700;
+}
+
+.acc-5-steps .acc-step.active.pulse {
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+  animation: stepPulseGlow 2s infinite ease-in-out;
+}
+
+.acc-5-steps .acc-step.pending-pulse {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
+  animation: stepPendingPulse 2s infinite ease-in-out;
+}
+
+@keyframes stepPulseGlow {
+  0%, 100% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); }
+  50% { border-color: rgba(16, 185, 129, 0.85); box-shadow: 0 0 18px rgba(16, 185, 129, 0.5); }
+}
+
+@keyframes stepPendingPulse {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 0 8px rgba(251, 191, 36, 0.2); }
+  50% { border-color: rgba(251, 191, 36, 0.85); box-shadow: 0 0 18px rgba(251, 191, 36, 0.5); }
+}
+
+/* 🗺️ Live Courier Map Card Container */
+.live-courier-map-card {
+  margin: 18px 0;
+  background: #0f172a;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  position: relative;
+  text-align: left;
+}
+
+.lcm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lcm-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lcm-radar-blip {
+  width: 10px;
+  height: 10px;
+  background: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 10px #10b981;
+  animation: radarBlipAnim 1.6s infinite ease-out;
+}
+
+@keyframes radarBlipAnim {
+  0% { transform: scale(0.9); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+  100% { transform: scale(0.9); opacity: 1; }
+}
+
+.lcm-header strong {
+  font-size: 0.88rem;
+  letter-spacing: 1.2px;
+  color: #f8fafc;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lcm-speed-badge {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.lcm-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.lcm-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+/* Map Viewport & SVG */
+.lcm-map-viewport {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lcm-map-svg {
+  width: 100%;
+  height: auto;
+  min-height: 250px;
+  display: block;
+}
+
+/* Animated Route Line */
+.lcm-route-animated {
+  animation: routeDashFlow 1.8s linear infinite;
+}
+
+@keyframes routeDashFlow {
+  from { stroke-dashoffset: 36; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Radar Wave Pulsing */
+.lcm-radar-wave {
+  animation: radarWaveExpand 2.4s infinite cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+@keyframes radarWaveExpand {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.lcm-radar-ring {
+  animation: radarRingPulse 2s infinite ease-in-out;
+  transform-origin: center;
+}
+
+@keyframes radarRingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.25); opacity: 0.7; }
+}
+
+/* Floating HUD Overlay */
+.lcm-hud-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.lcm-hud-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lcm-hud-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.lcm-hud-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.lcm-hud-text small {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lcm-hud-text strong {
+  font-size: 0.85rem;
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.lcm-hud-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Simulation State Switcher Bar */
+.lcm-status-controls {
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lcm-sim-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lcm-sim-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.lcm-sim-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.lcm-sim-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lcm-sim-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.lcm-sim-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.lcm-sim-btn.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   📍 DEDICATED ORDER & COURIER TRACKING MODAL (#orderTrackingModal)
+   ========================================================================== */
+
+.rx-order-track-card {
+  max-width: 820px !important;
+  width: 95% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  background: #0f172a !important;
+  border: 1px solid rgba(251, 191, 36, 0.3) !important;
+  border-radius: 20px !important;
+  padding: 24px !important;
+  color: #f8fafc !important;
+}
+
+.order-track-search-row {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+
+.ot-search-field {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ot-field-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.ot-text-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.ot-text-input:focus {
+  border-color: #fbbf24;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+}
+
+.ot-submit-query-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  color: #1c1917;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.ot-submit-query-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(251, 191, 36, 0.35);
+}
+
+.ot-modal-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ot-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.ot-code-badge {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px dashed rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.ot-modal-specialist-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+/* Mobile Responsiveness for Courier Map */
+@media (max-width: 768px) {
+  .acc-5-steps {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 4px !important;
+  }
+  .acc-5-steps .acc-step {
+    padding: 6px 2px !important;
+    font-size: 0.65rem !important;
+  }
+  .acc-5-steps .acc-step .acc-step-icon {
+    font-size: 1.0rem !important;
+  }
+  .lcm-hud-overlay {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+  .lcm-hud-sep {
+    display: none;
+  }
+  .lcm-hud-item {
+    gap: 6px;
+  }
+  .lcm-hud-text small {
+    font-size: 0.62rem;
+  }
+  .lcm-hud-text strong {
+    font-size: 0.78rem;
+  }
+  .order-track-search-row {
+    flex-direction: column;
+  }
+  .ot-submit-query-btn {
+    width: 100%;
+  }
+}
+
+
+/* Refine Order Tracking Modal Command Center Theme */
+.rx-order-track-card .rx-cmodal-header {
+  background: #0f172a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding-bottom: 14px !important;
+}
+
+.rx-order-track-card #orderTrackModalTitle {
+  color: #f8fafc !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  margin: 6px 0 4px !important;
+}
+
+.rx-order-track-card #orderTrackModalSubtitle {
+  color: #94a3b8 !important;
+  font-size: 0.88rem !important;
+}
+
+.rx-order-track-card #orderTrackModalBadge {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  color: #34d399 !important;
+}
+
+.rx-order-track-card .rx-cmodal-close-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #f8fafc !important;
+  border-radius: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.rx-order-track-card .rx-cmodal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.rx-order-track-card .ot-modal-specialist-box .acc-name-row h4 {
+  color: #f8fafc !important;
+}
+
+.rx-order-track-card .ot-modal-specialist-box .acc-rating,
+.rx-order-track-card .ot-modal-specialist-box .acc-exp {
+  color: #cbd5e1 !important;
+}
+
+.rx-order-track-card .ot-modal-specialist-box .acc-location {
+  color: #94a3b8 !important;
+}
