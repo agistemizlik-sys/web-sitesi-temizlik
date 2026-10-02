@@ -8257,6 +8257,7 @@ function setupCinemaEngine() {
 function openBookingScreen() {
   const bookingEl = document.getElementById('bookingReveal') || document.getElementById('booking-section');
   if (bookingEl) {
+    document.body.classList.add('booking-reveal-active', 'booking-open');
     bookingEl.removeAttribute('hidden');
     bookingEl.style.display = 'block';
     bookingEl.classList.add('active');
@@ -8783,6 +8784,7 @@ function navigateToStage(stage, shouldPush = true) {
       portalStage.style.display = 'none';
     }
     document.body.classList.remove('flag-selection-mode');
+    document.body.classList.add('booking-reveal-active', 'booking-open');
     
     if (mainContent) {
       mainContent.style.opacity = '1';
@@ -12835,45 +12837,76 @@ function setupVideoLoopEngineering() {
   });
 }
 
-// 🎬 IN-CARD VIDEO SCROLL PARALLAX ENGINE FOR BOOKING FORM CARDS 🎬
+// 🎬 IN-CARD LIVING VIDEO & SCROLL PARALLAX ENGINE FOR SERVICE & BOOKING CARDS 🎬
 function setupInCardVideoScrollEngine() {
-  const bookingScreen = document.getElementById('bookingReveal');
-  if (!bookingScreen) return;
+  const allCards = document.querySelectorAll('.wp-service-card, .wizard-section-card, .wizard-summary-card');
+  if (!allCards || allCards.length === 0) return;
 
   const cardVideoPairs = [];
-  const cards = bookingScreen.querySelectorAll('.wizard-section-card, .wizard-summary-card');
 
-  cards.forEach(card => {
-    const video = card.querySelector('.wizard-card-video-bg video');
+  allCards.forEach(card => {
+    const video = card.querySelector('.wp-sc-bg video, .wizard-card-video-bg video');
     if (video) {
       cardVideoPairs.push({ card, video });
       video.muted = true;
+      video.defaultMuted = true;
       video.playsInline = true;
       video.setAttribute('playsinline', '');
       video.setAttribute('webkit-playsinline', '');
       video.setAttribute('muted', '');
       video.setAttribute('loop', '');
+      video.setAttribute('preload', 'auto');
       video.playbackRate = 1.0;
     }
   });
 
   if (cardVideoPairs.length === 0) return;
 
+  // Viewport IntersectionObserver for battery-friendly, smooth playback across mobile & desktop
+  if (typeof IntersectionObserver !== 'undefined' && !window._inCardVideoObserver) {
+    window._inCardVideoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const video = entry.target.querySelector('.wp-sc-bg video, .wizard-card-video-bg video');
+        if (!video) return;
+        if (entry.isIntersecting && !document.hidden) {
+          if (video.paused) {
+            const p = video.play();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+          }
+        } else {
+          if (!video.paused) {
+            try { video.pause(); } catch(e) {}
+          }
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '100px 0px' });
+  }
+
+  if (window._inCardVideoObserver) {
+    cardVideoPairs.forEach(({ card }) => {
+      window._inCardVideoObserver.observe(card);
+    });
+  }
+
+  // Scroll parallax
   let ticking = false;
   const updateScrollParallax = () => {
-    const screenRect = bookingScreen.getBoundingClientRect();
-    const screenCenterY = screenRect.top + screenRect.height / 2;
+    const vh = window.innerHeight || 800;
+    const screenCenterY = vh / 2;
 
     cardVideoPairs.forEach(({ card, video }) => {
       const cardRect = card.getBoundingClientRect();
-      // Check if card is near or within the visible viewport of the booking modal
-      if (cardRect.bottom > screenRect.top - 80 && cardRect.top < screenRect.bottom + 80) {
+      if (cardRect.bottom > -80 && cardRect.top < vh + 80) {
         const cardCenterY = cardRect.top + cardRect.height / 2;
-        const diffFromCenter = (cardCenterY - screenCenterY) / (screenRect.height / 2);
-        // Subtle vertical parallax offset tied to scroll (-18px to +18px)
+        const diffFromCenter = (cardCenterY - screenCenterY) / (vh / 2);
         const clampedDiff = Math.max(-1.5, Math.min(1.5, diffFromCenter));
-        const translateY = clampedDiff * 18;
-        video.style.transform = `scale(1.08) translate3d(0, ${translateY.toFixed(1)}px, 0)`;
+        const translateY = clampedDiff * 14;
+
+        if (card.classList.contains('wp-service-card')) {
+          video.style.transform = `scale(1.05) translate3d(0, ${translateY.toFixed(1)}px, 0)`;
+        } else {
+          video.style.transform = `scale(1.08) translate3d(0, ${translateY.toFixed(1)}px, 0)`;
+        }
 
         if (video.paused && !document.hidden) {
           const p = video.play();
@@ -12895,16 +12928,30 @@ function setupInCardVideoScrollEngine() {
     }
   };
 
-  if (!bookingScreen._inCardScrollAttached) {
-    bookingScreen._inCardScrollAttached = true;
-    bookingScreen.addEventListener('scroll', onScroll, { passive: true });
+  if (!window._inCardScrollAttached) {
+    window._inCardScrollAttached = true;
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) updateScrollParallax();
+    });
   }
 
-  // Initial calculation
+  const bookingScreen = document.getElementById('bookingReveal');
+  if (bookingScreen && !bookingScreen._inCardScrollAttached) {
+    bookingScreen._inCardScrollAttached = true;
+    bookingScreen.addEventListener('scroll', onScroll, { passive: true });
+  }
+
   updateScrollParallax();
 }
 window.setupInCardVideoScrollEngine = setupInCardVideoScrollEngine;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupInCardVideoScrollEngine);
+} else {
+  setupInCardVideoScrollEngine();
+}
 
 function setupHolographicClickRipples() {
   // Global hover micro-ticks using mouseover capturing
