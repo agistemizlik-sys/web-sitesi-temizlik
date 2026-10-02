@@ -1606,7 +1606,7 @@ function applyBookingTranslations(dict, lang) {
     // Sticky Checkout Bar
     const stickyPayLabel = document.querySelector('.sticky-checkout-price-info .sticky-pay-label, .wizard-price-checkout-box .p-label');
     const stickyOrderBtn = document.querySelector('#stickyCompleteOrderBtn, .sticky-checkout-btn');
-    if (stickyPayLabel) stickyPayLabel.textContent = lang === 'en' ? 'Total to Pay:' : (lang === 'pl' ? 'Do zapłaty:' : (lang === 'uk' ? 'До сплати:' : 'Ödenecek Tutar:'));
+    if (stickyPayLabel) stickyPayLabel.textContent = lang === 'en' ? 'Pay upon completion:' : (lang === 'pl' ? 'Do zapłaty po usłudze:' : (lang === 'uk' ? 'До сплати після прибирання:' : 'Hizmet Bitiminde Ödenecek:'));
     if (stickyOrderBtn) {
       stickyOrderBtn.innerHTML = `<span>${lang === 'en' ? 'Complete Order ➔' : (lang === 'pl' ? 'Złóż Zamówienie ➔' : (lang === 'uk' ? 'Завершити Замовлення ➔' : 'Siparişi Tamamla ➔'))}</span>`;
     }
@@ -1614,10 +1614,10 @@ function applyBookingTranslations(dict, lang) {
     const mStickyLbl = document.querySelector('#mobileStickyBar .m-sticky-lbl');
     const mStickyBtn = document.querySelector('#mobileStickyBar .m-sticky-btn span');
     if (mStickyLbl) mStickyLbl.textContent = lang === 'en' ? 'Total to Pay:' : (lang === 'pl' ? 'Do zapłaty:' : (lang === 'uk' ? 'До сплати:' : 'Ödenecek Tutar:'));
-    if (mStickyBtn) mStickyBtn.textContent = lang === 'en' ? 'Complete Order ➔' : (lang === 'pl' ? 'Złóż Zamówienie ➔' : (lang === 'uk' ? 'Завершити Замовлення ➔' : 'Siparişi Tamamla ➔'));
+    if (mStickyBtn) mStickyBtn.textContent = lang === 'en' ? 'Confirm Reservation ➔' : (lang === 'pl' ? 'Potwierdź rezerwację ➔' : (lang === 'uk' ? 'Підтвердити ➔' : 'Rezervasyonu Onayla ➔'));
 
     const btnSubmitBookingSpan = document.querySelector('#btnSubmitBooking span');
-    if (btnSubmitBookingSpan) btnSubmitBookingSpan.textContent = lang === 'en' ? 'Complete Order ➔' : (lang === 'pl' ? 'Złóż Zamówienie ➔' : (lang === 'uk' ? 'Завершити Замовлення ➔' : 'Siparişi Tamamla ➔'));
+    if (btnSubmitBookingSpan) btnSubmitBookingSpan.textContent = lang === 'en' ? '🗓️ Confirm Reservation (No Upfront Payment) ➔' : (lang === 'pl' ? '🗓️ Zarezerwuj bez opłat ➔' : (lang === 'uk' ? '🗓️ Підтвердити бронювання ➔' : '🗓️ Rezervasyonu Onayla (Ön Ödemesiz) ➔'));
 
     const bookingSoundBtns = document.querySelectorAll('.sound-text');
     bookingSoundBtns.forEach(sBtn => {
@@ -3354,13 +3354,14 @@ function setupPortalIntroClick() {
   const introStage = document.getElementById('portal-intro-stage');
   const canvas = document.getElementById('portalIntroCanvas');
   const video = document.getElementById('portalIntroVideo');
-  const poster = document.getElementById('portalIntroPoster');
   const progressBar = document.getElementById('sjhProgressBar');
   const hudText = document.getElementById('sjhText');
   const hud = document.getElementById('scrollJourneyHud');
+  const navPills = document.querySelectorAll('.room-nav-pill');
   
   if (!introStage) return;
 
+  const isMobile = window.innerWidth <= 768;
   const ctx = canvas ? canvas.getContext('2d') : null;
   let entranceTriggered = false;
 
@@ -3401,7 +3402,6 @@ function setupPortalIntroClick() {
   // ── High-DPI Canvas Scaling ──
   const resizeCanvas = () => {
     if (!canvas) return;
-    const isMobile = window.innerWidth <= 768;
     const maxDpr = isMobile ? 1.5 : 2.0;
     const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     const targetW = Math.round(window.innerWidth * dpr);
@@ -3429,9 +3429,9 @@ function setupPortalIntroClick() {
   resizeCanvas();
 
   // ── Multi-Depth Photorealistic Sunlight Bokeh Particles ──
-  const atmosphericMotes = Array.from({ length: 36 }, (_, i) => {
+  const atmosphericMotes = Array.from({ length: 32 }, (_, i) => {
     const isForeground = i < 8;
-    const isMidground = i >= 8 && i < 24;
+    const isMidground = i >= 8 && i < 20;
     return {
       x: 0.10 + Math.random() * 0.80,
       y: 0.08 + Math.random() * 0.84,
@@ -3467,47 +3467,49 @@ function setupPortalIntroClick() {
     }
   };
 
-  // ── VIDEO PLAYBACK & UNLOCK ENGINE ──
+  // ── SCROLL-BOUND VIDEO SCRUBBING ENGINE ──
   if (video) {
     video.muted = true;
     video.playsInline = true;
-    video.loop = true;
-    video.autoplay = true;
+    video.autoplay = false;
+    video.loop = false;
+    video.pause();
 
-    const startPlayback = () => {
-      const p = video.play();
-      if (p !== undefined) {
-        p.then(() => {
-          triggerEntranceOnce();
-          if (poster) poster.style.opacity = '0';
-        }).catch(() => {});
-      }
-    };
+    // Select optimal intra-frame video according to device capability
+    const optimalSrc = isMobile ? '/videos/hero_scrub_mobile.mp4' : '/videos/hero_scrub.mp4';
+    if (!video.src || !video.src.includes('hero_scrub')) {
+      video.src = optimalSrc;
+    }
+    video.load();
 
-    startPlayback();
-    video.addEventListener('canplay', startPlayback, { once: true });
-    video.addEventListener('loadeddata', startPlayback, { once: true });
-    video.addEventListener('playing', () => {
+    const onMeta = () => {
+      video.pause();
+      video.currentTime = 0.05;
+      renderFrame(0, 0, performance.now());
       triggerEntranceOnce();
-      if (poster) poster.style.opacity = '0';
-    });
-
-    const onUserWake = () => {
-      startPlayback();
-      window.removeEventListener('touchstart', onUserWake);
-      window.removeEventListener('click', onUserWake);
-      window.removeEventListener('scroll', onUserWake);
     };
-    window.addEventListener('touchstart', onUserWake, { passive: true });
-    window.addEventListener('click', onUserWake, { passive: true });
-    window.addEventListener('scroll', onUserWake, { passive: true });
+
+    if (video.readyState >= 1) {
+      onMeta();
+    } else {
+      video.addEventListener('loadedmetadata', onMeta, { once: true });
+    }
   }
 
   // ── ULTRA-FLUID FRAME RENDERER WITH PARTICLES & OVERLAYS ──
   const renderFrame = (progress, velocity = 0, now = performance.now()) => {
     if (triggered) return;
 
-    // 1. Draw Golden Sunlight Dust Motes over the 4K Video
+    // 1. Scrub Video Directly Tied to Scroll Progress (Instantaneous Keyframe Seek)
+    if (video && video.duration) {
+      const dur = video.duration;
+      const targetTime = Math.max(0, Math.min(dur - 0.04, progress * dur));
+      if (Math.abs(video.currentTime - targetTime) > 0.015) {
+        video.currentTime = targetTime;
+      }
+    }
+
+    // 2. Draw Golden Sunlight Dust Motes over the Video
     if (ctx && canvas) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -3540,35 +3542,49 @@ function setupPortalIntroClick() {
       ctx.globalAlpha = 1.0;
     }
 
-    // 2. Dynamic Video Steadicam & Inertia
-    if (video) {
-      if (!video.paused) {
-        const targetRate = Math.max(0.85, Math.min(2.0, 1.0 + Math.abs(velocity) * 1.2));
-        video.playbackRate = targetRate;
-      }
+    // 3. Subtle Steadicam 3D Drift for Cinematic Immersion
+    if (video && (!introStage.classList.contains('hero-entrance-active') || progress > 0.02)) {
+      const nowSec = now * 0.0012;
+      const forwardPunch = Math.max(-0.015, Math.min(0.035, velocity * 0.12));
+      const pathScale = 1.0 + Math.sin(progress * Math.PI) * 0.025;
+      const breathY = Math.sin(nowSec * 1.1) * 1.2;
+      const breathScale = 1.0 + Math.sin(nowSec * 0.8) * 0.001;
 
-      if (!introStage.classList.contains('hero-entrance-active') || progress > 0.02) {
-        const nowSec = now * 0.0012;
-        const forwardPunch = Math.max(-0.015, Math.min(0.035, velocity * 0.12));
-        const pathScale = 1.0 + Math.sin(progress * Math.PI) * 0.03;
-        const breathY = Math.sin(nowSec * 1.1) * 1.4;
-        const breathScale = 1.0 + Math.sin(nowSec * 0.8) * 0.0012;
+      const totalScale = (pathScale + forwardPunch) * breathScale;
+      const swayX = Math.sin(progress * Math.PI * 4 + nowSec * 0.6) * 1.5;
+      const swayY = Math.sin(progress * Math.PI * 2) * 3.0 + breathY;
+      const rollDeg = Math.sin(progress * Math.PI * 2) * 0.12 + (velocity * 0.15);
 
-        const totalScale = (pathScale + forwardPunch) * breathScale;
-        const swayX = Math.sin(progress * Math.PI * 4 + nowSec * 0.6) * 1.8;
-        const swayY = Math.sin(progress * Math.PI * 2) * 3.5 + breathY;
-        const rollDeg = Math.sin(progress * Math.PI * 2) * 0.15 + (velocity * 0.2);
-
-        video.style.transform = `scale(${totalScale.toFixed(4)}) translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) rotate(${rollDeg.toFixed(3)}deg)`;
-      }
+      video.style.transform = `scale(${totalScale.toFixed(4)}) translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) rotate(${rollDeg.toFixed(3)}deg)`;
     }
 
-    // Hide poster once video is active
-    if (poster && poster.style.opacity !== '0' && video && (video.currentTime > 0 || video.readyState >= 2)) {
-      poster.style.opacity = '0';
+    // 4. Update Scroll HUD & Room Nav Pills
+    if (progressBar) {
+      progressBar.style.width = Math.round(progress * 100) + '%';
+    }
+    if (hudText) {
+      if (progress < 0.32) {
+        hudText.textContent = 'AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN';
+      } else if (progress < 0.65) {
+        hudText.textContent = 'SALON & MERDİVEN ALANINDASINIZ';
+      } else {
+        hudText.textContent = 'YEMEK & TERAS BÖLÜMÜNDESİNİZ';
+      }
+    }
+    if (hud) {
+      hud.style.opacity = progress > 0.94 ? String(Math.max(0, (1.0 - progress) * 16)) : '1';
     }
 
-    // 3. Optical Editorial Room Overlays with Clean Discrete Intervals
+    navPills.forEach(pill => {
+      const room = pill.getAttribute('data-room');
+      let active = false;
+      if (room === 'foyer' && progress < 0.32) active = true;
+      if (room === 'living' && progress >= 0.32 && progress < 0.65) active = true;
+      if (room === 'dining' && progress >= 0.65) active = true;
+      pill.classList.toggle('is-active', active);
+    });
+
+    // 5. Optical Editorial Room Overlays with Clean Discrete Intervals
     const updateRoomOverlay = (cardId, p, start, enterPeak, exitStart, end) => {
       const card = document.getElementById(cardId);
       if (!card) return;
@@ -3700,7 +3716,7 @@ function setupPortalIntroClick() {
   };
   window.addEventListener('wheel', onWheel, { passive: true });
 
-  // ── DOCUMENT SCROLL SCRUBBER ──
+  // ── DOCUMENT SCROLL SCRUBBER (DIRECT ZERO-LATENCY FRAME SYNC) ──
   const handleScrollScrub = () => {
     const heroTrack = document.getElementById('book-scroll-hero-track');
     if (!heroTrack) return;
@@ -3710,52 +3726,29 @@ function setupPortalIntroClick() {
     const maxScroll = trackH - vH;
     if (maxScroll <= 0) return;
     
-    const scrolled = -rect.top;
+    // Direct 1-to-1 normalized progress based on actual scroll position
+    const scrolled = Math.max(0, -rect.top);
     const progress = Math.max(0, Math.min(1.0, scrolled / maxScroll));
     targetProgress = progress;
-    startPhysicsLoop();
+    currentProgress = progress;
+    currentVelocity = 0;
+
+    renderFrame(progress, 0, performance.now());
   };
+
   window.addEventListener('scroll', handleScrollScrub, { passive: true });
+  window.addEventListener('resize', handleScrollScrub, { passive: true });
 
-  // ── TOUCH DRAG HANDLERS (MOBILE) ──
-  let touchStartY = 0;
-  let isTouching = false;
-  let touchMoved = false;
-  let touchTotalDist = 0;
-
-  const onTouchStart = (e) => {
-    if (e.touches && e.touches[0]) {
-      touchStartY = e.touches[0].clientY;
-      isTouching = true;
-      touchMoved = false;
-      touchTotalDist = 0;
-    }
-  };
-
-  const onTouchMove = (e) => {
-    if (!isTouching || !e.touches || !e.touches[0] || triggered) return;
-    const currentY = e.touches[0].clientY;
-    const deltaY = touchStartY - currentY;
-    touchTotalDist += Math.abs(deltaY);
-    if (touchTotalDist > 6) touchMoved = true;
-    const denominator = Math.max(850, (window.innerHeight || 800) * 1.4);
-    const step = (deltaY / denominator) * 0.9;
-    targetProgress = Math.max(0, Math.min(1.0, targetProgress + step));
-    touchStartY = currentY;
-    startPhysicsLoop();
-  };
-
-  const onTouchEnd = () => {
-    if (!touchMoved && !triggered && targetProgress < 0.75) {
-      targetProgress = Math.min(1.0, targetProgress + 0.18);
-      startPhysicsLoop();
-    }
-    isTouching = false;
-  };
-
-  window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, { passive: true });
-  window.addEventListener('touchend', onTouchEnd, { passive: true });
+  // Attach quick room pill navigation
+  navPills.forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const room = pill.getAttribute('data-room');
+      if (room === 'foyer') window._setProgress(0.10);
+      else if (room === 'living') window._setProgress(0.48);
+      else if (room === 'dining') window._setProgress(0.82);
+    });
+  });
 
   // ── KEYBOARD HANDLER ──
   const onKeyDown = (e) => {
@@ -9083,7 +9076,7 @@ function updatePriceSliderDisplay() {
   let finalNetTotal = (baseCalc * freqDiscountRate) + extraSum;
 
   // Payment Method Discount (%5 discount for bank transfer / Havale / EFT / BLIK / FAST)
-  const currentPayMethod = document.getElementById('payMethodInput')?.value || 'transfer';
+  const currentPayMethod = document.getElementById('payMethodInput')?.value || 'cash';
   if (currentPayMethod === 'transfer' || currentPayMethod === 'blik' || currentPayMethod === 'fast') {
     finalNetTotal *= 0.95;
   }
@@ -11676,7 +11669,7 @@ function setupBookingReveal() {
       return;
     }
 
-    const selectedPayMethod = document.getElementById('payMethodInput')?.value || 'transfer';
+    const selectedPayMethod = document.getElementById('payMethodInput')?.value || 'cash';
 
     const paymentMeta = {
       method: selectedPayMethod,
