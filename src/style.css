@@ -25612,3 +25612,174 @@ body.flag-selection-mode,
   }
 }
 
+/* ========================================================
+   CLEAN HERO VIDEO STAGE (REMOVAL OF BUTTONS & PROMPTS)
+   ======================================================== */
+.room-actions-row,
+#heroRoomNavPills,
+.hero-room-nav-pills,
+#scrollJourneyHud,
+.scroll-journey-hud,
+#portalSkipBtn,
+.portal-skip-btn {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ========================================================
+   CINEMATIC HERO EXIT TRANSITION PORTAL (NON-PLAIN LUXURY DISSOLVE)
+   ======================================================== */
+.hero-exit-transition-portal {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+  overflow: hidden;
+  will-change: opacity, transform;
+}
+
+.hero-exit-transition-portal.is-visible {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.exit-portal-backdrop-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 75% at 50% 50%, rgba(251, 191, 36, 0.25) 0%, rgba(15, 23, 42, 0.88) 55%, #080c14 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+.exit-portal-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 580px;
+  width: 90%;
+  margin: 0 auto;
+  padding: clamp(28px, 4.5vw, 48px) clamp(22px, 4.5vw, 44px);
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(251, 191, 36, 0.4);
+  border-radius: 28px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 45px rgba(251, 191, 36, 0.22);
+  transform: translateY(24px) scale(0.96);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-exit-transition-portal.is-visible .exit-portal-content {
+  transform: translateY(0) scale(1);
+}
+
+.exit-portal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fbbf24;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.72rem, 1.1vw, 0.84rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.exit-portal-heading {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fdfbf7;
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+}
+
+.exit-portal-gradient {
+  background: linear-gradient(135deg, #fbbf24 0%, #fef3c7 45%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.exit-portal-sub {
+  color: rgba(245, 240, 235, 0.88);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(0.85rem, 1.2vw, 1.02rem);
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+.exit-portal-beam-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.exit-portal-arrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.15));
+  border: 1.5px solid rgba(251, 191, 36, 0.65);
+  color: #fbbf24;
+  padding: 11px 26px;
+  border-radius: 9999px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(0.82rem, 1.2vw, 0.92rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(251, 191, 36, 0.25);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.exit-portal-arrow-pill:hover {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.38), rgba(245, 158, 11, 0.28));
+  border-color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(251, 191, 36, 0.45);
+}
+
+.exit-beam-arrow {
+  animation: exitBeamBounce 1.4s ease-in-out infinite;
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+@keyframes exitBeamBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@media (max-width: 768px) {
+  .exit-portal-content {
+    padding: 24px 18px !important;
+    border-radius: 22px !important;
+  }
+  .exit-portal-heading {
+    font-size: 1.45rem !important;
+  }
+  .exit-portal-sub {
+    font-size: 0.82rem !important;
+    margin-bottom: 18px !important;
+  }
+}
+

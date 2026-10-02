@@ -449,31 +449,6 @@
           </div>
           <h1 class="room-title">Evinize Hak Ettiği Özen.<br/><span class="room-gradient">Detaylı ve Güvenilir.</span></h1>
           <p class="room-desc">Rezidans ve yaşam alanlarınız için deneyimli ekiplerle özenli, hijyenik ve güvenilir temizlik.</p>
-          
-          <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn" id="heroPrimaryCtaBtn" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
-              <span class="cta-shimmer"></span>
-              <span class="cta-icon">✨</span>
-              <span>Randevu Oluştur &amp; Fiyat Hesapla</span>
-              <span class="cta-arrow">➔</span>
-            </button>
-          </div>
-
-          <!-- Quick Interactive Room Jump Pills -->
-          <div class="hero-room-nav-pills" id="heroRoomNavPills" aria-label="Yaşam Alanları">
-            <button type="button" class="room-nav-pill is-active" data-room="foyer" onclick="window._setProgress(0.12);" title="Salona Geç">
-              <span class="r-icon">🛋️</span>
-              <span>Giriş &amp; Salon</span>
-            </button>
-            <button type="button" class="room-nav-pill" data-room="living" onclick="window._setProgress(0.48);" title="Merdiven & Galeriye Geç">
-              <span class="r-icon">🏛️</span>
-              <span>Merdiven &amp; Yaşam Alanı</span>
-            </button>
-            <button type="button" class="room-nav-pill" data-room="dining" onclick="window._setProgress(0.85);" title="Yemek & Terasa Geç">
-              <span class="r-icon">🌿</span>
-              <span>Yemek &amp; Teras</span>
-            </button>
-          </div>
         </div>
 
         <!-- Room Card 2: Living Room & Panoramic Windows (36% - 66%) -->
@@ -485,13 +460,6 @@
           </div>
           <h2 class="room-title">Her Detayda Hijyen.<br/><span class="room-gradient">Tertemiz Yüzeyler.</span></h2>
           <p class="room-desc">Mermer zeminlerden panoramik camlara kadar tüm yüzeylerde özenli ve derinlemesine bakım.</p>
-          <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn secondary" onclick="if(typeof openBookingScreen==='function'){openBookingScreen();}else{document.getElementById('bookingReveal')?.scrollIntoView({behavior:'smooth'});}">
-              <span class="cta-icon">✨</span>
-              <span>Detaylı Temizlik Seç &amp; Randevu Al</span>
-              <span class="cta-arrow">➔</span>
-            </button>
-          </div>
         </div>
 
         <!-- Room Card 3: Residence & Villa Hygiene (70% - 96%) -->
@@ -503,33 +471,29 @@
           </div>
           <h2 class="room-title">Ferah ve Taze.<br/><span class="room-gradient">Eksiksiz Temizlik.</span></h2>
           <p class="room-desc">Buharlı hijyen ve titiz dokunuşlarla tertemiz, sağlıklı ve huzurlu yaşam alanları.</p>
-          <div class="room-actions-row">
-            <button type="button" class="hero-primary-cta-btn secondary" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});">
-              <span class="cta-icon">🗺️</span>
-              <span>Tüm Hizmetleri İncele</span>
-              <span class="cta-arrow">➔</span>
-            </button>
+        </div>
+      </div>
+
+      <!-- Luxury Downward Exit Transition Portal (Triggered as video completes at 86%-100%) -->
+      <div class="hero-exit-transition-portal" id="heroExitPortal" aria-hidden="true">
+        <div class="exit-portal-backdrop-glow"></div>
+        <div class="exit-portal-content">
+          <div class="exit-portal-eyebrow">
+            <span class="ep-sparkle">✦</span>
+            <span>RELAXAX SIGNATURE PROTOCOL</span>
+            <span class="ep-sparkle">✦</span>
+          </div>
+          <h2 class="exit-portal-heading">Ayrıcalıklı Yaşam Alanlarına<br/><span class="exit-portal-gradient">Hoş Geldiniz</span></h2>
+          <p class="exit-portal-sub">5 Yıldızlı Otel Kalitesinde Kusursuz Hijyen &amp; Butik Temizlik Hizmetleri</p>
+          <div class="exit-portal-beam-wrapper">
+            <div class="exit-portal-arrow-pill" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});" role="button" tabindex="0">
+              <span class="exit-beam-icon">✨</span>
+              <span class="exit-beam-text">Hizmetlerimizi Keşfedin</span>
+              <span class="exit-beam-arrow">↓</span>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Scroll Progress HUD & Prompt -->
-      <div class="scroll-journey-hud" id="scrollJourneyHud">
-        <div class="sjh-badge" onclick="window._setProgress(0.40);">
-          <span class="sjh-icon">🏠</span>
-          <span id="sjhText">AŞAĞI KAYDIRARAK EVİN İÇİNDE İLERLEYİN</span>
-          <span class="sjh-arrow">↓</span>
-        </div>
-        <div class="sjh-progress-bar-wrap">
-          <div id="sjhProgressBar" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <!-- Direct Skip / Explore Cities Button -->
-      <button type="button" class="portal-skip-btn" id="portalSkipBtn" onclick="document.getElementById('servicesSection')?.scrollIntoView({behavior:'smooth'});" aria-label="Turu Geç">
-        <span>Hizmetleri İncele</span>
-        <span class="skip-arrow">➔</span>
-      </button>
     </div>
   </div>
   

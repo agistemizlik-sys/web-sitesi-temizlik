@@ -15,7 +15,7 @@ import { initCyberLoopEngine } from './js/modules/cyberLoopEngine.js';
 import { secureFetch, getCsrfToken } from './js/modules/csrfEngine.js';
 import { initPushEngine, requestNotificationPermission, showLocalNotification } from './js/modules/pushEngine.js';
 import { initHygieneCertificateEngine, openHygieneCertificate } from './js/modules/hygieneCertificateEngine.js';
-import { initVipConciergeEngine, openVipConciergeModal } from './js/modules/vipConcierge.js';
+import { initVipConciergeEngine, openVipConciergeModal, closeVipConciergeModal } from './js/modules/vipConcierge.js';
 import { initHardwareBooster, probeGpuHardware } from './js/modules/hardwareBooster.js';
 import { initVoiceAssistantEngine, toggleVoiceAssistantHud, askVoiceTopic } from './js/modules/voiceAssistant.js';
 import { initDebugHardening, logDebug, logWarnDebug, logErrorDebug, toggleDiagnosticsHUD, runPerformanceBenchmark, exportDebugReport } from './js/modules/debugEngine.js';
@@ -35,6 +35,7 @@ window.closeCorporateModal = closeModal;
 window.openLegalModal = openLegalModal;
 window.openHygieneCertificate = openHygieneCertificate;
 window.openVipConciergeModal = openVipConciergeModal;
+window.closeVipConciergeModal = closeVipConciergeModal;
 window.toggleVoiceAssistantHud = toggleVoiceAssistantHud;
 window.askVoiceTopic = askVoiceTopic;
 window.initHardwareBooster = initHardwareBooster;
@@ -3627,8 +3628,38 @@ function setupPortalIntroClick() {
     updateRoomOverlay('roomCard1', progress, 0.00, 0.00, 0.20, 0.28);
     // Card 2: Living Room & Panoramic Windows (0.32 to 0.62, peak: 0.38 - 0.54)
     updateRoomOverlay('roomCard2', progress, 0.32, 0.38, 0.54, 0.62);
-    // Card 3: Residence & Villa Hygiene (0.66 to 0.96, peak: 0.72 - 0.88)
-    updateRoomOverlay('roomCard3', progress, 0.66, 0.72, 0.88, 0.96);
+    // Card 3: Residence & Villa Hygiene (0.66 to 0.88, peak: 0.72 - 0.82)
+    updateRoomOverlay('roomCard3', progress, 0.66, 0.72, 0.82, 0.88);
+
+    // 6. Cinematic Downward Exit Transition Animation (Progress 0.86 to 1.00)
+    const exitPortal = document.getElementById('heroExitPortal');
+    if (exitPortal) {
+      if (progress >= 0.86) {
+        const rawT = (progress - 0.86) / 0.14;
+        const exitT = Math.min(1.0, Math.max(0, rawT * rawT * (3 - 2 * rawT)));
+        exitPortal.classList.add('is-visible');
+        exitPortal.style.opacity = exitT.toFixed(3);
+
+        const cardContent = exitPortal.querySelector('.exit-portal-content');
+        if (cardContent) {
+          const moveY = (1.0 - exitT) * 25;
+          const scaleVal = 0.94 + (exitT * 0.06);
+          cardContent.style.transform = `translateY(${moveY.toFixed(1)}px) scale(${scaleVal.toFixed(3)})`;
+        }
+
+        if (video) {
+          const exitBlur = exitT * 8.0;
+          const exitBrightness = 1.0 - (exitT * 0.35);
+          video.style.filter = exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px) brightness(${exitBrightness.toFixed(2)})` : 'none';
+        }
+      } else {
+        exitPortal.classList.remove('is-visible');
+        exitPortal.style.opacity = '0';
+        if (video) {
+          video.style.filter = 'none';
+        }
+      }
+    }
   };
 
   // ── SECOND-ORDER DAMPED SPRING PHYSICS ENGINE (MOMENTUM & INERTIA) ──
